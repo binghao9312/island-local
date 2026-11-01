@@ -34,6 +34,7 @@ describe('updater contracts', () => {
       releaseNotes?: string;
       currentVersion?: string;
       error?: string;
+      disabled?: boolean;
     }>();
     const fixture: UpdaterCheckResult = { available: false, version: 'sample', releaseNotes: 'sample', currentVersion: 'sample', error: 'sample' };
     expect(fixture).toBeDefined();

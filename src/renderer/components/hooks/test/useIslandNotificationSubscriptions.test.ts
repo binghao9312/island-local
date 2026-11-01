@@ -79,6 +79,8 @@ async function mount(): Promise<void> {
 async function emit(name: string, data: unknown): Promise<void> {
   const listener = listeners.get(name); expect(listener).toBeDefined(); listener?.(data); await settle();
 }
+// 这些用例覆盖更新实现本身，需要开启更新总开关。
+vi.mock('../../../../shared/updatesConfig', () => ({ UPDATES_ENABLED: true }));
 describe('useIslandNotificationSubscriptions 实际订阅与通知', () => {
   it('播放源切换通知保留标题、来源与源标识', async () => {
     await mount(); await emit('onSourceSwitchRequest', { title: 'Song', artist: 'Artist', sourceAppId: 'player.exe' });

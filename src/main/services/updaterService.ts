@@ -27,6 +27,7 @@
 
 import { BrowserWindow, ipcMain } from 'electron';
 import type { AppUpdater, UpdateInfo } from 'electron-updater';
+import { UPDATES_ENABLED } from '../../shared/updatesConfig';
 
 interface InitUpdaterServiceOptions {
   updater: AppUpdater;
@@ -119,12 +120,17 @@ export function initUpdaterService(options: InitUpdaterServiceOptions): void {
   });
 
   setTimeout(() => {
-    const enabled = options.shouldAutoPromptUpdate ? options.shouldAutoPromptUpdate() : true;
-    if (!enabled) {
-      console.log('[Updater] startup auto-check skipped by setting (update-auto-prompt-enabled=false)');
-      return;
+    if (UPDATES_ENABLED) {
+      const enabled = options.shouldAutoPromptUpdate ? options.shouldAutoPromptUpdate() : true;
+      if (!enabled) {
+        console.log('[Updater] startup auto-check skipped by setting (update-auto-prompt-enabled=false)');
+        return;
+      }
+      console.log('[Updater] startup auto-check requested, waiting renderer pre-check flow...');
+    } else {
+      // 更新检测关闭时仍通知渲染进程启动流程（天气预警依赖该信号），渲染进程会跳过全部更新网络请求。
+      console.log('[Updater] release detection disabled (UPDATES_ENABLED=false), startup signal sent without update check');
     }
-    console.log('[Updater] startup auto-check requested, waiting renderer pre-check flow...');
     pendingStartupRequest = {
       requestedAt: Date.now(),
     };

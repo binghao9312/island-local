@@ -106,6 +106,8 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+// 这些用例覆盖更新实现本身，需要开启更新总开关。
+vi.mock('../../../../../../../../shared/updatesConfig', () => ({ UPDATES_ENABLED: true }));
 describe('Update settings persistence and sources', () => {
   it.each(['github', 'tencent-cos', 'aliyun-oss', 'esa-cdn', 'cloudflare-r2', 'unknown'])('selects source %s and persists its public normalized value', async (value) => {
     const expected = value === 'unknown' ? 'cloudflare-r2' : value;

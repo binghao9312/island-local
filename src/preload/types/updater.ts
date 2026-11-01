@@ -31,6 +31,8 @@ export interface UpdaterCheckResult {
   releaseNotes?: string;
   currentVersion?: string;
   error?: string;
+  /** 更新检测被总开关关闭，未发起任何请求 */
+  disabled?: boolean;
 }
 
 /** 更新下载进度 */

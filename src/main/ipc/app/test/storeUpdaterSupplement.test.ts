@@ -53,6 +53,8 @@ beforeEach(() => {
 });
 afterEach(() => vi.restoreAllMocks());
 
+// 这些用例覆盖更新实现本身，需要开启更新总开关。
+vi.mock('../../../../shared/updatesConfig', () => ({ UPDATES_ENABLED: true }));
 describe('存储与更新 IPC 缺失错误契约', () => {
   it('严格读取损坏 JSON 重新抛出，普通读取保持 null', () => {
     boundary.read.mockReturnValue('{broken');

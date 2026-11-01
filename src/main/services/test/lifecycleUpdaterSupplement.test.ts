@@ -31,6 +31,8 @@ import { applyChromiumPerformanceFlags } from '../chromiumFlags';
 import { initUpdaterService } from '../updaterService';
 import type { AppUpdater } from 'electron-updater';
 import type { App, BrowserWindow } from 'electron';
+// 这些用例覆盖更新实现本身，需要开启更新总开关。
+vi.mock('../../../shared/updatesConfig', () => ({ UPDATES_ENABLED: true }));
 const io = vi.hoisted(() => ({ handlers: new Map<string, () => void>(), windows: vi.fn(), frameRate: vi.fn<() => boolean>() }));
 vi.mock('electron', () => ({ app: { on: (event: string, handler: () => void) => io.handlers.set(event, handler) }, ipcMain: { handle: vi.fn(), on: vi.fn() }, BrowserWindow: { getAllWindows: io.windows } }));
 vi.mock('../../config/storeConfig', () => ({ readDisableFrameRateLimitConfig: io.frameRate }));

@@ -26,6 +26,7 @@
 
 import { useEffect } from 'react';
 import { ISLAND_POSITION_LOCKED_STORE_KEY } from '../../../../../../../shared/storeKeys';
+import { UPDATES_ENABLED } from '../../../../../../../shared/updatesConfig';
 import {
   AUTO_HIDE_FULLSCREEN_WINDOWS_STORE_KEY,
   ISLAND_AUTO_DIM_DELAY_STORE_KEY,
@@ -113,7 +114,7 @@ export function useSettingsSyncEffects(options: SettingsSyncEffectsOptions): voi
   useEffect(() => {
     let cancelled = false;
     const applyOpenTabIntent = (value: unknown): void => {
-      if (value === 'update') {
+      if (value === 'update' && UPDATES_ENABLED) {
         setActiveTab('update');
       }
       if (value === 'mail') {

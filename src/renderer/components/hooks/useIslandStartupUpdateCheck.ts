@@ -38,6 +38,7 @@ import {
   isProOnlyUpdateSource,
   getRoleFromToken,
 } from '../config/dynamicIslandConfig';
+import { UPDATES_ENABLED } from '../../../shared/updatesConfig';
 import { STARTUP_UPDATE_CONTINUE_EVENT } from '../states/notification/config/notificationConstants';
 import type { UpdateSourceKey } from '../config/dynamicIslandConfig';
 
@@ -93,6 +94,8 @@ export function useIslandStartupUpdateCheck(options: UseIslandStartupUpdateCheck
         precheckTimeout = undefined;
         unsubscribeWeather?.();
         finishStartupRef.current = null;
+        // 更新检测关闭时只保留天气预警流程，不发起任何更新检查。
+        if (!UPDATES_ENABLED) return;
         if (isProOnlyUpdateSource(startupSource) && !startupResolvedUrl) startupSource = 'cloudflare-r2';
         const check = async (): Promise<void> => {
           try {
@@ -111,33 +114,37 @@ export function useIslandStartupUpdateCheck(options: UseIslandStartupUpdateCheck
       finishStartupRef.current = continueStartupUpdateCheck;
       const precheck = async (): Promise<void> => {
         try {
-          const autoPromptValue = await window.api?.storeRead?.(UPDATE_AUTO_PROMPT_STORE_KEY).catch(() => null);
-          if (finished) return;
-          const autoPromptEnabled = typeof autoPromptValue === 'boolean' ? autoPromptValue : true;
-          if (!autoPromptEnabled) {
-            finished = true;
-            clearTimeout(precheckTimeout);
-            precheckTimeout = undefined;
-            finishStartupRef.current = null;
-            return;
+          if (UPDATES_ENABLED) {
+            const autoPromptValue = await window.api?.storeRead?.(UPDATE_AUTO_PROMPT_STORE_KEY).catch(() => null);
+            if (finished) return;
+            const autoPromptEnabled = typeof autoPromptValue === 'boolean' ? autoPromptValue : true;
+            if (!autoPromptEnabled) {
+              finished = true;
+              clearTimeout(precheckTimeout);
+              precheckTimeout = undefined;
+              finishStartupRef.current = null;
+              return;
+            }
           }
 
           const token = readLocalToken();
           const isProUser = getRoleFromToken(token) === 'pro';
-          const sourceRaw = await window.api?.storeRead?.(UPDATE_SOURCE_STORE_KEY).catch(() => null);
-          if (finished) return;
-          startupSource = normalizeUpdateSource(sourceRaw);
+          if (UPDATES_ENABLED) {
+            const sourceRaw = await window.api?.storeRead?.(UPDATE_SOURCE_STORE_KEY).catch(() => null);
+            if (finished) return;
+            startupSource = normalizeUpdateSource(sourceRaw);
 
-          if (isProOnlyUpdateSource(startupSource)) {
-            if (!token || !isProUser) {
-              startupSource = 'cloudflare-r2';
-            } else {
-              const resolved = await fetchUpdateSourceUrl(token, startupSource);
-              if (finished) return;
-              if (resolved.ok && resolved.data?.url) {
-                startupResolvedUrl = resolved.data.url;
-              } else {
+            if (isProOnlyUpdateSource(startupSource)) {
+              if (!token || !isProUser) {
                 startupSource = 'cloudflare-r2';
+              } else {
+                const resolved = await fetchUpdateSourceUrl(token, startupSource);
+                if (finished) return;
+                if (resolved.ok && resolved.data?.url) {
+                  startupResolvedUrl = resolved.data.url;
+                } else {
+                  startupSource = 'cloudflare-r2';
+                }
               }
             }
           }

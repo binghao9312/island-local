@@ -114,6 +114,8 @@ const intents = [{
   setter: 'setAppSettingsPage',
   page: 'expand-layout'
 }] as const;
+// 这些用例覆盖更新实现本身，需要开启更新总开关。
+vi.mock('../../../../../../../../shared/updatesConfig', () => ({ UPDATES_ENABLED: true }));
 describe('打开页面意图与监听生命周期', () => {
   it.each(intents)('$intent远端/本地意图均设置目标并消费存储', async (value) => {
     changed?.('store:settings-open-tab', value.intent);

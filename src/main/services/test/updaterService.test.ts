@@ -34,6 +34,8 @@ const { getAllWindowsMock, handle, on } = vi.hoisted(() => ({
   getAllWindowsMock: vi.fn(),
 }));
 
+// 这些用例覆盖更新实现本身，需要开启更新总开关。
+vi.mock('../../../shared/updatesConfig', () => ({ UPDATES_ENABLED: true }));
 vi.mock('electron', () => ({
   ipcMain: { handle, on },
   BrowserWindow: {

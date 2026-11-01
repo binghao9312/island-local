@@ -26,6 +26,7 @@
 
 import { useEffect } from 'react';
 import useIslandStore from '../../../../../../store/slices';
+import { UPDATES_ENABLED } from '../../../../../../../shared/updatesConfig';
 import { normalizeOverviewLayoutConfig } from '../../../../expand/pages/OverviewTab';
 import {
   CLIPBOARD_URL_SUPPRESS_IN_FAVORITES_KEY,
@@ -374,7 +375,7 @@ export function useSettingsConfigurationEffects(options: SettingsConfigurationEf
       if (cancelled) return;
       const intent = value as SettingsOpenTabIntent | null;
       if (intent === 'update') {
-        setActiveTab('update');
+        if (UPDATES_ENABLED) setActiveTab('update');
         window.api.storeWrite(SETTINGS_OPEN_TAB_STORE_KEY, null).catch(() => { });
       }
       if (intent === 'mail') {

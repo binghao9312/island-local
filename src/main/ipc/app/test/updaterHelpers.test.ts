@@ -70,6 +70,8 @@ function createMockUpdater() {
 
 // ── tests ──
 
+// 这些用例覆盖更新实现本身，需要开启更新总开关。
+vi.mock('../../../../shared/updatesConfig', () => ({ UPDATES_ENABLED: true }));
 describe('updater.ts helpers (via registerUpdaterIpcHandlers)', () => {
   const handleHandlers = new Map<string, (...args: unknown[]) => unknown>();
   const getVersionMock = vi.fn().mockReturnValue('1.0.0');

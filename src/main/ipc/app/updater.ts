@@ -30,6 +30,7 @@ import type { AppUpdater } from 'electron-updater';
 import type { UpdateSourceKey, RegisterUpdaterIpcHandlersOptions } from './types';
 import { DEFAULT_UPDATE_SOURCE, R2_UPDATE_URL, ESA_CDN_URL, GITHUB_OWNER, GITHUB_REPO } from './config/updater';
 import { deleteFirstLaunchConfig } from '../../config/storeConfig';
+import { UPDATES_ENABLED } from '../../../shared/updatesConfig';
 
 function normalizeUpdateSource(value: unknown): UpdateSourceKey {
   if (value === 'github') return 'github';
@@ -79,6 +80,7 @@ function applyUpdateSource(updater: AppUpdater, source: UpdateSourceKey, resolve
  */
 export function registerUpdaterIpcHandlers(options: RegisterUpdaterIpcHandlersOptions): void {
   ipcMain.handle('updater:check', async (_event, sourceRaw?: string, resolvedUrl?: string) => {
+    if (!UPDATES_ENABLED) return { available: false, disabled: true };
     try {
       const source = normalizeUpdateSource(sourceRaw);
       applyUpdateSource(options.updater, source, resolvedUrl);
@@ -110,6 +112,7 @@ export function registerUpdaterIpcHandlers(options: RegisterUpdaterIpcHandlersOp
   });
 
   ipcMain.handle('updater:download', async (_event, sourceRaw?: string, resolvedUrl?: string) => {
+    if (!UPDATES_ENABLED) return false;
     try {
       const source = normalizeUpdateSource(sourceRaw);
       applyUpdateSource(options.updater, source, resolvedUrl);
@@ -134,6 +137,7 @@ export function registerUpdaterIpcHandlers(options: RegisterUpdaterIpcHandlersOp
   });
 
   ipcMain.handle('updater:install', () => {
+    if (!UPDATES_ENABLED) return false;
     options.updater.quitAndInstall(false, true);
     return true;
   });

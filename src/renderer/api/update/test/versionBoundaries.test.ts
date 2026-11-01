@@ -34,6 +34,8 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
+// 这些用例覆盖更新实现本身，需要开启更新总开关。
+vi.mock('../../../../shared/updatesConfig', () => ({ UPDATES_ENABLED: true }));
 describe('version API boundaries', () => {
   it.each([{ response: { ok: false } }, { response: { ok: true, body: 'invalid json' } }, { response: { ok: true, body: 'null' } }, { response: { ok: true, body: '{"code":500,"data":{"version":"1"}}' } }, { response: { ok: true, body: '{"code":200,"data":null}' } }, { response: { ok: true, body: '{"code":200,"data":{"version":3}}' } }])('rejects invalid version metadata $response', async ({ response }) => {
     net.mockResolvedValueOnce(response);

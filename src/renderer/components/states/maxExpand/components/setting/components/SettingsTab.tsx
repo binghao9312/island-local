@@ -44,6 +44,7 @@ import {
   WEATHER_PROVIDER_OPTIONS,
   WEATHER_SETTINGS_PAGES,
 } from '../utils/settingsConfig';
+import { UPDATES_ENABLED } from '../../../../../../../shared/updatesConfig';
 import { AboutSettingsSection } from './about/AboutSettingsSection';
 import { AiSettingsSection } from './ai/AiSettingsSection';
 import { AppSettingsSection } from './app/AppSettingsSection';
@@ -502,14 +503,16 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
             <span className="sidebar-dot" />
             {getSettingsLabel('user')}
           </button>
-          <button
-            className={`max-expand-settings-sidebar-item ${activeTab === 'update' ? 'active' : ''}`}
-            onClick={() => setActiveTab('update')}
-            type="button"
-          >
-            <span className="sidebar-dot" />
-            {getSettingsLabel('update')}
-          </button>
+          {UPDATES_ENABLED && (
+            <button
+              className={`max-expand-settings-sidebar-item ${activeTab === 'update' ? 'active' : ''}`}
+              onClick={() => setActiveTab('update')}
+              type="button"
+            >
+              <span className="sidebar-dot" />
+              {getSettingsLabel('update')}
+            </button>
+          )}
           <button
             className={`max-expand-settings-sidebar-item ${activeTab === 'about' ? 'active' : ''}`}
             onClick={() => setActiveTab('about')}
@@ -894,7 +897,7 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
             />
           )}
 
-          {activeTab === 'update' && (
+          {UPDATES_ENABLED && activeTab === 'update' && (
             <UpdateSettingsSection
               aboutVersion={aboutVersion}
               updateAutoPromptEnabled={updateAutoPromptEnabled}

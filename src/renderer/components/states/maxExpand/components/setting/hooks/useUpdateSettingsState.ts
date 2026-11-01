@@ -27,6 +27,7 @@
 import { useEffect, useState } from 'react';
 import type { TFunction } from 'i18next';
 import { fetchUpdateSourceUrl } from '../../../../../../api/user/userAccountApi';
+import { UPDATES_ENABLED } from '../../../../../../../shared/updatesConfig';
 import {
   UPDATE_SOURCE_STORE_KEY,
   UPDATE_AUTO_PROMPT_STORE_KEY,
@@ -154,13 +155,16 @@ export default function useUpdateSettingsState({ t, isProUser, sessionToken }: U
   }, [updateAutoPromptEnabled]);
 
   const handleCheckUpdate = async (): Promise<void> => {
+    if (!UPDATES_ENABLED) return;
     setUpdateStatus('checking');
     setUpdateError('');
     setDownloadProgress(null);
     try {
       const resolvedUrl = await resolveUpdateSourceUrl(updateSource);
       const result = await window.api.updaterCheck(updateSource, resolvedUrl);
-      if (result.error) {
+      if (result.disabled) {
+        setUpdateStatus('idle');
+      } else if (result.error) {
         setUpdateStatus('error');
         setUpdateError(result.error);
       } else if (result.available && result.version) {
@@ -176,6 +180,7 @@ export default function useUpdateSettingsState({ t, isProUser, sessionToken }: U
   };
 
   const handleDownloadUpdate = async (): Promise<void> => {
+    if (!UPDATES_ENABLED) return;
     setUpdateStatus('downloading');
     setDownloadProgress(null);
     try {

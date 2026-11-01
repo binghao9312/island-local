@@ -181,6 +181,8 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.useRealTimers();
 });
+// 这些用例覆盖更新实现本身，需要开启更新总开关。
+vi.mock('../../../../shared/updatesConfig', () => ({ UPDATES_ENABLED: true }));
 describe('useIslandStartupUpdateCheck runtime', () => {
   it('handles startup once and unregisters its subscription', async () => {
     await triggerStartup();

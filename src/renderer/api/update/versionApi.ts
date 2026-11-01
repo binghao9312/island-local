@@ -24,6 +24,7 @@
  * @author 鸡哥
  */
 
+import { UPDATES_ENABLED } from '../../../shared/updatesConfig';
 import type { VersionInfo } from './types/VersionInfo';
 
 export type { VersionInfo };
@@ -38,9 +39,10 @@ const UPDATE_COUNT_APP_NAME = 'eisland';
 
 /**
  * 获取远程最新版本信息
- * @returns VersionInfo，请求失败时返回 null
+ * @returns VersionInfo，请求失败或更新检测关闭时返回 null
  */
 export async function fetchVersion(): Promise<VersionInfo | null> {
+  if (!UPDATES_ENABLED) return null;
   try {
     const res = await window.api.netFetch(`${VERSION_API_BASE}/v1/version?appName=eisland`, {
       method: 'GET',
@@ -63,6 +65,7 @@ export async function fetchVersion(): Promise<VersionInfo | null> {
  * @returns 是否上报成功
  */
 export async function reportUpdateDownloadCount(version: string): Promise<boolean> {
+  if (!UPDATES_ENABLED) return false;
   const versionText = version.trim();
   if (!versionText) return false;
   try {
