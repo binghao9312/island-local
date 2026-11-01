@@ -27,61 +27,35 @@
  */
 
 import type { KaraokeLine } from './types';
-import { fetchKaraokeFromNetease } from './providers/netease';
-import { fetchKaraokeFromQQMusic } from './providers/qqmusic';
-import { fetchKaraokeFromKugou } from './providers/kugou';
-import { fetchKaraokeFromSodaMusic } from './providers/sodaMusic';
 import { fetchKaraokeFromAppleMusic } from './providers/appleMusic';
-import { fetchKaraokeFromMoeKoe } from './providers/moeKoe';
 import { fetchKaraokeFromLrcRed } from './providers/lrcred';
 import { convertKaraokeToTraditional, shouldConvertLyricsToTraditional } from '../lyricsTraditional';
 
 export type { KaraokeLine, KaraokeSyllable } from './types';
-export { fetchKaraokeFromNetease } from './providers/netease';
-export { fetchKaraokeFromQQMusic } from './providers/qqmusic';
-export { fetchKaraokeFromKugou } from './providers/kugou';
-export { fetchKaraokeFromSodaMusic } from './providers/sodaMusic';
 export { fetchKaraokeFromAppleMusic } from './providers/appleMusic';
-export { fetchKaraokeFromMoeKoe } from './providers/moeKoe';
 export { fetchKaraokeFromLrcRed } from './providers/lrcred';
 
 /** Spotify 仅支持行级同步，无逐字数据，不纳入 karaoke provider */
-type Provider = 'lrcred' | 'netease' | 'qqmusic' | 'kugou' | 'sodamusic' | 'applemusic' | 'moekoe';
+type Provider = 'lrcred' | 'applemusic';
 
 /** `durationMs` 为播放器时长，目前仅 lrc.red 用它挑选版本，其余源忽略 */
 type FetchFn = (title: string, artist: string, durationMs?: number) => Promise<KaraokeLine[] | null>;
 
 const PROVIDER_MAP: Record<Provider, FetchFn> = {
   lrcred: fetchKaraokeFromLrcRed,
-  netease: (title, artist) => fetchKaraokeFromNetease(title, artist),
-  qqmusic: (title, artist) => fetchKaraokeFromQQMusic(title, artist),
-  kugou: (title, artist) => fetchKaraokeFromKugou(title, artist),
-  sodamusic: (title, artist) => fetchKaraokeFromSodaMusic(title, artist),
   applemusic: (title, artist) => fetchKaraokeFromAppleMusic(title, artist),
-  moekoe: (title, artist) => fetchKaraokeFromMoeKoe(title, artist),
 };
 
-const ALL_PROVIDERS: Provider[] = ['lrcred', 'netease', 'qqmusic', 'kugou', 'sodamusic', 'applemusic', 'moekoe'];
+const ALL_PROVIDERS: Provider[] = ['lrcred', 'applemusic'];
 
 const PROCESS_TO_PROVIDER: Array<{ pattern: RegExp; provider: Provider }> = [
-  { pattern: /cloudmusic/i, provider: 'netease' },
-  { pattern: /QQMusic/i, provider: 'qqmusic' },
-  { pattern: /kugou/i, provider: 'kugou' },
-  { pattern: /汽水音乐/i, provider: 'sodamusic' },
-  { pattern: /qishui/i, provider: 'sodamusic' },
-  { pattern: /soda.?music/i, provider: 'sodamusic' },
   { pattern: /AppleMusicWin|AppleInc\.AppleMusic/i, provider: 'applemusic' },
-  { pattern: /MoeKoe/i, provider: 'moekoe' },
 ];
 
+/** 已移除的源（如 `qqmusic-only`）查不到映射，会按自动模式处理 */
 const SOURCE_SETTING_TO_PROVIDER: Record<string, Provider> = {
   'lrcred-only': 'lrcred',
-  'netease-only': 'netease',
-  'qqmusic-only': 'qqmusic',
-  'kugou-only': 'kugou',
-  'sodamusic-only': 'sodamusic',
   'applemusic-only': 'applemusic',
-  'moekoe-only': 'moekoe',
 };
 
 /**

@@ -40,6 +40,7 @@ import {
   LAYOUT_STORE_KEY,
   MAXEXPAND_NAV_LAYOUT_STORE_KEY,
   NAV_CARDS_MAP,
+  normalizeLyricsSource,
   normalizeMaxExpandNavLayoutConfig,
 } from '../utils/settingsConfig';
 import type { useSettingsAppearance } from './useSettingsAppearance';
@@ -161,7 +162,7 @@ export function useSettingsConfigurationEffects(options: SettingsConfigurationEf
     }).catch(() => { });
     window.api.musicLyricsSourceGet().then((src) => {
       if (cancelled) return;
-      setLyricsSource(src);
+      setLyricsSource(normalizeLyricsSource(src));
     }).catch(() => { });
     window.api.musicLyricsEnabledGet().then((enabled) => {
       if (cancelled) return;

@@ -30,14 +30,10 @@ import { fetchKaraokeLyrics } from '../karaoke';
 import { clearLrcRedCache } from '../normal/providers/lrcred';
 
 const LRC = '[00:01.00]Hello';
-const KRC = '[1000,500]<0,500,0>Hello';
 const expected = [{ time_ms: 1000, text: 'Hello' }];
-const b64 = (value: string): string => Buffer.from(value).toString('base64');
 const response = (body: unknown) => ({ ok: true, status: 200, body: JSON.stringify(body) });
 const setting = vi.fn();
 const detect = vi.fn();
-const qishuiSearch = vi.fn();
-const qishuiLyrics = vi.fn();
 const netFetch = vi.fn();
 const lrcRedSearch = vi.fn<(url: string) => unknown>();
 const lrcRedTtml = vi.fn<(url: string) => unknown>();
@@ -54,70 +50,34 @@ const lrcRedItem = (overrides: Record<string, unknown> = {}) => ({
   track_name: 'Song',
   ...overrides,
 });
+const APPLE_TTML = '<tt><body><div><p begin="00:01.000" end="00:02.000"><span begin="00:01.000" end="00:02.000">Hello</span></p></div></body></tt>';
 const WORD_TTML = '<tt><body><div><p begin="1.000" end="2.000"><span begin="1.000" end="1.500">Hi</span> <span begin="1.500" end="2.000">there</span></p></div></body></tt>';
-// 排除 lrc.red 请求后的其它源请求 URL，保持原有「首个回退源」断言语义
+// 排除 lrc.red 请求后的其它源请求 URL，保持「首个回退源」断言语义
 const providerUrls = (): string[] => netFetch.mock.calls.map((call) => String(call[0])).filter((url) => !url.includes('lrc.red'));
 
-let socketHasLyrics = true;
-
-class LyricsSocket {
-  onopen: (() => void) | null = null;
-
-  onmessage: ((event: { data: string }) => void) | null = null;
-
-  onerror: (() => void) | null = null;
-
-  onclose: (() => void) | null = null;
-
-  /** 模拟本地客户端在连接成功后推送歌词，不接触 Provider 的私有状态。 */
-  constructor() {
-    queueMicrotask(() => {
-      if (!socketHasLyrics) {
-        this.onclose?.();
-        return;
-      }
-      this.onopen?.();
-      this.onmessage?.({ data: JSON.stringify({ type: 'lyrics', data: { lyricsData: KRC } }) });
-    });
-  }
-
-  /** 模拟连接关闭事件。 */
-  close(): void {
-    this.onclose?.();
-  }
-}
+/** 默认网络桥接：按 URL 返回 Apple Music、Spotify、lrc.red 与 LRCLIB 的真实响应结构 */
+const defaultNetFetch = (url: string) => {
+  if (url.includes('lrc.red/api/v1')) return lrcRedSearch(url);
+  if (url.includes('lrc.red/s/')) return lrcRedTtml(url);
+  if (url.includes('itunes.apple.com/search')) return response({ results: [{ trackId: 1, trackName: 'Song', artistName: 'Artist' }] });
+  if (url.includes('syllable-lyrics')) return response({ data: [{ attributes: { ttmlLocalizations: APPLE_TTML } }] });
+  if (url.includes('open.spotify.com/api/token')) return response({ accessToken: 'token', clientId: 'client' });
+  if (url.includes('clienttoken.spotify.com')) return response({ granted_token: { token: 'client-token' } });
+  if (url.includes('pathfinder/v2/query')) return response({ data: { searchV2: { topResultsV2: { itemsV2: [{ item: { data: { id: 'song', name: 'Song' } } }] } } } });
+  if (url.includes('color-lyrics')) return response({ lyrics: { syncType: 'LINE_SYNCED', lines: [{ startTimeMs: '1000', words: 'Hello' }] } });
+  if (url.includes('lrclib.net/api/search')) return response([{ syncedLyrics: LRC }]);
+  return { ok: false, status: 404, body: '' };
+};
 
 beforeEach(() => {
   vi.resetAllMocks();
   clearLrcRedCache();
-  socketHasLyrics = true;
   setting.mockResolvedValue('auto');
   detect.mockResolvedValue({ ok: true, sources: [] });
-  qishuiSearch.mockResolvedValue({ loggedIn: false, publicCatalog: true, songs: [{ id: 'song', name: 'Song', artist: 'Artist' }] });
-  qishuiLyrics.mockResolvedValue({ auth: 'public', lyric: KRC, tlyric: '[00:01.00]你好' });
   lrcRedSearch.mockReturnValue(response({ results: [], source: 'MISS-LRC-RED', total: 0 }));
   lrcRedTtml.mockReturnValue({ ok: true, status: 200, body: WORD_TTML });
-  netFetch.mockImplementation((url: string) => {
-    if (url.includes('lrc.red/api/v1')) return lrcRedSearch(url);
-    if (url.includes('lrc.red/s/')) return lrcRedTtml(url);
-    if (url.includes('/api/search/get/web')) return response({ result: { songs: [{ id: 1 }] } });
-    if (url.includes('/api/song/lyric/v1')) return response({ lrc: { lyric: LRC } });
-    if (url.includes('musicu.fcg')) return response({ req_1: { data: { body: { song: { list: [{ id: 1, mid: 'mid', title: 'Song', singer: [{ name: 'Artist' }] }] } } } } });
-    if (url.includes('fcg_query_lyric_new')) return { ok: true, status: 200, body: `MusicJsonCallback_lrc(${  JSON.stringify({ lyric: b64(LRC) })  })` };
-    if (url.includes('mobilecdn.kugou.com')) return response({ data: { info: [{ hash: 'hash', duration: 1 }] } });
-    if (url.includes('lyrics.kugou.com/search')) return response({ candidates: [{ id: '1', accesskey: 'key' }] });
-    if (url.includes('lyrics.kugou.com/download')) return response({ content: b64(LRC) });
-    if (url.includes('itunes.apple.com/search')) return response({ results: [{ trackId: 1, trackName: 'Song', artistName: 'Artist' }] });
-    if (url.includes('syllable-lyrics')) return response({ data: [{ attributes: { ttmlLocalizations: '<tt><p in="00:01.00">Hello</p></tt>' } }] });
-    if (url.includes('open.spotify.com/api/token')) return response({ accessToken: 'token', clientId: 'client' });
-    if (url.includes('clienttoken.spotify.com')) return response({ granted_token: { token: 'client-token' } });
-    if (url.includes('pathfinder/v2/query')) return response({ data: { searchV2: { topResultsV2: { itemsV2: [{ item: { data: { id: 'song', name: 'Song' } } }] } } } });
-    if (url.includes('color-lyrics')) return response({ lyrics: { syncType: 'LINE_SYNCED', lines: [{ startTimeMs: '1000', words: 'Hello' }] } });
-    if (url.includes('lrclib.net/api/search')) return response([{ syncedLyrics: LRC }]);
-    return { ok: false, status: 404, body: '' };
-  });
-  vi.stubGlobal('window', { api: { netFetch, qishuiSearch, qishuiLyrics, musicLyricsSourceGet: setting, musicDetectSourceAppId: detect } });
-  vi.stubGlobal('WebSocket', LyricsSocket);
+  netFetch.mockImplementation(defaultNetFetch);
+  vi.stubGlobal('window', { api: { netFetch, musicLyricsSourceGet: setting, musicDetectSourceAppId: detect } });
 });
 
 afterEach(() => {
@@ -126,41 +86,39 @@ afterEach(() => {
 });
 
 describe('real provider source selection', () => {
-  it.each(['netease', 'qqmusic', 'kugou', 'sodamusic', 'applemusic', 'spotify', 'moekoe', 'lrclib'])('loads the %s-only source through real parsing', async (provider) => {
-    setting.mockResolvedValue(`${provider  }-only`);
+  it.each(['applemusic', 'spotify', 'lrclib'])('loads the %s-only source through real parsing', async (provider) => {
+    setting.mockResolvedValue(`${provider}-only`);
     const result = await fetchLyricsWithTranslation('Song', 'Artist');
     expect(result?.lyrics).toEqual(expected);
-    const expectedStatus = new Map([['netease', 'not-provided'], ['qqmusic', 'not-provided'], ['sodamusic', 'available']]).get(provider) ?? 'unsupported';
-    expect(result?.translation.status).toBe(expectedStatus);
+    expect(result?.translation.status).toBe('unsupported');
     expect(detect).not.toHaveBeenCalled();
   });
 
-  it.each(['cloudmusic.exe', 'QQMusic.exe', 'kugou.exe', '汽水音乐.exe', 'qishui.exe', 'Soda Music.exe', 'AppleMusicWin.exe', 'AppleInc.AppleMusic', 'Spotify.exe', 'MoeKoe.exe', 'unknown.exe', ''])('loads a provider for process %s', async (appId) => {
+  it.each(['AppleMusicWin.exe', 'AppleInc.AppleMusic', 'Spotify.exe', 'unknown.exe', ''])('loads a provider for process %s', async (appId) => {
     expect(await fetchLyrics('Song', 'Artist', appId)).toEqual(expected);
     expect(detect).not.toHaveBeenCalled();
   });
 
   it('retains the playing titled source ahead of an inactive or untitled source', async () => {
     detect.mockResolvedValue({ ok: true, sources: [
-      { isPlaying: false, hasTitle: true, sourceAppId: 'cloudmusic.exe' },
-      { isPlaying: true, hasTitle: false, sourceAppId: 'kugou.exe' },
-      { isPlaying: true, hasTitle: true, sourceAppId: 'qishui.exe' },
+      { isPlaying: false, hasTitle: true, sourceAppId: 'Spotify.exe' },
+      { isPlaying: true, hasTitle: false, sourceAppId: 'AppleMusicWin.exe' },
+      { isPlaying: true, hasTitle: true, sourceAppId: 'Spotify.exe' },
     ] });
     expect(await fetchLyrics('Song', 'Artist')).toEqual(expected);
-    expect(qishuiSearch).toHaveBeenCalled();
-    expect(providerUrls()).toEqual([]);
+    expect(providerUrls()[0]).toContain('spotify.com');
   });
 
   it('uses the first inactive source when no playing titled source exists', async () => {
-    detect.mockResolvedValue({ ok: true, sources: [{ isPlaying: false, hasTitle: true, sourceAppId: 'QQMusic.exe' }] });
+    detect.mockResolvedValue({ ok: true, sources: [{ isPlaying: false, hasTitle: true, sourceAppId: 'Spotify.exe' }] });
     expect(await fetchLyrics('Song', 'Artist')).toEqual(expected);
-    expect(providerUrls()[0]).toContain('musicu.fcg');
+    expect(providerUrls()[0]).toContain('spotify.com');
   });
 
   it.each([null, {}, { ok: false }, { ok: true }, { ok: true, sources: [] }, { ok: true, sources: [{}] }])('falls back from incomplete SMTC payload %j', async (payload) => {
     detect.mockResolvedValue(payload);
     expect(await fetchLyrics('Song', 'Artist')).toEqual(expected);
-    expect(providerUrls()[0]).toContain('/api/search/get/web');
+    expect(providerUrls()[0]).toContain('itunes.apple.com/search');
   });
 
   it('recovers to automatic selection after settings and detection reject', async () => {
@@ -169,24 +127,28 @@ describe('real provider source selection', () => {
     expect(await fetchLyrics('Song', 'Artist')).toEqual(expected);
   });
 
+  it('treats a removed stored source id as automatic selection', async () => {
+    setting.mockResolvedValue('qqmusic-only');
+    expect(await fetchLyrics('Song', 'Artist', 'unknown.exe')).toEqual(expected);
+    expect(providerUrls()[0]).toContain('itunes.apple.com/search');
+  });
+
   it('uses LRCLIB after a forced provider has no results', async () => {
-    setting.mockResolvedValue('sodamusic-only');
-    qishuiSearch.mockResolvedValue({ songs: [] });
+    setting.mockResolvedValue('applemusic-only');
+    netFetch.mockImplementation((url: string) => (url.includes('itunes.apple.com') ? response({ results: [] }) : defaultNetFetch(url)));
     expect(await fetchLyrics('Song', 'Artist')).toEqual(expected);
-    expect(providerUrls()[0]).toContain('lrclib.net');
+    expect(providerUrls().some((url) => url.includes('lrclib.net/api/search'))).toBe(true);
   });
 
-  it('continues to another real provider when the primary bridge rejects', async () => {
-    qishuiLyrics.mockRejectedValue(new Error('bridge unavailable'));
-    expect(await fetchLyrics('Song', 'Artist', 'qishui.exe')).toEqual(expected);
-    expect(qishuiLyrics).toHaveBeenCalled();
-    expect(providerUrls()[0]).toContain('/api/search/get/web');
+  it('continues to another real provider when the primary request fails', async () => {
+    netFetch.mockImplementation((url: string) => (url.includes('pathfinder/v2/query') ? { ok: false, status: 503, body: '' } : defaultNetFetch(url)));
+    expect(await fetchLyrics('Song', 'Artist', 'Spotify.exe')).toEqual(expected);
+    expect(providerUrls()[0]).toContain('spotify.com');
+    expect(providerUrls().some((url) => url.includes('itunes.apple.com/search'))).toBe(true);
   });
 
-  it.each(['kugou.exe', 'unknown.exe'])('returns null after all real providers fail for %s', async (appId) => {
+  it.each(['Spotify.exe', 'unknown.exe'])('returns null after all real providers fail for %s', async (appId) => {
     netFetch.mockResolvedValue({ ok: false, status: 503, body: '' });
-    qishuiSearch.mockResolvedValue({ songs: [] });
-    socketHasLyrics = false;
     expect(await fetchLyrics('Song', 'Artist', appId)).toBeNull();
   });
 
@@ -202,7 +164,7 @@ describe('lrc.red source selection', () => {
 
   it('is the first automatic choice, ahead of the detected player source', async () => {
     lrcRedHit([lrcRedItem()]);
-    const result = await fetchLyricsWithTranslation('Song', 'Artist', 'QQMusic.exe', 213000);
+    const result = await fetchLyricsWithTranslation('Song', 'Artist', 'Spotify.exe', 213000);
     expect(result?.lyrics).toEqual([{ time_ms: 1000, text: 'Hi there' }]);
     expect(providerUrls()).toEqual([]);
     expect(netFetch.mock.calls[0][0]).toContain('lrc.red/api/v1?track=Song&artist=Artist');
@@ -223,7 +185,7 @@ describe('lrc.red source selection', () => {
     lrcRedHit([lrcRedItem({ duration: 217 })]);
     expect(await fetchLyrics('Song', 'Artist', 'unknown.exe', 213000)).toEqual(expected);
     expect(lrcRedTtml).not.toHaveBeenCalled();
-    expect(providerUrls()[0]).toContain('/api/search/get/web');
+    expect(providerUrls()[0]).toContain('itunes.apple.com/search');
   });
 
   it('serves word-level lyrics through the karaoke chain and skips line-level candidates', async () => {
@@ -258,6 +220,10 @@ describe('karaoke real source detection fallback', () => {
   it('falls back through real providers for an unknown process identifier', async () => {
     expect((await fetchKaraokeLyrics('Song', 'Artist', 'unknown.exe'))?.[0].text).toBe('Hello');
     expect(detect).not.toHaveBeenCalled();
+  });
+  it('treats a removed stored source id as automatic selection', async () => {
+    setting.mockResolvedValue('netease-only');
+    expect((await fetchKaraokeLyrics('Song', 'Artist', 'unknown.exe'))?.[0].text).toBe('Hello');
   });
   it.each([null, {}, { ok: false }, { ok: true }, { ok: true, sources: [] }, { ok: true, sources: [{}] }])('falls back from incomplete SMTC payload %j', async (payload) => {
     detect.mockResolvedValue(payload);

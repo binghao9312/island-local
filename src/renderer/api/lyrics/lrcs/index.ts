@@ -27,13 +27,8 @@
 import type { LyricLine, LyricsFetchResult } from './normal/types';
 import { fetchLyricsFromLrclib } from './normal/providers/lrclib';
 import { fetchLyricsFromLrcRed } from './normal/providers/lrcred';
-import { fetchLyricsWithTranslationFromNetease } from './normal/providers/netease';
-import { fetchLyricsWithTranslationFromQQMusic } from './normal/providers/qqmusic';
-import { fetchLyricsFromKugou } from './normal/providers/kugou';
-import { fetchLyricsWithTranslationFromSodaMusic } from './normal/providers/sodaMusic';
 import { fetchLyricsFromAppleMusic } from './normal/providers/appleMusic';
 import { fetchLyricsFromSpotify } from './normal/providers/spotify';
-import { fetchLyricsFromMoeKoe } from './normal/providers/moeKoe';
 import { unsupportedTranslationLyrics } from './normal/translation';
 import { convertLyricsResultToTraditional, shouldConvertLyricsToTraditional } from './lyricsTraditional';
 
@@ -45,15 +40,10 @@ export type {
 } from './normal/types';
 export { fetchLyricsFromLrclib } from './normal/providers/lrclib';
 export { fetchLyricsFromLrcRed } from './normal/providers/lrcred';
-export { fetchLyricsFromNetease, fetchLyricsWithTranslationFromNetease } from './normal/providers/netease';
-export { fetchLyricsFromQQMusic, fetchLyricsWithTranslationFromQQMusic } from './normal/providers/qqmusic';
-export { fetchLyricsFromKugou } from './normal/providers/kugou';
-export { fetchLyricsFromSodaMusic, fetchLyricsWithTranslationFromSodaMusic } from './normal/providers/sodaMusic';
 export { fetchLyricsFromAppleMusic } from './normal/providers/appleMusic';
 export { fetchLyricsFromSpotify } from './normal/providers/spotify';
-export { fetchLyricsFromMoeKoe } from './normal/providers/moeKoe';
 
-type Provider = 'lrcred' | 'netease' | 'qqmusic' | 'kugou' | 'sodamusic' | 'applemusic' | 'spotify' | 'moekoe';
+type Provider = 'lrcred' | 'applemusic' | 'spotify';
 
 /** `durationMs` 为播放器时长，目前仅 lrc.red 与 LRCLIB 用它挑选版本，其余源忽略 */
 type FetchFn = (title: string, artist: string, durationMs?: number) => Promise<LyricsFetchResult | null>;
@@ -72,28 +62,16 @@ async function fetchWithUnsupportedTranslation(
 
 const PROVIDER_MAP: Record<Provider, FetchFn> = {
   lrcred: (title, artist, durationMs) => fetchWithUnsupportedTranslation(fetchLyricsFromLrcRed, title, artist, durationMs),
-  netease: (title, artist) => fetchLyricsWithTranslationFromNetease(title, artist),
-  qqmusic: (title, artist) => fetchLyricsWithTranslationFromQQMusic(title, artist),
-  kugou: (title, artist) => fetchWithUnsupportedTranslation(fetchLyricsFromKugou, title, artist),
-  sodamusic: (title, artist) => fetchLyricsWithTranslationFromSodaMusic(title, artist),
   applemusic: (title, artist) => fetchWithUnsupportedTranslation(fetchLyricsFromAppleMusic, title, artist),
   spotify: (title, artist) => fetchWithUnsupportedTranslation(fetchLyricsFromSpotify, title, artist),
-  moekoe: (title, artist) => fetchWithUnsupportedTranslation(fetchLyricsFromMoeKoe, title, artist),
 };
 
 /** lrc.red 排在最前：它按时长挑选版本，比各播放器自带源更不易拿到「另一个版本」的歌词 */
-const ALL_PROVIDERS: Provider[] = ['lrcred', 'netease', 'qqmusic', 'kugou', 'sodamusic', 'applemusic', 'spotify', 'moekoe'];
+const ALL_PROVIDERS: Provider[] = ['lrcred', 'applemusic', 'spotify'];
 
 const PROCESS_TO_PROVIDER: Array<{ pattern: RegExp; provider: Provider }> = [
-  { pattern: /cloudmusic/i, provider: 'netease' },
-  { pattern: /QQMusic/i, provider: 'qqmusic' },
-  { pattern: /kugou/i, provider: 'kugou' },
-  { pattern: /汽水音乐/i, provider: 'sodamusic' },
-  { pattern: /qishui/i, provider: 'sodamusic' },
-  { pattern: /soda.?music/i, provider: 'sodamusic' },
   { pattern: /AppleMusicWin|AppleInc\.AppleMusic/i, provider: 'applemusic' },
   { pattern: /Spotify/i, provider: 'spotify' },
-  { pattern: /MoeKoe/i, provider: 'moekoe' },
 ];
 
 function detectProviderFromProcess(sourceAppId: string): Provider | null {
@@ -121,15 +99,11 @@ async function tryProviders(
   }, Promise.resolve(null));
 }
 
+/** 已移除的源（如 `qqmusic-only`）查不到映射，会按自动模式处理 */
 const SOURCE_SETTING_TO_PROVIDER: Record<string, Provider> = {
   'lrcred-only': 'lrcred',
-  'netease-only': 'netease',
-  'qqmusic-only': 'qqmusic',
-  'kugou-only': 'kugou',
-  'sodamusic-only': 'sodamusic',
   'applemusic-only': 'applemusic',
   'spotify-only': 'spotify',
-  'moekoe-only': 'moekoe',
 };
 
 async function readLyricsSourceSetting(): Promise<string> {

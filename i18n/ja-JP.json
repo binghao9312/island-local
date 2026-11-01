@@ -3569,13 +3569,8 @@
         "displayHint": "画面上の歌詞の表示効果を設定します",
         "sourceOptions": {
           "auto": "自動（プレーヤーに合わせる）",
-          "neteaseOnly": "NetEase のみ",
-          "qqmusicOnly": "QQ Music のみ",
-          "kugouOnly": "KuGou のみ",
-          "sodamusicOnly": "Soda Music のみ",
           "applemusicOnly": "Apple Music のみ",
           "spotifyOnly": "Spotify のみ",
-          "moekoeOnly": "MoeKoe のみ",
           "lrclibOnly": "LRCLIB のみ",
           "lrcredOnly": "lrc.red のみ"
         },

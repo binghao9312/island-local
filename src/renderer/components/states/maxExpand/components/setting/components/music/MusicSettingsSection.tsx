@@ -117,13 +117,8 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
   const lyricsSourceOptionKeyMap: Record<string, string> = {
     auto: 'settings.music.lyrics.sourceOptions.auto',
     'lrcred-only': 'settings.music.lyrics.sourceOptions.lrcredOnly',
-    'netease-only': 'settings.music.lyrics.sourceOptions.neteaseOnly',
-    'qqmusic-only': 'settings.music.lyrics.sourceOptions.qqmusicOnly',
-    'kugou-only': 'settings.music.lyrics.sourceOptions.kugouOnly',
-    'sodamusic-only': 'settings.music.lyrics.sourceOptions.sodamusicOnly',
     'applemusic-only': 'settings.music.lyrics.sourceOptions.applemusicOnly',
     'spotify-only': 'settings.music.lyrics.sourceOptions.spotifyOnly',
-    'moekoe-only': 'settings.music.lyrics.sourceOptions.moekoeOnly',
     'lrclib-only': 'settings.music.lyrics.sourceOptions.lrclibOnly',
   };
   const {

@@ -3569,13 +3569,8 @@
         "displayHint": "Control how lyrics are rendered on screen",
         "sourceOptions": {
           "auto": "Auto (Follow Player)",
-          "neteaseOnly": "NetEase Only",
-          "qqmusicOnly": "QQ Music Only",
-          "kugouOnly": "KuGou Only",
-          "sodamusicOnly": "Soda Music Only",
           "applemusicOnly": "Apple Music Only",
           "spotifyOnly": "Spotify Only",
-          "moekoeOnly": "MoeKoe Only",
           "lrclibOnly": "LRCLIB Only",
           "lrcredOnly": "lrc.red Only"
         },

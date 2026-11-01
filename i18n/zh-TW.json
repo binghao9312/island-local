@@ -3569,13 +3569,8 @@
         "displayHint": "控制歌詞界面的展示效果",
         "sourceOptions": {
           "auto": "自動（跟隨播放器）",
-          "neteaseOnly": "僅網易雲",
-          "qqmusicOnly": "僅 QQ音樂",
-          "kugouOnly": "僅酷狗",
-          "sodamusicOnly": "僅汽水音樂",
           "applemusicOnly": "僅 Apple Music",
           "spotifyOnly": "僅 Spotify",
-          "moekoeOnly": "僅 MoeKoe",
           "lrclibOnly": "僅 LRCLIB",
           "lrcredOnly": "僅 lrc.red"
         },

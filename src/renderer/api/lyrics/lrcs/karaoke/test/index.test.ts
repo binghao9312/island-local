@@ -26,15 +26,11 @@
 
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
-const fetchKaraokeFromNetease = vi.hoisted(() => vi.fn());
-const fetchKaraokeFromQQMusic = vi.hoisted(() => vi.fn());
-const fetchKaraokeFromKugou = vi.hoisted(() => vi.fn());
-const fetchKaraokeFromSodaMusic = vi.hoisted(() => vi.fn());
+const fetchKaraokeFromLrcRed = vi.hoisted(() => vi.fn());
+const fetchKaraokeFromAppleMusic = vi.hoisted(() => vi.fn());
 
-vi.mock('../providers/netease', () => ({ fetchKaraokeFromNetease }));
-vi.mock('../providers/qqmusic', () => ({ fetchKaraokeFromQQMusic }));
-vi.mock('../providers/kugou', () => ({ fetchKaraokeFromKugou }));
-vi.mock('../providers/sodaMusic', () => ({ fetchKaraokeFromSodaMusic }));
+vi.mock('../providers/lrcred', () => ({ fetchKaraokeFromLrcRed }));
+vi.mock('../providers/appleMusic', () => ({ fetchKaraokeFromAppleMusic }));
 
 import type { KaraokeLine } from '../types';
 import { fetchKaraokeLyrics } from '../index';
@@ -63,57 +59,45 @@ describe('fetchKaraokeLyrics', () => {
   it('returns null on empty title without throwing', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
     musicDetectSourceAppId.mockResolvedValue({ ok: true, sources: [] });
-    fetchKaraokeFromNetease.mockResolvedValue(null);
-    fetchKaraokeFromQQMusic.mockResolvedValue(null);
-    fetchKaraokeFromKugou.mockResolvedValue(null);
-    fetchKaraokeFromSodaMusic.mockResolvedValue(null);
+    fetchKaraokeFromLrcRed.mockResolvedValue(null);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(null);
 
     const result = await fetchKaraokeLyrics('', 'artist');
 
     expect(result).toBeNull();
   });
 
-  it('uses forced provider when source setting is netease-only', async () => {
-    musicLyricsSourceGet.mockResolvedValue('netease-only');
-    fetchKaraokeFromNetease.mockResolvedValue(SAMPLE_KARAOKE);
+  it('uses forced provider when source setting is applemusic-only', async () => {
+    musicLyricsSourceGet.mockResolvedValue('applemusic-only');
+    fetchKaraokeFromAppleMusic.mockResolvedValue(SAMPLE_KARAOKE);
 
     const result = await fetchKaraokeLyrics('song', 'artist');
 
-    expect(fetchKaraokeFromNetease).toHaveBeenCalledWith('song', 'artist');
-    expect(fetchKaraokeFromQQMusic).not.toHaveBeenCalled();
-    expect(fetchKaraokeFromKugou).not.toHaveBeenCalled();
-    expect(fetchKaraokeFromSodaMusic).not.toHaveBeenCalled();
+    expect(fetchKaraokeFromAppleMusic).toHaveBeenCalledWith('song', 'artist');
+    expect(fetchKaraokeFromLrcRed).not.toHaveBeenCalled();
     expect(result).toEqual(SAMPLE_KARAOKE);
   });
 
-  it('uses forced provider when source setting is qqmusic-only', async () => {
+  it('uses forced provider when source setting is lrcred-only', async () => {
+    musicLyricsSourceGet.mockResolvedValue('lrcred-only');
+    fetchKaraokeFromLrcRed.mockResolvedValue(SAMPLE_KARAOKE);
+
+    const result = await fetchKaraokeLyrics('song', 'artist', undefined, 213000);
+
+    expect(fetchKaraokeFromLrcRed).toHaveBeenCalledWith('song', 'artist', 213000);
+    expect(fetchKaraokeFromAppleMusic).not.toHaveBeenCalled();
+    expect(result).toEqual(SAMPLE_KARAOKE);
+  });
+
+  it('falls back to automatic selection when the stored source id was removed', async () => {
     musicLyricsSourceGet.mockResolvedValue('qqmusic-only');
-    fetchKaraokeFromQQMusic.mockResolvedValue(SAMPLE_KARAOKE);
+    musicDetectSourceAppId.mockResolvedValue({ ok: true, sources: [] });
+    fetchKaraokeFromLrcRed.mockResolvedValue(SAMPLE_KARAOKE);
 
     const result = await fetchKaraokeLyrics('song', 'artist');
 
-    expect(fetchKaraokeFromQQMusic).toHaveBeenCalledWith('song', 'artist');
-    expect(fetchKaraokeFromNetease).not.toHaveBeenCalled();
-    expect(result).toEqual(SAMPLE_KARAOKE);
-  });
-
-  it('uses forced provider when source setting is kugou-only', async () => {
-    musicLyricsSourceGet.mockResolvedValue('kugou-only');
-    fetchKaraokeFromKugou.mockResolvedValue(SAMPLE_KARAOKE);
-
-    const result = await fetchKaraokeLyrics('song', 'artist');
-
-    expect(fetchKaraokeFromKugou).toHaveBeenCalledWith('song', 'artist');
-    expect(result).toEqual(SAMPLE_KARAOKE);
-  });
-
-  it('uses forced provider when source setting is sodamusic-only', async () => {
-    musicLyricsSourceGet.mockResolvedValue('sodamusic-only');
-    fetchKaraokeFromSodaMusic.mockResolvedValue(SAMPLE_KARAOKE);
-
-    const result = await fetchKaraokeLyrics('song', 'artist');
-
-    expect(fetchKaraokeFromSodaMusic).toHaveBeenCalledWith('song', 'artist');
+    expect(fetchKaraokeFromLrcRed).toHaveBeenCalledWith('song', 'artist', undefined);
+    expect(fetchKaraokeFromAppleMusic).not.toHaveBeenCalled();
     expect(result).toEqual(SAMPLE_KARAOKE);
   });
 
@@ -122,52 +106,41 @@ describe('fetchKaraokeLyrics', () => {
 
     const result = await fetchKaraokeLyrics('song', 'artist');
 
-    expect(fetchKaraokeFromNetease).not.toHaveBeenCalled();
-    expect(fetchKaraokeFromQQMusic).not.toHaveBeenCalled();
-    expect(fetchKaraokeFromKugou).not.toHaveBeenCalled();
-    expect(fetchKaraokeFromSodaMusic).not.toHaveBeenCalled();
+    expect(fetchKaraokeFromLrcRed).not.toHaveBeenCalled();
+    expect(fetchKaraokeFromAppleMusic).not.toHaveBeenCalled();
     expect(result).toBeNull();
   });
 
   it('falls back through provider chain when first providers return null', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
     musicDetectSourceAppId.mockResolvedValue({ ok: true, sources: [] });
-    fetchKaraokeFromNetease.mockResolvedValue(null);
-    fetchKaraokeFromQQMusic.mockResolvedValue(null);
-    fetchKaraokeFromKugou.mockResolvedValue(null);
-    fetchKaraokeFromSodaMusic.mockResolvedValue(SAMPLE_KARAOKE);
+    fetchKaraokeFromLrcRed.mockResolvedValue(null);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(SAMPLE_KARAOKE);
 
     const result = await fetchKaraokeLyrics('song', 'artist');
 
-    expect(fetchKaraokeFromNetease).toHaveBeenCalled();
-    expect(fetchKaraokeFromQQMusic).toHaveBeenCalled();
-    expect(fetchKaraokeFromKugou).toHaveBeenCalled();
-    expect(fetchKaraokeFromSodaMusic).toHaveBeenCalled();
+    expect(fetchKaraokeFromLrcRed).toHaveBeenCalled();
+    expect(fetchKaraokeFromAppleMusic).toHaveBeenCalled();
     expect(result).toEqual(SAMPLE_KARAOKE);
   });
 
   it('stops at first successful provider', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
     musicDetectSourceAppId.mockResolvedValue({ ok: true, sources: [] });
-    fetchKaraokeFromNetease.mockResolvedValue(null);
-    fetchKaraokeFromQQMusic.mockResolvedValue(SAMPLE_KARAOKE);
+    fetchKaraokeFromLrcRed.mockResolvedValue(SAMPLE_KARAOKE);
 
     const result = await fetchKaraokeLyrics('song', 'artist');
 
-    expect(fetchKaraokeFromNetease).toHaveBeenCalled();
-    expect(fetchKaraokeFromQQMusic).toHaveBeenCalled();
-    expect(fetchKaraokeFromKugou).not.toHaveBeenCalled();
-    expect(fetchKaraokeFromSodaMusic).not.toHaveBeenCalled();
+    expect(fetchKaraokeFromLrcRed).toHaveBeenCalled();
+    expect(fetchKaraokeFromAppleMusic).not.toHaveBeenCalled();
     expect(result).toEqual(SAMPLE_KARAOKE);
   });
 
   it('returns null when all providers fail', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
     musicDetectSourceAppId.mockResolvedValue({ ok: true, sources: [] });
-    fetchKaraokeFromNetease.mockResolvedValue(null);
-    fetchKaraokeFromQQMusic.mockResolvedValue(null);
-    fetchKaraokeFromKugou.mockResolvedValue(null);
-    fetchKaraokeFromSodaMusic.mockResolvedValue(null);
+    fetchKaraokeFromLrcRed.mockResolvedValue(null);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(null);
 
     const result = await fetchKaraokeLyrics('song', 'artist');
 
@@ -177,102 +150,77 @@ describe('fetchKaraokeLyrics', () => {
   it('handles provider throwing an error and continues to next', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
     musicDetectSourceAppId.mockResolvedValue({ ok: true, sources: [] });
-    fetchKaraokeFromNetease.mockRejectedValue(new Error('network error'));
-    fetchKaraokeFromQQMusic.mockResolvedValue(SAMPLE_KARAOKE);
+    fetchKaraokeFromLrcRed.mockRejectedValue(new Error('network error'));
+    fetchKaraokeFromAppleMusic.mockResolvedValue(SAMPLE_KARAOKE);
 
     const result = await fetchKaraokeLyrics('song', 'artist');
 
-    expect(fetchKaraokeFromNetease).toHaveBeenCalled();
-    expect(fetchKaraokeFromQQMusic).toHaveBeenCalled();
+    expect(fetchKaraokeFromLrcRed).toHaveBeenCalled();
+    expect(fetchKaraokeFromAppleMusic).toHaveBeenCalled();
     expect(result).toEqual(SAMPLE_KARAOKE);
   });
 
   it('ignores providers returning empty arrays and continues', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
     musicDetectSourceAppId.mockResolvedValue({ ok: true, sources: [] });
-    fetchKaraokeFromNetease.mockResolvedValue([]);
-    fetchKaraokeFromQQMusic.mockResolvedValue(SAMPLE_KARAOKE);
+    fetchKaraokeFromLrcRed.mockResolvedValue([]);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(SAMPLE_KARAOKE);
 
     const result = await fetchKaraokeLyrics('song', 'artist');
 
-    expect(fetchKaraokeFromNetease).toHaveBeenCalled();
-    expect(fetchKaraokeFromQQMusic).toHaveBeenCalled();
+    expect(fetchKaraokeFromLrcRed).toHaveBeenCalled();
+    expect(fetchKaraokeFromAppleMusic).toHaveBeenCalled();
     expect(result).toEqual(SAMPLE_KARAOKE);
   });
 
-  it('routes to netease based on cloudmusic.exe sourceAppId', async () => {
+  it('routes to applemusic based on AppleMusicWin sourceAppId', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
-    fetchKaraokeFromNetease.mockResolvedValue(SAMPLE_KARAOKE);
+    fetchKaraokeFromLrcRed.mockResolvedValue(null);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(SAMPLE_KARAOKE);
 
-    const result = await fetchKaraokeLyrics('song', 'artist', 'cloudmusic.exe');
+    const result = await fetchKaraokeLyrics('song', 'artist', 'AppleMusicWin.exe');
 
-    expect(fetchKaraokeFromNetease).toHaveBeenCalledWith('song', 'artist');
+    expect(fetchKaraokeFromAppleMusic).toHaveBeenCalledWith('song', 'artist');
     expect(result).toEqual(SAMPLE_KARAOKE);
   });
 
-  it('routes to qqmusic based on QQMusic sourceAppId', async () => {
+  it('routes to applemusic based on AppleInc.AppleMusic sourceAppId', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
-    fetchKaraokeFromQQMusic.mockResolvedValue(SAMPLE_KARAOKE);
+    fetchKaraokeFromLrcRed.mockResolvedValue(null);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(SAMPLE_KARAOKE);
 
-    const result = await fetchKaraokeLyrics('song', 'artist', 'QQMusic.exe');
+    const result = await fetchKaraokeLyrics('song', 'artist', 'AppleInc.AppleMusic_nzskd');
 
-    expect(fetchKaraokeFromQQMusic).toHaveBeenCalledWith('song', 'artist');
+    expect(fetchKaraokeFromAppleMusic).toHaveBeenCalledWith('song', 'artist');
     expect(result).toEqual(SAMPLE_KARAOKE);
   });
 
-  it('routes to kugou based on kugou sourceAppId', async () => {
+  it('has no karaoke provider for Spotify sessions and uses the automatic chain', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
-    fetchKaraokeFromKugou.mockResolvedValue(SAMPLE_KARAOKE);
+    fetchKaraokeFromLrcRed.mockResolvedValue(null);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(null);
 
-    const result = await fetchKaraokeLyrics('song', 'artist', 'kugou.exe');
+    const result = await fetchKaraokeLyrics('song', 'artist', 'Spotify.exe');
 
-    expect(fetchKaraokeFromKugou).toHaveBeenCalledWith('song', 'artist');
-    expect(result).toEqual(SAMPLE_KARAOKE);
+    expect(fetchKaraokeFromLrcRed).toHaveBeenCalled();
+    expect(fetchKaraokeFromAppleMusic).toHaveBeenCalled();
+    expect(result).toBeNull();
   });
 
-  it('routes to sodamusic based on 汽水音乐 sourceAppId', async () => {
+  it('case-insensitive sourceAppId matching (APPLEMUSICWIN.EXE)', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
-    fetchKaraokeFromSodaMusic.mockResolvedValue(SAMPLE_KARAOKE);
+    fetchKaraokeFromLrcRed.mockResolvedValue(null);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(SAMPLE_KARAOKE);
 
-    const result = await fetchKaraokeLyrics('song', 'artist', '汽水音乐.exe');
+    const result = await fetchKaraokeLyrics('song', 'artist', 'APPLEMUSICWIN.EXE');
 
-    expect(fetchKaraokeFromSodaMusic).toHaveBeenCalledWith('song', 'artist');
-    expect(result).toEqual(SAMPLE_KARAOKE);
-  });
-
-  it('routes to sodamusic based on qishui sourceAppId', async () => {
-    musicLyricsSourceGet.mockResolvedValue('auto');
-    fetchKaraokeFromSodaMusic.mockResolvedValue(SAMPLE_KARAOKE);
-
-    const result = await fetchKaraokeLyrics('song', 'artist', 'qishui.exe');
-
-    expect(fetchKaraokeFromSodaMusic).toHaveBeenCalledWith('song', 'artist');
-    expect(result).toEqual(SAMPLE_KARAOKE);
-  });
-
-  it('routes to sodamusic based on SodaMusic sourceAppId', async () => {
-    musicLyricsSourceGet.mockResolvedValue('auto');
-    fetchKaraokeFromSodaMusic.mockResolvedValue(SAMPLE_KARAOKE);
-
-    const result = await fetchKaraokeLyrics('song', 'artist', 'SodaMusic.exe');
-
-    expect(fetchKaraokeFromSodaMusic).toHaveBeenCalledWith('song', 'artist');
-    expect(result).toEqual(SAMPLE_KARAOKE);
-  });
-
-  it('case-insensitive sourceAppId matching (CLOUDMUSIC.EXE)', async () => {
-    musicLyricsSourceGet.mockResolvedValue('auto');
-    fetchKaraokeFromNetease.mockResolvedValue(SAMPLE_KARAOKE);
-
-    const result = await fetchKaraokeLyrics('song', 'artist', 'CLOUDMUSIC.EXE');
-
-    expect(fetchKaraokeFromNetease).toHaveBeenCalledWith('song', 'artist');
+    expect(fetchKaraokeFromAppleMusic).toHaveBeenCalledWith('song', 'artist');
     expect(result).toEqual(SAMPLE_KARAOKE);
   });
 
   it('uses window.api.musicLyricsSourceGet to read source setting', async () => {
-    musicLyricsSourceGet.mockResolvedValue('netease-only');
-    fetchKaraokeFromNetease.mockResolvedValue(SAMPLE_KARAOKE);
+    musicLyricsSourceGet.mockResolvedValue('applemusic-only');
+    fetchKaraokeFromAppleMusic.mockResolvedValue(SAMPLE_KARAOKE);
 
     await fetchKaraokeLyrics('song', 'artist');
 
@@ -282,18 +230,14 @@ describe('fetchKaraokeLyrics', () => {
   it('falls back to auto when musicLyricsSourceGet throws', async () => {
     musicLyricsSourceGet.mockRejectedValue(new Error('settings unavailable'));
     musicDetectSourceAppId.mockResolvedValue({ ok: true, sources: [] });
-    fetchKaraokeFromNetease.mockResolvedValue(null);
-    fetchKaraokeFromQQMusic.mockResolvedValue(null);
-    fetchKaraokeFromKugou.mockResolvedValue(null);
-    fetchKaraokeFromSodaMusic.mockResolvedValue(null);
+    fetchKaraokeFromLrcRed.mockResolvedValue(null);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(null);
 
     const result = await fetchKaraokeLyrics('song', 'artist');
 
     // all providers were tried (auto fallback)
-    expect(fetchKaraokeFromNetease).toHaveBeenCalled();
-    expect(fetchKaraokeFromQQMusic).toHaveBeenCalled();
-    expect(fetchKaraokeFromKugou).toHaveBeenCalled();
-    expect(fetchKaraokeFromSodaMusic).toHaveBeenCalled();
+    expect(fetchKaraokeFromLrcRed).toHaveBeenCalled();
+    expect(fetchKaraokeFromAppleMusic).toHaveBeenCalled();
     expect(result).toBeNull();
   });
 
@@ -301,14 +245,15 @@ describe('fetchKaraokeLyrics', () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
     musicDetectSourceAppId.mockResolvedValue({
       ok: true,
-      sources: [{ isPlaying: true, hasTitle: true, sourceAppId: 'QQMusic.exe' }],
+      sources: [{ isPlaying: true, hasTitle: true, sourceAppId: 'AppleMusicWin.exe' }],
     });
-    fetchKaraokeFromQQMusic.mockResolvedValue(SAMPLE_KARAOKE);
+    fetchKaraokeFromLrcRed.mockResolvedValue(null);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(SAMPLE_KARAOKE);
 
     const result = await fetchKaraokeLyrics('song', 'artist');
 
     expect(musicDetectSourceAppId).toHaveBeenCalled();
-    expect(fetchKaraokeFromQQMusic).toHaveBeenCalledWith('song', 'artist');
+    expect(fetchKaraokeFromAppleMusic).toHaveBeenCalledWith('song', 'artist');
     expect(result).toEqual(SAMPLE_KARAOKE);
   });
 
@@ -317,15 +262,16 @@ describe('fetchKaraokeLyrics', () => {
     musicDetectSourceAppId.mockResolvedValue({
       ok: true,
       sources: [
-        { isPlaying: false, hasTitle: true, sourceAppId: 'kugou.exe' },
-        { isPlaying: true, hasTitle: true, sourceAppId: 'QQMusic.exe' },
+        { isPlaying: false, hasTitle: true, sourceAppId: 'Spotify.exe' },
+        { isPlaying: true, hasTitle: true, sourceAppId: 'AppleMusicWin.exe' },
       ],
     });
-    fetchKaraokeFromQQMusic.mockResolvedValue(SAMPLE_KARAOKE);
+    fetchKaraokeFromLrcRed.mockResolvedValue(null);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(SAMPLE_KARAOKE);
 
     const result = await fetchKaraokeLyrics('song', 'artist');
 
-    expect(fetchKaraokeFromQQMusic).toHaveBeenCalled();
+    expect(fetchKaraokeFromAppleMusic).toHaveBeenCalled();
     expect(result).toEqual(SAMPLE_KARAOKE);
   });
 
@@ -334,36 +280,38 @@ describe('fetchKaraokeLyrics', () => {
     musicDetectSourceAppId.mockResolvedValue({
       ok: true,
       sources: [
-        { isPlaying: false, hasTitle: true, sourceAppId: 'kugou.exe' },
+        { isPlaying: false, hasTitle: true, sourceAppId: 'AppleMusicWin.exe' },
       ],
     });
-    fetchKaraokeFromKugou.mockResolvedValue(SAMPLE_KARAOKE);
+    fetchKaraokeFromLrcRed.mockResolvedValue(null);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(SAMPLE_KARAOKE);
 
     const result = await fetchKaraokeLyrics('song', 'artist');
 
-    expect(fetchKaraokeFromKugou).toHaveBeenCalled();
+    expect(fetchKaraokeFromAppleMusic).toHaveBeenCalled();
     expect(result).toEqual(SAMPLE_KARAOKE);
   });
 
   it('skips musicDetectSourceAppId when sourceAppId is provided', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
-    fetchKaraokeFromNetease.mockResolvedValue(SAMPLE_KARAOKE);
+    fetchKaraokeFromLrcRed.mockResolvedValue(null);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(SAMPLE_KARAOKE);
 
-    await fetchKaraokeLyrics('song', 'artist', 'cloudmusic.exe');
+    await fetchKaraokeLyrics('song', 'artist', 'AppleMusicWin.exe');
 
     expect(musicDetectSourceAppId).not.toHaveBeenCalled();
   });
 
   it('falls through all providers when detected primary fails', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
-    fetchKaraokeFromNetease.mockResolvedValue(null);
-    fetchKaraokeFromQQMusic.mockResolvedValue(SAMPLE_KARAOKE);
+    fetchKaraokeFromLrcRed.mockResolvedValue(null);
+    fetchKaraokeFromAppleMusic.mockResolvedValue(null);
 
-    const result = await fetchKaraokeLyrics('song', 'artist', 'cloudmusic.exe');
+    const result = await fetchKaraokeLyrics('song', 'artist', 'AppleMusicWin.exe');
 
-    // netease is primary (cloudmusic), tried first then falls back
-    expect(fetchKaraokeFromNetease).toHaveBeenCalled();
-    expect(fetchKaraokeFromQQMusic).toHaveBeenCalled();
-    expect(result).toEqual(SAMPLE_KARAOKE);
+    // lrc.red still runs first per automatic order, then the detected applemusic source
+    expect(fetchKaraokeFromLrcRed).toHaveBeenCalled();
+    expect(fetchKaraokeFromAppleMusic).toHaveBeenCalled();
+    expect(result).toBeNull();
   });
 });

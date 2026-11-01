@@ -32,15 +32,19 @@ import type { WeatherProvider, WeatherLocationPriority } from '../../../../../..
 export const LYRICS_SOURCE_OPTIONS = [
   { value: 'auto', label: '自动（跟随播放器）' },
   { value: 'lrcred-only', label: '仅 lrc.red' },
-  { value: 'netease-only', label: '仅网易云' },
-  { value: 'qqmusic-only', label: '仅 QQ音乐' },
-  { value: 'kugou-only', label: '仅酷狗' },
-  { value: 'sodamusic-only', label: '仅汽水音乐' },
   { value: 'applemusic-only', label: '仅 Apple Music' },
   { value: 'spotify-only', label: '仅 Spotify' },
-  { value: 'moekoe-only', label: '仅 MoeKoe' },
   { value: 'lrclib-only', label: '仅 LRCLIB' },
 ];
+
+/**
+ * 将已保存的歌词源映射为当前可选项，已移除的源回退为自动
+ * @param value - 已保存的歌词源标识
+ * @returns 有效的歌词源标识，无效时返回 'auto'
+ */
+export function normalizeLyricsSource(value: string): string {
+  return LYRICS_SOURCE_OPTIONS.some((option) => option.value === value) ? value : 'auto';
+}
 
 export const WEATHER_PROVIDER_OPTIONS: Array<{ value: WeatherProvider; label: string }> = [
   { value: 'open-meteo', label: 'Open-Meteo 优先' },

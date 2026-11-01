@@ -394,3 +394,17 @@ describe('normalizeMaxExpandNavLayoutConfig', () => {
     expect(result2[0].visible).toBe(true);
   });
 });
+
+describe('normalizeLyricsSource', () => {
+  it.each(['auto', 'lrcred-only', 'applemusic-only', 'spotify-only', 'lrclib-only'])('keeps the available option %s', (value) => {
+    expect(mod.normalizeLyricsSource(value)).toBe(value);
+  });
+
+  it.each(['qqmusic-only', 'netease-only', 'kugou-only', 'sodamusic-only', 'moekoe-only', 'unknown'])('falls back to auto for removed or unknown source %s', (value) => {
+    expect(mod.normalizeLyricsSource(value)).toBe('auto');
+  });
+
+  it('exposes only the remaining lyric source options', () => {
+    expect(mod.LYRICS_SOURCE_OPTIONS.map((option) => option.value)).toEqual(['auto', 'lrcred-only', 'applemusic-only', 'spotify-only', 'lrclib-only']);
+  });
+});

@@ -33,10 +33,6 @@ export type {
 } from './lrcs';
 export {
   fetchLyricsFromLrclib,
-  fetchLyricsFromNetease,
-  fetchLyricsFromQQMusic,
-  fetchLyricsFromKugou,
-  fetchLyricsFromSodaMusic,
   fetchLyrics,
   fetchLyricsWithTranslation,
   getCurrentLyric,

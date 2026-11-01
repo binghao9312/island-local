@@ -26,35 +26,15 @@
 
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
-const fetchLyricsFromNetease = vi.hoisted(() => vi.fn());
-const fetchLyricsWithTranslationFromNetease = vi.hoisted(() => vi.fn(async (...args: unknown[]) => {
-  const lyrics = await fetchLyricsFromNetease(...args);
-  return lyrics ? { lyrics, translation: { status: 'not-provided', lines: null } } : null;
-}));
-const fetchLyricsFromQQMusic = vi.hoisted(() => vi.fn());
-const fetchLyricsWithTranslationFromQQMusic = vi.hoisted(() => vi.fn(async (...args: unknown[]) => {
-  const lyrics = await fetchLyricsFromQQMusic(...args);
-  return lyrics ? { lyrics, translation: { status: 'not-provided', lines: null } } : null;
-}));
-const fetchLyricsFromKugou = vi.hoisted(() => vi.fn());
-const fetchLyricsFromSodaMusic = vi.hoisted(() => vi.fn());
-const fetchLyricsWithTranslationFromSodaMusic = vi.hoisted(() => vi.fn(async (...args: unknown[]) => {
-  const lyrics = await fetchLyricsFromSodaMusic(...args);
-  return lyrics ? { lyrics, translation: { status: 'not-provided', lines: null } } : null;
-}));
+const fetchLyricsFromLrcRed = vi.hoisted(() => vi.fn());
 const fetchLyricsFromLrclib = vi.hoisted(() => vi.fn());
 const fetchLyricsFromAppleMusic = vi.hoisted(() => vi.fn());
 const fetchLyricsFromSpotify = vi.hoisted(() => vi.fn());
-const fetchLyricsFromMoeKoe = vi.hoisted(() => vi.fn());
 
-vi.mock('../normal/providers/netease', () => ({ fetchLyricsFromNetease, fetchLyricsWithTranslationFromNetease }));
-vi.mock('../normal/providers/qqmusic', () => ({ fetchLyricsFromQQMusic, fetchLyricsWithTranslationFromQQMusic }));
-vi.mock('../normal/providers/kugou', () => ({ fetchLyricsFromKugou }));
-vi.mock('../normal/providers/sodaMusic', () => ({ fetchLyricsFromSodaMusic, fetchLyricsWithTranslationFromSodaMusic }));
+vi.mock('../normal/providers/lrcred', () => ({ fetchLyricsFromLrcRed }));
 vi.mock('../normal/providers/lrclib', () => ({ fetchLyricsFromLrclib }));
 vi.mock('../normal/providers/appleMusic', () => ({ fetchLyricsFromAppleMusic }));
 vi.mock('../normal/providers/spotify', () => ({ fetchLyricsFromSpotify }));
-vi.mock('../normal/providers/moeKoe', () => ({ fetchLyricsFromMoeKoe }));
 
 import type { LyricLine } from '../index';
 import { getCurrentLyric, getNearbyLyrics, fetchLyrics, fetchLyricsWithTranslation } from '../index';
@@ -172,98 +152,110 @@ describe('fetchLyrics', () => {
     const result = await fetchLyrics('song', 'artist');
 
     expect(fetchLyricsFromLrclib).toHaveBeenCalledWith('song', 'artist', undefined);
-    expect(fetchLyricsFromNetease).not.toHaveBeenCalled();
+    expect(fetchLyricsFromLrcRed).not.toHaveBeenCalled();
     expect(result).toEqual(expected);
   });
 
-  it('routes to forced provider when setting is netease-only', async () => {
-    musicLyricsSourceGet.mockResolvedValue('netease-only');
-    const expected: LyricLine[] = [makeLyric(0, 'ne-line')];
-    fetchLyricsFromNetease.mockResolvedValue(expected);
+  it('routes to forced provider when setting is applemusic-only', async () => {
+    musicLyricsSourceGet.mockResolvedValue('applemusic-only');
+    const expected: LyricLine[] = [makeLyric(0, 'apple-line')];
+    fetchLyricsFromAppleMusic.mockResolvedValue(expected);
 
     const result = await fetchLyrics('song', 'artist');
 
-    expect(fetchLyricsFromNetease).toHaveBeenCalledWith('song', 'artist');
+    expect(fetchLyricsFromAppleMusic).toHaveBeenCalledWith('song', 'artist', undefined);
     expect(result).toEqual(expected);
   });
 
   it('falls back to lrclib when forced provider returns null', async () => {
-    musicLyricsSourceGet.mockResolvedValue('netease-only');
-    fetchLyricsFromNetease.mockResolvedValue(null);
+    musicLyricsSourceGet.mockResolvedValue('applemusic-only');
+    fetchLyricsFromAppleMusic.mockResolvedValue(null);
     const expected: LyricLine[] = [makeLyric(0, 'fallback')];
     fetchLyricsFromLrclib.mockResolvedValue(expected);
 
     const result = await fetchLyrics('song', 'artist');
 
-    expect(fetchLyricsFromNetease).toHaveBeenCalled();
+    expect(fetchLyricsFromAppleMusic).toHaveBeenCalled();
     expect(fetchLyricsFromLrclib).toHaveBeenCalledWith('song', 'artist', undefined);
     expect(result).toEqual(expected);
   });
 
-  it('detects provider from sourceAppId and tries it first', async () => {
+  it('falls back to automatic selection when the stored source id was removed', async () => {
+    musicLyricsSourceGet.mockResolvedValue('qqmusic-only');
+    const expected: LyricLine[] = [makeLyric(0, 'lrcred-line')];
+    fetchLyricsFromLrcRed.mockResolvedValue(expected);
+
+    const result = await fetchLyrics('song', 'artist');
+
+    expect(fetchLyricsFromLrcRed).toHaveBeenCalled();
+    expect(fetchLyricsFromAppleMusic).not.toHaveBeenCalled();
+    expect(fetchLyricsFromLrclib).not.toHaveBeenCalled();
+    expect(result).toEqual(expected);
+  });
+
+  it('detects provider from sourceAppId and tries it after lrc.red', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
-    const expected: LyricLine[] = [makeLyric(0, 'ne-line')];
-    fetchLyricsFromNetease.mockResolvedValue(expected);
+    const expected: LyricLine[] = [makeLyric(0, 'spotify-line')];
+    fetchLyricsFromLrcRed.mockResolvedValue(null);
+    fetchLyricsFromSpotify.mockResolvedValue(expected);
 
-    const result = await fetchLyrics('song', 'artist', 'cloudmusic.exe');
+    const result = await fetchLyrics('song', 'artist', 'Spotify.exe');
 
-    expect(fetchLyricsFromNetease).toHaveBeenCalledWith('song', 'artist');
+    expect(fetchLyricsFromLrcRed.mock.invocationCallOrder[0]).toBeLessThan(fetchLyricsFromSpotify.mock.invocationCallOrder[0]);
+    expect(fetchLyricsFromSpotify).toHaveBeenCalledWith('song', 'artist', undefined);
+    expect(fetchLyricsFromLrclib).not.toHaveBeenCalled();
     expect(result).toEqual(expected);
   });
 
   it('falls through providers in order when all return null', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
     musicDetectSourceAppId.mockResolvedValue({ ok: true, sources: [] });
-    fetchLyricsFromNetease.mockResolvedValue(null);
-    fetchLyricsFromQQMusic.mockResolvedValue(null);
-    fetchLyricsFromKugou.mockResolvedValue(null);
-    fetchLyricsFromSodaMusic.mockResolvedValue(null);
+    fetchLyricsFromLrcRed.mockResolvedValue(null);
+    fetchLyricsFromAppleMusic.mockResolvedValue(null);
+    fetchLyricsFromSpotify.mockResolvedValue(null);
     const expected: LyricLine[] = [makeLyric(0, 'lrclib')];
     fetchLyricsFromLrclib.mockResolvedValue(expected);
 
     const result = await fetchLyrics('song', 'artist');
 
-    expect(fetchLyricsFromNetease).toHaveBeenCalled();
-    expect(fetchLyricsFromQQMusic).toHaveBeenCalled();
-    expect(fetchLyricsFromKugou).toHaveBeenCalled();
-    expect(fetchLyricsFromSodaMusic).toHaveBeenCalled();
+    expect(fetchLyricsFromLrcRed).toHaveBeenCalled();
+    expect(fetchLyricsFromAppleMusic).toHaveBeenCalled();
+    expect(fetchLyricsFromSpotify).toHaveBeenCalled();
     expect(fetchLyricsFromLrclib).toHaveBeenCalled();
+    expect(fetchLyricsFromLrclib.mock.invocationCallOrder[0]).toBeGreaterThan(fetchLyricsFromSpotify.mock.invocationCallOrder[0]);
     expect(result).toEqual(expected);
   });
 
   it('stops at first successful provider', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
-    const expected: LyricLine[] = [makeLyric(0, 'qq-line')];
-    fetchLyricsFromNetease.mockResolvedValue(null);
-    fetchLyricsFromQQMusic.mockResolvedValue(expected);
+    const expected: LyricLine[] = [makeLyric(0, 'lrcred-line')];
+    fetchLyricsFromLrcRed.mockResolvedValue(expected);
 
     const result = await fetchLyrics('song', 'artist');
 
-    expect(fetchLyricsFromQQMusic).toHaveBeenCalled();
-    expect(fetchLyricsFromKugou).not.toHaveBeenCalled();
+    expect(fetchLyricsFromLrcRed).toHaveBeenCalled();
+    expect(fetchLyricsFromAppleMusic).not.toHaveBeenCalled();
     expect(fetchLyricsFromLrclib).not.toHaveBeenCalled();
     expect(result).toEqual(expected);
   });
 
-  it('keeps translation payload in the data-layer result', async () => {
-    musicLyricsSourceGet.mockResolvedValue('netease-only');
-    const lyrics: LyricLine[] = [makeLyric(0, 'ne-line')];
-    const translation = { status: 'available' as const, lines: [makeLyric(0, 'translated-line')] };
-    fetchLyricsWithTranslationFromNetease.mockResolvedValueOnce({ lyrics, translation });
+  it('marks translation unsupported for single-source results', async () => {
+    musicLyricsSourceGet.mockResolvedValue('spotify-only');
+    const lyrics: LyricLine[] = [makeLyric(0, 'spotify-line')];
+    fetchLyricsFromSpotify.mockResolvedValueOnce(lyrics);
 
     const result = await fetchLyricsWithTranslation('song', 'artist');
 
-    expect(fetchLyricsWithTranslationFromNetease).toHaveBeenCalledWith('song', 'artist');
-    expect(result).toEqual({ lyrics, translation });
+    expect(fetchLyricsFromSpotify).toHaveBeenCalledWith('song', 'artist', undefined);
+    expect(result).toEqual({ lyrics, translation: { status: 'unsupported', lines: null } });
   });
 
   it('returns null when all providers including lrclib fail', async () => {
     musicLyricsSourceGet.mockResolvedValue('auto');
     musicDetectSourceAppId.mockResolvedValue({ ok: true, sources: [] });
-    fetchLyricsFromNetease.mockResolvedValue(null);
-    fetchLyricsFromQQMusic.mockResolvedValue(null);
-    fetchLyricsFromKugou.mockResolvedValue(null);
-    fetchLyricsFromSodaMusic.mockResolvedValue(null);
+    fetchLyricsFromLrcRed.mockResolvedValue(null);
+    fetchLyricsFromAppleMusic.mockResolvedValue(null);
+    fetchLyricsFromSpotify.mockResolvedValue(null);
     fetchLyricsFromLrclib.mockResolvedValue(null);
 
     const result = await fetchLyrics('song', 'artist');
