@@ -593,6 +593,9 @@
     }
   },
   "notification": {
+    "discord": {
+      "title": "Discord 新訊息"
+    },
     "alarm": {
       "title": "鬧鐘",
       "body": "{{time}}",

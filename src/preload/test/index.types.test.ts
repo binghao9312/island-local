@@ -32,6 +32,7 @@ import type {} from '../index.d.ts';
 import type { ElectronAPI } from '@electron-toolkit/preload';
 import type { TrayMenuAction, TrayMenuState } from '../../shared/trayMenu';
 import type { GmailNewMailPayload, GmailReminderStatus } from '../../shared/gmailReminderTypes';
+import type { DiscordNotificationPayload } from '../../shared/discordNotificationTypes';
 import type {
   AcpEvent,
   AcpImageData,
@@ -284,6 +285,7 @@ interface ExpectedApi {
   gmailCheckNow: () => Promise<GmailReminderStatus>;
   gmailStatusGet: () => Promise<GmailReminderStatus>;
   onGmailNewMail: (callback: (data: GmailNewMailPayload) => void) => () => void;
+  onDiscordNotification: (callback: (data: DiscordNotificationPayload) => void) => () => void;
   onClipboardUrlsDetected: (callback: (data: ClipboardUrlsDetectedData) => void) => () => void;
   clipboardOpenUrl: (url: string) => Promise<boolean>;
   onExternalAgentStarted: (callback: (data: ExternalAgentData) => void) => () => void;

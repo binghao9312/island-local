@@ -179,6 +179,20 @@ export function useIslandNotificationSubscriptions(options: UseIslandNotificatio
   }, [language, t, setNotificationRef]);
 
   useEffect(() => {
+    const unsubDiscord = window.api?.onDiscordNotification?.(({ title, body }) => {
+      setNotificationRef.current({
+        title: title || t('notification.discord.title', { defaultValue: 'Discord 新消息' }),
+        body,
+        icon: SvgIcon.NOTIFICATION,
+        type: 'default',
+      });
+    });
+    return () => {
+      unsubDiscord?.();
+    };
+  }, [language, t, setNotificationRef]);
+
+  useEffect(() => {
     const unsubClipboard = window.api?.onClipboardUrlsDetected?.(({ urls, title }) => {
       let suppressInFavorites = true;
       try {

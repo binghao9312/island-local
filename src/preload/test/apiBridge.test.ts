@@ -328,6 +328,7 @@ const LISTENER_ROUTES = [
   ['onExternalAgentStarted', 'external-agent:started', 1, false],
   ['onExternalAgentStopped', 'external-agent:stopped', 1, false],
   ['onGmailNewMail', 'gmail:new-mail', 1, false],
+  ['onDiscordNotification', 'discord:notification', 1, false],
   ['onClaudeCodeStatusUpdated', 'claude-code:status-updated', 1, false],
   ['onCodexStatusUpdated', 'codex:status-updated', 1, false]
 ] as const satisfies readonly (readonly [string, string, number, boolean])[];

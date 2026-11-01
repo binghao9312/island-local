@@ -593,6 +593,9 @@
     }
   },
   "notification": {
+    "discord": {
+      "title": "Discord の新着メッセージ"
+    },
     "mail": {
       "title": "新着メール",
       "fromTitle": "{{sender}} からの新着メール",

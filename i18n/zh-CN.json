@@ -593,6 +593,9 @@
     }
   },
   "notification": {
+    "discord": {
+      "title": "Discord 新消息"
+    },
     "mail": {
       "title": "收到新邮件",
       "fromTitle": "{{sender}} 发来新邮件",

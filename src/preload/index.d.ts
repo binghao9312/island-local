@@ -88,6 +88,7 @@ import type {
   GoogleCalendarStatus,
 } from '../shared/googleCalendarTypes';
 import type { GmailNewMailPayload, GmailReminderStatus } from '../shared/gmailReminderTypes';
+import type { DiscordNotificationPayload } from '../shared/discordNotificationTypes';
 
 declare global {
   interface Window {
@@ -326,6 +327,7 @@ declare global {
       gmailCheckNow: () => Promise<GmailReminderStatus>;
       gmailStatusGet: () => Promise<GmailReminderStatus>;
       onGmailNewMail: (callback: (data: GmailNewMailPayload) => void) => () => void;
+      onDiscordNotification: (callback: (data: DiscordNotificationPayload) => void) => () => void;
       onClipboardUrlsDetected: (callback: (data: ClipboardUrlsDetectedData) => void) => () => void;
       clipboardOpenUrl: (url: string) => Promise<boolean>;
       onExternalAgentStarted: (callback: (data: ExternalAgentData) => void) => () => void;

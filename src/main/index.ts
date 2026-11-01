@@ -81,6 +81,7 @@ import { createSmtcService } from './music/smtcService';
 import { setSmtcAccessor } from './music/smtcAccessor';
 import { createAutoHideWatcher } from './system/autoHideWatcher';
 import { createExternalAgentWatcher } from './system/externalAgentWatcher';
+import { createDiscordNotificationWatcher } from './system/discordNotificationWatcher';
 import { createClaudeCodeStatusService } from './system/claudeCodeStatusService';
 import { createCodexStatusService } from './system/codexStatusService';
 import { createAgentUsageService } from './system/agentUsageService';
@@ -332,6 +333,10 @@ const autoHideWatcher = createAutoHideWatcher({
 });
 
 const externalAgentWatcher = createExternalAgentWatcher({
+  getMainWindow: () => mainWindow,
+});
+
+const discordNotificationWatcher = createDiscordNotificationWatcher({
   getMainWindow: () => mainWindow,
 });
 
@@ -778,6 +783,7 @@ registerAppLifecycleHandlers({
   onWillQuit: () => {
     autoHideWatcher.stop();
     externalAgentWatcher.stop();
+    discordNotificationWatcher.stop();
     claudeCodeStatusService.stop();
     codexStatusService.stop();
     acpManager.stopAll();
@@ -789,6 +795,7 @@ registerAppLifecycleHandlers({
   onWindowAllClosed: () => {
     autoHideWatcher.stop();
     externalAgentWatcher.stop();
+    discordNotificationWatcher.stop();
     smtcService.cleanupWorker();
     destroyTray();
     if (process.platform !== 'darwin') {
@@ -909,6 +916,7 @@ app.whenReady().then(() => {
   if (process.platform === 'win32') {
     autoHideWatcher.start();
     externalAgentWatcher.start();
+    discordNotificationWatcher.start();
   }
 
   // 读取持久化快捷键并注册

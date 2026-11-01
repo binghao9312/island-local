@@ -91,6 +91,7 @@ import type {
 import { TRAY_MENU_CHANNELS } from '../shared/trayMenu';
 import type { TrayMenuAction, TrayMenuState } from '../shared/trayMenu';
 import type { GmailNewMailPayload, GmailReminderStatus } from '../shared/gmailReminderTypes';
+import type { DiscordNotificationPayload } from '../shared/discordNotificationTypes';
 
 /** 自定义 API，供渲染进程调用 */
 const api = {
@@ -1624,6 +1625,20 @@ const api = {
     ipcRenderer.on('gmail:new-mail', handler);
     return () => {
       ipcRenderer.removeListener('gmail:new-mail', handler);
+    };
+  },
+  /**
+   * 监听 Discord 桌面端新通知
+   * @param callback - 收到通知时的回调，包含标题与正文
+   * @returns 取消监听函数
+   */
+  onDiscordNotification: (callback: (data: DiscordNotificationPayload) => void): (() => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: DiscordNotificationPayload): void => {
+      callback(data);
+    };
+    ipcRenderer.on('discord:notification', handler);
+    return () => {
+      ipcRenderer.removeListener('discord:notification', handler);
     };
   },
   /** ===== 剪贴板 URL 监听 API ===== */

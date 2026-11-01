@@ -593,6 +593,9 @@
     }
   },
   "notification": {
+    "discord": {
+      "title": "New Discord message"
+    },
     "mail": {
       "title": "New email",
       "fromTitle": "New email from {{sender}}",
