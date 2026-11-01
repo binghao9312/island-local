@@ -458,6 +458,7 @@
       "quit": "退出"
     },
     "tools": {
+      "timer": "倒數計時",
       "screenshot": "截圖",
       "taskManager": "任務管理器"
     },

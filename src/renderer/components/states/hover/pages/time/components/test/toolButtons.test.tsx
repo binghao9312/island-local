@@ -25,15 +25,46 @@
  */
 
 import { describe, expect, it, vi } from 'vitest';
-
-import { elements, invoke } from '../../../../../test/tree';
-
+import { elements, invoke, text } from '../../../../../test/tree';
 import { ToolButtons } from '../ToolButtons';
 import type { TreeElement } from '../../../../../test/tree';
-vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'zh-CN' } }), initReactI18next: { type: '3rdParty', init: vi.fn() } }));
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'zh-CN' } }),
+  initReactI18next: { type: '3rdParty', init: vi.fn() },
+}));
+
+const storeState = vi.hoisted(() => ({
+  timerData: { state: 'idle', remainingSeconds: 0 },
+}));
+vi.mock('../../../../../../../store/slices', () => ({
+  default: (selector: (state: typeof storeState) => unknown) => selector(storeState),
+}));
 
 const model = vi.hoisted(() => ({ handleScreenshot: vi.fn(), handleTaskManager: vi.fn() }));
 vi.mock('../../hooks/useToolButtons', () => ({ useToolButtons: () => model }));
+
 describe('ToolButtons', () => {
-  it('forwards both tool actions and renders accessible icons', () => { const root = ((ToolButtons() as TreeElement)); const buttons = elements(root).filter((node) => node.type === 'button'); expect(buttons).toHaveLength(2); buttons.forEach((button) => invoke(button, 'onClick')); expect(model.handleScreenshot).toHaveBeenCalledOnce(); expect(model.handleTaskManager).toHaveBeenCalledOnce(); expect(elements(root).filter((node) => node.type === 'img').every((node) => typeof node.props.alt === 'string')).toBe(true); });
+  it('forwards tool actions and renders accessible icons including timer toggle', () => {
+    storeState.timerData = { state: 'idle', remainingSeconds: 0 };
+    const onToggleCountdown = vi.fn();
+    const root = ToolButtons({ onToggleCountdown, isCountdownOpen: false }) as TreeElement;
+    const buttons = elements(root).filter((node) => node.type === 'button');
+    expect(buttons).toHaveLength(3);
+    buttons.forEach((button) => invoke(button, 'onClick'));
+    expect(onToggleCountdown).toHaveBeenCalledOnce();
+    expect(model.handleScreenshot).toHaveBeenCalledOnce();
+    expect(model.handleTaskManager).toHaveBeenCalledOnce();
+    expect(elements(root).filter((node) => node.type === 'img').every((node) => typeof node.props.alt === 'string')).toBe(true);
+  });
+
+  it('renders remaining mm:ss text badge when timer is running or paused', () => {
+    storeState.timerData = { state: 'running', remainingSeconds: 125 };
+    const root = ToolButtons() as TreeElement;
+    expect(text(root)).toContain('02:05');
+
+    storeState.timerData = { state: 'paused', remainingSeconds: 59 };
+    const pausedRoot = ToolButtons() as TreeElement;
+    expect(text(pausedRoot)).toContain('00:59');
+  });
 });

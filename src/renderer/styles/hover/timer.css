@@ -283,3 +283,41 @@
   align-items: center;
   gap: 4px;
 }
+
+/** 倒计时图标上的时间徽标（运行/暂停时显示） */
+.timer-btn-badge {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-island-text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+
+/** 运行状态下的倒计时触发按钮样式微调 */
+.timer-tools .timer-toggle-btn.is-active {
+  min-width: 36px;
+  width: auto;
+  padding: 0 4px;
+  border-radius: 6px;
+  background: rgba(var(--color-text-rgb), 0.15);
+}
+
+/** 倒计时悬浮弹出面板 */
+.countdown-popover {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  background: var(--color-island-bg);
+  border: 1px solid rgba(var(--color-text-rgb), 0.18);
+  border-radius: 10px;
+  padding: 6px 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

@@ -20,11 +20,11 @@
 
 /**
  * @file CountdownEdit.tsx
- * @description 可编辑计时器组件，支持设置时间、开始、暂停、重置
+ * @description 倒计时悬浮弹出面板与工具栏组件
  * @author 鸡哥
  */
 
-import { Fragment, type ReactElement } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SvgIcon } from '../../../../../../utils/SvgIcon';
 import { BrightnessControl } from './BrightnessControl';
@@ -41,19 +41,26 @@ const TIMER_FIELDS: { field: TimerInputField; max: number }[] = [
   { field: 'inputSeconds', max: 59 },
 ];
 
+/** CountdownEdit 组件入参 */
 interface CountdownEditProps {
+  /** 当前面板模式（倒计时/亮度/音量） */
   activePanel: TimePanelMode;
+  /** 默认是否打开倒计时弹层（用于测试） */
+  defaultOpen?: boolean;
 }
 
 /**
- * 可编辑计时器组件
- * @description 位于时间左侧，直接显示输入框，支持开始、暂停、重置
- * 倒计时逻辑由 DynamicIsland 全局管理，此组件仅负责 UI 展示和用户交互
- * @param props - 当前面板模式（倒计时/亮度/音量）
- * @returns 倒计时或亮度/音量控件区域
+ * 倒计时弹出面板与系统工具组件
+ * @description 倒计时编辑器不再常驻展示，通过 ToolButtons 中的计时器图标展开/收起浮层。
+ * @param props - 当前面板模式与默认展开状态
+ * @returns 倒计时与工具组件元素
  */
-export function CountdownEdit({ activePanel }: CountdownEditProps): ReactElement {
+export function CountdownEdit({ activePanel, defaultOpen = false }: CountdownEditProps): ReactElement {
   const { t } = useTranslation();
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const timerBtnRef = useRef<HTMLButtonElement>(null);
+
   const {
     timerState,
     isEditing,
@@ -72,14 +79,46 @@ export function CountdownEdit({ activePanel }: CountdownEditProps): ReactElement
     handleReset,
   } = useCountdownEdit();
 
+  const handleToggleCountdown = useCallback((): void => {
+    setIsOpen((prev) => !prev);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handlePointerDown = (e: MouseEvent): void => {
+      const target = e.target as Node;
+      if (
+        popoverRef.current &&
+        !popoverRef.current.contains(target) &&
+        !timerBtnRef.current?.contains(target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+    };
+  }, [isOpen]);
+
   return (
     <div className="timer-container">
-      <ToolButtons />
+      <ToolButtons
+        onToggleCountdown={handleToggleCountdown}
+        isCountdownOpen={isOpen}
+        timerBtnRef={timerBtnRef}
+      />
 
       <div className="timer-tools-divider" />
 
       <div className="timer-main-shell">
-        <div className={`timer-main${activePanel !== 'countdown' ? ' timer-main-hidden' : ''}`}>
+        <div className={`timer-main${activePanel !== 'countdown' ? ' timer-main-hidden' : ''}`} />
+        {activePanel === 'brightness' && <BrightnessControl />}
+        {activePanel === 'volume' && <VolumeControl />}
+      </div>
+
+      {isOpen && (
+        <div className="countdown-popover" ref={popoverRef} onClick={(e) => e.stopPropagation()}>
           <div className="timer-title-row">
             <div className="timer-title">
               <span className="text-[10px] text-[var(--color-island-text)] leading-tight">{t('hover.timer.title', { defaultValue: '倒计时' })}</span>
@@ -120,27 +159,49 @@ export function CountdownEdit({ activePanel }: CountdownEditProps): ReactElement
 
             <div className="timer-controls">
               {timerState === 'running' ? (
-                <button className="timer-btn timer-btn-pause" onClick={handlePause} title={t('hover.timer.actions.pause', { defaultValue: '暂停' })}>
+                <button
+                  type="button"
+                  className="timer-btn timer-btn-pause"
+                  onClick={handlePause}
+                  title={t('hover.timer.actions.pause', { defaultValue: '暂停' })}
+                  aria-label={t('hover.timer.actions.pause', { defaultValue: '暂停' })}
+                >
                   <img src={SvgIcon.PAUSE} alt={t('hover.timer.actions.pause', { defaultValue: '暂停' })} className="timer-btn-icon" />
                 </button>
               ) : timerState === 'paused' ? (
-                <button className="timer-btn timer-btn-start" onClick={handleResume} title={t('hover.timer.actions.resume', { defaultValue: '继续' })}>
+                <button
+                  type="button"
+                  className="timer-btn timer-btn-start"
+                  onClick={handleResume}
+                  title={t('hover.timer.actions.resume', { defaultValue: '继续' })}
+                  aria-label={t('hover.timer.actions.resume', { defaultValue: '继续' })}
+                >
                   <img src={SvgIcon.CONTINUE} alt={t('hover.timer.actions.resume', { defaultValue: '继续' })} className="timer-btn-icon" />
                 </button>
               ) : (
-                <button className="timer-btn timer-btn-start" onClick={handleStart} title={t('hover.timer.actions.start', { defaultValue: '开始' })}>
+                <button
+                  type="button"
+                  className="timer-btn timer-btn-start"
+                  onClick={handleStart}
+                  title={t('hover.timer.actions.start', { defaultValue: '开始' })}
+                  aria-label={t('hover.timer.actions.start', { defaultValue: '开始' })}
+                >
                   <img src={SvgIcon.CONTINUE} alt={t('hover.timer.actions.start', { defaultValue: '开始' })} className="timer-btn-icon" />
                 </button>
               )}
-              <button className="timer-btn timer-btn-reset" onClick={handleReset} title={t('hover.timer.actions.reset', { defaultValue: '重置' })}>
+              <button
+                type="button"
+                className="timer-btn timer-btn-reset"
+                onClick={handleReset}
+                title={t('hover.timer.actions.reset', { defaultValue: '重置' })}
+                aria-label={t('hover.timer.actions.reset', { defaultValue: '重置' })}
+              >
                 <img src={SvgIcon.REVERT} alt={t('hover.timer.actions.reset', { defaultValue: '重置' })} className="timer-btn-icon" />
               </button>
             </div>
           </div>
         </div>
-        {activePanel === 'brightness' && <BrightnessControl />}
-        {activePanel === 'volume' && <VolumeControl />}
-      </div>
+      )}
     </div>
   );
 }

@@ -20,30 +20,95 @@
 
 /**
  * @file ToolButtons.tsx
- * @description 截图和任务管理器工具按钮组件
+ * @description 倒计时开关、截图和任务管理器工具按钮组件
  * @author 鸡哥
  */
 
-import { type ReactElement } from 'react';
+import { type ReactElement, type Ref } from 'react';
 import { useTranslation } from 'react-i18next';
+import useIslandStore from '../../../../../../store/slices';
 import { SvgIcon } from '../../../../../../utils/SvgIcon';
 import { useToolButtons } from '../hooks/useToolButtons';
+import { padZero } from '../utils/timerUtils';
+
+/** ToolButtons 组件入参 */
+export interface ToolButtonsProps {
+  /** 倒计时面板打开/关闭切换回调 */
+  onToggleCountdown?: () => void;
+  /** 倒计时面板是否处于展开状态 */
+  isCountdownOpen?: boolean;
+  /** 倒计时按钮的 DOM 引用，用于点击外部时排除按钮本身 */
+  timerBtnRef?: Ref<HTMLButtonElement>;
+}
 
 /**
  * 工具按钮组件
- * @description 提供截图和打开任务管理器两个功能按钮
+ * @description 提供倒计时开关、截图和打开任务管理器三个功能按钮。
+ * 当倒计时正在运行或暂停时，倒计时按钮展示剩余 mm:ss 文本。
+ * @param props - 组件属性
+ * @returns 工具按钮元素
  */
-export function ToolButtons(): ReactElement {
+export function ToolButtons({
+  onToggleCountdown,
+  isCountdownOpen = false,
+  timerBtnRef,
+}: ToolButtonsProps = {}): ReactElement {
   const { t } = useTranslation();
   const { handleScreenshot, handleTaskManager } = useToolButtons();
+  const timerData = useIslandStore((state) => state.timerData);
+
+  const isTimerActive = timerData?.state === 'running' || timerData?.state === 'paused';
+  const remainingSec = timerData?.remainingSeconds ?? 0;
+  const m = Math.floor(remainingSec / 60);
+  const s = remainingSec % 60;
+  const timeBadge = `${padZero(m)}:${padZero(s)}`;
 
   return (
     <div className="timer-tools">
-      <button className="action-btn" onClick={handleScreenshot} title={t('hover.tools.screenshot', { defaultValue: '截图' })}>
-        <img src={SvgIcon.SCREENSHOT} alt={t('hover.tools.screenshot', { defaultValue: '截图' })} className="action-btn-icon" />
+      <button
+        ref={timerBtnRef}
+        type="button"
+        className={`action-btn timer-toggle-btn${isTimerActive ? ' is-active' : ''}${isCountdownOpen ? ' is-open' : ''}`}
+        onClick={onToggleCountdown}
+        title={t('hover.tools.timer', { defaultValue: '倒计时' })}
+        aria-label={t('hover.tools.timer', { defaultValue: '倒计时' })}
+        aria-pressed={isCountdownOpen}
+      >
+        {isTimerActive ? (
+          <span className="timer-btn-badge">{timeBadge}</span>
+        ) : (
+          <img
+            src={SvgIcon.TIMER}
+            alt={t('hover.tools.timer', { defaultValue: '倒计时' })}
+            className="action-btn-icon"
+          />
+        )}
       </button>
-      <button className="action-btn" onClick={handleTaskManager} title={t('hover.tools.taskManager', { defaultValue: '任务管理器' })}>
-        <img src={SvgIcon.TASK_MANAGER} alt={t('hover.tools.taskManager', { defaultValue: '任务管理器' })} className="action-btn-icon" />
+      <button
+        type="button"
+        className="action-btn"
+        onClick={handleScreenshot}
+        title={t('hover.tools.screenshot', { defaultValue: '截图' })}
+        aria-label={t('hover.tools.screenshot', { defaultValue: '截图' })}
+      >
+        <img
+          src={SvgIcon.SCREENSHOT}
+          alt={t('hover.tools.screenshot', { defaultValue: '截图' })}
+          className="action-btn-icon"
+        />
+      </button>
+      <button
+        type="button"
+        className="action-btn"
+        onClick={handleTaskManager}
+        title={t('hover.tools.taskManager', { defaultValue: '任务管理器' })}
+        aria-label={t('hover.tools.taskManager', { defaultValue: '任务管理器' })}
+      >
+        <img
+          src={SvgIcon.TASK_MANAGER}
+          alt={t('hover.tools.taskManager', { defaultValue: '任务管理器' })}
+          className="action-btn-icon"
+        />
       </button>
     </div>
   );

@@ -458,6 +458,7 @@
       "quit": "Quit"
     },
     "tools": {
+      "timer": "Timer",
       "screenshot": "Screenshot",
       "taskManager": "Task Manager"
     },
