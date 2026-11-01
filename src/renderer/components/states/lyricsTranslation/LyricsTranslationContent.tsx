@@ -34,6 +34,7 @@ import { useAutoIdle } from '../lyrics/hooks/useAutoIdle';
 import { useCurrentLyric } from '../lyrics/hooks/useCurrentLyric';
 import { useTranslationLyric } from './hooks/useTranslationLyric';
 import { useTranslationFallback } from './hooks/useTranslationFallback';
+import { useLyricsIslandWidthSync } from '../lyrics/hooks/useLyricsIslandWidthSync';
 import { LyricsTranslationContentView } from './components/LyricsTranslationContentView';
 import '../../../styles/lyrics/lyrics.css';
 
@@ -62,6 +63,12 @@ export function LyricsTranslationContent(): ReactElement {
 
   const translationText = useTranslationLyric(translationLines, currentIdx, currentPositionMs);
   useTranslationFallback(translationLines);
+  const showsLyricLine = !lyricsLoading && !isIntro && Boolean(currentText);
+  useLyricsIslandWidthSync({
+    lineText: showsLyricLine ? currentText : '',
+    translationText: showsLyricLine ? translationText : '',
+    clockText: clockEnabled ? clockText : '',
+  });
 
   /** 歌词行切换时，若原文与翻译完全一致则回退到普通歌词状态 */
   const lastIdxRef = useRef(currentIdx);

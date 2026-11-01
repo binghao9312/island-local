@@ -59,5 +59,6 @@ export default function selectDynamicIslandState(store: IIslandStore) {
     springAnimation: store.springAnimation,
     animationSpeed: store.animationSpeed,
     shapeMode: store.shapeMode,
+    lyricsContentWidth: store.lyricsContentWidth,
   };
 }
