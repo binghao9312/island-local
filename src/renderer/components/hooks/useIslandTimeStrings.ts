@@ -25,7 +25,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { formatTime, formatFullTime, getDayName, getLunarDate } from '../../utils/timeUtils';
+import { formatTime, formatFullTime, getDayName } from '../../utils/timeUtils';
 
 interface UseIslandTimeStringsOptions {
   t: (key: string, options?: { defaultValue?: string }) => string;
@@ -38,7 +38,6 @@ interface IslandTimeStrings {
   timeStr: string;
   dayStr: string;
   fullTimeStr: string;
-  lunarStr: string;
 }
 
 /**
@@ -56,7 +55,6 @@ export function useIslandTimeStrings(options: UseIslandTimeStringsOptions): Isla
   const [timeStr, setTimeStr] = useState(() => formatTime(new Date()));
   const [dayStr, setDayStr] = useState(() => formatWeekday(new Date()));
   const [fullTimeStr, setFullTimeStr] = useState(() => formatFullTime(new Date()));
-  const [lunarStr, setLunarStr] = useState(() => getLunarDate(new Date()));
 
   useEffect(() => {
     if (!enabled) return;
@@ -74,7 +72,6 @@ export function useIslandTimeStrings(options: UseIslandTimeStringsOptions): Isla
       if (nextDateKey !== dateKey) {
         dateKey = nextDateKey;
         setDayStr(formatWeekday(now));
-        setLunarStr(getLunarDate(now));
       }
       timer = setTimeout(update, period - (Date.now() % period));
     };
@@ -91,6 +88,5 @@ export function useIslandTimeStrings(options: UseIslandTimeStringsOptions): Isla
     timeStr,
     dayStr,
     fullTimeStr,
-    lunarStr,
   };
 }

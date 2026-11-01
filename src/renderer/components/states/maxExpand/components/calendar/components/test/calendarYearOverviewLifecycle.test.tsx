@@ -189,8 +189,6 @@ beforeEach(() => {
       full,
       month: full,
       weekday: full,
-      lunar: full,
-      lunarDay: full
     },
     detailsExpanded: false,
     detailsId: 'details',

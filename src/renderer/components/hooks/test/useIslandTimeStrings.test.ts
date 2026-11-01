@@ -20,7 +20,7 @@
 
 /**
  * @file useIslandTimeStrings.test.ts
- * @description 时间 Hook 的真实时间与农历格式化、秒级跨日更新、翻译依赖与定时器清理测试。
+ * @description 时间 Hook 的真实时间格式化、秒级跨日更新、翻译依赖与定时器清理测试。
  * @author 鸡哥
  */
 
@@ -58,14 +58,13 @@ describe('useIslandTimeStrings 实际时间展示', () => {
     renderWithHooks(() => useIslandTimeStrings({ t, language: 'zh-CN', enabled: false })); runEffects();
     expect(vi.getTimerCount()).toBe(0);
   });
-  it('初始化真实格式化文本并在跨日时刷新时间、星期与农历', () => {
+  it('初始化真实格式化文本并在跨日时刷新时间与星期', () => {
     const t = vi.fn((key: string, options?: { defaultValue?: string }) => { void key; return options?.defaultValue ?? ''; });
     let result = renderWithHooks(() => useIslandTimeStrings({ t, language: 'zh-CN' })); runEffects();
     expect(result.timeStr).toBe('23:59'); expect(result.fullTimeStr).toBe('26-10-06 23:59:59'); expect(result.dayStr).toBe('周二');
-    expect(result.lunarStr).toMatch(/月/); const previousLunar = result.lunarStr;
     vi.advanceTimersByTime(1000); result = renderWithHooks(() => useIslandTimeStrings({ t, language: 'zh-CN' }));
     expect(result.timeStr).toBe('00:00'); expect(result.fullTimeStr).toBe('26-10-07 00:00:00'); expect(result.dayStr).toBe('周三');
-    expect(result.lunarStr).not.toBe(previousLunar); expect(vi.getTimerCount()).toBe(1);
+    expect(vi.getTimerCount()).toBe(1);
   });
   it('翻译函数和语言依赖改变重建一个定时器，卸载后停止刷新', () => {
     const t = vi.fn((key: string) => key); const translated = vi.fn(() => 'Tuesday');

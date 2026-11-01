@@ -499,9 +499,6 @@
       "showProgress": "顯示播放進度",
       "showInfo": "顯示歌曲資訊"
     },
-    "time": {
-      "lunarPrefix": "農曆"
-    },
     "weather": {
       "refreshTitle": "點擊刷新天氣",
       "today": "今天",
@@ -872,9 +869,7 @@
         "4": "週四",
         "5": "週五",
         "6": "週六"
-      },
-      "yi": "宜",
-      "ji": "忌"
+      }
     }
   },
   "songTab": {
@@ -1472,7 +1467,6 @@
       "yearOverview": "全年概覽",
       "monthView": "月視圖",
       "selectedDate": "所選日期",
-      "lunarDate": "農曆",
       "holidays": "公共假日",
       "scheduledTodos": "當日待辦",
       "scheduledCountdowns": "當日倒數日",
@@ -3046,10 +3040,7 @@
           "urlNoteStackOverflow": "技術問答",
           "breakSedentary": "站起來活動",
           "breakGeneric": "休息一下",
-          "date": "2026年01月01日 星期四",
-          "lunar": "乙巳年 臘月十二",
-          "yiItems": "祈福 · 出行 · 開市",
-          "jiItems": "動土 · 安葬 · 破土"
+          "date": "2026年01月01日 星期四"
         }
       },
       "expandLayout": {

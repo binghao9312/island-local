@@ -37,7 +37,6 @@ type HoverFormProps = ReturnType<typeof useHover>;
 export function HoverForm(props: HoverFormProps): ReactElement {
   const {
     fullTimeStr,
-    lunarStr,
     t,
     hoverTab,
     setHoverTab,
@@ -64,7 +63,6 @@ export function HoverForm(props: HoverFormProps): ReactElement {
         {hoverTab === 'time' && (
           <TimeTab
             fullTimeStr={fullTimeStr}
-            lunarStr={lunarStr}
           />
         )}
         {hoverTab === 'lyrics' && <LyricsTab />}

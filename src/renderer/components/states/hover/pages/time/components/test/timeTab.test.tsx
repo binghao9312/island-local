@@ -39,8 +39,8 @@ vi.mock('react', async (importOriginal) => { const actual = await importOriginal
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'zh-CN' } }), initReactI18next: { type: '3rdParty', init: vi.fn() } }));
 beforeEach(() => { slots.cursor = 0; slots.values = []; slots.effects = []; });
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
-function render() { slots.cursor = 0; return ((TimeTab({ fullTimeStr: '12:34:56', lunarStr: 'Lunar day' }) as TreeElement)); }
+function render() { slots.cursor = 0; return ((TimeTab({ fullTimeStr: '12:34:56' }) as TreeElement)); }
 describe('TimeTab', () => {
-  it('renders supplied clock and lunar date alongside countdown', () => { const root = render(); expect(text(root)).toContain('12:34:56'); expect(text(root)).toContain('Lunar day'); expect(find(root, (node) => node.type === CountdownEdit).props.activePanel).toBe('countdown'); });
+  it('renders supplied clock alongside countdown', () => { const root = render(); expect(text(root)).toContain('12:34:56'); expect(find(root, (node) => node.type === CountdownEdit).props.activePanel).toBe('countdown'); });
   it.each(['brightness', 'volume'])('opens %s then toggles back to countdown', (panel) => { invoke(find(render(), (node) => node.type === MediaButtons), 'onPanelToggle', panel); expect(find(render(), (node) => node.type === CountdownEdit).props.activePanel).toBe(panel); invoke(find(render(), (node) => node.type === MediaButtons), 'onPanelToggle', panel); expect(find(render(), (node) => node.type === CountdownEdit).props.activePanel).toBe('countdown'); });
 });

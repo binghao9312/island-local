@@ -30,7 +30,7 @@ import { CalendarGrid as Component } from '../CalendarGrid';
 import { CalendarMonthGrid } from '../CalendarMonthGrid';
 import { getCalendarMonthLayouts } from '../../utils/calendarUtils';
 const date = new Date(2026, 9, 6, 12);
-const formats = { full: new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }), month: new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }), weekday: new Intl.DateTimeFormat('en-US', { weekday: 'short' }), lunar: new Intl.DateTimeFormat('zh-CN-u-ca-chinese'), lunarDay: new Intl.DateTimeFormat('zh-CN-u-ca-chinese', { day: 'numeric' }) };
+const formats = { full: new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }), month: new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }), weekday: new Intl.DateTimeFormat('en-US', { weekday: 'short' }) };
 vi.mock('../../hooks/useCalendarScroll', () => ({ useCalendarScroll: () => ({ months: getCalendarMonthLayouts(date, 0, 1), visibleDate: date, scrollRef: { current: null }, weekHeight: 40, paddingTop: 0, paddingBottom: 0 }) }));
 describe('CalendarGrid', () => {
   const props = {

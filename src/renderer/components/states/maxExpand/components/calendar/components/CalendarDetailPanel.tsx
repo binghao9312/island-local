@@ -20,13 +20,12 @@
 
 /**
  * @file CalendarDetailPanel.tsx
- * @description 分层展示选中日期、农历、待办、倒数日与假日。
+ * @description 分层展示选中日期、待办、倒数日与假日。
  * @author 鸡哥
  */
 
 import { useEffect, useState, type CSSProperties, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getLunarDate } from '../../../../../../utils/timeUtils';
 import { CalendarHolidayDetails } from './CalendarHolidayDetails';
 import { getCalendarDateKey } from '../utils/calendarHolidayUtils';
 import { getCalendarEventsInYears } from '../utils/calendarTimelineUtils';
@@ -35,7 +34,7 @@ import type { CalendarDetailPanelProps } from '../types/calendarTypes';
 
 /**
  * 选中日期详情面板
- * @description 展示选中日期的大号数字、完整日期、农历、待办、倒数日和假日信息。
+ * @description 展示选中日期的大号数字、完整日期、待办、倒数日和假日信息。
  * @param props - 组件入参
  * @param props.events - 假日、待办和倒数日事件
  * @param props.holidayInfo - 假日详情及加载状态
@@ -96,16 +95,6 @@ export function CalendarDetailPanel({
             {formats.full.format(selectedDate)}
           </div>
         </div>
-        {!locale.startsWith('en') && (
-          <div className="calendar-lunar-details">
-            <div className="calendar-lunar-label">
-              {t('maxExpand.calendar.lunarDate')}
-            </div>
-            <div className="calendar-lunar-value">
-              {locale.startsWith('zh') ? getLunarDate(selectedDate) : formats.lunar.format(selectedDate)}
-            </div>
-          </div>
-        )}
       </header>
       <div className="calendar-details-content">
         {countdowns.length > 0 && (

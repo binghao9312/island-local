@@ -67,10 +67,6 @@ export interface CalendarFormats {
   weekday: Intl.DateTimeFormat;
   /** 完整日期 */
   full: Intl.DateTimeFormat;
-  /** 农历年月日 */
-  lunar: Intl.DateTimeFormat;
-  /** 农历月日 */
-  lunarDay: Intl.DateTimeFormat;
 }
 
 /** CalendarGrid 组件入参 */
@@ -113,7 +109,7 @@ export interface CalendarGridProps {
 
 /** CalendarMonthGrid 组件入参；日期状态只传本月日号，未涉及的月份无需重绘。 */
 export type CalendarMonthGridProps = Pick<CalendarGridProps,
-  'holidays' | 'locale' | 'formats' | 'selectedButtonRef' | 'onSelectDate' | 'onDateKeyDown'
+  'holidays' | 'formats' | 'selectedButtonRef' | 'onSelectDate' | 'onDateKeyDown'
 > & {
   month: ReturnType<typeof getCalendarMonthLayouts>[number];
   selectedDay: number | null;

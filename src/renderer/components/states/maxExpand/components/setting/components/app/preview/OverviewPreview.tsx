@@ -469,19 +469,6 @@ export function OverviewPreview({ layoutConfig }: { layoutConfig: OverviewLayout
       <div className={`ov-dash-time ov-dash-time--${layoutConfig.clockStyle}`} style={gradientClockVars}>
         <span className="ov-dash-date">{t('settings.app.layout.previewMock.date', { defaultValue: '2026年01月01日 星期四' })}</span>
         <span className="ov-dash-clock">{layoutConfig.clockStyle === 'minimal' ? '12:00' : '12:00:00'}</span>
-        <span className="ov-dash-lunar">{t('settings.app.layout.previewMock.lunar', { defaultValue: '乙巳年 腊月十二' })}</span>
-        {layoutConfig.clockStyle !== 'minimal' && (
-          <div className="ov-dash-yiji">
-            <div className="ov-dash-yiji-row">
-              <span className="ov-dash-yiji-label yi">{t('overview.time.yi', { defaultValue: '宜' })}</span>
-              <span className="ov-dash-yiji-items">{t('settings.app.layout.previewMock.yiItems', { defaultValue: '祈福 · 出行 · 开市' })}</span>
-            </div>
-            <div className="ov-dash-yiji-row">
-              <span className="ov-dash-yiji-label ji">{t('overview.time.ji', { defaultValue: '忌' })}</span>
-              <span className="ov-dash-yiji-items">{t('settings.app.layout.previewMock.jiItems', { defaultValue: '动土 · 安葬 · 破土' })}</span>
-            </div>
-          </div>
-        )}
       </div>
       <div className="ov-dash-slot ov-dash-slot-right">
         {renderWidget(layoutConfig.right)}

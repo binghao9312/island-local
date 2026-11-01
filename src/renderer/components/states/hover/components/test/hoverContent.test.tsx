@@ -37,5 +37,5 @@ vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => k
 const model = vi.hoisted(() => ({ useHover: vi.fn() }));
 vi.mock('../../hooks/useHover', () => ({ useHover: model.useHover }));
 describe('HoverContent', () => {
-  it('forwards source props and all derived hover actions', () => { const props = { fullTimeStr: '12:34:56', lunarStr: 'lunar' }; const derived = { ...props, t: translate, hoverTab: 'weather', setHoverTab: vi.fn(), setExpanded: vi.fn(), contentRef: { current: null }, getDotLabel: vi.fn() }; model.useHover.mockReturnValue(derived); const root = ((HoverContent(props) as TreeElement)); expect(model.useHover).toHaveBeenCalledWith(props); expect(root.type).toBe(HoverForm); expect(root.props).toEqual(derived); });
+  it('forwards source props and all derived hover actions', () => { const props = { fullTimeStr: '12:34:56' }; const derived = { ...props, t: translate, hoverTab: 'weather', setHoverTab: vi.fn(), setExpanded: vi.fn(), contentRef: { current: null }, getDotLabel: vi.fn() }; model.useHover.mockReturnValue(derived); const root = ((HoverContent(props) as TreeElement)); expect(model.useHover).toHaveBeenCalledWith(props); expect(root.type).toBe(HoverForm); expect(root.props).toEqual(derived); });
 });

@@ -44,7 +44,6 @@ let element: EventTarget;
 function run() {
   return renderHook(hook.useHover, {
     fullTimeStr: '12:30',
-    lunarStr: 'lunar'
   });
 }
 /** 通过真实原生 DOM ref 提交滚轮监听。
@@ -114,7 +113,6 @@ describe('useHover true store navigation', () => {
     (['time', 'lyrics', 'weather', 'expand'] as HoverTab[]).forEach((tab) => expect(run().getDotLabel(tab)).toBe(`hover.nav.${  tab}`));
     expect(run()).toMatchObject({
       fullTimeStr: '12:30',
-      lunarStr: 'lunar'
     });
   });
   it('time inputs keep scroll then ordinary forward navigation updates real hover tab', () => {

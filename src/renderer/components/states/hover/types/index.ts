@@ -27,5 +27,4 @@
 /** HoverContent 组件 Props */
 export interface HoverContentProps {
   fullTimeStr: string;
-  lunarStr: string;
 }

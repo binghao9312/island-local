@@ -28,7 +28,7 @@ import { describe, expect, it } from 'vitest';
 import { render, nodes, value, text } from '../../../../test/componentHarness';
 import { CalendarDetailPanel as Component } from '../CalendarDetailPanel';
 const date = new Date(2026, 9, 6, 12);
-const formats = { full: new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }), month: new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }), weekday: new Intl.DateTimeFormat('en-US', { weekday: 'short' }), lunar: new Intl.DateTimeFormat('zh-CN-u-ca-chinese'), lunarDay: new Intl.DateTimeFormat('zh-CN-u-ca-chinese', { day: 'numeric' }) };
+const formats = { full: new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }), month: new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }), weekday: new Intl.DateTimeFormat('en-US', { weekday: 'short' }) };
 describe('CalendarDetailPanel', () => {
   const props = {
     formats,
@@ -39,12 +39,12 @@ describe('CalendarDetailPanel', () => {
     events: [],
     holidayInfo: {}
   };
-  it('shows selected date and includes lunar detail only outside English locales', () => {
+  it('shows selected date and never renders lunar detail', () => {
     const tree = render(Component, props);
     expect(text(tree)).toContain('06');
     expect(text(tree)).toContain('Today');
     expect(nodes(tree, '.calendar-lunar-details')).toHaveLength(0);
-    expect(nodes(render(Component, { ...props, locale: 'zh-CN' }), '.calendar-lunar-details')).toHaveLength(1);
+    expect(nodes(render(Component, { ...props, locale: 'zh-CN' }), '.calendar-lunar-details')).toHaveLength(0);
   });
   it('filters todo ranges and countdowns to the selected date and marks completed todos', () => {
     const calendarEvents = [{ id: 'a', kind: 'todo', start: '2026-10-01', end: '2026-10-10', label: 'Task', done: true }, { id: 'b', kind: 'todo', start: '2026-10-07', end: '2026-10-10', label: 'Future' }, { id: 'c', kind: 'countdown', start: '2026-10-06', end: '2026-10-06', label: 'Release' }];

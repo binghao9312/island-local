@@ -135,7 +135,6 @@ export function CalendarGrid({
               selectedDay={selectedDate.getFullYear() === month.date.getFullYear() && selectedDate.getMonth() === month.date.getMonth() ? selectedDate.getDate() : null}
               todayDay={today.getFullYear() === month.date.getFullYear() && today.getMonth() === month.date.getMonth() ? today.getDate() : null}
               holidays={holidays}
-              locale={locale}
               formats={formats}
               shortMonthFormat={shortMonthFormat}
               selectedButtonRef={selectedButtonRef}

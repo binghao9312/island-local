@@ -43,7 +43,7 @@ function makeProps(year: number): CalendarGridProps {
     overviewYear: year, detailsExpanded: true, detailsId: 'details',
     selectedDate: new Date(year, 8, 22), today: new Date(year, 8, 22), locale: 'en-US',
     events: [], holidays: new Map(),
-    formats: { full: format, month: format, weekday: format, lunar: format, lunarDay: format },
+    formats: { full: format, month: format, weekday: format },
     selectedButtonRef: { current: null }, focusDateRef: { current: false },
     onSelectDate: vi.fn(), onDateKeyDown: vi.fn(), onToggleDetails: vi.fn(), onToggleOverview: vi.fn(), onOpenMonth: vi.fn(), onVisibleYearChange: vi.fn(),
   };

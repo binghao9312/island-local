@@ -26,7 +26,6 @@
 
 import type React from 'react';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { ActionButtons } from './ActionButtons';
 import { CountdownEdit } from './CountdownEdit';
 import { MediaButtons } from './MediaButtons';
@@ -34,15 +33,13 @@ import type { TimePanelMode, TimeTabProps } from '../types/timeTabTypes';
 
 /**
  * 时间 Tab 内容
- * @description 显示当前时间、农历日期
+ * @description 显示当前时间
  * @param props - 组件入参
  * @returns 时间 Tab 元素
  */
 export function TimeTab({
-  fullTimeStr,
-  lunarStr
+  fullTimeStr
 }: TimeTabProps): React.ReactElement {
-  const { t } = useTranslation();
   const [activePanel, setActivePanel] = useState<TimePanelMode>('countdown');
 
   const handlePanelToggle = (panel: Exclude<TimePanelMode, 'countdown'>): void => {
@@ -61,9 +58,6 @@ export function TimeTab({
       <div className="flex flex-col gap-1 text-right">
         <span className="text-sm text-[var(--color-island-text)] font-medium tabular-nums">
           {fullTimeStr}
-        </span>
-        <span className="text-xs text-[var(--color-island-text)] opacity-60">
-          {t('hover.time.lunarPrefix', { defaultValue: '农历' })} {lunarStr}
         </span>
       </div>
     </div>

@@ -36,7 +36,7 @@ import { WeatherTab } from '../../pages/weather';
 import type { TreeElement } from '../../../test/tree';
 vi.mock('../../../../../store/slices', () => ({ default: vi.fn() }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'zh-CN' } }), initReactI18next: { type: '3rdParty', init: vi.fn() } }));
-function fixture(hoverTab: string) { return { hoverTab, fullTimeStr: 'Time', lunarStr: 'Lunar', t: translate, setHoverTab: vi.fn<(tab: string) => void>(), setExpanded: vi.fn(), contentRef: { current: null }, getDotLabel: (tab: string) => tab }; }
+function fixture(hoverTab: string) { return { hoverTab, fullTimeStr: 'Time', t: translate, setHoverTab: vi.fn<(tab: string) => void>(), setExpanded: vi.fn(), contentRef: { current: null }, getDotLabel: (tab: string) => tab }; }
 function render(props: ReturnType<typeof fixture>) { return ((HoverForm(props as unknown as Parameters<typeof HoverForm>[0]) as TreeElement)); }
 describe('HoverForm', () => {
   it.each([['time', TimeTab], ['lyrics', LyricsTab], ['weather', WeatherTab]] as const)('renders only selected %s page', (tab, type) => { const root = render(fixture(tab)); expect(find(root, (node) => node.type === type)).toBeDefined(); expect(elements(root).filter((node) => [TimeTab, LyricsTab, WeatherTab].includes(node.type as typeof TimeTab))).toHaveLength(1); });

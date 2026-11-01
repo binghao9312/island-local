@@ -591,17 +591,6 @@
   background-color: rgba(var(--color-accent-rgb, 59, 130, 246), .85);
 }
 
-.calendar-day-lunar {
-  color: rgba(var(--color-text-rgb), .4);
-  font-size: 9px;
-  line-height: .75rem;
-}
-
-.calendar-day-button[aria-pressed="true"] .calendar-day-lunar,
-.calendar-day-button[aria-current="date"] .calendar-day-lunar {
-  color: rgb(var(--color-accent-rgb, 59, 130, 246));
-}
-
 .calendar-details {
   display: flex;
   flex: 1;
@@ -694,27 +683,6 @@
   color: rgba(var(--color-text-rgb), .65);
   font-size: .75rem;
   line-height: 1.5;
-}
-
-.calendar-lunar-details {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: .75rem;
-  margin-top: .625rem;
-}
-
-.calendar-lunar-label {
-  flex-shrink: 0;
-  color: rgba(var(--color-text-rgb), .45);
-  font-size: 10px;
-}
-
-.calendar-lunar-value {
-  color: rgba(var(--color-text-rgb), .7);
-  font-size: 11px;
-  line-height: 1.625;
-  text-align: right;
 }
 
 @container calendar (min-width: 560px) {

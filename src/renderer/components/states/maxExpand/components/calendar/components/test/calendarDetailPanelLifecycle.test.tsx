@@ -20,7 +20,7 @@
 
 /**
  * @file calendarDetailPanelLifecycle.test.tsx
- * @description 验证真实日历筛选、农历分支和图片 IPC 异步加载、日期切换与卸载清理。
+ * @description 验证真实日历筛选、日期展示和图片 IPC 异步加载、日期切换与卸载清理。
  * @author 鸡哥
  */
 
@@ -45,8 +45,6 @@ const formats = {
   full: new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }),
   month: new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }),
   weekday: new Intl.DateTimeFormat('en-US', { weekday: 'short' }),
-  lunar: new Intl.DateTimeFormat('zh-CN-u-ca-chinese'),
-  lunarDay: new Intl.DateTimeFormat('zh-CN-u-ca-chinese', { day: 'numeric' }),
 };
 const props: CalendarDetailPanelProps = {
   formats, selectedDate: date, selectedDay: 6, relativeLabel: 'Today', locale: 'en-US', events: [],
@@ -97,12 +95,12 @@ describe('CalendarDetailPanel 背景生命周期与日期展示', () => {
   });
   afterEach(() => { unmountHooks(); vi.unstubAllGlobals(); });
 
-  it.each(['en-US', 'zh-CN', 'ja-JP'])('执行 %s 真实日期格式与农历分支', (locale) => {
+  it.each(['en-US', 'zh-CN', 'ja-JP'])('执行 %s 真实日期格式且不再展示农历', (locale) => {
     const tree = render({ locale });
     expect(textContent(tree)).toContain('Today');
     expect(textContent(tree)).toContain(formats.full.format(date));
     const lunar = elements(tree).filter(({ props: attributes }) => attributes.className === 'calendar-lunar-details');
-    expect(lunar).toHaveLength(locale === 'en-US' ? 0 : 1);
+    expect(lunar).toHaveLength(0);
     expect(backgrounds(tree)).toHaveLength(0);
   });
 

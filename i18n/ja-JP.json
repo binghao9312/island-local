@@ -499,9 +499,6 @@
       "showProgress": "再生位置を表示",
       "showInfo": "曲情報を表示"
     },
-    "time": {
-      "lunarPrefix": "旧暦"
-    },
     "weather": {
       "refreshTitle": "クリックで天気を更新",
       "today": "今日",
@@ -872,9 +869,7 @@
         "4": "木",
         "5": "金",
         "6": "土"
-      },
-      "yi": "吉",
-      "ji": "忌"
+      }
     }
   },
   "songTab": {
@@ -1476,7 +1471,6 @@
       "yearOverview": "年間表示",
       "monthView": "月表示",
       "selectedDate": "選択した日付",
-      "lunarDate": "旧暦",
       "holidays": "祝日",
       "scheduledTodos": "当日の ToDo",
       "scheduledCountdowns": "カウントダウンの予定",
@@ -3046,10 +3040,7 @@
           "urlNoteStackOverflow": "技術 Q&A",
           "breakSedentary": "立って体を動かしましょう",
           "breakGeneric": "少し休憩しましょう",
-          "date": "2026-01-01 木曜日",
-          "lunar": "乙巳年 旧暦師走",
-          "yiItems": "祈願 · 外出 · 開業",
-          "jiItems": "着工 · 埋葬 · 墓地の掘削"
+          "date": "2026-01-01 木曜日"
         }
       },
       "expandLayout": {

@@ -123,7 +123,7 @@ describe('useCalendarScroll real layout lifecycle', () => {
     const current = run();
     expect(current.visibleDate.getFullYear()).toBe(2026);
     expect(current.visibleDate.getMonth()).toBe(0);
-    expect(current.weekHeight).toBe(56);
+    expect(current.weekHeight).toBe(48);
     expect(current.headerHeight).toBe(48);
     expect(current.monthGap).toBe(40);
     expect(current.monthLabelHeight).toBe(24);
