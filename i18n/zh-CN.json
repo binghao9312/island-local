@@ -783,6 +783,10 @@
     },
     "settingsTab": {
       "label": "设置"
+    },
+    "shapeToggle": {
+      "toNotch": "切换为刘海",
+      "toPill": "切换为灵动岛"
     }
   },
   "toolsTab": {

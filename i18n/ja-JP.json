@@ -783,6 +783,10 @@
     },
     "settingsTab": {
       "label": "設定"
+    },
+    "shapeToggle": {
+      "toNotch": "ノッチに切り替え",
+      "toPill": "ダイナミックアイランドに切り替え"
     }
   },
   "toolsTab": {

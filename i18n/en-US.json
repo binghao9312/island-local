@@ -783,6 +783,10 @@
     },
     "settingsTab": {
       "label": "Settings"
+    },
+    "shapeToggle": {
+      "toNotch": "Switch to notch",
+      "toPill": "Switch to Dynamic Island"
     }
   },
   "toolsTab": {

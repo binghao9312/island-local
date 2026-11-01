@@ -783,6 +783,10 @@
     },
     "settingsTab": {
       "label": "設定"
+    },
+    "shapeToggle": {
+      "toNotch": "切換為瀏海",
+      "toPill": "切換為動態島"
     }
   },
   "toolsTab": {

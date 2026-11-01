@@ -27,6 +27,7 @@
 import '../../../../styles/expanded/expanded.css';
 import { useExpandedContent } from '../hooks/useExpandedContent';
 import { ExpandedNavDots } from './ExpandedNavDots';
+import { ExpandedShapeToggle } from './ExpandedShapeToggle';
 import { ExpandedTabContent } from './ExpandedTabContent';
 import type { ReactElement } from 'react';
 
@@ -42,6 +43,7 @@ export function ExpandedContent(): ReactElement {
     <div className="expanded-content" ref={contentRef}>
       <ExpandedTabContent expandTab={expandTab} slideDir={slideDir} tabAnimation={tabAnimation} />
       <ExpandedNavDots navDots={navDots} expandTab={expandTab} onNavDotClick={handleNavDotClick} />
+      <ExpandedShapeToggle />
     </div>
   );
 }
