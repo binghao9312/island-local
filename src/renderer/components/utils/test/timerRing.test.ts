@@ -28,6 +28,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildTimerRingPath,
   getRingDashOffset,
+  isPomodoroRingVisible,
   isSongRingVisible,
   isTimerRingVisible,
   resolveRingColor,
@@ -73,6 +74,17 @@ describe('timerRing', () => {
     expect(isSongRingVisible(true, false, 180000)).toBe(false);
     expect(isSongRingVisible(true, true, 0)).toBe(false);
     expect(isSongRingVisible(true, true, -100)).toBe(false);
+  });
+
+  it('番茄钟进度环仅在运行且总时长有效时显示', () => {
+    expect(isPomodoroRingVisible(true, 1500)).toBe(true);
+    expect(isPomodoroRingVisible(false, 1500)).toBe(false);
+    expect(isPomodoroRingVisible(true, 0)).toBe(false);
+  });
+
+  it('番茄钟进度环使用番茄红，且不受专辑主色影响', () => {
+    expect(resolveRingColor('pomodoro')).toBe('#ff6347');
+    expect(resolveRingColor('pomodoro', [1, 2, 3])).toBe('#ff6347');
   });
 
   it('倒计时与歌曲进度环颜色解析符合优先级与回退规则', () => {

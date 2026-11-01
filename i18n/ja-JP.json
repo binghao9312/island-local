@@ -460,7 +460,8 @@
     "tools": {
       "timer": "タイマー",
       "screenshot": "スクリーンショット",
-      "taskManager": "タスク マネージャー"
+      "taskManager": "タスク マネージャー",
+      "pomodoro": "ポモドーロ"
     },
     "media": {
       "brightness": "明るさ",

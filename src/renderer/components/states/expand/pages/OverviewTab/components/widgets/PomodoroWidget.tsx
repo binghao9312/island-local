@@ -20,7 +20,7 @@
 
 /**
  * @file PomodoroWidget.tsx
- * @description Overview 番茄钟小组件，支持工作/休息计时、轮次进度与控制操作。
+ * @description Overview 番茄钟小组件，支持工作/休息计时、轮次进度与控制操作；同时导出模块级番茄钟运行时的恢复与启停切换，供悬浮工具按钮共用。
  * @author 鸡哥
  */
 
@@ -42,7 +42,7 @@ import {
   type PomodoroPhase,
 } from '../../utils/overviewUtils';
 
-let pomodoroInitialized = false;
+let pomodoroRestore: Promise<void> | null = null;
 let pomodoroIntervalId: ReturnType<typeof setInterval> | null = null;
 let prevPomodoroRunning = false;
 let cancelPomodoroDeadline = (): void => {};
@@ -104,6 +104,33 @@ useIslandStore.subscribe((state) => {
   }
 });
 
+/**
+ * 从本地存储恢复番茄钟状态，整个运行期只读取一次。
+ * @returns 读取完成（含失败）后 resolve 的 Promise
+ */
+export function restorePomodoro(): Promise<void> {
+  if (pomodoroRestore) return pomodoroRestore;
+  pomodoroRestore = window.api.storeRead(POMODORO_STORE_KEY).then((data) => {
+    if (!data) return;
+    const d = data as PomodoroData;
+    const store = useIslandStore.getState();
+    if (d.phase) store.setPomodoroPhase(d.phase);
+    if (typeof d.remaining === 'number') store.setPomodoroRemaining(d.remaining);
+    if (typeof d.completedCount === 'number') store.setPomodoroCompletedCount(d.completedCount);
+  }).catch(() => {});
+  return pomodoroRestore;
+}
+
+/**
+ * 切换番茄钟：未运行则开始，运行中则暂停；首次切换前先等待持久化状态恢复。
+ * @returns 切换完成后 resolve 的 Promise
+ */
+export async function togglePomodoro(): Promise<void> {
+  await restorePomodoro();
+  const store = useIslandStore.getState();
+  store.setPomodoroRunning(!store.pomodoroRunning);
+}
+
 /** 番茄钟小组件，支持工作/休息计时、轮次进度与控制操作。 */
 export function PomodoroWidget(): React.ReactElement {
   const { t } = useTranslation();
@@ -128,16 +155,8 @@ export function PomodoroWidget(): React.ReactElement {
   })));
 
   useEffect(() => {
-    if (pomodoroInitialized) return;
-    pomodoroInitialized = true;
-    window.api.storeRead(POMODORO_STORE_KEY).then((data) => {
-      if (!data) return;
-      const d = data as PomodoroData;
-      if (d.phase) setPhase(d.phase);
-      if (typeof d.remaining === 'number') setRemaining(d.remaining);
-      if (typeof d.completedCount === 'number') setCompletedCount(d.completedCount);
-    }).catch(() => {});
-  }, [setPhase, setRemaining, setCompletedCount]);
+    restorePomodoro();
+  }, []);
 
   const totalDuration = POMODORO_DURATIONS[phase];
   const progress = 1 - remaining / totalDuration;

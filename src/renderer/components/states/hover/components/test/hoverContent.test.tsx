@@ -33,6 +33,7 @@ import { HoverContent } from '../HoverContent';
 import { HoverForm } from '../HoverForm';
 import type { TreeElement } from '../../../test/tree';
 vi.mock('../../../../../store/slices', () => ({ default: vi.fn() }));
+vi.mock('../../../../../components/states/expand/pages/OverviewTab/components/widgets/PomodoroWidget', () => ({ togglePomodoro: vi.fn() }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'zh-CN' } }), initReactI18next: { type: '3rdParty', init: vi.fn() } }));
 const model = vi.hoisted(() => ({ useHover: vi.fn() }));
 vi.mock('../../hooks/useHover', () => ({ useHover: model.useHover }));

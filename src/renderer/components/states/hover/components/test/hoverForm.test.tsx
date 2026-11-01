@@ -35,6 +35,7 @@ import { LyricsTab } from '../../pages/lyric';
 import { WeatherTab } from '../../pages/weather';
 import type { TreeElement } from '../../../test/tree';
 vi.mock('../../../../../store/slices', () => ({ default: vi.fn() }));
+vi.mock('../../../../../components/states/expand/pages/OverviewTab/components/widgets/PomodoroWidget', () => ({ togglePomodoro: vi.fn() }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'zh-CN' } }), initReactI18next: { type: '3rdParty', init: vi.fn() } }));
 function fixture(hoverTab: string) { return { hoverTab, fullTimeStr: 'Time', t: translate, setHoverTab: vi.fn<(tab: string) => void>(), setExpanded: vi.fn(), contentRef: { current: null }, getDotLabel: (tab: string) => tab }; }
 function render(props: ReturnType<typeof fixture>) { return ((HoverForm(props as unknown as Parameters<typeof HoverForm>[0]) as TreeElement)); }

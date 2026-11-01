@@ -34,6 +34,7 @@ import { MediaButtons } from '../MediaButtons';
 import { CountdownEdit } from '../CountdownEdit';
 import type { TreeElement } from '../../../../../test/tree';
 vi.mock('../../../../../../../store/slices', () => ({ default: vi.fn() }));
+vi.mock('../../../../../../../components/states/expand/pages/OverviewTab/components/widgets/PomodoroWidget', () => ({ togglePomodoro: vi.fn() }));
 vi.mock('../../hooks/useUpcomingCalendarEvent', () => ({
   useUpcomingCalendarEvent: () => null,
 }));
