@@ -83,6 +83,13 @@ describe('createExternalAgentWatcher', () => {
     running.clear(); running.add('CLAUDE.EXE'); await vi.advanceTimersByTimeAsync(100);
     expect(send).toHaveBeenCalledOnce(); watcher.stop();
   });
+  it('reports Orca ADE when Orca.exe starts and stops', async () => {
+    const watcher = createExternalAgentWatcher({ getMainWindow: () => window, pollIntervalMs: 100 });
+    running.add('Orca.exe'); watcher.start(); await vi.advanceTimersByTimeAsync(100);
+    expect(send).toHaveBeenCalledWith('external-agent:started', { agentNames: ['Orca'] });
+    running.clear(); await vi.advanceTimersByTimeAsync(100);
+    expect(send).toHaveBeenLastCalledWith('external-agent:stopped', { agentNames: ['Orca'] }); watcher.stop();
+  });
   it('recovers from rejected process queries on the following interval', async () => {
     processes.mockRejectedValueOnce(new Error('process query unavailable'));
     const watcher = createExternalAgentWatcher({ getMainWindow: () => window, pollIntervalMs: 100 });
