@@ -184,6 +184,10 @@ export function MaxExpandContentShell({ renderActiveTab, deferContent = true, pe
     navigateTab(id);
   };
 
+  const activeNavIndex = NAV_DOTS.indexOf(activeTab);
+  const prevNavId = activeNavIndex > 0 ? NAV_DOTS[activeNavIndex - 1] : undefined;
+  const nextNavId = activeNavIndex >= 0 && activeNavIndex < NAV_DOTS.length - 1 ? NAV_DOTS[activeNavIndex + 1] : undefined;
+
   const launcherVisible = appModeEnabled && maxExpandLauncherVisible;
 
   const loadingFallback = (
@@ -214,6 +218,14 @@ export function MaxExpandContentShell({ renderActiveTab, deferContent = true, pe
 
       {!appModeEnabled && (
         <div className="settings-nav-dots" onClick={(e) => e.stopPropagation()} style={appModeLoaded && navLayoutLoaded ? undefined : { visibility: 'hidden' }}>
+          <button
+            className="settings-nav-arrow"
+            disabled={prevNavId === undefined}
+            onClick={() => prevNavId !== undefined && handleNavClick(prevNavId)}
+            aria-label={t('maxExpand.nav.previousPage', { defaultValue: 'Previous page' })}
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6.5 1.5 3 5l3.5 3.5" /></svg>
+          </button>
           {filteredNavDots.map(({ id, label }) => (
             <button
               key={id}
@@ -223,6 +235,14 @@ export function MaxExpandContentShell({ renderActiveTab, deferContent = true, pe
               aria-label={t('maxExpand.nav.switchTo', { defaultValue: '切换到{{label}}', label })}
             />
           ))}
+          <button
+            className="settings-nav-arrow"
+            disabled={nextNavId === undefined}
+            onClick={() => nextNavId !== undefined && handleNavClick(nextNavId)}
+            aria-label={t('maxExpand.nav.nextPage', { defaultValue: 'Next page' })}
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 1.5 7 5 3.5 8.5" /></svg>
+          </button>
         </div>
       )}
     </div>

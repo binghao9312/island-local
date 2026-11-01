@@ -140,7 +140,7 @@ it('executes forward/backward wheel and keyboard navigation, native exclusions a
 
 it('uses real navigation callbacks, slide direction, animation broadcasts and expanded action', async () => {
   let element = await ready({ deferContent: false });
-  const buttons = nodes(element).filter((node) => node.type === 'button');
+  const buttons = nodes(element).filter((node) => node.type === 'button' && String(node.props.className).includes('settings-nav-dot'));
   const last = buttons.at(-1)!; (last.props.onClick as () => void)(); expect(store.getState().maxExpandTab).toBe('settings'); element = draw({ deferContent:false });
   (buttons[1].props.onClick as () => void)(); element = draw({ deferContent:false }); expect(nodes(element).some((node) => node.props.className === 'max-expand-tab-transition max-expand-tab-slide-left')).toBe(true);
   settings.emit('changed','settings:maxexpand-tab-animation',false); element = draw({ deferContent:false }); expect(nodes(element).some((node) => node.props.className === 'max-expand-tab-transition')).toBe(true);
@@ -170,7 +170,7 @@ it('collapses a standalone shell with all configured applications hidden', async
   store.setState({ state:'maxExpand', maxExpandTab:'todo' });
   const element = await ready({ deferContent:false });
   expect(store.getState().state).toBe('expanded');
-  expect(nodes(element).filter((node) => node.type === 'button')).toHaveLength(1);
+  expect(nodes(element).filter((node) => node.type === 'button' && String(node.props.className).includes('settings-nav-dot'))).toHaveLength(1);
   expect(key().defaultPrevented).toBe(false);
   expect(store.getState().maxExpandTab).toBe('todo');
 });

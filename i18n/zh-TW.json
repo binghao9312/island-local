@@ -1507,7 +1507,9 @@
       "calendar": "日曆",
       "song": "歌曲",
       "settings": "設置",
-      "switchTo": "切換到{{label}}"
+      "switchTo": "切換到{{label}}",
+      "previousPage": "上一頁",
+      "nextPage": "下一頁"
     },
     "cli": {
       "detailLoading": "正在讀取詳情…",

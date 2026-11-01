@@ -1507,7 +1507,9 @@
       "calendar": "Calendar",
       "song": "Music",
       "settings": "Settings",
-      "switchTo": "Switch to {{label}}"
+      "switchTo": "Switch to {{label}}",
+      "previousPage": "Previous page",
+      "nextPage": "Next page"
     },
     "cli": {
       "detailLoading": "Loading details…",
