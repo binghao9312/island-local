@@ -3572,7 +3572,7 @@
         "translationHint": "When disabled, translation lyrics are not displayed and the island does not switch to translation lyrics state",
         "translationToggle": "Show translation lyrics",
         "title": "Lyrics Source",
-        "hint": "Auto mode selects source by detected SMTC player and falls back to LRCLIB",
+        "hint": "Auto mode tries lrc.red first (version matched by track duration), then selects a source by detected SMTC player, and falls back to LRCLIB",
         "displayTitle": "Lyrics Display",
         "displayHint": "Control how lyrics are rendered on screen",
         "sourceOptions": {
@@ -3584,11 +3584,15 @@
           "applemusicOnly": "Apple Music Only",
           "spotifyOnly": "Spotify Only",
           "moekoeOnly": "MoeKoe Only",
-          "lrclibOnly": "LRCLIB Only"
+          "lrclibOnly": "LRCLIB Only",
+          "lrcredOnly": "lrc.red Only"
         },
         "karaokeTitle": "Karaoke Highlight",
         "karaokeHint": "Enable word-by-word highlight effects",
         "karaokeToggle": "Enable karaoke highlight",
+        "traditionalTitle": "Traditional Chinese Conversion",
+        "traditionalHint": "Convert Simplified Chinese lyrics to Traditional Chinese (Taiwan wording). Songs containing Japanese or Korean are not converted. Applies from the next song. When not set manually, it is on by default if the UI language is Traditional Chinese",
+        "traditionalToggle": "Convert Simplified lyrics to Traditional",
         "clockTitle": "Lyrics Clock",
         "clockHint": "Show current Beijing time between cover and lyrics",
         "clockToggle": "Show current time",

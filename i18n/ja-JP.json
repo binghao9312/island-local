@@ -3572,7 +3572,7 @@
         "translationHint": "無効にすると、歌詞の翻訳を表示せず、翻訳歌詞状態への切り替えも行いません",
         "translationToggle": "歌詞の翻訳を表示",
         "title": "歌詞の取得元",
-        "hint": "自動モードでは SMTC で検出したプレーヤーに応じて取得元を選び、取得できない場合は LRCLIB を使用します",
+        "hint": "自動モードではまず lrc.red（曲の長さで版を照合）を試し、次に SMTC で検出したプレーヤーに応じて取得元を選び、取得できない場合は LRCLIB を使用します",
         "displayTitle": "歌詞の表示",
         "displayHint": "画面上の歌詞の表示効果を設定します",
         "sourceOptions": {
@@ -3584,11 +3584,15 @@
           "applemusicOnly": "Apple Music のみ",
           "spotifyOnly": "Spotify のみ",
           "moekoeOnly": "MoeKoe のみ",
-          "lrclibOnly": "LRCLIB のみ"
+          "lrclibOnly": "LRCLIB のみ",
+          "lrcredOnly": "lrc.red のみ"
         },
         "karaokeTitle": "カラオケハイライト",
         "karaokeHint": "歌詞を語ごとにハイライトします",
         "karaokeToggle": "カラオケハイライトを有効にする",
+        "traditionalTitle": "繁体字への変換",
+        "traditionalHint": "簡体字中国語の歌詞を台湾の繁体字（用語を含む）に変換します。日本語または韓国語を含む曲は変換されません。次の曲から有効です。手動で設定していない場合、UI 言語が繁体字中国語のときは既定でオンになります",
+        "traditionalToggle": "簡体字の歌詞を繁体字に変換",
         "clockTitle": "歌詞画面の時計",
         "clockHint": "カバー画像と歌詞の間に現在の北京時間を表示します",
         "clockToggle": "現在時刻を表示",

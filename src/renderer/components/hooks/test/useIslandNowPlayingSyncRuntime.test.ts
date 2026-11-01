@@ -538,7 +538,7 @@ describe('useIslandNowPlayingSync runtime', () => {
     await emit(song());
     await emit(song({ deviceId: 'other-player' }));
     expect(leaves.normal.mock.calls).toEqual([
-      ['Song', 'Singer', 'player'], ['Song', 'Singer', 'other-player'],
+      ['Song', 'Singer', 'player', 100000], ['Song', 'Singer', 'other-player', 100000],
     ]);
     options.setSyncedLyrics.mockClear();
     pending.resolve({ ...lyrics(), lyrics: [{ time_ms: 50000, text: 'old-player' }] });
@@ -764,7 +764,7 @@ describe('useIslandNowPlayingSync runtime', () => {
     await settleHook();
     expect(currentInfo).toHaveBeenCalledOnce();
     expect(options.handleNowPlayingUpdate).toHaveBeenCalledExactlyOnceWith(song({ isPlaying: false }));
-    expect(leaves.normal).toHaveBeenCalledExactlyOnceWith('Song', 'Singer', 'player');
+    expect(leaves.normal).toHaveBeenCalledExactlyOnceWith('Song', 'Singer', 'player', 100000);
   });
   it('keeps a broadcast that arrives before the pull resolves instead of the older pulled session', async () => {
     const pending = deferred<NowPlayingInfo | null>();

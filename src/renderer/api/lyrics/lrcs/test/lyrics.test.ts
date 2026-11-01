@@ -171,7 +171,7 @@ describe('fetchLyrics', () => {
 
     const result = await fetchLyrics('song', 'artist');
 
-    expect(fetchLyricsFromLrclib).toHaveBeenCalledWith('song', 'artist');
+    expect(fetchLyricsFromLrclib).toHaveBeenCalledWith('song', 'artist', undefined);
     expect(fetchLyricsFromNetease).not.toHaveBeenCalled();
     expect(result).toEqual(expected);
   });
@@ -196,7 +196,7 @@ describe('fetchLyrics', () => {
     const result = await fetchLyrics('song', 'artist');
 
     expect(fetchLyricsFromNetease).toHaveBeenCalled();
-    expect(fetchLyricsFromLrclib).toHaveBeenCalledWith('song', 'artist');
+    expect(fetchLyricsFromLrclib).toHaveBeenCalledWith('song', 'artist', undefined);
     expect(result).toEqual(expected);
   });
 

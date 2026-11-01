@@ -34,6 +34,7 @@ const NETWORK_CONFIG_KEY = 'island_network_config';
 const WEATHER_PROVIDER_CONFIG_KEY = 'island_weather_provider_config';
 const WEATHER_LOCATION_CONFIG_KEY = 'island_weather_location_config';
 const WEATHER_LOCATION_CONFIG_STORE_KEY = 'weather-location-config';
+const LYRICS_CONVERT_TRADITIONAL_KEY = 'island_lyrics_convert_traditional';
 
 /** 默认网络请求超时（毫秒） */
 export const DEFAULT_NETWORK_TIMEOUT_MS = 10000;
@@ -166,6 +167,29 @@ export function saveNetworkConfig(config: NetworkConfig): void {
       : DEFAULT_NETWORK_TIMEOUT_MS;
     const staticAssetNode = normalizeStoredStaticAssetNode(config.staticAssetNode);
     localStorage.setItem(NETWORK_CONFIG_KEY, JSON.stringify({ timeoutMs, staticAssetNode }));
+  } catch { /* 忽略 */ }
+}
+
+/**
+ * 读取「歌词转繁体」用户设置
+ * @returns 用户显式选择的布尔值；从未设置（或存储不可用）时返回 null，表示跟随界面语言
+ */
+export function loadLyricsConvertToTraditional(): boolean | null {
+  try {
+    const raw = localStorage.getItem(LYRICS_CONVERT_TRADITIONAL_KEY);
+    if (raw === 'true') return true;
+    if (raw === 'false') return false;
+  } catch { /* 忽略 */ }
+  return null;
+}
+
+/**
+ * 保存「歌词转繁体」用户设置
+ * @param enabled - 是否将简体歌词转换为台湾繁体
+ */
+export function saveLyricsConvertToTraditional(enabled: boolean): void {
+  try {
+    localStorage.setItem(LYRICS_CONVERT_TRADITIONAL_KEY, String(enabled));
   } catch { /* 忽略 */ }
 }
 

@@ -27,6 +27,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fetchLyrics, fetchLyricsWithTranslation } from '../index';
 import { fetchKaraokeLyrics } from '../karaoke';
+import { clearLrcRedCache } from '../normal/providers/lrcred';
 
 const LRC = '[00:01.00]Hello';
 const KRC = '[1000,500]<0,500,0>Hello';
@@ -38,6 +39,24 @@ const detect = vi.fn();
 const qishuiSearch = vi.fn();
 const qishuiLyrics = vi.fn();
 const netFetch = vi.fn();
+const lrcRedSearch = vi.fn<(url: string) => unknown>();
+const lrcRedTtml = vi.fn<(url: string) => unknown>();
+
+// lrc.red 的 JSON 搜索结果条目（字段取自真实响应，`duration` 单位为秒）
+const lrcRedItem = (overrides: Record<string, unknown> = {}) => ({
+  album_name: 'Album',
+  artist_name: 'Artist',
+  duration: 213,
+  id: 'GB0000000001',
+  isrc: 'GB0000000001',
+  lyricsUrl: 'https://lrc.red/s/GB0000000001.ttml',
+  timing_type: 'word',
+  track_name: 'Song',
+  ...overrides,
+});
+const WORD_TTML = '<tt><body><div><p begin="1.000" end="2.000"><span begin="1.000" end="1.500">Hi</span> <span begin="1.500" end="2.000">there</span></p></div></body></tt>';
+// 排除 lrc.red 请求后的其它源请求 URL，保持原有「首个回退源」断言语义
+const providerUrls = (): string[] => netFetch.mock.calls.map((call) => String(call[0])).filter((url) => !url.includes('lrc.red'));
 
 let socketHasLyrics = true;
 
@@ -70,12 +89,17 @@ class LyricsSocket {
 
 beforeEach(() => {
   vi.resetAllMocks();
+  clearLrcRedCache();
   socketHasLyrics = true;
   setting.mockResolvedValue('auto');
   detect.mockResolvedValue({ ok: true, sources: [] });
   qishuiSearch.mockResolvedValue({ loggedIn: false, publicCatalog: true, songs: [{ id: 'song', name: 'Song', artist: 'Artist' }] });
   qishuiLyrics.mockResolvedValue({ auth: 'public', lyric: KRC, tlyric: '[00:01.00]你好' });
+  lrcRedSearch.mockReturnValue(response({ results: [], source: 'MISS-LRC-RED', total: 0 }));
+  lrcRedTtml.mockReturnValue({ ok: true, status: 200, body: WORD_TTML });
   netFetch.mockImplementation((url: string) => {
+    if (url.includes('lrc.red/api/v1')) return lrcRedSearch(url);
+    if (url.includes('lrc.red/s/')) return lrcRedTtml(url);
     if (url.includes('/api/search/get/web')) return response({ result: { songs: [{ id: 1 }] } });
     if (url.includes('/api/song/lyric/v1')) return response({ lrc: { lyric: LRC } });
     if (url.includes('musicu.fcg')) return response({ req_1: { data: { body: { song: { list: [{ id: 1, mid: 'mid', title: 'Song', singer: [{ name: 'Artist' }] }] } } } } });
@@ -124,19 +148,19 @@ describe('real provider source selection', () => {
     ] });
     expect(await fetchLyrics('Song', 'Artist')).toEqual(expected);
     expect(qishuiSearch).toHaveBeenCalled();
-    expect(netFetch).not.toHaveBeenCalled();
+    expect(providerUrls()).toEqual([]);
   });
 
   it('uses the first inactive source when no playing titled source exists', async () => {
     detect.mockResolvedValue({ ok: true, sources: [{ isPlaying: false, hasTitle: true, sourceAppId: 'QQMusic.exe' }] });
     expect(await fetchLyrics('Song', 'Artist')).toEqual(expected);
-    expect(netFetch.mock.calls[0][0]).toContain('musicu.fcg');
+    expect(providerUrls()[0]).toContain('musicu.fcg');
   });
 
   it.each([null, {}, { ok: false }, { ok: true }, { ok: true, sources: [] }, { ok: true, sources: [{}] }])('falls back from incomplete SMTC payload %j', async (payload) => {
     detect.mockResolvedValue(payload);
     expect(await fetchLyrics('Song', 'Artist')).toEqual(expected);
-    expect(netFetch.mock.calls[0][0]).toContain('/api/search/get/web');
+    expect(providerUrls()[0]).toContain('/api/search/get/web');
   });
 
   it('recovers to automatic selection after settings and detection reject', async () => {
@@ -149,14 +173,14 @@ describe('real provider source selection', () => {
     setting.mockResolvedValue('sodamusic-only');
     qishuiSearch.mockResolvedValue({ songs: [] });
     expect(await fetchLyrics('Song', 'Artist')).toEqual(expected);
-    expect(netFetch.mock.calls[0][0]).toContain('lrclib.net');
+    expect(providerUrls()[0]).toContain('lrclib.net');
   });
 
   it('continues to another real provider when the primary bridge rejects', async () => {
     qishuiLyrics.mockRejectedValue(new Error('bridge unavailable'));
     expect(await fetchLyrics('Song', 'Artist', 'qishui.exe')).toEqual(expected);
     expect(qishuiLyrics).toHaveBeenCalled();
-    expect(netFetch.mock.calls[0][0]).toContain('/api/search/get/web');
+    expect(providerUrls()[0]).toContain('/api/search/get/web');
   });
 
   it.each(['kugou.exe', 'unknown.exe'])('returns null after all real providers fail for %s', async (appId) => {
@@ -170,6 +194,63 @@ describe('real provider source selection', () => {
     setting.mockResolvedValue('lrclib-only');
     netFetch.mockResolvedValue(response([]));
     expect(await fetchLyrics('Song', 'Artist')).toBeNull();
+  });
+});
+
+describe('lrc.red source selection', () => {
+  const lrcRedHit = (items: unknown[]) => lrcRedSearch.mockReturnValue(response({ results: items, source: 'HIT-LRC-RED', total: items.length }));
+
+  it('is the first automatic choice, ahead of the detected player source', async () => {
+    lrcRedHit([lrcRedItem()]);
+    const result = await fetchLyricsWithTranslation('Song', 'Artist', 'QQMusic.exe', 213000);
+    expect(result?.lyrics).toEqual([{ time_ms: 1000, text: 'Hi there' }]);
+    expect(providerUrls()).toEqual([]);
+    expect(netFetch.mock.calls[0][0]).toContain('lrc.red/api/v1?track=Song&artist=Artist');
+  });
+
+  it('serves the lrcred-only setting and still falls back to LRCLIB on a miss', async () => {
+    setting.mockResolvedValue('lrcred-only');
+    lrcRedHit([lrcRedItem()]);
+    expect((await fetchLyrics('Song', 'Artist', undefined, 213000))?.[0].text).toBe('Hi there');
+    expect(providerUrls()).toEqual([]);
+    clearLrcRedCache();
+    lrcRedHit([]);
+    expect(await fetchLyrics('Song', 'Artist')).toEqual(expected);
+    expect(providerUrls()[0]).toContain('lrclib.net');
+  });
+
+  it('falls through to the next source when the only candidate differs in duration by more than 3 s', async () => {
+    lrcRedHit([lrcRedItem({ duration: 217 })]);
+    expect(await fetchLyrics('Song', 'Artist', 'unknown.exe', 213000)).toEqual(expected);
+    expect(lrcRedTtml).not.toHaveBeenCalled();
+    expect(providerUrls()[0]).toContain('/api/search/get/web');
+  });
+
+  it('serves word-level lyrics through the karaoke chain and skips line-level candidates', async () => {
+    lrcRedHit([lrcRedItem()]);
+    const karaoke = await fetchKaraokeLyrics('Song', 'Artist', 'unknown.exe', 213000);
+    expect(karaoke?.[0].syllables.map((syllable) => syllable.text)).toEqual(['Hi ', 'there']);
+    setting.mockResolvedValue('lrcred-only');
+    lrcRedHit([lrcRedItem({ timing_type: 'line', lyricsUrl: 'https://lrc.red/s/GB0000000002.ttml' })]);
+    lrcRedTtml.mockReturnValue({ ok: true, status: 200, body: '<tt><body><div><p begin="1.000" end="2.000">Hi there</p></div></body></tt>' });
+    expect(await fetchKaraokeLyrics('Song', 'Artist', 'unknown.exe', 214000)).toBeNull();
+  });
+
+  it('converts Simplified lyrics to Traditional only when enabled and never for kana', async () => {
+    const store = new Map<string, string>([['island_lyrics_convert_traditional', 'true']]);
+    vi.stubGlobal('localStorage', { getItem: (key: string) => store.get(key) ?? null });
+    lrcRedHit([lrcRedItem({ track_name: '歌', duration: 100, timing_type: 'line' })]);
+    lrcRedTtml.mockReturnValue({ ok: true, status: 200, body: '<tt><body><div><p begin="1.000" end="2.000">我会受不了这样</p></div></body></tt>' });
+    expect(await fetchLyrics('歌', 'Artist', 'unknown.exe', 100000)).toEqual([{ time_ms: 1000, text: '我會受不了這樣' }]);
+
+    lrcRedHit([lrcRedItem({ track_name: '歌2', duration: 100, timing_type: 'line' })]);
+    lrcRedTtml.mockReturnValue({ ok: true, status: 200, body: '<tt><body><div><p begin="1.000" end="2.000">この自行车</p></div></body></tt>' });
+    expect(await fetchLyrics('歌2', 'Artist', 'unknown.exe', 100000)).toEqual([{ time_ms: 1000, text: 'この自行车' }]);
+
+    store.set('island_lyrics_convert_traditional', 'false');
+    lrcRedHit([lrcRedItem({ track_name: '歌3', duration: 100, timing_type: 'line' })]);
+    lrcRedTtml.mockReturnValue({ ok: true, status: 200, body: '<tt><body><div><p begin="1.000" end="2.000">自行车</p></div></body></tt>' });
+    expect(await fetchLyrics('歌3', 'Artist', 'unknown.exe', 100000)).toEqual([{ time_ms: 1000, text: '自行车' }]);
   });
 });
 

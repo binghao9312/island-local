@@ -3572,7 +3572,7 @@
         "translationHint": "关闭后不显示翻译歌词，不切换到翻译歌词状态",
         "translationToggle": "显示翻译歌词",
         "title": "歌词源",
-        "hint": "自动模式根据 SMTC 检测到的播放器进程选择对应源，失败后依次尝试其他源，最后使用 LRCLIB 兜底",
+        "hint": "自动模式优先使用 lrc.red（按歌曲时长匹配版本），其次根据 SMTC 检测到的播放器进程选择对应源，失败后依次尝试其他源，最后使用 LRCLIB 兜底",
         "displayTitle": "歌词显示",
         "displayHint": "控制歌词界面的展示效果",
         "sourceOptions": {
@@ -3584,11 +3584,15 @@
           "applemusicOnly": "仅 Apple Music",
           "spotifyOnly": "仅 Spotify",
           "moekoeOnly": "仅 MoeKoe",
-          "lrclibOnly": "仅 LRCLIB"
+          "lrclibOnly": "仅 LRCLIB",
+          "lrcredOnly": "仅 lrc.red"
         },
         "karaokeTitle": "逐字扫光",
         "karaokeHint": "启用后歌词将以逐字高亮方式显示",
         "karaokeToggle": "启用逐字扫光效果",
+        "traditionalTitle": "歌词转繁体",
+        "traditionalHint": "将简体中文歌词转换为台湾繁体（含用词）；含日文或韩文的歌曲不会被转换，对下一首歌生效。未手动设置时，界面语言为繁体中文则默认开启",
+        "traditionalToggle": "将简体歌词转换为繁体",
         "clockTitle": "歌词时钟",
         "clockHint": "在歌词界面封面与歌词之间显示当前北京时间",
         "clockToggle": "显示当前时间",
