@@ -33,6 +33,7 @@ import { BetaBadge } from '../BetaBadge';
 import { PlayerIcon } from '../../../../../../../utils/SvgIcon/player-icon';
 import { saveLyricsConvertToTraditional } from '../../../../../../../store/utils/storage';
 import { shouldConvertLyricsToTraditional } from '../../../../../../../api/lyrics/lrcs/lyricsTraditional';
+import { LYRICS_FONT_SIZE_MAX, LYRICS_FONT_SIZE_MIN, sanitizeLyricsFontSize } from '../../../../../../../../shared/lyricsFontSize';
 
 interface MusicSourceOption {
   value: string;
@@ -94,6 +95,8 @@ interface MusicSettingsSectionProps {
   setLyricsCalibrateEnabled: (value: boolean) => void;
   lyricsCalibrateDelay: number;
   setLyricsCalibrateDelay: (value: number) => void;
+  lyricsFontSize: number;
+  setLyricsFontSize: (value: number) => void;
   musicSmtcUnsubscribeInput: string;
   setMusicSmtcUnsubscribeInput: (value: string) => void;
   musicSmtcNeverUnsubscribe: boolean;
@@ -151,6 +154,8 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
     setLyricsCalibrateEnabled,
     lyricsCalibrateDelay,
     setLyricsCalibrateDelay,
+    lyricsFontSize,
+    setLyricsFontSize,
     musicSmtcUnsubscribeInput,
     setMusicSmtcUnsubscribeInput,
     musicSmtcNeverUnsubscribe,
@@ -404,6 +409,29 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
                       />
                       {t('settings.music.lyrics.karaokeToggle', { defaultValue: '启用逐字扫光效果' })}
                     </label>
+                  </div>
+                </div>
+
+                <div className="settings-card-subgroup">
+                  <div className="settings-card-subgroup-title">{t('settings.music.lyrics.fontSizeTitle', { defaultValue: '歌词字号' })}</div>
+                  <div className="settings-music-hint">{t('settings.music.lyrics.fontSizeHint', { defaultValue: '调整展开歌曲页中歌词的字号，下一行自动缩小为当前行的 80%' })}</div>
+                  <div className="settings-opacity-slider-row">
+                    <input
+                      className="settings-opacity-slider"
+                      type="range"
+                      min={LYRICS_FONT_SIZE_MIN}
+                      max={LYRICS_FONT_SIZE_MAX}
+                      step={1}
+                      value={lyricsFontSize}
+                      aria-label={t('settings.music.lyrics.fontSizeTitle', { defaultValue: '歌词字号' })}
+                      onChange={(e) => {
+                        const val = sanitizeLyricsFontSize(Number(e.target.value));
+                        setLyricsFontSize(val);
+                        window.api.musicLyricsFontSizeSet(val).catch(() => {});
+                        window.dispatchEvent(new CustomEvent('island:setting-changed', { detail: { channel: 'music:lyrics-font-size', value: val } }));
+                      }}
+                    />
+                    <span className="settings-opacity-slider-value">{t('settings.music.lyrics.fontSizeValue', { defaultValue: '{{size}} px', size: lyricsFontSize })}</span>
                   </div>
                 </div>
 

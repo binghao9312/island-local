@@ -37,6 +37,7 @@ interface LyricsWithTranslationProps {
   lyricsLoading: boolean;
   isIntro: boolean;
   mediaTitle: string;
+  fallbackText: string;
   currentIdx: number;
   currentText: string;
   currentLine: SyncedLyricLine | null;
@@ -57,6 +58,7 @@ export function LyricsWithTranslation(props: LyricsWithTranslationProps): ReactE
     lyricsLoading,
     isIntro,
     mediaTitle,
+    fallbackText,
     currentIdx,
     currentText,
     currentLine,
@@ -105,7 +107,7 @@ export function LyricsWithTranslation(props: LyricsWithTranslationProps): ReactE
           )}
         </div>
       ) : (
-        <span className="lyrics-empty">{t('songTab.lyrics.empty')} {t('songTab.lyrics.enjoyMusic', { defaultValue: '享受音乐' })}</span>
+        <span className="lyrics-empty">{fallbackText}</span>
       )}
     </div>
   );

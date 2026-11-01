@@ -64,6 +64,8 @@ function makeProps(): ComponentProps<typeof MusicSettingsSection> {
     setLyricsCalibrateEnabled: vi.fn(),
     lyricsCalibrateDelay: 10,
     setLyricsCalibrateDelay: vi.fn(),
+    lyricsFontSize: 18,
+    setLyricsFontSize: vi.fn(),
     musicSmtcUnsubscribeInput: '',
     setMusicSmtcUnsubscribeInput: vi.fn(),
     musicSmtcNeverUnsubscribe: false,

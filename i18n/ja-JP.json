@@ -933,8 +933,7 @@
     "lyrics": {
       "all": "すべての歌詞",
       "loading": "歌詞を読み込み中",
-      "empty": "歌詞はありません",
-      "enjoyMusic": "音楽をお楽しみください"
+      "empty": "歌詞はありません"
     },
     "onboarding": {
       "title": "音楽の概要",
@@ -3482,6 +3481,9 @@
         "karaokeTitle": "カラオケハイライト",
         "karaokeHint": "歌詞を語ごとにハイライトします",
         "karaokeToggle": "カラオケハイライトを有効にする",
+        "fontSizeTitle": "歌詞のフォントサイズ",
+        "fontSizeHint": "展開された曲タブの歌詞の文字サイズを調整します。次の行は現在の行の80%で表示されます",
+        "fontSizeValue": "{{size}} px",
         "traditionalTitle": "繁体字への変換",
         "traditionalHint": "簡体字中国語の歌詞を台湾の繁体字（用語を含む）に変換します。日本語または韓国語を含む曲は変換されません。次の曲から有効です。手動で設定していない場合、UI 言語が繁体字中国語のときは既定でオンになります",
         "traditionalToggle": "簡体字の歌詞を繁体字に変換",

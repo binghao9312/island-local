@@ -74,7 +74,12 @@ describe('SongTab', () => {
     mocks.state.isMusicPlaying = true; mocks.state.lyricsLoading = true;
     expect(nodes(render(SongTab), '.ov-lrc-loading-dot')).toHaveLength(3);
     mocks.state.lyricsLoading = false;
-    expect(text(render(SongTab))).toContain('songTab.lyrics.empty');
+    expect(nodes(render(SongTab), '.ov-lrc-hint')).toHaveLength(0);
+    mocks.state.mediaInfo = { title: 'Song', artist: 'Singer', album: '', duration_ms: 0 };
+    expect(text(nodes(render(SongTab), '.ov-lrc-hint'))).toBe('Singer');
+    mocks.state.mediaInfo = { title: 'Song', artist: 'Singer', album: 'Album', duration_ms: 0 };
+    expect(text(nodes(render(SongTab), '.ov-lrc-hint'))).toBe('Singer · Album');
+    expect(text(render(SongTab))).not.toContain('songTab.lyrics.empty');
     mocks.state.syncedLyrics = [...Array.from({ length: 7 }).keys()].map((index) => ({ time_ms: (index + 1) * 1000, text: `line${  index}` }));
     expect(nodes(render(SongTab), '.ov-lrc-intro-icon')).toHaveLength(1);
     expect(nodes(render(SongTab), '.ov-lrc-line')).toHaveLength(2);
@@ -115,6 +120,26 @@ describe('SongTab', () => {
     ]);
     cleanup.forEach((fn) => fn());
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('歌词字号读取设置并写入中栏变量，设置变更事件即时生效且限制在合法范围', async () => {
+    const listeners = new Map<string, (event: Event) => void>();
+    const fontSizeGet = vi.fn().mockResolvedValue(24);
+    vi.stubGlobal('window', {
+      addEventListener: (name: string, fn: (event: Event) => void) => { listeners.set(name, fn); },
+      removeEventListener: vi.fn(),
+      api: { musicLyricsKaraokeGet: mocks.karaoke, musicLyricsFontSizeGet: fontSizeGet },
+    });
+    mocks.state.isMusicPlaying = true;
+    render(SongTab);
+    const cleanup = flushEffects(); await Promise.resolve(); await Promise.resolve();
+    expect(fontSizeGet).toHaveBeenCalledOnce();
+    expect(value(render(SongTab), '.ov-center', 'style')).toEqual({ '--ov-lrc-font-size': '24px' });
+    listeners.get('island:setting-changed')?.({ detail: { channel: 'music:lyrics-font-size', value: 30 } } as unknown as Event);
+    expect(value(render(SongTab), '.ov-center', 'style')).toEqual({ '--ov-lrc-font-size': '28px' });
+    listeners.get('island:setting-changed')?.({ detail: { channel: 'music:lyrics-karaoke', value: true } } as unknown as Event);
+    expect(value(render(SongTab), '.ov-center', 'style')).toEqual({ '--ov-lrc-font-size': '28px' });
+    cleanup.forEach((fn) => fn());
   });
 
   it.each([

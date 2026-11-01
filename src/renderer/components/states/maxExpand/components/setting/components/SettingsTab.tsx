@@ -358,6 +358,8 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
     setLyricsCalibrateEnabled,
     lyricsCalibrateDelay,
     setLyricsCalibrateDelay,
+    lyricsFontSize,
+    setLyricsFontSize,
     musicSmtcUnsubscribeInput,
     setMusicSmtcUnsubscribeInput,
     musicSmtcNeverUnsubscribe,
@@ -840,6 +842,8 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
               setLyricsCalibrateEnabled={setLyricsCalibrateEnabled}
               lyricsCalibrateDelay={lyricsCalibrateDelay}
               setLyricsCalibrateDelay={setLyricsCalibrateDelay}
+              lyricsFontSize={lyricsFontSize}
+              setLyricsFontSize={setLyricsFontSize}
               musicSmtcUnsubscribeInput={musicSmtcUnsubscribeInput}
               setMusicSmtcUnsubscribeInput={setMusicSmtcUnsubscribeInput}
               musicSmtcNeverUnsubscribe={musicSmtcNeverUnsubscribe}

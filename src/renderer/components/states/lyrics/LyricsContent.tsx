@@ -28,6 +28,7 @@ import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import useIslandStore from '../../../store/slices';
 import { SvgIcon } from '../../../utils/SvgIcon';
+import { formatArtistAlbum } from '../../../utils/artistAlbumText';
 import { useLyricsSettings } from './hooks/useLyricsSettings';
 import { useBeijingClock } from './hooks/useBeijingClock';
 import { useAutoIdle } from './hooks/useAutoIdle';
@@ -118,7 +119,7 @@ export function LyricsContent(): ReactElement {
             )}
           </ScrollingText>
         ) : (
-          <span className="lyrics-empty">{t('songTab.lyrics.empty')} {t('songTab.lyrics.enjoyMusic', { defaultValue: '享受音乐' })}</span>
+          <span className="lyrics-empty">{formatArtistAlbum(mediaInfo.artist, mediaInfo.album)}</span>
         )}
       </div>
     </div>

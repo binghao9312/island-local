@@ -49,6 +49,7 @@ export function LyricsTranslationContentView(props: LyricsTranslationContentView
     clockEnabled,
     isIntro,
     mediaTitle,
+    fallbackText,
     currentIdx,
     currentText,
     currentLine,
@@ -67,6 +68,7 @@ export function LyricsTranslationContentView(props: LyricsTranslationContentView
         lyricsLoading={lyricsLoading}
         isIntro={isIntro}
         mediaTitle={mediaTitle}
+        fallbackText={fallbackText}
         currentIdx={currentIdx}
         currentText={currentText}
         currentLine={currentLine}

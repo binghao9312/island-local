@@ -51,7 +51,7 @@ vi.mock('react', async (original) => ({
 }));
 type Options = Parameters<typeof useSettingsConfigurationEffects>[0];
 type SetterKey = Exclude<keyof Options, 'islandPositionOffset'>;
-const setterNames = ["setIslandPositionInput", "setWhitelist", "setLyricsSource", "setLyricsEnabled", "setLyricsTranslationEnabled", "setLyricsIdleDisplayEnabled", "setLyricsKaraoke", "setLyricsClock", "setLyricsCalibrateEnabled", "setLyricsCalibrateDelay", "setExpandLeaveIdle", "setMaxExpandLeaveIdle", "setClipboardUrlMonitorEnabled", "setClipboardUrlDetectMode", "setClipboardUrlBlacklist", "setClipboardUrlSuppressInFavorites", "setAutostartMode", "setNavOrder", "setHiddenNavOrder", "setMusicSmtcNeverUnsubscribe", "setMusicSmtcUnsubscribeInput", "setLayoutConfig", "setMaxExpandNavLayout", "setHideHotkey", "setQuitHotkey", "setScreenshotHotkey", "setNextSongHotkey", "setPlayPauseSongHotkey", "setResetPositionHotkey", "setToggleTrayHotkey", "setShowSettingsWindowHotkey", "setOpenClipboardHistoryHotkey", "setTogglePassthroughHotkey", "setToggleUiLockHotkey", "setToggleShapeModeHotkey", "setAboutVersion", "setUpdateSource", "setActiveTab", "setAboutInitialPage", "setUserInitialProfilePage", "setAppSettingsPage"] as const;
+const setterNames = ["setIslandPositionInput", "setWhitelist", "setLyricsSource", "setLyricsEnabled", "setLyricsTranslationEnabled", "setLyricsIdleDisplayEnabled", "setLyricsKaraoke", "setLyricsClock", "setLyricsCalibrateEnabled", "setLyricsCalibrateDelay", "setLyricsFontSize", "setExpandLeaveIdle", "setMaxExpandLeaveIdle", "setClipboardUrlMonitorEnabled", "setClipboardUrlDetectMode", "setClipboardUrlBlacklist", "setClipboardUrlSuppressInFavorites", "setAutostartMode", "setNavOrder", "setHiddenNavOrder", "setMusicSmtcNeverUnsubscribe", "setMusicSmtcUnsubscribeInput", "setLayoutConfig", "setMaxExpandNavLayout", "setHideHotkey", "setQuitHotkey", "setScreenshotHotkey", "setNextSongHotkey", "setPlayPauseSongHotkey", "setResetPositionHotkey", "setToggleTrayHotkey", "setShowSettingsWindowHotkey", "setOpenClipboardHistoryHotkey", "setTogglePassthroughHotkey", "setToggleUiLockHotkey", "setToggleShapeModeHotkey", "setAboutVersion", "setUpdateSource", "setActiveTab", "setAboutInitialPage", "setUserInitialProfilePage", "setAppSettingsPage"] as const;
 const settings = [{
   api: 'musicWhitelistGet',
   setter: 'setWhitelist',
@@ -88,6 +88,10 @@ const settings = [{
   api: 'musicLyricsCalibrateDelayGet',
   setter: 'setLyricsCalibrateDelay',
   value: 321
+}, {
+  api: 'musicLyricsFontSizeGet',
+  setter: 'setLyricsFontSize',
+  value: 24
 }, {
   api: 'expandMouseleaveIdleGet',
   setter: 'setExpandLeaveIdle',

@@ -1080,6 +1080,21 @@ const api = {
     return ipcRenderer.invoke('music:lyrics-calibrate-delay:set', delaySec);
   },
   /**
+   * 获取展开歌曲页歌词字号（px）
+   * @returns 字号像素值
+   */
+  musicLyricsFontSizeGet: (): Promise<number> => {
+    return ipcRenderer.invoke('music:lyrics-font-size:get');
+  },
+  /**
+   * 设置展开歌曲页歌词字号（px），主进程会钳制到合法范围
+   * @param fontSize - 字号像素值
+   * @returns 是否保存成功
+   */
+  musicLyricsFontSizeSet: (fontSize: number): Promise<boolean> => {
+    return ipcRenderer.invoke('music:lyrics-font-size:set', fontSize);
+  },
+  /**
    * 获取 SMTC 自动取消订阅时间（毫秒），0 表示永不取消
    */
   musicSmtcUnsubscribeMsGet: (): Promise<number> => {

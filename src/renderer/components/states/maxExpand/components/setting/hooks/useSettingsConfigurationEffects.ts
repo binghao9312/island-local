@@ -63,6 +63,7 @@ interface SettingsConfigurationEffectsOptions {
   setLyricsClock: ReturnType<typeof useSettingsMusic>['setLyricsClock'];
   setLyricsCalibrateEnabled: ReturnType<typeof useSettingsMusic>['setLyricsCalibrateEnabled'];
   setLyricsCalibrateDelay: ReturnType<typeof useSettingsMusic>['setLyricsCalibrateDelay'];
+  setLyricsFontSize: ReturnType<typeof useSettingsMusic>['setLyricsFontSize'];
   setExpandLeaveIdle: ReturnType<typeof useSettingsBehavior>['setExpandLeaveIdle'];
   setMaxExpandLeaveIdle: ReturnType<typeof useSettingsBehavior>['setMaxExpandLeaveIdle'];
   setClipboardUrlMonitorEnabled: ReturnType<typeof useSettingsBehavior>['setClipboardUrlMonitorEnabled'];
@@ -114,6 +115,7 @@ export function useSettingsConfigurationEffects(options: SettingsConfigurationEf
     setLyricsClock,
     setLyricsCalibrateEnabled,
     setLyricsCalibrateDelay,
+    setLyricsFontSize,
     setExpandLeaveIdle,
     setMaxExpandLeaveIdle,
     setClipboardUrlMonitorEnabled,
@@ -192,6 +194,10 @@ export function useSettingsConfigurationEffects(options: SettingsConfigurationEf
     window.api.musicLyricsCalibrateDelayGet().then((delay) => {
       if (cancelled) return;
       setLyricsCalibrateDelay(delay);
+    }).catch(() => { });
+    window.api.musicLyricsFontSizeGet().then((fontSize) => {
+      if (cancelled) return;
+      setLyricsFontSize(fontSize);
     }).catch(() => { });
     window.api.expandMouseleaveIdleGet().then((v) => {
       if (cancelled) return;

@@ -28,6 +28,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useIslandStore from '../../../../../../store/slices';
 import { getDayName } from '../../../../../../utils/timeUtils';
+import { LYRICS_FONT_SIZE_DEFAULT, sanitizeLyricsFontSize } from '../../../../../../../shared/lyricsFontSize';
 import { findCurrentIndex, sliceNearby } from '../utils/songUtils';
 import type { UseSongTabReturn } from '../types/songTypes';
 
@@ -52,19 +53,24 @@ export function useSongTab(): UseSongTabReturn {
   const [now, setNow] = useState(new Date());
   const [karaokeEnabled, setKaraokeEnabled] = useState(false);
   const [lyricsEnabled, setLyricsEnabled] = useState(true);
+  const [lyricsFontSize, setLyricsFontSize] = useState(LYRICS_FONT_SIZE_DEFAULT);
 
   /** 加载逐字扫光配置 */
   useEffect(() => {
     window.api?.musicLyricsKaraokeGet().then(setKaraokeEnabled).catch(() => {});
   }, []);
 
-  /** 加载并监听歌词功能开关，关闭时不显示歌词占位 */
+  /** 加载并监听歌词功能开关与歌词字号，关闭时不显示歌词占位，字号调整后即时生效 */
   useEffect(() => {
     window.api?.musicLyricsEnabledGet?.().then(setLyricsEnabled).catch(() => {});
+    window.api?.musicLyricsFontSizeGet?.().then((size) => setLyricsFontSize(sanitizeLyricsFontSize(size))).catch(() => {});
     const handler = (event: Event): void => {
       const detail = (event as CustomEvent<{ channel?: unknown; value?: unknown }>).detail;
       if (detail?.channel === 'music:lyrics-enabled' && typeof detail.value === 'boolean') {
         setLyricsEnabled(detail.value);
+      }
+      if (detail?.channel === 'music:lyrics-font-size' && typeof detail.value === 'number') {
+        setLyricsFontSize(sanitizeLyricsFontSize(detail.value));
       }
     };
     window.addEventListener?.('island:setting-changed', handler);
@@ -125,6 +131,7 @@ export function useSongTab(): UseSongTabReturn {
     syncedLyrics,
     lyricsLoading,
     lyricsEnabled,
+    lyricsFontSize,
     coverImage,
     dominantColor,
     weather,

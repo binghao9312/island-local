@@ -242,6 +242,8 @@ declare global {
       musicLyricsCalibrateEnabledSet: (enabled: boolean) => Promise<boolean>;
       musicLyricsCalibrateDelayGet: () => Promise<number>;
       musicLyricsCalibrateDelaySet: (delaySec: number) => Promise<boolean>;
+      musicLyricsFontSizeGet: () => Promise<number>;
+      musicLyricsFontSizeSet: (fontSize: number) => Promise<boolean>;
       musicSmtcUnsubscribeMsGet: () => Promise<number>;
       musicSmtcUnsubscribeMsSet: (valueMs: number) => Promise<boolean>;
       musicDetectSourceAppId: () => Promise<DetectSourceAppIdResult>;

@@ -219,6 +219,8 @@ const TRANSPORT_ROUTES = [
   ['musicLyricsCalibrateEnabledSet', 'music:lyrics-calibrate-enabled:set', 1, 'invoke'],
   ['musicLyricsCalibrateDelayGet', 'music:lyrics-calibrate-delay:get', 0, 'invoke'],
   ['musicLyricsCalibrateDelaySet', 'music:lyrics-calibrate-delay:set', 1, 'invoke'],
+  ['musicLyricsFontSizeGet', 'music:lyrics-font-size:get', 0, 'invoke'],
+  ['musicLyricsFontSizeSet', 'music:lyrics-font-size:set', 1, 'invoke'],
   ['musicSmtcUnsubscribeMsGet', 'music:smtc-unsubscribe-ms:get', 0, 'invoke'],
   ['musicSmtcUnsubscribeMsSet', 'music:smtc-unsubscribe-ms:set', 1, 'invoke'],
   ['musicDetectSourceAppId', 'music:detect-source-app-id', 0, 'invoke'],

@@ -27,6 +27,7 @@
 import { useState } from 'react';
 
 import type { useTranslation } from 'react-i18next';
+import { LYRICS_FONT_SIZE_DEFAULT } from '../../../../../../../shared/lyricsFontSize';
 
 interface SettingsMusicOptions {
   t: ReturnType<typeof useTranslation>['t'];
@@ -52,6 +53,7 @@ export function useSettingsMusic(options: SettingsMusicOptions) {
   const [lyricsClock, setLyricsClock] = useState<boolean>(true);
   const [lyricsCalibrateEnabled, setLyricsCalibrateEnabled] = useState<boolean>(true);
   const [lyricsCalibrateDelay, setLyricsCalibrateDelay] = useState<number>(20);
+  const [lyricsFontSize, setLyricsFontSize] = useState<number>(LYRICS_FONT_SIZE_DEFAULT);
   const [detectingSourceAppId, setDetectingSourceAppId] = useState(false);
   const [detectedSources, setDetectedSources] = useState<Array<{ sourceAppId: string; isPlaying: boolean; hasTitle: boolean; thumbnail: string | null; }>>([]);
   const [musicSmtcUnsubscribeInput, setMusicSmtcUnsubscribeInput] = useState<string>('5000');
@@ -136,6 +138,8 @@ export function useSettingsMusic(options: SettingsMusicOptions) {
     setLyricsCalibrateEnabled,
     lyricsCalibrateDelay,
     setLyricsCalibrateDelay,
+    lyricsFontSize,
+    setLyricsFontSize,
     detectingSourceAppId,
     setDetectingSourceAppId,
     detectedSources,

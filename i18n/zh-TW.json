@@ -933,8 +933,7 @@
     "lyrics": {
       "all": "全部歌詞",
       "loading": "正在載入歌詞",
-      "empty": "暫無歌詞",
-      "enjoyMusic": "享受音樂"
+      "empty": "暫無歌詞"
     },
     "onboarding": {
       "title": "音樂總覽",
@@ -3479,6 +3478,9 @@
         "karaokeTitle": "逐字掃光",
         "karaokeHint": "啟用後歌詞將以逐字高亮方式顯示",
         "karaokeToggle": "啟用逐字掃光效果",
+        "fontSizeTitle": "歌詞字型大小",
+        "fontSizeHint": "調整展開歌曲頁中歌詞的字型大小，下一行會自動縮小為目前行的 80%",
+        "fontSizeValue": "{{size}} px",
         "traditionalTitle": "歌詞轉繁體",
         "traditionalHint": "將簡體中文歌詞轉換為臺灣繁體（含用詞）；含日文或韓文的歌曲不會被轉換，從下一首歌開始生效。未手動設定時，介面語言為繁體中文則預設開啟",
         "traditionalToggle": "將簡體歌詞轉換為繁體",

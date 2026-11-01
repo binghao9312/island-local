@@ -50,6 +50,8 @@ export interface LyricsTranslationContentViewProps {
   isIntro: boolean;
   /** 媒体标题（前奏时显示） */
   mediaTitle: string;
+  /** 无歌词时的回退文案（歌手 · 专辑） */
+  fallbackText: string;
   /** 当前行索引 */
   currentIdx: number;
   /** 当前行文本 */
