@@ -213,9 +213,6 @@
   transition: rx 0.4s ease, ry 0.4s ease;
 }
 
-.island-timer-ring-animated rect {
-  transition: stroke-dashoffset 1s linear, rx 0.4s ease, ry 0.4s ease;
-}
 
 .island-shell.hover {
   width: 500px;

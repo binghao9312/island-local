@@ -116,7 +116,6 @@ function DynamicIsland(): JSX.Element {
         timerState={timerData?.state ?? 'idle'}
         remainingSeconds={timerData?.remainingSeconds ?? 0}
         totalSeconds={timerData?.totalSeconds ?? 0}
-        transitionEnabled={!performanceModeEnabled}
       />
     </div>
   );

@@ -20,54 +20,61 @@
 
 /**
  * @file islandTimerRing.test.tsx
- * @description IslandTimerRing 渲染测试：显隐类名、dashoffset 进度与过渡开关。
+ * @description IslandTimerRing：显隐类名、按帧连续推进与暂停冻结。
  * @author 鸡哥
  */
 
-import { describe, expect, it } from 'vitest';
-import { elements } from '../../states/test/tree';
-import type { TreeElement } from '../../states/test/tree';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { flushEffects, nodes, render } from '../../states/maxExpand/test/componentHarness';
 import { IslandTimerRing } from '../IslandTimerRing';
 
+const clock = { now: 0, frames: [] as FrameRequestCallback[] };
+
 /**
- * 渲染进度环并取出 svg 与 rect。
- * @param props - 组件参数。
- * @returns svg 与 rect 元素。
+ * 渲染进度环，挂上假 rect 并执行 effect。
+ * @param props - 组件入参
+ * @returns svg 类名与假 rect 样式
  */
-function render(props: Parameters<typeof IslandTimerRing>[0]): { svg: TreeElement; rect: TreeElement } {
-  const root = IslandTimerRing(props) as TreeElement;
-  const [svg, rect] = elements(root);
-  return { svg, rect };
+function mount(props: Parameters<typeof IslandTimerRing>[0]): { className: string; style: Record<string, string> } {
+  const tree = render(IslandTimerRing, props);
+  const svg = nodes(tree, 'svg')[0];
+  const rect = nodes(tree, 'rect')[0];
+  const style: Record<string, string> = {};
+  (rect.props.ref as { current: unknown }).current = { style };
+  flushEffects();
+  return { className: String(svg.props.className), style };
 }
 
+afterEach(() => {
+  vi.unstubAllGlobals();
+  clock.now = 0;
+  clock.frames = [];
+});
+
 describe('IslandTimerRing', () => {
-  it('is hidden and non-interactive while idle', () => {
-    const { svg } = render({ timerState: 'idle', remainingSeconds: 0, totalSeconds: 0, transitionEnabled: true });
-    expect(svg.props.className).toBe('island-timer-ring');
-    expect(svg.props['aria-hidden']).toBe('true');
+  it('空闲时隐藏', () => {
+    expect(mount({ timerState: 'idle', remainingSeconds: 0, totalSeconds: 0 }).className).toBe('island-timer-ring');
   });
 
-  it('shows a nearly full animated ring right after start', () => {
-    const { svg, rect } = render({ timerState: 'running', remainingSeconds: 100, totalSeconds: 100, transitionEnabled: true });
-    expect(svg.props.className).toBe('island-timer-ring island-timer-ring-visible island-timer-ring-animated');
-    expect(rect.props.pathLength).toBe(100);
-    expect(rect.props.strokeDasharray).toBe(100);
-    expect(rect.props.strokeDashoffset).toBeCloseTo(1, 10);
+  it('运行时按帧连续缩短，而不是按秒跳变', () => {
+    vi.stubGlobal('performance', { now: () => clock.now });
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => { clock.frames.push(cb); return clock.frames.length; });
+    vi.stubGlobal('cancelAnimationFrame', vi.fn());
+    const { className, style } = mount({ timerState: 'running', remainingSeconds: 10, totalSeconds: 10 });
+    expect(className).toBe('island-timer-ring island-timer-ring-visible');
+    clock.now = 2500;
+    clock.frames.shift()?.(clock.now);
+    expect(Number(style.strokeDashoffset)).toBeCloseTo(25, 10);
+    clock.now = 2516;
+    clock.frames.shift()?.(clock.now);
+    expect(Number(style.strokeDashoffset)).toBeCloseTo(25.16, 10);
   });
 
-  it('reaches a fully consumed ring at the last second', () => {
-    const { rect } = render({ timerState: 'running', remainingSeconds: 1, totalSeconds: 100, transitionEnabled: true });
-    expect(rect.props.strokeDashoffset).toBe(100);
-  });
-
-  it('freezes without transition while paused', () => {
-    const { svg, rect } = render({ timerState: 'paused', remainingSeconds: 50, totalSeconds: 100, transitionEnabled: true });
-    expect(svg.props.className).toBe('island-timer-ring island-timer-ring-visible');
-    expect(rect.props.strokeDashoffset).toBe(50);
-  });
-
-  it('drops the transition when animations are disabled', () => {
-    const { svg } = render({ timerState: 'running', remainingSeconds: 10, totalSeconds: 10, transitionEnabled: false });
-    expect(svg.props.className).toBe('island-timer-ring island-timer-ring-visible');
+  it('暂停时不启动逐帧动画', () => {
+    const raf = vi.fn();
+    vi.stubGlobal('requestAnimationFrame', raf);
+    const { className } = mount({ timerState: 'paused', remainingSeconds: 5, totalSeconds: 10 });
+    expect(className).toBe('island-timer-ring island-timer-ring-visible');
+    expect(raf).not.toHaveBeenCalled();
   });
 });

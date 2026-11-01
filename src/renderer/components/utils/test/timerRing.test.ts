@@ -20,37 +20,33 @@
 
 /**
  * @file timerRing.test.ts
- * @description 倒计时进度环进度计算测试：运行/暂停/空闲分支、归零时机与边界钳制。
+ * @description 倒计时进度环计算：显隐、连续偏移与结束时间校准。
  * @author 鸡哥
  */
 
 import { describe, expect, it } from 'vitest';
-import { getTimerRingProgress } from '../timerRing';
+import { getRingDashOffset, isTimerRingVisible, resolveRingEndAt } from '../timerRing';
 
-describe('getTimerRingProgress', () => {
-  it('is hidden for idle timers and for missing totals', () => {
-    expect(getTimerRingProgress('idle', 0, 0).visible).toBe(false);
-    expect(getTimerRingProgress('idle', 30, 60).visible).toBe(false);
-    expect(getTimerRingProgress('running', 30, 0).visible).toBe(false);
-    expect(getTimerRingProgress('paused', 30, 0).visible).toBe(false);
+describe('timerRing', () => {
+  it('仅在运行或暂停且总时长有效时显示', () => {
+    expect(isTimerRingVisible('idle', 60)).toBe(false);
+    expect(isTimerRingVisible('running', 0)).toBe(false);
+    expect(isTimerRingVisible('running', 60)).toBe(true);
+    expect(isTimerRingVisible('paused', 60)).toBe(true);
   });
 
-  it('starts as a full ring at the first second and animates', () => {
-    expect(getTimerRingProgress('running', 60, 60)).toEqual({ visible: true, fraction: 59 / 60, animated: true });
+  it('偏移随剩余小数秒连续变化并夹紧到 0-100', () => {
+    expect(getRingDashOffset(60, 60)).toBe(0);
+    expect(getRingDashOffset(45.5, 60)).toBeCloseTo(100 * (14.5 / 60), 10);
+    expect(getRingDashOffset(0, 60)).toBe(100);
+    expect(getRingDashOffset(-3, 60)).toBe(100);
+    expect(getRingDashOffset(500, 60)).toBe(0);
+    expect(getRingDashOffset(5, 0)).toBe(100);
   });
 
-  it('targets the end of the current second so the ring finishes exactly at zero', () => {
-    expect(getTimerRingProgress('running', 1, 60)).toEqual({ visible: true, fraction: 0, animated: true });
-    expect(getTimerRingProgress('running', 30, 60).fraction).toBeCloseTo(29 / 60, 10);
-  });
-
-  it('freezes at the remaining ratio without transition while paused', () => {
-    expect(getTimerRingProgress('paused', 30, 60)).toEqual({ visible: true, fraction: 0.5, animated: false });
-  });
-
-  it('clamps out-of-range remaining values into 0..1', () => {
-    expect(getTimerRingProgress('running', 0, 60).fraction).toBe(0);
-    expect(getTimerRingProgress('running', 500, 60).fraction).toBe(1);
-    expect(getTimerRingProgress('paused', -5, 60).fraction).toBe(0);
+  it('tick 抖动内保留结束时间，偏差过大或首次时重新校准', () => {
+    expect(resolveRingEndAt(null, 1000, 10)).toBe(11000);
+    expect(resolveRingEndAt(11000, 2900, 9)).toBe(11000);
+    expect(resolveRingEndAt(11000, 5000, 9)).toBe(14000);
   });
 });

@@ -20,38 +20,46 @@
 
 /**
  * @file timerRing.ts
- * @description 倒计时进度环的进度计算
+ * @description 倒计时进度环的进度计算（按结束时间逐帧连续推进）
  * @author 鸡哥
  */
 
 import type { TimerState } from '../../store/types';
 
-/** 进度环渲染参数 */
-export interface TimerRingProgress {
-  /** 是否显示进度环 */
-  visible: boolean;
-  /** 剩余比例（0~1），1 为整圈 */
-  fraction: number;
-  /** 是否带 1 秒线性过渡；暂停时必须冻结，故为 false */
-  animated: boolean;
+/** 计时 tick 抖动容差（毫秒），超出则重新校准结束时间 */
+const END_AT_DRIFT_TOLERANCE_MS = 1500;
+
+/**
+ * 判断进度环是否显示。
+ * @param state - 计时器状态
+ * @param totalSeconds - 本次倒计时总秒数
+ * @returns 运行或暂停且总时长有效时为 true
+ */
+export function isTimerRingVisible(state: TimerState, totalSeconds: number): boolean {
+  return (state === 'running' || state === 'paused') && totalSeconds > 0;
 }
 
 /**
- * 计算进度环的剩余比例
- * @description 倒计时每秒才更新一次 remainingSeconds，若直接以剩余比例作为目标，
- * 线性过渡会整体滞后 1 秒；运行中改以"本秒结束时"的比例（remaining - 1）为目标，
- * 使环恰好在归零瞬间走完
- * @param state - 计时器状态
- * @param remainingSeconds - 当前剩余秒数
- * @param totalSeconds - 启动时的总秒数
- * @returns 是否显示、剩余比例与是否启用过渡
+ * 计算剩余时长对应的 stroke-dashoffset（pathLength = 100）。
+ * @param leftSeconds - 剩余秒数，可为小数
+ * @param totalSeconds - 总秒数
+ * @returns 0（满环）到 100（耗尽）之间的偏移
  */
-export function getTimerRingProgress(state: TimerState, remainingSeconds: number, totalSeconds: number): TimerRingProgress {
-  if ((state !== 'running' && state !== 'paused') || totalSeconds <= 0) {
-    return { visible: false, fraction: 1, animated: false };
-  }
-  const running = state === 'running';
-  const target = running ? remainingSeconds - 1 : remainingSeconds;
-  const fraction = Math.min(1, Math.max(0, target / totalSeconds));
-  return { visible: true, fraction, animated: running };
+export function getRingDashOffset(leftSeconds: number, totalSeconds: number): number {
+  if (totalSeconds <= 0) return 100;
+  const fraction = Math.min(1, Math.max(0, leftSeconds / totalSeconds));
+  return 100 * (1 - fraction);
+}
+
+/**
+ * 根据当前剩余整秒校准结束时间；仅在偏差超过容差时重置，避免每秒 tick 造成回跳。
+ * @param prevEndAt - 之前记录的结束时间（毫秒），未记录为 null
+ * @param nowMs - 当前时间（毫秒）
+ * @param remainingSeconds - store 中的剩余整秒
+ * @returns 结束时间（毫秒）
+ */
+export function resolveRingEndAt(prevEndAt: number | null, nowMs: number, remainingSeconds: number): number {
+  const expected = nowMs + remainingSeconds * 1000;
+  if (prevEndAt === null || Math.abs(prevEndAt - expected) > END_AT_DRIFT_TOLERANCE_MS) return expected;
+  return prevEndAt;
 }
