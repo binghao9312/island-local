@@ -35,15 +35,6 @@ const useFixtureStore = create(() => ({
 export default useFixtureStore;
 
 /**
- * 用每次调用记录真实导航主体渲染，不请求远程问卷。
- * @returns 没有待处理问卷的合成状态。
- */
-export function useAnnouncementQuestionnaire() {
-  counters.sectionRenders += 1;
-  return { questionnaire: null, count: 0, dismiss: (): void => { counters.questionnaireOpens = 0; } };
-}
-
-/**
  * 防止测试依赖问卷组件和账户模块。
  * @returns 不展示问卷。
  */
