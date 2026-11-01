@@ -32,7 +32,6 @@ const {
   mockCreateTimerSlice,
   mockCreateNotificationSlice,
   mockCreateMediaSlice,
-  mockCreateAiSlice,
   mockCreatePomodoroSlice,
   mockCreate,
 } = vi.hoisted(() => ({
@@ -41,7 +40,6 @@ const {
   mockCreateTimerSlice: vi.fn(),
   mockCreateNotificationSlice: vi.fn(),
   mockCreateMediaSlice: vi.fn(),
-  mockCreateAiSlice: vi.fn(),
   mockCreatePomodoroSlice: vi.fn(),
   mockCreate: vi.fn(),
 }));
@@ -70,10 +68,6 @@ vi.mock('../mediaSlice', () => ({
   createMediaSlice: mockCreateMediaSlice,
 }));
 
-vi.mock('../aiSlice', () => ({
-  createAiSlice: mockCreateAiSlice,
-}));
-
 vi.mock('../pomodoroSlice', () => ({
   createPomodoroSlice: mockCreatePomodoroSlice,
 }));
@@ -91,7 +85,6 @@ describe('useIslandStore (index.ts aggregator)', () => {
     mockCreateTimerSlice.mockReturnValue({ countdown: {}, setCountdown: vi.fn() });
     mockCreateNotificationSlice.mockReturnValue({ notification: null });
     mockCreateMediaSlice.mockReturnValue({ isMusicPlaying: false, setPlaybackState: vi.fn() });
-    mockCreateAiSlice.mockReturnValue({ aiConfig: {}, setAiConfig: vi.fn() });
     mockCreatePomodoroSlice.mockReturnValue({ pomodoroPhase: 'work', setPomodoroPhase: vi.fn() });
 
     // create() returns a curried function: create<IStore>()(factory)
@@ -115,14 +108,13 @@ describe('useIslandStore (index.ts aggregator)', () => {
     expect(storeFactory).toHaveBeenCalledTimes(1);
   });
 
-  it('invokes all seven slice creators', async () => {
+  it('invokes all six slice creators', async () => {
     await import('../index');
     expect(mockCreateIslandSlice).toHaveBeenCalledTimes(1);
     expect(mockCreateWeatherSlice).toHaveBeenCalledTimes(1);
     expect(mockCreateTimerSlice).toHaveBeenCalledTimes(1);
     expect(mockCreateNotificationSlice).toHaveBeenCalledTimes(1);
     expect(mockCreateMediaSlice).toHaveBeenCalledTimes(1);
-    expect(mockCreateAiSlice).toHaveBeenCalledTimes(1);
     expect(mockCreatePomodoroSlice).toHaveBeenCalledTimes(1);
   });
 
@@ -135,7 +127,6 @@ describe('useIslandStore (index.ts aggregator)', () => {
       mockCreateTimerSlice,
       mockCreateNotificationSlice,
       mockCreateMediaSlice,
-      mockCreateAiSlice,
       mockCreatePomodoroSlice,
     ];
 
@@ -168,9 +159,6 @@ describe('useIslandStore (index.ts aggregator)', () => {
         // mediaSlice
         isMusicPlaying: false,
         setPlaybackState: expect.any(Function),
-        // aiSlice
-        aiConfig: {},
-        setAiConfig: expect.any(Function),
         // pomodoroSlice
         pomodoroPhase: 'work',
         setPomodoroPhase: expect.any(Function),
@@ -197,9 +185,6 @@ describe('useIslandStore (index.ts aggregator)', () => {
     // Media slice keys
     expect(keys).toContain('isMusicPlaying');
     expect(keys).toContain('setPlaybackState');
-    // AI slice keys
-    expect(keys).toContain('aiConfig');
-    expect(keys).toContain('setAiConfig');
     // Pomodoro slice keys
     expect(keys).toContain('pomodoroPhase');
     expect(keys).toContain('setPomodoroPhase');
@@ -254,7 +239,6 @@ describe('useIslandStore (index.ts aggregator)', () => {
       mockCreateTimerSlice.mock.calls[0],
       mockCreateNotificationSlice.mock.calls[0],
       mockCreateMediaSlice.mock.calls[0],
-      mockCreateAiSlice.mock.calls[0],
       mockCreatePomodoroSlice.mock.calls[0],
     ];
 

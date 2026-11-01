@@ -34,13 +34,6 @@ import type {
   SaveTextFilePayload,
   SaveTextFileResult,
   ComputeFileHashResult,
-  ExecuteAgentLocalToolRequest,
-  ExecuteAgentLocalToolResult,
-  OllamaChatRequest,
-  ChatEvent,
-  ChatStartResult,
-  ChatAbortResult,
-  CustomDirectChatRequest,
   NowPlayingInfo,
   MediaCommandResult,
   SmtcTimestampResult,
@@ -79,6 +72,12 @@ import type {
   CodexStatusSnapshot,
   CodexMonitorMutationResult,
   AgentUsageSnapshot,
+  AcpEvent,
+  AcpImageData,
+  AcpProviderId,
+  AcpProviderInfo,
+  AcpPromptResult,
+  AcpStartResult,
 } from './types';
 import type { TrayMenuAction, TrayMenuState } from '../shared/trayMenu';
 
@@ -116,36 +115,12 @@ declare global {
       pickFeedbackLogFile: () => Promise<string | null>;
       pickFeedbackScreenshotFile: () => Promise<string | null>;
       pickLocalSearchDirectory: () => Promise<string | null>;
-      pickSkillFile: () => Promise<string | null>;
-      readTextFile: (filePath: string) => Promise<string | null>;
       saveTextFile: (payload: SaveTextFilePayload) => Promise<SaveTextFileResult>;
       searchLocalFiles: (
         rootDir: string,
         keyword: string,
         options?: SearchLocalFilesOptions,
       ) => Promise<SearchLocalFileResult[]>;
-      executeAgentLocalTool: (request: ExecuteAgentLocalToolRequest) => Promise<ExecuteAgentLocalToolResult>;
-      ollamaPing: (baseUrl?: string) => Promise<boolean>;
-      ollamaModels: (baseUrl?: string) => Promise<string[]>;
-      ollamaDetectBaseUrl: () => Promise<string | null>;
-      ollamaChatStart: (
-        sessionId: string,
-        request: OllamaChatRequest,
-      ) => Promise<ChatStartResult>;
-      ollamaChatAbort: (sessionId: string) => Promise<ChatAbortResult>;
-      onOllamaChatEvent: (
-        sessionId: string,
-        callback: (event: ChatEvent) => void,
-      ) => () => void;
-      customDirectChatStart: (
-        sessionId: string,
-        request: CustomDirectChatRequest,
-      ) => Promise<ChatStartResult>;
-      customDirectChatAbort: (sessionId: string) => Promise<ChatAbortResult>;
-      onCustomDirectChatEvent: (
-        sessionId: string,
-        callback: (event: ChatEvent) => void,
-      ) => () => void;
       clearLogsCache: () => Promise<{ success: boolean; freedBytes: number }>;
       windowMinimize: () => void;
       windowMaximize: () => void;
@@ -350,6 +325,13 @@ declare global {
       codexSessionsDelete: (sessionIds: string[]) => Promise<CodexStatusSnapshot>;
       onCodexStatusUpdated: (callback: (snapshot: CodexStatusSnapshot) => void) => () => void;
       agentUsageSnapshotGet: () => Promise<AgentUsageSnapshot>;
+      acpProviders: () => Promise<AcpProviderInfo[]>;
+      acpStart: (providerId: AcpProviderId) => Promise<AcpStartResult>;
+      acpReset: (providerId: AcpProviderId) => Promise<AcpStartResult>;
+      acpPrompt: (providerId: AcpProviderId, text: string, images: AcpImageData[]) => Promise<AcpPromptResult>;
+      acpCancel: (providerId: AcpProviderId) => Promise<void>;
+      acpPermissionResolve: (requestId: string, optionId: string | null) => Promise<boolean>;
+      onAcpEvent: (callback: (event: AcpEvent) => void) => () => void;
     };
   }
 }

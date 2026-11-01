@@ -37,6 +37,8 @@ import { createClipboardUrlState } from './clipboard/clipboardUrlState';
 import { registerClaudeCodeStatusIpcHandlers } from './ipc/agent/claudeCodeStatusIpc';
 import { registerCodexStatusIpcHandlers } from './ipc/agent/codexStatusIpc';
 import { registerAgentUsageIpcHandlers } from './ipc/agent/agentUsageIpc';
+import { AcpManager } from './acp/acpManager';
+import { registerAcpIpcHandlers } from './acp/acpIpc';
 import { registerClipboardIpcHandlers } from './ipc/settings/clipboard';
 import { registerCaptureIpcHandlers } from './ipc/window/capture';
 import { registerScreenshotHotkeyIpcHandlers } from './ipc/system/screenshotHotkey';
@@ -335,6 +337,14 @@ const codexStatusService = createCodexStatusService({
   getMainWindow: () => mainWindow,
 });
 
+const acpManager = new AcpManager({
+  cwd: app.getPath('home'),
+  clientVersion: app.getVersion(),
+  emit: (event) => {
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('acp:event', event);
+  },
+});
+
 const agentUsageService = createAgentUsageService({
   claudeProjectsPath: join(app.getPath('home'), '.claude', 'projects'),
   codexSessionsPath: join(app.getPath('home'), '.codex', 'sessions'),
@@ -534,6 +544,7 @@ function registerIpcHandlers(): void {
   registerClaudeCodeStatusIpcHandlers({ service: claudeCodeStatusService });
   registerCodexStatusIpcHandlers(codexStatusService);
   registerAgentUsageIpcHandlers(agentUsageService);
+  registerAcpIpcHandlers(acpManager);
   registerSettingsPreviewHandler();
 
   registerLogIpcHandlers({ writeMainLog });
@@ -740,6 +751,7 @@ registerAppLifecycleHandlers({
     externalAgentWatcher.stop();
     claudeCodeStatusService.stop();
     codexStatusService.stop();
+    acpManager.stopAll();
     stopClipboardUrlWatcher();
     smtcService.cleanupWorker();
     destroyTray();

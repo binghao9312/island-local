@@ -20,13 +20,13 @@
 
 /**
  * @file appOperations.test.ts
- * @description 应用IPC与Agent本地工具的目录筛选、工作区边界、文件读写、窗口和哈希行为测试。
+ * @description 应用IPC的目录筛选、文件对话框、保存、窗口和哈希行为测试。
  * @author 鸡哥
  */
 
 import { Readable } from 'node:stream';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanupHarness, resetHarness, mocks, root, directories, events, window, entry, invoke, tool, errorContaining } from './appHarness';
+import { cleanupHarness, resetHarness, mocks, root, directories, events, window, entry, invoke } from './appHarness';
 
 beforeEach(resetHarness);
 afterEach(cleanupHarness);
@@ -80,140 +80,8 @@ describe('app directory search through registered IPC', () => {
   });
 });
 
-describe('agent local filesystem tools', () => {
-  it('copies a nested directory using real recursion with mocked filesystem boundaries', async () => {
-    mocks.stat.mockResolvedValue({ isFile: () => false, isDirectory: () => true, size: 0 });
-    directories.set(`${root  }\\source`, [entry('a.txt'), entry('nested', true)]);
-    directories.set(`${root  }\\source\\nested`, [entry('b.txt')]);
-    const response = await tool('file.copy', { source: `${root  }\\source`, destination: `${root  }\\target` });
-    expect(response).toMatchObject({ success: true, error: '', result: { source: `${root  }\\source`, destination: `${root  }\\target`, isDirectory: true, copied: true } });
-    expect(mocks.copy.mock.calls).toEqual([[`${root  }\\source\\a.txt`, `${root  }\\target\\a.txt`], [`${root  }\\source\\nested\\b.txt`, `${root  }\\target\\nested\\b.txt`]]);
-    expect(mocks.mkdir).toHaveBeenCalledWith(`${root  }\\target\\nested`, { recursive: true });
-  });
-  it('copies one file using argument aliases and propagates a failed copy as a tool response', async () => {
-    expect(await tool('file.copy', { path: `${root  }\\a.txt`, newPath: `${root  }\\b.txt` })).toMatchObject({ success: true, result: { isDirectory: false, copied: true } });
-    mocks.copy.mockRejectedValue(new Error('copy denied'));
-    expect(await tool('file.copy', { source: `${root  }\\a.txt`, destination: `${root  }\\b.txt` })).toMatchObject({ success: false, result: {}, error: 'copy denied' });
-  });
-  it.each([
-    { args: {}, error: '需要 source' },
-    { args: { source: `${root  }\\a` }, error: '需要 destination' },
-    { args: { source: `${root  }\\a`, destination: 'C:\\outside\\a' }, error: '不在工作区范围内' },
-    { args: { source: 'C:\\outside\\a', destination: `${root  }\\a` }, error: '不在工作区范围内' },
-  ])('rejects invalid copy boundaries before any filesystem mutation $error', async ({ args, error }) => {
-    expect(await tool('file.copy', args)).toMatchObject({ success: false, error: errorContaining(error) });
-    expect(mocks.mkdir).not.toHaveBeenCalled();
-    expect(mocks.copy).not.toHaveBeenCalled();
-  });
-  it('requires a workspace and rejects sibling-prefix paths', async () => {
-    expect(await tool('file.read', { path: `${root  }\\a` }, [])).toMatchObject({ success: false, error: errorContaining('未配置工作区') });
-    expect(await tool('file.read', { path: `${root  }-other\\a` })).toMatchObject({ success: false, error: errorContaining('不在工作区范围内') });
-    expect(mocks.read).not.toHaveBeenCalled();
-  });
-  it('builds a bounded tree and excludes system directories from traversal', async () => {
-    directories.set(root, [entry('.git', true), entry('src', true), entry('node_modules', true), entry('final.txt')]);
-    directories.set(`${root  }\\src`, [entry('one.txt'), entry('deep', true)]);
-    directories.set(`${root  }\\src\\deep`, [entry('two.txt')]);
-    expect(await tool('file.tree', { path: root, maxDepth: 2, limit: 4 })).toMatchObject({
-      success: true, result: { itemCount: 4, maxDepth: 2, tree: [
-        { name: 'src', path: `${root  }\\src`, isDirectory: true, children: [{ name: 'one.txt', path: `${root  }\\src\\one.txt`, isDirectory: false }, { name: 'deep', path: `${root  }\\src\\deep`, isDirectory: true }] },
-        { name: 'node_modules', path: `${root  }\\node_modules`, isDirectory: true },
-      ] },
-    });
-    expect(mocks.readdir.mock.calls.map(([path]) => path)).toEqual([root, `${root  }\\src`]);
-  });
-  it('returns an empty tree for a failed directory and validates the root', async () => {
-    expect(await tool('file.tree', { path: root })).toMatchObject({ success: true, result: { itemCount: 0, tree: [] } });
-    expect(await tool('file.tree', {})).toMatchObject({ success: false, error: 'file.tree 需要 path' });
-  });
-  it.each(['file.read', 'file.read.lines'])('guards %s against directories and oversized files', async (name) => {
-    mocks.stat.mockResolvedValue({ isFile: () => false, isDirectory: () => true, size: 0 });
-    expect(await tool(name, { path: `${root  }\\file` })).toMatchObject({ success: false, error: '目标路径不是文件' });
-    mocks.stat.mockResolvedValue({ isFile: () => true, isDirectory: () => false, size: 1024 * 1024 + 1 });
-    expect(await tool(name, { path: `${root  }\\file` })).toMatchObject({ success: false, error: errorContaining('文件过大') });
-    expect(mocks.read).not.toHaveBeenCalled();
-  });
-  it('reads numbered lines, clamps the requested window and normalizes invalid numeric inputs', async () => {
-    mocks.read.mockResolvedValue('one\r\ntwo\r\nthree');
-    expect(await tool('file.read.lines', { path: `${root  }\\a`, startLine: 2, endLine: 3 })).toMatchObject({ success: true, result: { startLine: 2, endLine: 3, totalLines: 3, count: 2, lines: [{ line: 2, text: 'two' }, { line: 3, text: 'three' }] } });
-    expect(await tool('file.read.lines', { path: `${root  }\\a`, startLine: Number.NaN, endLine: 9999 })).toMatchObject({ success: true, result: { startLine: 1, endLine: 2000, count: 3 } });
-    expect(await tool('file.read', { path: `${root  }\\a` })).toMatchObject({ success: true, result: { content: 'one\r\ntwo\r\nthree', size: 3 } });
-  });
-  it('writes UTF-8 content and appends converted payloads after creating the parent', async () => {
-    expect(await tool('file.write', { path: `${root  }\\a`, content: '你好' })).toMatchObject({ success: true, result: { writtenBytes: 6 } });
-    expect(mocks.write).toHaveBeenCalledWith(`${root  }\\a`, '你好', 'utf8');
-    expect(await tool('file.append', { path: `${root  }\\a`, content: 123 })).toMatchObject({ success: true, result: { appendedBytes: 3 } });
-    expect(mocks.append).toHaveBeenCalledWith(`${root  }\\a`, '123', 'utf8');
-    expect(mocks.mkdir).toHaveBeenCalledWith(root, { recursive: true });
-  });
-});
-
-describe('local commands and window tools at mocked boundaries', () => {
-  it.each([
-    { name: 'cmd.exec', program: 'cmd.exe', args: ['/d', '/s', '/c', 'echo fixture'] },
-    { name: 'cmd.powershell', program: 'powershell.exe', args: ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', 'echo fixture'] },
-  ])('routes $name with a clamped timeout and workspace cwd', async ({ name, program, args }) => {
-    expect(await tool(name, { command: ' echo fixture ', cwd: root, timeoutMs: 1 })).toMatchObject({ success: true, result: { command: 'echo fixture', cwd: root, stdout: 'output', stderr: 'warning' } });
-    expect(mocks.exec).toHaveBeenCalledWith(program, args, { windowsHide: true, cwd: root, timeout: 1000, maxBuffer: 1024 * 1024 }, expect.any(Function));
-  });
-  it.each(['cmd.exec', 'cmd.powershell'])('handles command errors and invalid arguments for %s', async (name) => {
-    expect(await tool(name, {})).toMatchObject({ success: false, error: errorContaining('需要 command') });
-    expect(await tool(name, { command: 'echo fixture', cwd: 'C:\\outside' })).toMatchObject({ success: false, error: errorContaining('不在工作区范围内') });
-    expect(mocks.exec).not.toHaveBeenCalled();
-    mocks.exec.mockImplementation((program, args, options, callback) => { void program; void args; void options; callback(new Error('timeout'), '', ''); });
-    expect(await tool(name, { command: 'echo fixture' })).toMatchObject({ success: false, error: 'timeout' });
-  });
-  it('normalizes non-string command output and caps long timeouts', async () => {
-    mocks.exec.mockImplementation((program, args, options, callback) => { void program; void args; void options; callback(null, Buffer.from('out'), null); });
-    expect(await tool('cmd.exec', { command: 'fixture', timeoutMs: 999999 })).toMatchObject({ success: true, result: { cwd: '', stdout: '', stderr: '' } });
-    expect(mocks.exec.mock.calls[0][2]).toMatchObject({ timeout: 60000, cwd: undefined });
-  });
-  it('filters window names and titles and normalizes nonnumeric handles', async () => {
-    mocks.windows.mockResolvedValue([
-      { id: '42', title: 'Editor', processName: 'Code.exe', processPath: 'C:/Code.exe', processId: 4, iconDataUrl: null },
-      { id: 'n/a', title: 'Code guide', processName: 'Guide.exe', processPath: null, processId: null, iconDataUrl: null },
-      { id: '5', title: 'Other', processName: 'Other.exe', processPath: null, processId: 5, iconDataUrl: null },
-    ]);
-    expect(await tool('win.list', { filter: ' CODE ' })).toMatchObject({ success: true, result: { count: 2, windows: [
-      { pid: 4, name: 'Code.exe', title: 'Editor', handle: 42, path: 'C:/Code.exe' },
-      { pid: null, name: 'Guide.exe', title: 'Code guide', handle: 0, path: null },
-    ] } });
-  });
-  it.each([
-    { name: 'win.minimize', args: { pid: 4.9 }, flag: 6, action: '最小化' },
-    { name: 'win.maximize', args: { name: 'editor' }, flag: 3, action: '最大化' },
-    { name: 'win.restore', args: { handle: 42 }, flag: 9, action: '还原' },
-  ])('chooses the target and ShowWindow flag for $name', async ({ name, args, flag, action }) => {
-    mocks.windows.mockResolvedValue([{ id: '42', title: 'Editor', processName: 'Code.exe', processPath: null, processId: 4, iconDataUrl: null }]);
-    expect(await tool(name, args)).toMatchObject({ success: true, result: { action, handle: 42, pid: 4, name: 'Code.exe', title: 'Editor' } });
-    expect(mocks.exec.mock.calls[0][0]).toBe('powershell.exe');
-    expect(mocks.exec.mock.calls[0][1].at(-1)).toContain(`[IntPtr]42, ${  flag}`);
-  });
-  it('rejects missing targets, unmatched windows and unusable handles before dispatch', async () => {
-    expect(await tool('win.minimize', {})).toMatchObject({ success: false, error: errorContaining('需要 pid、name 或 handle') });
-    expect(await tool('win.minimize', { pid: 7 })).toMatchObject({ success: false, error: '未找到匹配的窗口' });
-    mocks.windows.mockResolvedValue([{ id: 'n/a', title: 'Editor', processName: 'Code.exe', processPath: null, processId: 4, iconDataUrl: null }]);
-    expect(await tool('win.minimize', { name: 'code' })).toMatchObject({ success: false, error: '无法获取窗口句柄' });
-    expect(mocks.exec).not.toHaveBeenCalled();
-  });
-  it('closes the selected process and reports command failures', async () => {
-    mocks.windows.mockResolvedValue([{ id: '42', title: 'Editor', processName: 'Code.exe', processPath: null, processId: 4, iconDataUrl: null }]);
-    expect(await tool('win.close', { name: 'CODE' })).toMatchObject({ success: true, result: { closed: { pid: 4, name: 'Code.exe', title: 'Editor' } } });
-    expect(mocks.exec).toHaveBeenCalledWith('taskkill', ['/PID', '4', '/F'], { windowsHide: true, timeout: 15000 }, expect.any(Function));
-    mocks.exec.mockImplementation((program, args, options, callback) => { void program; void args; void options; callback(new Error('denied'), '', ''); });
-    expect(await tool('win.close', { pid: 4 })).toMatchObject({ success: false, error: 'denied' });
-  });
-  it('rejects close without a selection or usable process PID', async () => {
-    expect(await tool('win.close', {})).toMatchObject({ success: false, error: 'win.close 需要 pid 或 name' });
-    expect(await tool('win.close', { pid: 9 })).toMatchObject({ success: false, error: '未找到匹配的窗口进程' });
-    mocks.windows.mockResolvedValue([{ id: '42', title: 'Editor', processName: 'Code.exe', processPath: null, processId: null, iconDataUrl: null }]);
-    expect(await tool('win.close', { name: 'code' })).toMatchObject({ success: false, error: '无法获取目标进程 PID' });
-    expect(mocks.exec).not.toHaveBeenCalled();
-  });
-});
-
 describe('file dialog, read, save and hash IPC responses', () => {
-  it.each(['app:pick-local-search-directory', 'app:pick-skill-file', 'app:pick-feedback-screenshot-file', 'app:pick-feedback-log-file', 'app:pick-file-for-hash'])('returns selection and handles cancellation, absent windows and dialog failures for %s', async (channel) => {
+  it.each(['app:pick-local-search-directory', 'app:pick-feedback-screenshot-file', 'app:pick-feedback-log-file', 'app:pick-file-for-hash'])('returns selection and handles cancellation, absent windows and dialog failures for %s', async (channel) => {
     expect(await invoke(channel)).toBe(`${root  }\\chosen.log`);
     mocks.openDialog.mockResolvedValue({ canceled: true, filePaths: [] });
     expect(await invoke(channel)).toBeNull();
@@ -222,22 +90,6 @@ describe('file dialog, read, save and hash IPC responses', () => {
     mocks.focusedWindow.mockReturnValue(window);
     mocks.openDialog.mockRejectedValue(new Error('dialog failed'));
     expect(await invoke(channel)).toBeNull();
-  });
-  it('enforces the feedback log extension and the skill dialog filter', async () => {
-    mocks.openDialog.mockResolvedValue({ canceled: false, filePaths: ['C:\\note.txt'] });
-    expect(await invoke('app:pick-feedback-log-file')).toBeNull();
-    await invoke('app:pick-skill-file');
-    expect(mocks.openDialog).toHaveBeenLastCalledWith(window, expect.objectContaining({ filters: [{ name: 'Markdown', extensions: ['md'] }] }));
-  });
-  it('returns file content, or null for missing and failed reads', async () => {
-    expect(await invoke('app:read-text-file', `${root  }\\a`)).toBe('abc');
-    expect(mocks.read).toHaveBeenCalledWith(`${root  }\\a`, 'utf-8');
-    mocks.exists.mockReturnValue(false);
-    expect(await invoke('app:read-text-file', `${root  }\\a`)).toBeNull();
-    expect(await invoke('app:read-text-file', '')).toBeNull();
-    mocks.exists.mockReturnValue(true);
-    mocks.read.mockRejectedValue(new Error('denied'));
-    expect(await invoke('app:read-text-file', `${root  }\\a`)).toBeNull();
   });
   it('sanitizes save filters, writes the chosen file and reveals it', async () => {
     expect(await invoke('app:save-text-file', { content: '你好', defaultPath: ' export.md ', filters: [null, 7, {}, { name: ' ', extensions: ['md'] }, { name: ' Markdown ', extensions: ['md', '', 3] }] })).toEqual({ ok: true, canceled: false, filePath: `${root  }\\saved.txt` });
@@ -308,89 +160,6 @@ describe('file dialog, read, save and hash IPC responses', () => {
   });
 });
 
-describe('local file mutation and content search branches', () => {
-  it('checks existence without failing the tool when stat rejects', async () => {
-    mocks.stat.mockRejectedValue(new Error('missing'));
-    expect(await tool('file.exists', { path: `${root  }\\absent` })).toMatchObject({ success: true, result: { exists: false, isFile: false, isDirectory: false } });
-    mocks.stat.mockResolvedValue({ isFile: () => true, isDirectory: () => false, size: 3 });
-    expect(await tool('file.exists', { path: `${root  }\\a` })).toMatchObject({ success: true, result: { exists: true, isFile: true, isDirectory: false } });
-  });
-  it('lists bounded entries and chooses explicit mkdir recursion', async () => {
-    directories.set(root, [entry('dir', true), entry('a.txt')]);
-    expect(await tool('file.list', { path: root, limit: 1 })).toMatchObject({ success: true, result: { count: 1, items: [{ name: 'dir', path: `${root  }\\dir`, isDirectory: true }] } });
-    expect(await tool('file.mkdir', { path: `${root  }\\dir`, recursive: false })).toMatchObject({ success: true, result: { recursive: false, created: true } });
-    expect(mocks.mkdir).toHaveBeenCalledWith(`${root  }\\dir`, { recursive: false });
-  });
-  it('renames using aliases, creates a parent and deletes through the filesystem boundary', async () => {
-    expect(await tool('file.rename', { path: `${root  }\\a`, destination: `${root  }\\dir\\b` })).toMatchObject({ success: true, result: { oldPath: `${root  }\\a`, newPath: `${root  }\\dir\\b`, renamed: true } });
-    expect(mocks.mkdir).toHaveBeenCalledWith(`${root  }\\dir`, { recursive: true });
-    expect(mocks.rename).toHaveBeenCalledWith(`${root  }\\a`, `${root  }\\dir\\b`);
-    expect(await tool('file.delete', { path: `${root  }\\dir` })).toMatchObject({ success: true, result: { deleted: true } });
-    expect(mocks.rm).toHaveBeenCalledWith(`${root  }\\dir`, { recursive: true, force: false });
-  });
-  it.each(['file.list', 'file.exists', 'file.stat', 'file.mkdir', 'file.read', 'file.read.lines', 'file.write', 'file.delete', 'file.append'])('rejects a missing path for %s without touching the filesystem', async (name) => {
-    expect(await tool(name, {})).toMatchObject({ success: false, error: errorContaining('需要 path') });
-    expect(mocks.stat).not.toHaveBeenCalled();
-    expect(mocks.readdir).not.toHaveBeenCalled();
-    expect(mocks.mkdir).not.toHaveBeenCalled();
-    expect(mocks.rm).not.toHaveBeenCalled();
-  });
-  it('replaces regex punctuation literally and avoids writes when no matches exist', async () => {
-    mocks.read.mockResolvedValue('a.b a.b acb');
-    expect(await tool('file.replace', { path: `${root  }\\a`, search: 'a.b', replacement: 'X' })).toMatchObject({ success: true, result: { matchCount: 2, modified: true, replaceAll: true } });
-    expect(mocks.write).toHaveBeenCalledWith(`${root  }\\a`, 'X X acb', 'utf8');
-    mocks.write.mockClear();
-    expect(await tool('file.replace', { path: `${root  }\\a`, search: 'absent', replacement: 'X', replaceAll: false })).toMatchObject({ success: true, result: { matchCount: 0, modified: false } });
-    expect(mocks.write).not.toHaveBeenCalled();
-    expect(await tool('file.replace', { path: `${root  }\\a`, search: 'a.b', replacement: 'X', replaceAll: false })).toMatchObject({ success: true, result: { matchCount: 1 } });
-    expect(mocks.write).toHaveBeenCalledWith(`${root  }\\a`, 'X a.b acb', 'utf8');
-  });
-  it('grep searches a direct file with fixed-string escaping and a bounded result count', async () => {
-    mocks.read.mockResolvedValue('a.b\r\nacb\r\nA.B');
-    expect(await tool('file.grep', { path: `${root  }\\a`, pattern: 'a.b', fixedStrings: true, limit: 1 })).toMatchObject({ success: true, result: { count: 1, matches: [{ file: `${root  }\\a`, line: 1, text: 'a.b' }] } });
-    expect(await tool('file.grep', { path: `${root  }\\a`, pattern: '[' })).toMatchObject({ success: false, error: errorContaining('pattern 无效') });
-    expect(await tool('file.grep', { path: `${root  }\\a` })).toMatchObject({ success: false, error: 'file.grep 需要 pattern' });
-  });
-  it('grep handles failed reads, oversized direct files and case-sensitive patterns', async () => {
-    mocks.stat.mockResolvedValue({ isFile: () => true, isDirectory: () => false, size: 2 * 1024 * 1024 + 1 });
-    expect(await tool('file.grep', { path: `${root  }\\a`, pattern: 'find' })).toMatchObject({ success: true, result: { count: 0 } });
-    expect(mocks.read).not.toHaveBeenCalled();
-    mocks.stat.mockResolvedValue({ isFile: () => true, isDirectory: () => false, size: 3 });
-    mocks.read.mockRejectedValue(new Error('denied'));
-    expect(await tool('file.grep', { path: `${root  }\\a`, pattern: 'find' })).toMatchObject({ success: true, result: { count: 0 } });
-    mocks.read.mockResolvedValue('Find\nfind');
-    expect(await tool('file.grep', { path: `${root  }\\a`, pattern: 'find', caseSensitive: true })).toMatchObject({ success: true, result: { matches: [{ file: `${root  }\\a`, line: 2, text: 'find' }], count: 1 } });
-  });
-  it('grep walks eligible directories and skips denied files and excluded paths', async () => {
-    directories.set(root, [entry('.git', true), entry('node_modules', true), entry('src', true), entry('bad.txt'), entry('wrong.js'), entry('README')]);
-    directories.set(`${root  }\\src`, [entry(Buffer.from('good.TXT')), entry('deep', true), entry('denied.txt'), entry('large.txt'), entry('unreadable.txt')]);
-    mocks.stat.mockImplementation((path) => {
-      if (path === root) return Promise.resolve({ isFile: () => false, isDirectory: () => true, size: 0 });
-      if (path.endsWith('denied.txt')) return Promise.reject(new Error('denied'));
-      return Promise.resolve({ isFile: () => true, isDirectory: () => false, size: path.endsWith('large.txt') ? 3 * 1024 * 1024 : 3 });
-    });
-    mocks.read.mockImplementation((path) => {
-      if (path === `${root  }\\bad.txt` || path === `${root  }\\src\\unreadable.txt`) return Promise.reject(new Error('denied'));
-      return Promise.resolve('find\nignored');
-    });
-    expect(await tool('file.grep', { path: root, pattern: 'find', extensions: ['.txt'], maxDepth: 1 })).toMatchObject({ success: true, result: { count: 1, matches: [{ file: `${root  }\\src\\good.TXT`, line: 1, text: 'find' }] } });
-    expect(mocks.readdir.mock.calls.map(([path]) => path)).toEqual([root, `${root  }\\src`]);
-    expect(mocks.read).not.toHaveBeenCalledWith(`${root  }\\wrong.js`, 'utf8');
-  });
-  it('routes the local hash tool through the command boundary and propagates command failure', async () => {
-    mocks.exec.mockImplementation((program, args, options, callback) => { void program; void args; void options; callback(null, '  ABC123\n', ''); });
-    expect(await tool('file.hash', { path: `${root  }\\o'ne.txt` })).toMatchObject({ success: true, result: { algorithm: 'SHA256', hash: 'ABC123' } });
-    expect(mocks.exec.mock.calls[0][1].at(-1)).toContain("o''ne.txt");
-    mocks.exec.mockImplementation((program, args, options, callback) => { void program; void args; void options; callback(new Error('hash denied'), '', ''); });
-    expect(await tool('file.hash', { path: `${root  }\\a`, algorithm: 'md5' })).toMatchObject({ success: false, error: 'hash denied' });
-  });
-  it('accepts explicit window handles without metadata and reports ShowWindow command failure', async () => {
-    expect(await tool('win.restore', { handle: 42 })).toMatchObject({ success: true, result: { pid: 0, name: '', title: '', handle: 42, action: '还原' } });
-    mocks.exec.mockImplementation((program, args, options, callback) => { void program; void args; void options; callback(new Error('window denied'), '', ''); });
-    expect(await tool('win.restore', { handle: 42 })).toMatchObject({ success: false, error: 'window denied' });
-  });
-});
-
 describe('app hash stream and zero-depth regressions', () => {
   it.each([
     { maxDepth: 0, expectedPaths: [`${root  }\\match.txt`], expectedDirectories: [root] },
@@ -405,15 +174,6 @@ describe('app hash stream and zero-depth regressions', () => {
       expectedPaths.map((path) => ({ path, name: 'match.txt', isDirectory: false })),
     );
     expect(mocks.readdir.mock.calls.map(([path]) => path)).toEqual(expectedDirectories);
-  });
-  it('keeps a local file search tool with zero depth inside the selected directory', async () => {
-    directories.set(root, [entry('match.txt'), entry('src', true)]);
-    directories.set(`${root  }\\src`, [entry('match.txt')]);
-    expect(await tool('file.search', { path: root, keyword: 'match', maxDepth: 0 })).toMatchObject({
-      success: true,
-      result: { count: 1, items: [{ name: 'match.txt', path: `${root  }\\match.txt`, isDirectory: false }] },
-    });
-    expect(mocks.readdir.mock.calls.map(([path]) => path)).toEqual([root]);
   });
   it.each([false, true])('returns null after a stream failure, partialData=%s', async (partialData) => {
     const error = new Error('fixture stream read failed');

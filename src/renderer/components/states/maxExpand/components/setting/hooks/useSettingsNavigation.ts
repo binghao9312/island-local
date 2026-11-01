@@ -29,14 +29,12 @@ import { OVERVIEW_CLOCK_STYLE_OPTIONS, OVERVIEW_WIDGET_OPTIONS } from '../../../
 import { getRoleFromToken, type PluginMarketPageKey } from '../config/settingsTabConfig';
 import { OVERVIEW_CLOCK_STYLE_LABEL_KEYS, OVERVIEW_WIDGET_LABEL_KEYS } from '../config/settingsViewConfig';
 import {
-  AI_SETTINGS_PAGE_LABELS,
   MAIL_SETTINGS_PAGE_LABELS,
   MUSIC_SETTINGS_PAGE_LABELS,
   NETWORK_SETTINGS_PAGE_LABELS,
   SETTINGS_TAB_LABELS,
   UPDATE_SETTINGS_PAGE_LABELS,
   WEATHER_SETTINGS_PAGE_LABELS,
-  type AiSettingsPageKey,
   type AppSettingsPageKey,
   type MailSettingsPageKey,
   type MusicSettingsPageKey,
@@ -78,7 +76,6 @@ export function useSettingsNavigation(options: SettingsNavigationOptions) {
   const [weatherSettingsPage, setWeatherSettingsPage] = useState<WeatherSettingsPageKey>('location');
   const [mailSettingsPage, setMailSettingsPage] = useState<MailSettingsPageKey>('account');
   const [musicSettingsPage, setMusicSettingsPage] = useState<MusicSettingsPageKey>('whitelist');
-  const [aiSettingsPage, setAiSettingsPage] = useState<AiSettingsPageKey>('general');
   const [networkSettingsPage, setNetworkSettingsPage] = useState<NetworkSettingsPageKey>('timeout');
   const [updateSettingsPage, setUpdateSettingsPage] = useState<UpdateSettingsPageKey>('update-check');
   const [userInitialProfilePage, setUserInitialProfilePage] = useState<'info' | 'pro' | 'recharge' | 'orders' | 'questionnaire'>('info');
@@ -99,7 +96,6 @@ export function useSettingsNavigation(options: SettingsNavigationOptions) {
   const currentWeatherSettingsPageLabel = t(`settings.weatherPages.${weatherSettingsPage}`, { defaultValue: WEATHER_SETTINGS_PAGE_LABELS[weatherSettingsPage] || '定位配置' });
   const currentMailSettingsPageLabel = t(`settings.mailPages.${mailSettingsPage}`, { defaultValue: MAIL_SETTINGS_PAGE_LABELS[mailSettingsPage] || '账户' });
   const currentMusicSettingsPageLabel = t(`settings.musicPages.${musicSettingsPage}`, { defaultValue: MUSIC_SETTINGS_PAGE_LABELS[musicSettingsPage] || '白名单' });
-  const currentAiSettingsPageLabel = t(`settings.aiPages.${aiSettingsPage}`, { defaultValue: AI_SETTINGS_PAGE_LABELS[aiSettingsPage] || '通用配置' });
   const currentNetworkSettingsPageLabel = t(`settings.networkPages.${networkSettingsPage}`, { defaultValue: NETWORK_SETTINGS_PAGE_LABELS[networkSettingsPage] || '请求超时' });
   const currentUpdateSettingsPageLabel = t(`settings.updatePages.${updateSettingsPage}`, { defaultValue: UPDATE_SETTINGS_PAGE_LABELS[updateSettingsPage] || '检查更新' });
   const pluginMarketPageLabels: Record<PluginMarketPageKey, string> = {
@@ -171,8 +167,6 @@ export function useSettingsNavigation(options: SettingsNavigationOptions) {
     setMailSettingsPage,
     musicSettingsPage,
     setMusicSettingsPage,
-    aiSettingsPage,
-    setAiSettingsPage,
     networkSettingsPage,
     setNetworkSettingsPage,
     updateSettingsPage,
@@ -198,7 +192,6 @@ export function useSettingsNavigation(options: SettingsNavigationOptions) {
     currentWeatherSettingsPageLabel,
     currentMailSettingsPageLabel,
     currentMusicSettingsPageLabel,
-    currentAiSettingsPageLabel,
     currentNetworkSettingsPageLabel,
     currentUpdateSettingsPageLabel,
     pluginMarketPageLabels,

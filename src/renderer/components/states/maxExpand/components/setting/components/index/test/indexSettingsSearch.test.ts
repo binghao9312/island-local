@@ -39,7 +39,6 @@ function makeProps(): ComponentProps<typeof IndexSettingsSearch> {
   return {
     setAppSettingsPage: vi.fn(),
     setMusicSettingsPage: vi.fn(),
-    setAiSettingsPage: vi.fn(),
     setNetworkSettingsPage: vi.fn(),
     setActiveTab: vi.fn(),
     onAction: vi.fn(),
@@ -50,14 +49,14 @@ vi.mock('react', async (importOriginal) => ({
   ...(await import('../../../../../../../test/elementHarness')).hookMocks,
 }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { resolvedLanguage: 'en-US', language: 'en-US', changeLanguage: vi.fn(() => Promise.resolve()) } }) }));
-vi.mock('../../../utils/settingsConfig', () => ({ SETTINGS_TAB_ICONS: {}, SEARCHABLE_SETTINGS: [{ label: 'Theme', desc: 'Appearance', tab: 'app', appPage: 'theme' }, { label: 'Lyrics', desc: 'Music', tab: 'music', musicPage: 'lyrics' }, { label: 'AI', desc: 'Models', tab: 'ai', aiPage: 'general' }, { label: 'Network', desc: 'Timeout', tab: 'network', networkPage: 'timeout' }, { label: 'Open', desc: 'Action', tab: 'index', actionId: 'open' }] }));
+vi.mock('../../../utils/settingsConfig', () => ({ SETTINGS_TAB_ICONS: {}, SEARCHABLE_SETTINGS: [{ label: 'Theme', desc: 'Appearance', tab: 'app', appPage: 'theme' }, { label: 'Lyrics', desc: 'Music', tab: 'music', musicPage: 'lyrics' }, { label: 'Network', desc: 'Timeout', tab: 'network', networkPage: 'timeout' }, { label: 'Open', desc: 'Action', tab: 'index', actionId: 'open' }] }));
 beforeEach(() => {
   vi.clearAllMocks();
   resetState();
 });
 afterEach(() => { vi.unstubAllGlobals(); });
 describe('indexSettingsSearch', () => {
-  it.each([{ query: 'theme', callback: 'setAppSettingsPage', value: 'theme' }, { query: 'LYRICS', callback: 'setMusicSettingsPage', value: 'lyrics' }, { query: 'models', callback: 'setAiSettingsPage', value: 'general' }, { query: 'timeout', callback: 'setNetworkSettingsPage', value: 'timeout' }, { query: 'action', callback: 'onAction', value: 'open' }] as const)('searches label or description $query and dispatches navigation', ({ query, callback, value }) => {
+  it.each([{ query: 'theme', callback: 'setAppSettingsPage', value: 'theme' }, { query: 'LYRICS', callback: 'setMusicSettingsPage', value: 'lyrics' }, { query: 'timeout', callback: 'setNetworkSettingsPage', value: 'timeout' }, { query: 'action', callback: 'onAction', value: 'open' }] as const)('searches label or description $query and dispatches navigation', ({ query, callback, value }) => {
     const props = makeProps();
     const initial = render(props);
     expect(elements(initial).some((n) => elementProps(n).className === 'settings-index-search-dropdown')).toBe(false);
@@ -70,13 +69,13 @@ describe('indexSettingsSearch', () => {
     expect(elementProps(findElement(render(props), (n) => n.type === 'input')).value).toBe('');
   });
   it('shows unmatched query, clears it and falls back to tab when optional callback is absent', () => {
-    const props = { ...makeProps(), setAiSettingsPage: undefined };
+    const props = { ...makeProps(), setNetworkSettingsPage: undefined };
     resetState(['missing', true]);
     expect(textContent(render(props))).toContain('settings.index.searchEmpty');
-    resetState(['AI', true]);
+    resetState(['Network', true]);
     const tree = render(props);
     invoke(findElement(tree, (n) => elementProps(n).className === 'settings-index-search-dropdown-item'), 'onClick');
-    expect(props.setActiveTab).toHaveBeenCalledWith('ai');
+    expect(props.setActiveTab).toHaveBeenCalledWith('network');
     resetState(['missing', true]);
     invoke(findElement(render(props), (n) => elementProps(n).className === 'settings-index-search-clear'), 'onClick');
     rewindState();

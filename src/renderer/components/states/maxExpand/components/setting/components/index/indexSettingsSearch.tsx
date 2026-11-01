@@ -32,7 +32,6 @@ import {
   type SearchableSettingItem,
   type AppSettingsPageKey,
   type MusicSettingsPageKey,
-  type AiSettingsPageKey,
   type NetworkSettingsPageKey,
   type SettingsSidebarTabKey,
 } from '../../utils/settingsConfig';
@@ -40,7 +39,6 @@ import {
 interface IndexSettingsSearchProps {
   setAppSettingsPage: (page: AppSettingsPageKey) => void;
   setMusicSettingsPage: (page: MusicSettingsPageKey) => void;
-  setAiSettingsPage?: (page: AiSettingsPageKey) => void;
   setNetworkSettingsPage?: (page: NetworkSettingsPageKey) => void;
   setActiveTab: (tab: SettingsSidebarTabKey) => void;
   onAction?: (actionId: string) => void;
@@ -49,7 +47,6 @@ interface IndexSettingsSearchProps {
 function getSearchItemIcon(item: SearchableSettingItem): string | undefined {
   if (item.appPage) return SETTINGS_TAB_ICONS[item.appPage];
   if (item.musicPage) return SETTINGS_TAB_ICONS[`music-${item.musicPage}` as keyof typeof SETTINGS_TAB_ICONS] ?? SETTINGS_TAB_ICONS.music;
-  if (item.aiPage) return SETTINGS_TAB_ICONS.ai;
   if (item.networkPage) return SETTINGS_TAB_ICONS.network;
   return SETTINGS_TAB_ICONS[item.tab as keyof typeof SETTINGS_TAB_ICONS];
 }
@@ -59,7 +56,6 @@ function getSearchItemIcon(item: SearchableSettingItem): string | undefined {
  * @param props - 配置页面及快捷操作的导航回调。
  * @param props.setAppSettingsPage - 切换软件设置子页面。
  * @param props.setMusicSettingsPage - 切换歌曲设置子页面。
- * @param props.setAiSettingsPage - 切换 AI 设置子页面。
  * @param props.setNetworkSettingsPage - 切换网络设置子页面。
  * @param props.setActiveTab - 切换设置分类。
  * @param props.onAction - 执行快捷导航操作。
@@ -68,7 +64,6 @@ function getSearchItemIcon(item: SearchableSettingItem): string | undefined {
 function IndexSettingsSearch({
   setAppSettingsPage,
   setMusicSettingsPage,
-  setAiSettingsPage,
   setNetworkSettingsPage,
   setActiveTab,
   onAction,
@@ -140,9 +135,6 @@ function IndexSettingsSearch({
                   } else if (item.musicPage) {
                     setMusicSettingsPage(item.musicPage);
                     setActiveTab('music');
-                  } else if (item.aiPage && setAiSettingsPage) {
-                    setAiSettingsPage(item.aiPage);
-                    setActiveTab('ai');
                   } else if (item.networkPage && setNetworkSettingsPage) {
                     setNetworkSettingsPage(item.networkPage);
                     setActiveTab('network');

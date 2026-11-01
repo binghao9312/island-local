@@ -60,7 +60,6 @@ describe('settings entries with SERVER_FEATURES_ENABLED=false', () => {
     expect(NAV_CARDS.some((card) => card.tab === 'mail')).toBe(true);
     expect(NAV_CARDS.some((card) => card.tab === 'weather')).toBe(true);
     expect(NAV_CARDS.some((card) => card.tab === 'music')).toBe(true);
-    expect(NAV_CARDS.some((card) => card.tab === 'ai')).toBe(true);
     expect(NAV_CARDS.some((card) => card.tab === 'shortcut')).toBe(true);
     expect(NAV_CARDS.some((card) => card.tab === 'about')).toBe(true);
 
@@ -69,7 +68,6 @@ describe('settings entries with SERVER_FEATURES_ENABLED=false', () => {
     expect(SEARCHABLE_SETTINGS.some((item) => item.tab === 'mail')).toBe(true);
     expect(SEARCHABLE_SETTINGS.some((item) => item.tab === 'weather')).toBe(true);
     expect(SEARCHABLE_SETTINGS.some((item) => item.tab === 'music')).toBe(true);
-    expect(SEARCHABLE_SETTINGS.some((item) => item.tab === 'ai')).toBe(true);
     expect(SEARCHABLE_SETTINGS.some((item) => item.tab === 'shortcut')).toBe(true);
   });
 
@@ -88,7 +86,6 @@ describe('settings entries with SERVER_FEATURES_ENABLED=false', () => {
       'mail',
       'weather',
       'music',
-      'ai',
       'shortcut',
       'about',
     ] as const)('preserves supported tab "%s"', (tab) => {

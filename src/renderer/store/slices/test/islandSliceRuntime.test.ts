@@ -173,11 +173,6 @@ const transitions: {
   resize: 'expandWindowSettings',
   passthrough: 'disable'
 }, {
-  state: 'agent',
-  invoke: (slice) => slice.setAgent('Prompt'),
-  resize: 'expandWindowNotification',
-  passthrough: 'disable'
-}, {
   state: 'cli',
   invoke: (slice) => slice.setCli(),
   resize: 'expandWindowNotification',
@@ -250,10 +245,6 @@ const authReturns: {
   passthrough: 'enable'
 }, {
   state: 'notification',
-  method: 'expandWindowNotification',
-  passthrough: 'disable'
-}, {
-  state: 'agent',
   method: 'expandWindowNotification',
   passthrough: 'disable'
 }, {
@@ -425,14 +416,6 @@ describe('Island slice window transitions and lock contract', () => {
       type: 'cli-session-detected'
     });
     expect(sound).toHaveBeenCalledOnce();
-  });
-  it('sets the agent prompt from its argument and falls back to empty without one', () => {
-    const island = store();
-    island.getState().setAgent('direct');
-    expect(island.getState().agentPrompt).toBe('direct');
-    island.getState().setAgent();
-    expect(island.getState().agentPrompt).toBe('');
-    expect(island.getState().state).toBe('agent');
   });
 });
 describe('Island slice authentication and standalone contract', () => {

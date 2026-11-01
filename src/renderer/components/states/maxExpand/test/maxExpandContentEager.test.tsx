@@ -28,7 +28,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createElement, type ReactElement } from 'react';
 import { MaxExpandContentEager as Component } from '../MaxExpandContentEager';
 import { MaxExpandContentShell } from '../MaxExpandContentShell';
-import { AiChatTab } from '../components/agent/components/AiChatTab';
+import { AcpChatTab } from '../components/acpChat';
 import { TodoTab } from '../components/todo/components/TodoTab';
 import { UrlFavoritesTab } from '../components/urlFavorites';
 import { LocalFileSearchTab } from '../components/localFileSearch/components/LocalFileSearchTab';
@@ -47,7 +47,7 @@ import { CalendarTab } from '../components/calendar';
 import SongTab from '../components/song';
 import { SettingsTab } from '../components/setting';
 import { render, value } from './componentHarness';
-vi.mock('../components/agent/components/AiChatTab', () => ({ AiChatTab: () => null }));
+vi.mock('../components/acpChat', () => ({ AcpChatTab: () => null }));
 vi.mock('../components/todo/components/TodoTab', () => ({ TodoTab: () => null }));
 vi.mock('../components/urlFavorites', () => ({ UrlFavoritesTab: () => null }));
 vi.mock('../components/localFileSearch/components/LocalFileSearchTab', () => ({ LocalFileSearchTab: () => null }));
@@ -66,7 +66,7 @@ vi.mock('../components/calendar', () => ({ CalendarTab: () => null }));
 vi.mock('../components/song', () => ({ default: () => null }));
 vi.mock('../components/setting', () => ({ SettingsTab: () => null }));
 describe('MaxExpandContentEager', () => {
-  const cases = [['aiChat', AiChatTab], ['todo', TodoTab], ['urlFavorites', UrlFavoritesTab], ['localFileSearch', LocalFileSearchTab], ['clipboardHistory', ClipboardHistoryTab], ['album', AlbumTab], ['mail', MailTab], ['memo', MemoTab], ['countdown', CountdownTab], ['alarm', AlarmTab], ['toolbox', ToolboxTab], ['stock', StockTab], ['cli', CliTab], ['calculator', CalculatorTab], ['worldClock', WorldClockTab], ['calendar', CalendarTab], ['song', SongTab], ['settings', SettingsTab]] as const;
+  const cases = [['aiChat', AcpChatTab], ['todo', TodoTab], ['urlFavorites', UrlFavoritesTab], ['localFileSearch', LocalFileSearchTab], ['clipboardHistory', ClipboardHistoryTab], ['album', AlbumTab], ['mail', MailTab], ['memo', MemoTab], ['countdown', CountdownTab], ['alarm', AlarmTab], ['toolbox', ToolboxTab], ['stock', StockTab], ['cli', CliTab], ['calculator', CalculatorTab], ['worldClock', WorldClockTab], ['calendar', CalendarTab], ['song', SongTab], ['settings', SettingsTab]] as const;
   it.each(cases)('renders the real routing branch for %s', (tab, child) => {
     const tree = render(Component);
     const renderActiveTab = value(tree, MaxExpandContentShell, 'renderActiveTab') as (tab: string, fallback: ReactElement, ready: boolean) => ReactElement | null;

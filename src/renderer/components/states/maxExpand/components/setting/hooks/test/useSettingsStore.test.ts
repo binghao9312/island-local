@@ -20,20 +20,16 @@
 
 /**
  * @file useSettingsStore.test.ts
- * @description 设置共享 Store 共享状态选择器及工作区取消、去重、数组边界回归。
+ * @description 设置共享 Store 状态选择器回归。
  * @author 鸡哥
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useSettingsStore } from '../useSettingsStore';
 import { renderWithHooks, resetLifecycle } from './settingsCoverageHarness';
 vi.mock('zustand/react/shallow', () => ({
   useShallow: <T,>(selector: T): T => selector
 }));
 const store = vi.hoisted(() => ({
-  aiConfig: {
-    workspaces: null as string[] | null
-  },
-  setAiConfig: vi.fn(),
   fetchWeatherData: vi.fn(),
   setLogin: vi.fn(),
   setRegister: vi.fn(),
@@ -47,10 +43,9 @@ vi.mock('react', async (original) => ({
   ...(await import('../../../../../../test/elementHarness')).hookMocks,
   ...(await import('./settingsCoverageHarness')).lifecycleHooks
 }));
-const pick = vi.fn<() => Promise<string | null>>();
 /**
  * 执行真实共享 Store Hook，执行目标创建的状态选择器。
- * @returns 真正选择出的状态、动作及工作区回调。
+ * @returns 真正选择出的状态与动作。
  */
 function render() {
   return renderWithHooks(useSettingsStore);
@@ -58,62 +53,13 @@ function render() {
 beforeEach(() => {
   resetLifecycle();
   vi.clearAllMocks();
-  store.aiConfig.workspaces = ['C:/Work'];
-  pick.mockReset().mockResolvedValue('D:/Projects');
-  vi.stubGlobal('window', {
-    api: {
-      pickLocalSearchDirectory: pick
-    }
-  });
 });
-afterEach(() => {
-  vi.unstubAllGlobals();
-});
-describe('工作区配置实际回调', () => {
+describe('设置共享 Store 实际回调', () => {
   it('返回真实状态选择器选择的服务和账号动作', () => {
     const result = render();
-    expect(result.aiConfig).toBe(store.aiConfig);
-    expect(result.setAiConfig).toBe(store.setAiConfig);
     expect(result.fetchWeatherData).toBe(store.fetchWeatherData);
     expect(result.setLogin).toBe(store.setLogin);
     expect(result.setRegister).toBe(store.setRegister);
     expect(result.setNotification).toBe(store.setNotification);
-  });
-  it.each([null, 'c:/work'])('选择取消或重复%s不更新', async (dir) => {
-    pick.mockResolvedValue(dir);
-    await render().onAddWorkspace();
-    expect(store.setAiConfig).not.toHaveBeenCalled();
-  });
-  it('新目录追加并保留原序；非数组历史值回退空数组', async () => {
-    await render().onAddWorkspace();
-    expect(store.setAiConfig).toHaveBeenLastCalledWith({
-      workspaces: ['C:/Work', 'D:/Projects']
-    });
-    store.aiConfig.workspaces = null;
-    await render().onAddWorkspace();
-    expect(store.setAiConfig).toHaveBeenLastCalledWith({
-      workspaces: ['D:/Projects']
-    });
-  });
-  it('删除有效索引保留其余目录，非数组和越界保留安全结果', () => {
-    store.aiConfig.workspaces = ['one', 'two'];
-    render().onRemoveWorkspace(0);
-    expect(store.setAiConfig).toHaveBeenLastCalledWith({
-      workspaces: ['two']
-    });
-    render().onRemoveWorkspace(99);
-    expect(store.setAiConfig).toHaveBeenLastCalledWith({
-      workspaces: ['one', 'two']
-    });
-    store.aiConfig.workspaces = null;
-    render().onRemoveWorkspace(0);
-    expect(store.setAiConfig).toHaveBeenLastCalledWith({
-      workspaces: []
-    });
-  });
-  it('目录选择失败保留真实Promise拒绝契约', async () => {
-    pick.mockRejectedValue(new Error('picker'));
-    await expect(render().onAddWorkspace()).rejects.toThrow('picker');
-    expect(store.setAiConfig).not.toHaveBeenCalled();
   });
 });

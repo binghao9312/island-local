@@ -26,7 +26,6 @@
 
 import { describe, expectTypeOf, it } from 'vitest';
 import type * as PublicTypes from '../index';
-import type { AgentLocalToolRequest as DirectAgentLocalToolRequest } from '../../../../types/agent/AgentLocalToolRequest';
 import type { RegisterDownloadIpcHandlersOptions as DirectRegisterDownloadIpcHandlersOptions } from '../RegisterDownloadIpcHandlersOptions';
 import type { DownloadStartPayload as DirectDownloadStartPayload } from '../DownloadStartPayload';
 import type { UpdateSourceKey as DirectUpdateSourceKey } from '../UpdateSourceKey';
@@ -49,7 +48,6 @@ import type { LocalFileSearchOptions as DirectLocalFileSearchOptions } from '../
 
 describe('公共类型导出契约', () => {
   it('所有门面类型与对应定义保持一致', () => {
-    expectTypeOf<PublicTypes.AgentLocalToolRequest>().toEqualTypeOf<DirectAgentLocalToolRequest>();
     expectTypeOf<PublicTypes.RegisterDownloadIpcHandlersOptions>().toEqualTypeOf<DirectRegisterDownloadIpcHandlersOptions>();
     expectTypeOf<PublicTypes.DownloadStartPayload>().toEqualTypeOf<DirectDownloadStartPayload>();
     expectTypeOf<PublicTypes.UpdateSourceKey>().toEqualTypeOf<DirectUpdateSourceKey>();

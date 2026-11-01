@@ -37,13 +37,6 @@ import type {
   SaveTextFilePayload,
   SaveTextFileResult,
   ComputeFileHashResult,
-  ExecuteAgentLocalToolRequest,
-  ExecuteAgentLocalToolResult,
-  OllamaChatRequest,
-  ChatEvent,
-  ChatStartResult,
-  ChatAbortResult,
-  CustomDirectChatRequest,
   NowPlayingInfo,
   MediaCommandResult,
   SmtcTimestampResult,
@@ -81,6 +74,12 @@ import type {
   CodexStatusSnapshot,
   CodexMonitorMutationResult,
   AgentUsageSnapshot,
+  AcpEvent,
+  AcpImageData,
+  AcpProviderId,
+  AcpProviderInfo,
+  AcpPromptResult,
+  AcpStartResult,
 } from './types';
 import { TRAY_MENU_CHANNELS } from '../shared/trayMenu';
 import type { TrayMenuAction, TrayMenuState } from '../shared/trayMenu';
@@ -282,18 +281,6 @@ const api = {
     return ipcRenderer.invoke('app:pick-local-search-directory');
   },
   /**
-   * 选择 Skill 文件 (.md)
-   */
-  pickSkillFile: (): Promise<string | null> => {
-    return ipcRenderer.invoke('app:pick-skill-file');
-  },
-  /**
-   * 读取文本文件内容
-   */
-  readTextFile: (filePath: string): Promise<string | null> => {
-    return ipcRenderer.invoke('app:read-text-file', filePath);
-  },
-  /**
    * 保存文本文件内容
    */
   saveTextFile: (payload: SaveTextFilePayload): Promise<SaveTextFileResult> => {
@@ -308,101 +295,6 @@ const api = {
     options?: SearchLocalFilesOptions,
   ): Promise<SearchLocalFileResult[]> => {
     return ipcRenderer.invoke('app:search-local-files', rootDir, keyword, options);
-  },
-  /**
-   * 执行本地 Agent 工具（主进程执行）
-   */
-  executeAgentLocalTool: (request: ExecuteAgentLocalToolRequest): Promise<ExecuteAgentLocalToolResult> => {
-    return ipcRenderer.invoke('agent:local-tool:execute', request);
-  },
-  /**
-   * 检测本地 Ollama 服务是否可用
-   */
-  ollamaPing: (baseUrl?: string): Promise<boolean> => {
-    return ipcRenderer.invoke('ollama:ping', baseUrl);
-  },
-  /**
-   * 获取 Ollama 本地可用模型列表
-   */
-  ollamaModels: (baseUrl?: string): Promise<string[]> => {
-    return ipcRenderer.invoke('ollama:models', baseUrl);
-  },
-  /**
-   * 自动检测本地 Ollama 服务运行的端口（baseUrl）
-   */
-  ollamaDetectBaseUrl: (): Promise<string | null> => {
-    return ipcRenderer.invoke('ollama:detectBaseUrl');
-  },
-  /**
-   * 启动 Ollama 本地 ReAct 编排会话
-   */
-  ollamaChatStart: (
-    sessionId: string,
-    request: OllamaChatRequest,
-  ): Promise<ChatStartResult> => {
-    return ipcRenderer.invoke('ollama:chat:start', sessionId, request);
-  },
-  /**
-   * 中止 Ollama 本地编排会话
-   */
-  ollamaChatAbort: (sessionId: string): Promise<ChatAbortResult> => {
-    return ipcRenderer.invoke('ollama:chat:abort', sessionId);
-  },
-  /**
-   * 监听 Ollama 编排会话事件
-   * @param sessionId - 会话 ID
-   * @param callback - 事件回调
-   * @returns 取消监听函数
-   */
-  onOllamaChatEvent: (
-    sessionId: string,
-    callback: (event: ChatEvent) => void,
-  ): (() => void) => {
-    const channel = `ollama:chat:event:${sessionId}`;
-    const handler = (
-      _event: Electron.IpcRendererEvent,
-      data: ChatEvent,
-    ): void => {
-      callback(data);
-    };
-    ipcRenderer.on(channel, handler);
-    return () => {
-      ipcRenderer.removeListener(channel, handler);
-    };
-  },
-  /**
-   * 启动自定义 API 直连 ReAct 编排会话
-   */
-  customDirectChatStart: (
-    sessionId: string,
-    request: CustomDirectChatRequest,
-  ): Promise<ChatStartResult> => {
-    return ipcRenderer.invoke('customDirect:chat:start', sessionId, request);
-  },
-  /**
-   * 中止自定义 API 直连编排会话
-   */
-  customDirectChatAbort: (sessionId: string): Promise<ChatAbortResult> => {
-    return ipcRenderer.invoke('customDirect:chat:abort', sessionId);
-  },
-  /**
-   * 监听自定义 API 直连编排会话事件
-   */
-  onCustomDirectChatEvent: (
-    sessionId: string,
-    callback: (event: ChatEvent) => void,
-  ): (() => void) => {
-    const channel = `customDirect:chat:event:${sessionId}`;
-    const handler = (
-      _event: Electron.IpcRendererEvent,
-      data: ChatEvent,
-    ): void => {
-      callback(data);
-    };
-    ipcRenderer.on(channel, handler);
-    return () => {
-      ipcRenderer.removeListener(channel, handler);
-    };
   },
   /**
    * 清理日志缓存
@@ -1736,7 +1628,37 @@ const api = {
     return ipcRenderer.invoke('codex:sessions:delete', sessionIds);
   },
   onCodexStatusUpdated: (callback: (snapshot: CodexStatusSnapshot) => void): (() => void) => subscribeCliStatus('codex:status-updated', 'codex:status:get', callback),
-  agentUsageSnapshotGet: (): Promise<AgentUsageSnapshot> => ipcRenderer.invoke('agent-usage:snapshot:get')
+  agentUsageSnapshotGet: (): Promise<AgentUsageSnapshot> => ipcRenderer.invoke('agent-usage:snapshot:get'),
+  /** 列出 ACP 供应商及安装状态 */
+  acpProviders: (): Promise<AcpProviderInfo[]> => ipcRenderer.invoke('acp:providers'),
+  /** 启动（或复用）供应商的 ACP 会话 */
+  acpStart: (providerId: AcpProviderId): Promise<AcpStartResult> => ipcRenderer.invoke('acp:start', providerId),
+  /** 终止并重启供应商进程，开始全新会话 */
+  acpReset: (providerId: AcpProviderId): Promise<AcpStartResult> => ipcRenderer.invoke('acp:reset', providerId),
+  /** 发送一轮提问，轮次结束时返回 */
+  acpPrompt: (providerId: AcpProviderId, text: string, images: AcpImageData[]): Promise<AcpPromptResult> => {
+    return ipcRenderer.invoke('acp:prompt', providerId, text, images);
+  },
+  /** 取消供应商当前一轮 */
+  acpCancel: (providerId: AcpProviderId): Promise<void> => ipcRenderer.invoke('acp:cancel', providerId),
+  /** 回复权限请求，optionId 为 null 表示拒绝 */
+  acpPermissionResolve: (requestId: string, optionId: string | null): Promise<boolean> => {
+    return ipcRenderer.invoke('acp:permission:resolve', requestId, optionId);
+  },
+  /**
+   * 监听 ACP 事件（状态、会话更新、权限请求）
+   * @param callback - 事件回调
+   * @returns 取消监听函数
+   */
+  onAcpEvent: (callback: (event: AcpEvent) => void): (() => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: AcpEvent): void => {
+      callback(data);
+    };
+    ipcRenderer.on('acp:event', handler);
+    return () => {
+      ipcRenderer.removeListener('acp:event', handler);
+    };
+  },
 };
 
 /** 注入到 window 对象，供渲染进程访问 */

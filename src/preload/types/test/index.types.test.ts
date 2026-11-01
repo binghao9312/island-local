@@ -25,14 +25,13 @@
  */
 
 import { describe, expect, expectTypeOf, it } from 'vitest';
-import type { Point, Bounds, IslandDisplayInfo, SearchLocalFilesOptions, SearchLocalFileResult, ComputeFileHashResult, SaveTextFilePayload, SaveTextFileResult, SaveImageAsResult, ResolveShortcutResult, PerformanceHardwareSelection, PerformanceHardwareOption, PerformanceHardwareOptions, PerformanceSnapshot, RunningProcessInfo, RunningWindowInfo, NowPlayingInfo, SmtcSourceInfo, DetectSourceAppIdResult, SmtcTimeline, SmtcTimestampResult, SourceSwitchRequestData, ExecuteAgentLocalToolRequest, ExecuteAgentLocalToolResult, OllamaChatRequest, CustomDirectChatRequest, ChatEvent, ChatStartResult, ChatAbortResult, ClaudeCodeHookEventDetailItem, ClaudeCodeHookEvent, ClaudeCodeSessionSnapshot, ClaudeCodeStatusSnapshot, ClaudeCodeHookMutationResult, CodexStatusSnapshot, CodexMonitorMutationResult, ImageCompressionTask, ImageCompressionStartPayload, ImageCompressionStartResult, DownloadTask, DownloadStartPayload, DownloadStartResult, ExtractVideoTrackOptions, ExtractVideoTrackResult, PickVideoForExtractResult, NetFetchOptions, NetFetchResult, MailInboxItem, MailInboxResult, UpdaterCheckResult, UpdaterProgress, UpdaterDownloadedData, UpdaterAvailableData, UpdaterNotAvailableData, UpdaterStartupAutoCheckRequestData, ClipboardUrlsDetectedData, ExternalAgentData, NavOrderPayload, SetWallpaperPayload } from '../index';
+import type { Point, Bounds, IslandDisplayInfo, SearchLocalFilesOptions, SearchLocalFileResult, ComputeFileHashResult, SaveTextFilePayload, SaveTextFileResult, SaveImageAsResult, ResolveShortcutResult, PerformanceHardwareSelection, PerformanceHardwareOption, PerformanceHardwareOptions, PerformanceSnapshot, RunningProcessInfo, RunningWindowInfo, NowPlayingInfo, SmtcSourceInfo, DetectSourceAppIdResult, SmtcTimeline, SmtcTimestampResult, SourceSwitchRequestData, ClaudeCodeHookEventDetailItem, ClaudeCodeHookEvent, ClaudeCodeSessionSnapshot, ClaudeCodeStatusSnapshot, ClaudeCodeHookMutationResult, CodexStatusSnapshot, CodexMonitorMutationResult, ImageCompressionTask, ImageCompressionStartPayload, ImageCompressionStartResult, DownloadTask, DownloadStartPayload, DownloadStartResult, ExtractVideoTrackOptions, ExtractVideoTrackResult, PickVideoForExtractResult, NetFetchOptions, NetFetchResult, MailInboxItem, MailInboxResult, UpdaterCheckResult, UpdaterProgress, UpdaterDownloadedData, UpdaterAvailableData, UpdaterNotAvailableData, UpdaterStartupAutoCheckRequestData, ClipboardUrlsDetectedData, ExternalAgentData, NavOrderPayload, SetWallpaperPayload } from '../index';
 import type { Point as OriginalPoint, Bounds as OriginalBounds } from '../common';
 import type { IslandDisplayInfo as OriginalIslandDisplayInfo } from '../window';
 import type { SearchLocalFilesOptions as OriginalSearchLocalFilesOptions, SearchLocalFileResult as OriginalSearchLocalFileResult, ComputeFileHashResult as OriginalComputeFileHashResult, SaveTextFilePayload as OriginalSaveTextFilePayload, SaveTextFileResult as OriginalSaveTextFileResult, SaveImageAsResult as OriginalSaveImageAsResult, ResolveShortcutResult as OriginalResolveShortcutResult } from '../file';
 import type { PerformanceHardwareSelection as OriginalPerformanceHardwareSelection, PerformanceHardwareOption as OriginalPerformanceHardwareOption, PerformanceHardwareOptions as OriginalPerformanceHardwareOptions, PerformanceSnapshot as OriginalPerformanceSnapshot } from '../performance';
 import type { RunningProcessInfo as OriginalRunningProcessInfo, RunningWindowInfo as OriginalRunningWindowInfo } from '../process';
 import type { NowPlayingInfo as OriginalNowPlayingInfo, SmtcSourceInfo as OriginalSmtcSourceInfo, DetectSourceAppIdResult as OriginalDetectSourceAppIdResult, SmtcTimeline as OriginalSmtcTimeline, SmtcTimestampResult as OriginalSmtcTimestampResult, SourceSwitchRequestData as OriginalSourceSwitchRequestData } from '../media';
-import type { ExecuteAgentLocalToolRequest as OriginalExecuteAgentLocalToolRequest, ExecuteAgentLocalToolResult as OriginalExecuteAgentLocalToolResult, OllamaChatRequest as OriginalOllamaChatRequest, CustomDirectChatRequest as OriginalCustomDirectChatRequest, ChatEvent as OriginalChatEvent, ChatStartResult as OriginalChatStartResult, ChatAbortResult as OriginalChatAbortResult } from '../agent';
 import type { ClaudeCodeHookEventDetailItem as OriginalClaudeCodeHookEventDetailItem, ClaudeCodeHookEvent as OriginalClaudeCodeHookEvent, ClaudeCodeSessionSnapshot as OriginalClaudeCodeSessionSnapshot, ClaudeCodeStatusSnapshot as OriginalClaudeCodeStatusSnapshot, ClaudeCodeHookMutationResult as OriginalClaudeCodeHookMutationResult } from '../claudeCode';
 import type { CodexStatusSnapshot as OriginalCodexStatusSnapshot, CodexMonitorMutationResult as OriginalCodexMonitorMutationResult } from '../codex';
 import type { ImageCompressionTask as OriginalImageCompressionTask, ImageCompressionStartPayload as OriginalImageCompressionStartPayload, ImageCompressionStartResult as OriginalImageCompressionStartResult } from '../imageCompression';
@@ -68,13 +67,6 @@ describe('preload type barrel', () => {
     expectTypeOf<SmtcTimeline>().toEqualTypeOf<OriginalSmtcTimeline>();
     expectTypeOf<SmtcTimestampResult>().toEqualTypeOf<OriginalSmtcTimestampResult>();
     expectTypeOf<SourceSwitchRequestData>().toEqualTypeOf<OriginalSourceSwitchRequestData>();
-    expectTypeOf<ExecuteAgentLocalToolRequest>().toEqualTypeOf<OriginalExecuteAgentLocalToolRequest>();
-    expectTypeOf<ExecuteAgentLocalToolResult>().toEqualTypeOf<OriginalExecuteAgentLocalToolResult>();
-    expectTypeOf<OllamaChatRequest>().toEqualTypeOf<OriginalOllamaChatRequest>();
-    expectTypeOf<CustomDirectChatRequest>().toEqualTypeOf<OriginalCustomDirectChatRequest>();
-    expectTypeOf<ChatEvent>().toEqualTypeOf<OriginalChatEvent>();
-    expectTypeOf<ChatStartResult>().toEqualTypeOf<OriginalChatStartResult>();
-    expectTypeOf<ChatAbortResult>().toEqualTypeOf<OriginalChatAbortResult>();
     expectTypeOf<ClaudeCodeHookEventDetailItem>().toEqualTypeOf<OriginalClaudeCodeHookEventDetailItem>();
     expectTypeOf<ClaudeCodeHookEvent>().toEqualTypeOf<OriginalClaudeCodeHookEvent>();
     expectTypeOf<ClaudeCodeSessionSnapshot>().toEqualTypeOf<OriginalClaudeCodeSessionSnapshot>();
@@ -106,11 +98,9 @@ describe('preload type barrel', () => {
     expectTypeOf<NavOrderPayload>().toEqualTypeOf<OriginalNavOrderPayload>();
     expectTypeOf<SetWallpaperPayload>().toEqualTypeOf<OriginalSetWallpaperPayload>();
     const point: Point = { x: 1, y: 2 };
-    const event: ChatEvent = { type: 'token', payload: { text: 'hello' } };
     expect(point).toEqual({ x: 1, y: 2 });
     // @ts-expect-error 门面坐标保持数字字段契约。
     const invalid: Point['x'] = 'left';
     expect(invalid).toBe('left');
-    expect(event.payload).toEqual({ text: 'hello' });
   });
 });

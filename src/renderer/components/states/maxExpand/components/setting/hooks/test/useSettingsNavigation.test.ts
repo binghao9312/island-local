@@ -78,11 +78,10 @@ describe('真实页面标签、会话和入口', () => {
     render().setWeatherSettingsPage(damagedPage as State['weatherSettingsPage']);
     render().setMailSettingsPage(damagedPage as State['mailSettingsPage']);
     render().setMusicSettingsPage(damagedPage as State['musicSettingsPage']);
-    render().setAiSettingsPage(damagedPage as State['aiSettingsPage']);
     render().setNetworkSettingsPage(damagedPage as State['networkSettingsPage']);
     render().setUpdateSettingsPage(damagedPage as State['updateSettingsPage']);
     render();
-    [['weatherPages', '定位配置'], ['mailPages', '账户'], ['musicPages', '白名单'], ['aiPages', '通用配置'], ['networkPages', '请求超时'], ['updatePages', '检查更新']].forEach(([namespace, defaultValue]) => {
+    [['weatherPages', '定位配置'], ['mailPages', '账户'], ['musicPages', '白名单'], ['networkPages', '请求超时'], ['updatePages', '检查更新']].forEach(([namespace, defaultValue]) => {
       expect(t).toHaveBeenCalledWith(`settings.${namespace}.unknown-page`, {
         defaultValue
       });
@@ -108,7 +107,6 @@ describe('真实页面标签、会话和入口', () => {
     render().setWeatherSettingsPage('provider');
     render().setMailSettingsPage('imap');
     render().setMusicSettingsPage('smtc');
-    render().setAiSettingsPage('ollama');
     render().setNetworkSettingsPage('data-center');
     render().setUpdateSettingsPage('info-sync');
     render().setAppSettingsPage('animation');
@@ -117,7 +115,6 @@ describe('真实页面标签、会话和入口', () => {
     expect(state.currentWeatherSettingsPageLabel).toBe('settings.weatherPages.provider');
     expect(state.currentMailSettingsPageLabel).toBe('settings.mailPages.imap');
     expect(state.currentMusicSettingsPageLabel).toBe('settings.musicPages.smtc');
-    expect(state.currentAiSettingsPageLabel).toBe('settings.aiPages.ollama');
     expect(state.currentNetworkSettingsPageLabel).toBe('settings.networkPages.data-center');
     expect(state.currentUpdateSettingsPageLabel).toBe('settings.updatePages.info-sync');
     expect(state.currentAppSettingsPageLabel).toBe('settings.labels.animation');

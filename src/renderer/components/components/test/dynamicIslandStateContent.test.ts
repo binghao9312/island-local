@@ -47,7 +47,6 @@ vi.mock('../../states/register/RegisterContent', () => ({ RegisterContent: Objec
 vi.mock('../../states/resetPassword', () => ({ ResetPasswordContent: Object.assign(vi.fn(), { displayName: 'ResetPasswordContent' }) }));
 vi.mock('../../states/payment/PaymentContent', () => ({ PaymentContent: Object.assign(vi.fn(), { displayName: 'PaymentContent' }) }));
 vi.mock('../../states/questionnaire', () => ({ QuestionnaireContent: Object.assign(vi.fn(), { displayName: 'QuestionnaireContent' }) }));
-vi.mock('../../states/agent/AgentContent', () => ({ AgentContent: Object.assign(vi.fn(), { displayName: 'AgentContent' }) }));
 vi.mock('../../states/cli', () => ({ CliContent: Object.assign(vi.fn(), { displayName: 'CliContent' }) }));
 vi.mock('../../states/setPassword', () => ({ SetPasswordContent: Object.assign(vi.fn(), { displayName: 'SetPasswordContent' }) }));
 vi.mock('../../states/bindOAuth', () => ({ BindOAuthContent: Object.assign(vi.fn(), { displayName: 'BindOAuthContent' }) }));
@@ -58,7 +57,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); });
 describe('DynamicIslandStateContent', () => {
-  it.each([['idle', 'IdleContent'], ['hover', 'HoverContent'], ['expanded', 'ExpandedContent'], ['notification', 'NotificationContent'], ['maxExpand', 'MaxExpandContent'], ['lyrics', 'LyricsContent'], ['lyricsTranslation', 'LyricsTranslationContent'], ['guide', 'GuideContent'], ['login', 'LoginContent'], ['register', 'RegisterContent'], ['resetPassword', 'ResetPasswordContent'], ['setPassword', 'SetPasswordContent'], ['bindOAuth', 'BindOAuthContent'], ['bindEmail', 'BindEmailContent'], ['payment', 'PaymentContent'], ['questionnaire', 'QuestionnaireContent'],  ['agent', 'AgentContent'], ['cli', 'CliContent']] as const)('routes %s to its matching %s component', (state, expected) => {
+  it.each([['idle', 'IdleContent'], ['hover', 'HoverContent'], ['expanded', 'ExpandedContent'], ['notification', 'NotificationContent'], ['maxExpand', 'MaxExpandContent'], ['lyrics', 'LyricsContent'], ['lyricsTranslation', 'LyricsTranslationContent'], ['guide', 'GuideContent'], ['login', 'LoginContent'], ['register', 'RegisterContent'], ['resetPassword', 'ResetPasswordContent'], ['setPassword', 'SetPasswordContent'], ['bindOAuth', 'BindOAuthContent'], ['bindEmail', 'BindEmailContent'], ['payment', 'PaymentContent'], ['questionnaire', 'QuestionnaireContent'], ['cli', 'CliContent']] as const)('routes %s to its matching %s component', (state, expected) => {
     const tree = DynamicIslandStateContent({ state, ...props });
     expect((tree?.type as unknown as {
       displayName: string;

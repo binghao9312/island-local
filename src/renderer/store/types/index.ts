@@ -31,7 +31,7 @@ import type { TranslationLyricsResult } from '../../api/lyrics/lrcApi';
 export type { WeatherApiConfig };
 
 /** 灵动岛 UI 状态枚举 */
-export type IslandState = 'idle' | 'hover' | 'expanded' | 'notification' | 'maxExpand' | 'lyrics' | 'lyricsTranslation' | 'guide' | 'login' | 'register' | 'resetPassword' | 'setPassword' | 'bindOAuth' | 'bindEmail' | 'payment' | 'questionnaire' | 'questionnaire' | 'agent' | 'cli' | 'musicProvidersLogin';
+export type IslandState = 'idle' | 'hover' | 'expanded' | 'notification' | 'maxExpand' | 'lyrics' | 'lyricsTranslation' | 'guide' | 'login' | 'register' | 'resetPassword' | 'setPassword' | 'bindOAuth' | 'bindEmail' | 'payment' | 'questionnaire' | 'questionnaire' | 'cli' | 'musicProvidersLogin';
 
 /** 灵动岛动画速度档位 */
 export type AnimationSpeed = 'slow' | 'medium' | 'fast';
@@ -198,126 +198,6 @@ export interface NotificationData {
   breakReminderItemId?: string;
 }
 
-/** Agent Skill 定义（基于 .md 文件） */
-export interface AiSkill {
-  id: string;
-  name: string;
-  filePath: string;
-  enabled: boolean;
-}
-
-/** AI 配置数据 */
-export interface AiConfig {
-  apiKey: string;
-  endpoint: string;
-  model: string;
-  mcpEndpoint: string;
-  systemPrompt: string;
-  deepseekThinking: boolean;
-  deepseekReasoningEffort: 'low' | 'medium' | 'high';
-  contextLimit: 200_000 | 400_000 | 1_000_000;
-  r1pxcAvatar: string;
-  workspaces: string[];
-  skills: AiSkill[];
-  ollamaModel: string;
-  ollamaBaseUrl: string;
-  customApiModel: string;
-  customApiMode: 'relay' | 'direct';
-}
-
-/** AI 工具调用轨迹 */
-export interface AiToolCall {
-  turn: number;
-  tool: string;
-  requestId?: string;
-  purpose?: string;
-  riskLevel?: string;
-  durationMs?: number;
-  pending?: boolean;
-  arguments?: Record<string, unknown>;
-  success?: boolean;
-  error?: string;
-  result?: unknown;
-  authorizationRequired?: boolean;
-  webAccessRequestId?: string;
-  webAccessUrl?: string;
-  webAccessResolved?: boolean;
-  webAccessAllowed?: boolean;
-  webAccessResolveError?: string;
-}
-
-/** AI Agent TodoList 单项 */
-export interface AiTodoItem {
-  id: string;
-  content: string;
-  status: 'pending' | 'in_progress' | 'completed';
-}
-
-/** AI Agent TodoList 快照（带时间线 turn） */
-export interface AiTodoSnapshot {
-  turn: number;
-  items: AiTodoItem[];
-}
-
-/** AI 对话附件元信息（仅文本） */
-export interface AiChatAttachment {
-  name: string;
-  size: number;
-}
-
-/** AI 对话单条消息 */
-export interface AiChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
-  model?: string;
-  traceId?: string;
-  finalized?: boolean;
-  thinkBlocks?: string[];
-  thinkDurations?: number[];
-  toolCalls?: AiToolCall[];
-  todoSnapshots?: AiTodoSnapshot[];
-  attachments?: AiChatAttachment[];
-  quote?: string;
-  tokenUsage?: {
-    inputTokens: number;
-    outputTokens: number;
-    reasoningTokens: number;
-    totalTokens: number;
-    source: string;
-  };
-}
-
-/** AI 历史会话 */
-export interface AiChatSession {
-  id: string;
-  title: string;
-  updatedAt: number;
-  messages: AiChatMessage[];
-  /** false 表示仅有索引；正文必须异步读取，不能当作空会话保存。 */
-  messagesLoaded?: boolean;
-  replyStatus?: 'idle' | 'success' | 'failed';
-}
-
-/** 切换会话读取正文期间，界面沿用的切换前消息 */
-export interface AiChatSwitchingView {
-  /** 切换前显示的会话 ID */
-  sessionId: string;
-  /** 切换前显示的消息 */
-  messages: AiChatMessage[];
-}
-
-/** AI Web 访问提示 */
-export interface AiWebAccessPrompt {
-  sessionId?: string;
-  requestId: string;
-  url: string;
-  message: string;
-  hostname?: string;
-  siteName?: string;
-  iconUrl?: string;
-  domainPolicy?: 'ask' | 'allow' | 'deny';
-}
-
 // ============= Slice Interfaces =============
 
 export type PaymentContext =
@@ -359,7 +239,6 @@ export interface IslandSlice {
   maxExpandLauncherVisible: boolean;
   cliProvider: CliProvider;
   notification: NotificationData;
-  agentPrompt: string;
 
   springAnimation: boolean;
   animationSpeed: AnimationSpeed;
@@ -387,7 +266,6 @@ export interface IslandSlice {
 
   setGuide: () => void;
   setQuestionnaire: () => void;
-  setAgent: (prompt?: string) => void;
   setCli: () => void;
   toggleUiStateLock: () => boolean;
   setHoverTab: (tab: HoverTab) => void;
@@ -459,39 +337,6 @@ export interface MediaSlice {
   setLyricsLoading: (loading: boolean) => void;
 }
 
-/** AI Slice */
-export interface AiSlice {
-  aiConfig: AiConfig;
-  setAiConfig: (config: Partial<AiConfig>) => void;
-
-  aiChatReady: boolean;
-  aiChatLoading: boolean;
-  aiChatStorageError: boolean;
-  ensureAiChatReady: () => Promise<void>;
-  releaseAiChatBodies: () => void;
-  retainAiChatSession: (sessionId: string, retained: boolean) => void;
-  flushAiChatStorage: () => Promise<void>;
-  aiChatSessions: AiChatSession[];
-  activeAiChatSessionId: string;
-  aiChatMessages: AiChatMessage[];
-  /** 切换会话读取正文期间沿用的切换前消息；首次加载、读取结束后为 null */
-  aiChatSwitchingView: AiChatSwitchingView | null;
-  aiChatStreaming: boolean;
-  createNewAiChatSession: () => Promise<void>;
-  switchAiChatSession: (sessionId: string) => Promise<void>;
-  deleteAiChatSession: (sessionId: string) => Promise<void>;
-  setAiChatStreaming: (streaming: boolean) => void;
-  setAiChatSessionMessages: (sessionId: string, messages: AiChatMessage[]) => void;
-  markAiChatSessionReplyFinished: (sessionId: string, finishedAt?: number) => void;
-  setAiChatMessageThinkDuration: (messageIndex: number, thinkIndex: number, seconds: number) => void;
-  setAiChatMessages: (messages: AiChatMessage[]) => void;
-  clearAiChatMessages: () => void;
-  aiWebAccessPrompt: AiWebAccessPrompt | null;
-  setAiWebAccessPrompt: (prompt: AiWebAccessPrompt | null) => void;
-  aiWebAccessResolveError: string;
-  setAiWebAccessResolveError: (message: string) => void;
-}
-
 /** 番茄钟 Slice */
 export interface PomodoroSlice {
   pomodoroPhase: PomodoroPhase;
@@ -505,4 +350,4 @@ export interface PomodoroSlice {
 }
 
 /** 完整 Store 类型 */
-export type IIslandStore = IslandSlice & WeatherSlice & TimerSlice & MediaSlice & AiSlice & PomodoroSlice;
+export type IIslandStore = IslandSlice & WeatherSlice & TimerSlice & MediaSlice & PomodoroSlice;

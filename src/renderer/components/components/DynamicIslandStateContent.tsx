@@ -39,7 +39,6 @@ import { RegisterContent } from '../states/register/RegisterContent';
 import { ResetPasswordContent } from '../states/resetPassword';
 import { PaymentContent } from '../states/payment/PaymentContent';
 import { QuestionnaireContent } from '../states/questionnaire';
-import { AgentContent } from '../states/agent/AgentContent';
 import { CliContent } from '../states/cli';
 import { SetPasswordContent } from '../states/setPassword';
 import { BindOAuthContent } from '../states/bindOAuth';
@@ -122,7 +121,6 @@ export function DynamicIslandStateContent({
     if (state === 'payment') return <PaymentContent />;
     if (state === 'questionnaire') return <QuestionnaireContent />;
   }
-  if (state === 'agent') return <AgentContent />;
   if (state === 'cli') return <CliContent />;
 
   return null;

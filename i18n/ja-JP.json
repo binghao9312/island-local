@@ -922,149 +922,51 @@
     }
   },
   "aiChat": {
-    "title": "mihtnelis Agent",
-    "notConfigured": "未設定",
-    "localModelGenerated": "ローカルモデルで生成",
-    "customDirectGenerated": "LLMプロバイダーに直接接続",
-    "actions": {
-      "clear": "クリア",
-      "newChat": "新しいチャット",
-      "deleteSession": "セッションを削除",
-      "reportIssue": "問題を報告",
-      "stop": "停止",
-      "send": "送信",
-      "quote": "引用",
-      "copy": "コピー"
-    },
-    "session": {
-      "historyTitle": "セッション履歴",
-      "toggleHistory": "セッション履歴の表示を切り替え",
-      "untitled": "新しいチャット"
-    },
-    "modelCard": {
-      "title": "モデル選択カード",
-      "focusMode": "集中モード",
-      "contextLimit": "コンテキスト",
-      "customApiMode": "呼び出しモード",
-      "customApiModeTitle": "カスタムAPIの呼び出しモードを選択",
-      "customApiModeRelay": "サーバー経由",
-      "customApiModeDirect": "直接接続"
-    },
-    "skills": {
-      "title": "スキル",
-      "add": "+ 追加",
-      "enable": "有効にする",
-      "disable": "無効にする",
-      "remove": "削除",
-      "dropHint": ".mdファイルをここにドロップするか、追加をクリック"
-    },
-    "attachments": {
-      "add": "テキストファイルを添付",
-      "remove": "添付ファイルを削除"
-    },
     "codeBlock": {
       "copy": "コピー",
       "copied": "コピーしました"
+    }
+  },
+  "acpChat": {
+    "providerSwitch": "エージェントの種類",
+    "newChat": "新しいチャット",
+    "thought": "思考",
+    "plan": "プラン",
+    "empty": "{{name}} に何でも聞いてみましょう。このPC上で動作します。",
+    "errorHint": "メッセージを送ると再試行します。新しいチャットを始めることもできます。",
+    "status": {
+      "idle": "未起動",
+      "starting": "起動中…",
+      "ready": "準備完了",
+      "exited": "停止",
+      "error": "エラー",
+      "not-installed": "未インストール"
     },
-    "messages": {
-      "missingApiKeyWarn": "先に「設定 → AI設定」でAPI Keyを入力してください。",
-      "unknownError": "不明なエラー",
-      "contextLimitExceeded": "⚠️ 現在のセッションではすでに{{used}}トークンを使用し、コンテキストの上限（{{max}}トークン）を超えています。続けるには新しいセッションを開始してください。",
-      "emptyWithApiKey": "何かお手伝いしましょうか？",
-      "emptyWithoutApiKey": "先に「設定 → AI設定」でAPI Keyを入力してください",
-      "emptyGreetingVariants": {
-        "0": "こんにちは。今日は何に取り組みましょうか？",
-        "1": "こんにちは。いつでもお手伝いできます。",
-        "2": "おかえりなさい。まず何を解決しましょうか？",
-        "3": "今日も効率よく進めましょう。何から始めますか？"
-      },
-      "aiGeneratedDisclaimer": "この内容はAIが生成しています。内容をよく確認してください。",
-      "localModelGenerated": "ローカルモデルで生成",
-      "agentError": "mihtnelis agentがエラーを返しました",
-      "noModelOutput": "⚠️ モデルの出力を受信できませんでした。DeepSeekの設定とサーバーログを確認してください。",
-      "noModelOutputOllama": "⚠️ モデルの出力を受信できませんでした。Ollamaサービスが実行中か確認してください。",
-      "noModelOutputCustomDirect": "⚠️ モデルの出力を受信できませんでした。カスタムAPIのエンドポイントとキーを確認してください。",
-      "localToolExecuteFailed": "ローカルツールの実行に失敗しました",
-      "localToolSubmitFailed": "ローカルツールの結果の送信に失敗しました",
-      "localToolRequestConflict": "ローカルツールのリクエスト ID が別の呼び出しと競合しています",
-      "apiRequestFailed": "APIリクエストに失敗しました ({{status}}): {{detail}}",
-      "cannotReadResponseStream": "レスポンスストリームを読み取れません"
+    "notInstalled": {
+      "title": "{{name}} がインストールされていません",
+      "hint": "下のコマンドでインストールしてから、もう一度確認してください。",
+      "recheck": "再確認"
     },
-    "timeline": {
-      "todoList": "タスクリスト",
-      "todoTitle": "タスク",
-      "todo": {
-        "toggle": "タスクリストを展開または折りたたむ"
-      },
-      "thinkingProcess": "思考過程 #{{index}}",
-      "thinking": {
-        "thinking": "思考中…",
-        "thought": "思考",
-        "elapsed": " {{seconds}}秒",
-        "toggleThought": "思考過程を展開または折りたたむ"
-      },
-      "toolResultTitle": "ツールの実行結果",
-      "toolStatus": {
-        "pending": "実行中",
-        "success": "完了",
-        "failed": "失敗"
-      }
+    "tool": {
+      "pending": "待機中",
+      "in_progress": "実行中",
+      "completed": "完了",
+      "failed": "失敗"
     },
-    "localToolAccess": {
-      "title": "高リスクのローカル操作の許可",
-      "requestHint": "エージェントが次のローカル操作の実行を求めています。許可しますか？",
-      "argumentsTitle": "引数",
-      "toolLabel": "ツール",
-      "purposeTitle": "目的",
-      "purposeFallback": "目的の説明がありません",
-      "riskLabel": "リスクレベル",
-      "screenshotTag": "スクリーンショット",
-      "riskLevel": {
-        "high": "高"
-      },
-      "allow": "実行を許可",
-      "deny": "実行を拒否",
-      "expiredHint": "ローカルツールの許可リクエストは期限切れです。再度リクエストしてから許可してください。"
-    },
-    "webAccess": {
-      "title": "Webアクセスの許可",
-      "allow": "アクセスを許可",
-      "deny": "アクセスを拒否",
-      "requestHint": "エージェントが次のURLにアクセスする必要があります。許可しますか？",
-      "allowedHint": "許可しました。次のターンでこのURLの読み取りを再試行できます。",
-      "deniedHint": "このURLへのアクセスを拒否しました。",
-      "expiredHint": "Webアクセスの許可リクエストは期限切れです。再度リクエストしてから許可してください。",
-      "policyLabel": "ドメインの許可ポリシー",
-      "policy": {
-        "ask": "毎回確認",
-        "allow": "常に許可",
-        "deny": "常に拒否"
-      }
-    },
-    "auth": {
-      "entryTitle": "ログインしてAIアシスタントを利用",
-      "gotoLogin": "ログインへ",
-      "gotoRegister": "新規登録へ",
-      "hint": "mihtnelis Agentは、ログイン済みのユーザーにAIチャット、ツール呼び出し、ナレッジ検索を提供します。"
+    "permission": {
+      "title": "許可が必要です",
+      "queued": "あと {{count}} 件待機中",
+      "cancel": "キャンセル"
     },
     "input": {
-      "generatingPlaceholder": "生成中...",
-      "placeholder": "メッセージを入力..."
-    },
-    "contextUsage": {
-      "title": "コンテキスト使用量",
-      "inline": "{{used}} / {{max}} · {{percent}}",
-      "tooltip": "コンテキスト使用量: {{used}} / {{max}} ({{percent}})",
-      "aria": "コンテキスト使用量: {{used}} / {{max}} ({{percent}})"
-    },
-    "agentMode": {
-      "switch": "エージェントモードを切り替え"
-    },
-    "feedback": {
-      "issueTitle": "エージェントの出力が想定と異なる - {{traceId}}"
-    },
-    "storageLoading": "チャット履歴を読み込んでいます…",
-    "storageRetry": "再試行"
+      "placeholder": "メッセージを入力（Enterで送信、Shift+Enterで改行）",
+      "send": "送信",
+      "stop": "停止",
+      "attachImage": "画像を添付",
+      "removeImage": "画像を削除",
+      "attachLimit": "一部の画像をスキップしました：最大8枚、各8 MBまで。",
+      "attachFailed": "画像を読み込めませんでした。"
+    }
   },
   "urlFavoritesTab": {
     "title": "URLのお気に入り",
@@ -2748,10 +2650,6 @@
       "music-whitelist": "プレーヤーの許可リスト",
       "music-lyrics": "歌詞の取得元",
       "music-smtc": "SMTC",
-      "ai": "AIエージェント",
-      "general": "一般",
-      "r1pxc": "r1pxc Agent",
-      "ollama": "Ollama ローカル",
       "shortcut": "ショートカット",
       "user": "アカウント",
       "update": "更新",
@@ -2827,11 +2725,6 @@
     "weatherPages": {
       "location": "位置情報",
       "provider": "プロバイダー"
-    },
-    "aiPages": {
-      "general": "一般",
-      "r1pxc": "r1pxc Agent",
-      "ollama": "Ollama ローカル"
     },
     "musicPages": {
       "whitelist": "許可リスト",
@@ -3845,72 +3738,6 @@
           "page": "{{page}} / {{total}} ページ"
         }
       }
-    },
-    "ai": {
-      "apiKey": "APIキー",
-      "apiEndpoint": "APIエンドポイント",
-      "model": "モデル",
-      "deepseekThinking": "DeepSeek思考モード",
-      "deepseekThinkingOptions": {
-        "off": "オフ",
-        "on": "オン"
-      },
-      "deepseekReasoningEffort": "DeepSeekの推論レベル",
-      "mimoReasoningEffort": "Mimoの推論レベル",
-      "ollamaReasoningEffort": "推論レベル",
-      "customReasoningEffort": "推論レベル",
-      "minimaxReasoningEffort": "MiniMaxの推論レベル",
-      "deepseekReasoningEffortOptions": {
-        "low": "低 (low)",
-        "medium": "中 (medium)",
-        "high": "高 (high)"
-      },
-      "mcpEndpoint": "MCPエンドポイント",
-      "mcpPlaceholder": "http://localhost:3000/mcp (任意)",
-      "systemPrompt": "システムプロンプト",
-      "promptPlaceholder": "あなたは役に立つアシスタントです。",
-      "saveTitle": "保存 (Ctrl+Enter)",
-      "editPromptTitle": "プロンプトを編集",
-      "credentialsTitle": "モデルの認証情報",
-      "credentialsHint": "OpenAI互換プロトコルに対応しています。APIキー、エンドポイント、モデル名を入力してください。",
-      "agentModel": "エージェントのモデル",
-      "agentModelFetching": "取得中...",
-      "agentModelFetchBtn": "利用可能なモデルを取得",
-      "agentModelDropdown": "モデルのドロップダウン",
-      "agentModelSelectPlaceholder": "モデルを選択してください",
-      "agentModelFetchNeedEndpoint": "先にAPIエンドポイントを入力してください",
-      "agentModelFetchOk": "{{count}}個のモデルを取得しました",
-      "agentModelFetchEmpty": "モデルが返されませんでした。/modelsに対応しているか確認してください",
-      "agentModelFetchFail": "モデル一覧を取得できませんでした。エンドポイントとキーを確認してください",
-      "mcpTitle": "MCPツール連携",
-      "mcpHint": "任意の設定です。MCPエンドポイントを設定すると、エージェントが外部ツールを呼び出せます。",
-      "systemPromptHint": "エージェントの役割や応答スタイルを指定します。空欄の場合は既定のプロンプトを使用します。",
-      "workspaceTitle": "エージェントのワークスペース",
-      "workspaceHint": "エージェントがアクセスできるフォルダーを設定します。ファイルの読み書き、検索、コマンド実行はすべてワークスペース内に制限されます。",
-      "workspaceAdd": "+ ワークスペースフォルダーを追加",
-      "workspaceRemove": "削除",
-      "workspaceEmpty": "ワークスペースが未設定のため、エージェントのファイル操作はできません。",
-      "ollamaTitle": "Ollamaのローカルモデル",
-      "ollamaHint": "ローカルのOllamaエンドポイントと既定のモデルを設定します。モデルのドロップダウンでollamaを選択すると利用できます。",
-      "ollamaModel": "モデル名",
-      "ollamaFetching": "取得中...",
-      "ollamaFetchBtn": "ローカルモデル一覧を取得",
-      "ollamaFetchEmpty": "ローカルのOllamaモデルが見つかりませんでした",
-      "ollamaFetchOk": "{{count}}個のローカルモデルが見つかりました",
-      "ollamaFetchFail": "モデル一覧を取得できませんでした。Ollamaサービスを確認してください",
-      "ollamaBaseUrl": "サービスURL",
-      "ollamaDetecting": "検出中...",
-      "ollamaDetectBtn": "Ollamaのポートを自動検出",
-      "ollamaDetectOk": "{{url}} を検出しました",
-      "ollamaDetectFail": "実行中のOllamaサービスが見つかりませんでした。`ollama serve`が起動しているか確認してください",
-      "r1pxcConfigTitle": "r1pxcエージェントのアバター設定",
-      "r1pxcConfigHint": "画像のドラッグ＆ドロップまたはファイル選択でアップロードできます。URLには対応していません",
-      "r1pxcAvatarReplace": "クリックまたは画像をドロップしてアバターを変更",
-      "r1pxcAvatarUploadHint": "画像をドロップするか、クリックしてエクスプローラーから選択",
-      "r1pxcAvatarClear": "アバターを削除",
-      "r1pxcAvatarFileTypeError": "画像ファイル（png/jpg/webpなど）を選択してください",
-      "r1pxcAvatarReadError": "アバターを読み込めませんでした。別の画像をお試しください",
-      "pagination": "AI設定のページ切り替え"
     },
     "about": {
       "pagination": "アプリ情報のページ切り替え",

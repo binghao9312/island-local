@@ -27,7 +27,7 @@
 import type { ReactElement } from 'react';
 import type { MaxExpandTab } from '../../../store/types';
 import { MaxExpandContentShell } from './MaxExpandContentShell';
-import { AiChatTab } from './components/agent/components/AiChatTab';
+import { AcpChatTab } from './components/acpChat';
 import { TodoTab } from './components/todo/components/TodoTab';
 import { UrlFavoritesTab } from './components/urlFavorites';
 import { LocalFileSearchTab } from './components/localFileSearch/components/LocalFileSearchTab';
@@ -48,7 +48,7 @@ import SongTab from './components/song';
 
 function renderEagerActiveTab(activeTab: MaxExpandTab, loadingFallback: ReactElement, contentReady: boolean): ReactElement | null {
   if (!contentReady) return loadingFallback;
-  if (activeTab === 'aiChat') return <AiChatTab />;
+  if (activeTab === 'aiChat') return <AcpChatTab />;
   if (activeTab === 'todo') return <TodoTab />;
   if (activeTab === 'urlFavorites') return <UrlFavoritesTab />;
   if (activeTab === 'localFileSearch') return <LocalFileSearchTab />;

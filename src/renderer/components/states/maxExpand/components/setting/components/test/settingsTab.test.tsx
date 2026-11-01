@@ -33,7 +33,6 @@ import { NetworkSettingsSection } from '../network/NetworkSettingsSection';
 import { MailSettingsSection } from '../mail/MailSettingsSection';
 import { WeatherSettingsSection } from '../weather/WeatherSettingsSection';
 import { MusicSettingsSection } from '../music/MusicSettingsSection';
-import { AiSettingsSection } from '../ai/AiSettingsSection';
 import { ShortcutSettingsSection } from '../shortcut/ShortcutSettingsSection';
 import { UserSettingsSection } from '../user/UserSettingsSection';
 import { AboutSettingsSection } from '../about/AboutSettingsSection';
@@ -43,7 +42,7 @@ import { WallpaperMarketSection } from '../pluginMarket/WallpaperMarketSection';
 import { SettingsPageNavigation, SettingsPageNavigationToggle } from '../SettingsPageNavigation';
 import { WallpaperContributionSection } from '../pluginMarket/WallpaperContributionSection';
 import { WallpaperEditSection } from '../pluginMarket/WallpaperEditSection';
-const state = vi.hoisted(() => ({ tab: 'index', hasLoginSession: true, setLogin: vi.fn(), setRegister: vi.fn(), setActiveTab: vi.fn(), setAiConfig: vi.fn(), aiConfig: { workspaces: ['C:/known'] }, handleCheckUpdate: vi.fn() }));
+const state = vi.hoisted(() => ({ tab: 'index', hasLoginSession: true, setLogin: vi.fn(), setRegister: vi.fn(), setActiveTab: vi.fn(), handleCheckUpdate: vi.fn() }));
 vi.mock('../../hooks/useSettingsTabState', () => ({ useSettingsSidebarTabState: () => [state.tab, state.setActiveTab], useUserSessionState: () => ({ sessionToken: '', hasLoginSession: state.hasLoginSession }) }));
 vi.mock('../../hooks/useUpdateSettingsState', () => ({ default: () => ({ updateStatus: 'idle', handleCheckUpdate: state.handleCheckUpdate }) }));
 vi.mock('../../hooks/useBackgroundMediaSettingsState', () => ({ default: () => ({}) }));
@@ -60,7 +59,6 @@ vi.mock('../mail/MailSettingsSection', () => ({ MailSettingsSection: () => null 
 vi.mock('../weather/WeatherSettingsSection', () => ({ WeatherSettingsSection: () => null }));
 vi.mock('../shortcut/ShortcutSettingsSection', () => ({ ShortcutSettingsSection: () => null }));
 vi.mock('../music/MusicSettingsSection', () => ({ MusicSettingsSection: () => null }));
-vi.mock('../ai/AiSettingsSection', () => ({ AiSettingsSection: () => null }));
 vi.mock('../user/UserSettingsSection', () => ({ UserSettingsSection: () => null }));
 vi.mock('../about/AboutSettingsSection', () => ({ AboutSettingsSection: () => null }));
 vi.mock('../app/preview/OverviewPreview', () => ({ OverviewPreview: () => null }));
@@ -75,14 +73,14 @@ vi.mock('../../../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_F
 describe('SettingsTab', () => {
   beforeEach(() => { state.hasLoginSession = true; });
   afterEach(() => { vi.unstubAllGlobals(); });
-  it.each([['index', IndexSettingsSection], ['app', AppSettingsSection], ['network', NetworkSettingsSection], ['mail', MailSettingsSection], ['weather', WeatherSettingsSection], ['music', MusicSettingsSection], ['ai', AiSettingsSection], ['shortcut', ShortcutSettingsSection], ['user', UserSettingsSection], ['update', UpdateSettingsSection], ['about', AboutSettingsSection], ['pluginMarket', WallpaperMarketSection]])('selects the %s panel and preserves all sidebar routes', (tab, panel) => {
+  it.each([['index', IndexSettingsSection], ['app', AppSettingsSection], ['network', NetworkSettingsSection], ['mail', MailSettingsSection], ['weather', WeatherSettingsSection], ['music', MusicSettingsSection], ['shortcut', ShortcutSettingsSection], ['user', UserSettingsSection], ['update', UpdateSettingsSection], ['about', AboutSettingsSection], ['pluginMarket', WallpaperMarketSection]])('selects the %s panel and preserves all sidebar routes', (tab, panel) => {
     state.tab = tab;
     const tree = render(Component);
     expect(nodes(tree, panel)).toHaveLength(1);
-    expect(nodes(tree, '.max-expand-settings-sidebar-item')).toHaveLength(12);
+    expect(nodes(tree, '.max-expand-settings-sidebar-item')).toHaveLength(11);
     expect(nodes(tree, '.active')).toHaveLength(1);
     (value(tree, '.max-expand-settings-sidebar-item', 'onClick', 7) as () => void)();
-    expect(state.setActiveTab).toHaveBeenCalledWith('ai');
+    expect(state.setActiveTab).toHaveBeenCalledWith('shortcut');
   });
   it('bounds auto-dim delays and changes application subpages', () => {
     state.tab = 'app';
@@ -102,26 +100,6 @@ describe('SettingsTab', () => {
     trigger(tree, AppSettingsSection, 'handleAutoDimEnabledChange', true);
     expect(value(render(Component), AppSettingsSection, 'autoDimEnabled')).toBe(true);
     expect(settingsPreview).toHaveBeenCalledWith('store:island-auto-dim-enabled', true);
-  });
-  it('handles workspace cancellation, case-insensitive duplication and removal', async () => {
-    state.tab = 'ai';
-    const pickLocalSearchDirectory = vi.fn().mockResolvedValueOnce(null).mockResolvedValueOnce('c:/KNOWN')
-      .mockResolvedValueOnce('C:/new');
-    vi.stubGlobal('window', { api: { pickLocalSearchDirectory } });
-    const tree = render(Component);
-    await trigger(tree, AiSettingsSection, 'onAddWorkspace'); await trigger(tree, AiSettingsSection, 'onAddWorkspace');
-    expect(state.setAiConfig).not.toHaveBeenCalled();
-    await trigger(tree, AiSettingsSection, 'onAddWorkspace');
-    expect(state.setAiConfig).toHaveBeenCalledWith({ workspaces: ['C:/known', 'C:/new'] });
-    trigger(tree, AiSettingsSection, 'onRemoveWorkspace', 0);
-    expect(state.setAiConfig).toHaveBeenLastCalledWith({ workspaces: [] });
-    const field = value(tree, AiSettingsSection, 'SettingsFieldComponent');
-    const onChange = vi.fn(); const fieldTree = render(field, {
-      onChange,
-      label: 'API',
-      value: ''
-    });
-    trigger(fieldTree, 'input', 'onChange', { target: { value: 'key' } }); expect(onChange).toHaveBeenCalledWith('key');
   });
   it('passes update actions and anonymous account state through their boundaries', () => {
     state.tab = 'update';
@@ -163,7 +141,7 @@ describe('SettingsTab 实际侧栏与市场视图剩余回调', () => {
   it('全部侧栏按钮转交自己的目标分类', () => {
     state.tab = 'index';
     const tree = render(Component);
-    const routes = ['index', 'app', 'pluginMarket', 'network', 'mail', 'weather', 'music', 'ai', 'shortcut', 'user', 'update', 'about'];
+    const routes = ['index', 'app', 'pluginMarket', 'network', 'mail', 'weather', 'music', 'shortcut', 'user', 'update', 'about'];
     nodes(tree, '.max-expand-settings-sidebar-item').forEach((node, index) => {
       const callback = node.props.onClick as () => void; callback();
       expect(state.setActiveTab).toHaveBeenLastCalledWith(routes[index]);

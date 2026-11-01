@@ -410,10 +410,6 @@ export function useSettingsConfigurationEffects(options: SettingsConfigurationEf
         setActiveTab('index');
         window.api.storeWrite(SETTINGS_OPEN_TAB_STORE_KEY, null).catch(() => { });
       }
-      if (intent === 'ai') {
-        setActiveTab('ai');
-        window.api.storeWrite(SETTINGS_OPEN_TAB_STORE_KEY, null).catch(() => { });
-      }
       if (intent === 'performance-monitor') {
         setActiveTab('app');
         setAppSettingsPage('performance-monitor');

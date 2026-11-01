@@ -424,9 +424,6 @@ describe('一次性设置跳转意图', () => {
     intent: 'mail',
     tab: 'mail'
   }, {
-    intent: 'ai',
-    tab: 'ai'
-  }, {
     intent: 'about-feedback',
     tab: 'about',
     setter: 'setAboutInitialPage',

@@ -100,8 +100,8 @@ describe('useLogin 真实认证状态', () => {
     expect(useIslandStore.getState().state).toBe('maxExpand'); expect(useIslandStore.getState().maxExpandTab).toBe('settings');
     expect(renderWithHooks(useLogin).submitting).toBe(false);
   });
-  it.each(['person', 'person@example.com'])('从 Agent 使用 %s 重新登录后后台加载头像并通知订阅者', async (account) => {
-    useIslandStore.setState({ authReturnState: 'agent' });
+  it.each(['person', 'person@example.com'])('从 CLI 面板使用 %s 重新登录后后台加载头像并通知订阅者', async (account) => {
+    useIslandStore.setState({ authReturnState: 'cli' });
     Object.assign(api, { expandWindowNotification: vi.fn() });
     const profile = { username: 'person', email: 'person@example.com', avatar: 'https://example.com/avatar.png', gender: 'undisclosed', genderCustom: null, birthday: null, createdAt: 'date' };
     const pendingProfile = Promise.withResolvers<{ ok: boolean; status: number; body: string }>();
@@ -113,7 +113,7 @@ describe('useLogin 真实认证状态', () => {
     try {
       await validForm(account).handleSubmit();
       await settle();
-      expect(useIslandStore.getState().state).toBe('agent');
+      expect(useIslandStore.getState().state).toBe('cli');
       expect(readLocalProfile()).toBeNull();
       expect(api.netFetch).toHaveBeenCalledTimes(2);
       expect(api.netFetch.mock.calls[1][0]).toContain('/user/profile');

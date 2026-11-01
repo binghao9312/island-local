@@ -51,7 +51,7 @@ export const AUTO_HIDE_FULLSCREEN_WINDOWS_STORE_KEY = 'auto-hide-fullscreen-wind
 export { SCREENSHOT_ENGINE_STORE_KEY } from '../../../../../../../shared/storeKeys';
 export const DEFAULT_AUTO_DIM_DELAY_SEC = 10;
 
-export type SettingsOpenTabIntent = 'update' | 'about-feedback' | 'user-orders' | 'user-info' | 'ai' | 'mail' | 'performance-monitor' | 'expand-layout';
+export type SettingsOpenTabIntent = 'update' | 'about-feedback' | 'user-orders' | 'user-info' | 'mail' | 'performance-monitor' | 'expand-layout';
 
 export type IslandBgMediaType = 'image' | 'video';
 

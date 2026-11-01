@@ -57,7 +57,6 @@ export const ALL_ISLAND_STATES: Record<IslandState, true> = {
   bindEmail: true,
   payment: true,
   questionnaire: true,
-  agent: true,
   cli: true,
   musicProvidersLogin: true,
 };

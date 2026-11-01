@@ -28,7 +28,6 @@ import { Readable } from 'node:stream';
 import { createRequire } from 'node:module';
 import { expect, vi } from 'vitest';
 import { registerAppIpcHandlers } from '../app';
-import type { AgentLocalToolRequest, AgentLocalToolResult } from '../../agent';
 import type { RunningWindowInfo } from '../../../system/runningProcesses';
 
 type IpcHandler = (...args: unknown[]) => unknown;
@@ -41,7 +40,6 @@ interface FileInfo {
   isDirectory: () => boolean;
   size: number;
 }
-type ExecuteTool = (request: AgentLocalToolRequest) => Promise<AgentLocalToolResult>;
 type ExecCallback = (error: Error | null, stdout: unknown, stderr: unknown) => void;
 interface WindowFixture {
   isDestroyed: () => boolean;
@@ -54,7 +52,6 @@ interface WindowFixture {
 const mocks = vi.hoisted(() => ({
   handle: vi.fn<(channel: string, callback: IpcHandler) => void>(),
   on: vi.fn<(channel: string, callback: IpcHandler) => void>(),
-  registerAgent: vi.fn<(options: { executeAgentLocalTool: ExecuteTool }) => void>(),
   exists: vi.fn<(file: string) => boolean>(),
   readdir: vi.fn<(file: string, options: unknown) => Promise<DirectoryEntry[]>>(),
   stat: vi.fn<(file: string) => Promise<FileInfo>>(),
@@ -140,7 +137,6 @@ vi.mock('../../../log/mainLog', () => ({
 vi.mock('../../../window/standaloneWindow', () => ({
   openStandaloneWindow: mocks.standaloneOpen, closeStandaloneWindow: mocks.standaloneClose,
 }));
-vi.mock('../../agent', () => ({ registerAgentIpcHandlers: mocks.registerAgent }));
 vi.mock('../../../system/runningProcesses', () => ({ queryOpenWindowsWithIcons: mocks.windows }));
 vi.mock('../../../utils/broadcast', () => ({ broadcastSettingChange: mocks.broadcast }));
 vi.mock('../../../music/smtcAccessor', () => ({ getSmtcNowPlaying: mocks.nowPlaying }));
@@ -152,7 +148,6 @@ export const root = 'C:\\workspace';
 export const handles = new Map<string, IpcHandler>();
 export const events = new Map<string, IpcHandler>();
 export const directories = new Map<string, DirectoryEntry[]>();
-let executeTool: ExecuteTool;
 export let window: WindowFixture;
 
 /**
@@ -176,17 +171,6 @@ export function invoke(channel: string, ...args: unknown[]): unknown {
   return handler({ sender: { id: 7 } }, ...args);
 }
 /**
- * 调用真实的本地工具实现，限定到虚构测试工作区。
- * @param tool - 本地工具名称。
- * @param args - 工具参数。
- * @param workspaces - 允许路径列表。
- * @returns 真实工具的响应。
- */
-export function tool(tool: string, args: unknown, workspaces: unknown = [root]): Promise<AgentLocalToolResult> {
-  return executeTool({ tool, workspaces, arguments: args });
-}
-
-/**
  * 包装消息匹配器，避免 Vitest 的 any 返回值进入业务形状断言。
  * @param message - 错误中的稳定片段。
  * @returns 非对称匹配器。
@@ -203,7 +187,6 @@ export function resetHarness(): void {
   events.clear();
   mocks.handle.mockImplementation((channel, handler) => { handles.set(channel, handler); });
   mocks.on.mockImplementation((channel, handler) => { events.set(channel, handler); });
-  mocks.registerAgent.mockImplementation(({ executeAgentLocalTool }) => { executeTool = executeAgentLocalTool; });
   mocks.exists.mockReturnValue(true);
   mocks.readdir.mockImplementation((path) => {
     const found = directories.get(path);

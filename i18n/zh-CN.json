@@ -922,148 +922,50 @@
     }
   },
   "aiChat": {
-    "storageLoading": "正在加载聊天记录…",
-    "storageRetry": "聊天记录未能保存或加载，点击重试",
-    "title": "mihtnelis Agent",
-    "notConfigured": "未配置",
-    "localModelGenerated": "本地模型生成",
-    "customDirectGenerated": "本地直连 LLM 提供商",
-    "actions": {
-      "clear": "清空",
-      "newChat": "新建对话",
-      "deleteSession": "删除会话",
-      "reportIssue": "报告问题",
-      "stop": "停止",
-      "send": "发送",
-      "quote": "引用",
-      "copy": "复制"
-    },
-    "session": {
-      "historyTitle": "历史会话",
-      "toggleHistory": "展开历史会话",
-      "untitled": "新对话"
-    },
-    "modelCard": {
-      "title": "模型选择卡片",
-      "focusMode": "专注模式",
-      "contextLimit": "上下文",
-      "customApiMode": "调用模式",
-      "customApiModeTitle": "选择自定义 API 调用模式",
-      "customApiModeRelay": "服务器转发",
-      "customApiModeDirect": "直连"
-    },
-    "skills": {
-      "title": "Skills",
-      "add": "+ 添加",
-      "enable": "启用",
-      "disable": "禁用",
-      "remove": "移除",
-      "dropHint": "拖入 .md 文件或点击添加"
-    },
-    "attachments": {
-      "add": "添加文本附件",
-      "remove": "移除附件"
-    },
     "codeBlock": {
       "copy": "复制",
       "copied": "已复制"
+    }
+  },
+  "acpChat": {
+    "providerSwitch": "智能体来源",
+    "newChat": "新对话",
+    "thought": "思考过程",
+    "plan": "计划",
+    "empty": "向 {{name}} 提问吧，它在本机运行。",
+    "errorHint": "再发一条消息即可重试，或开始新对话。",
+    "status": {
+      "idle": "未启动",
+      "starting": "启动中…",
+      "ready": "就绪",
+      "exited": "已停止",
+      "error": "出错",
+      "not-installed": "未安装"
     },
-    "messages": {
-      "missingApiKeyWarn": "请先在「设置 → AI配置」中填写 API Key。",
-      "unknownError": "未知错误",
-      "contextLimitExceeded": "⚠️ 当前会话已累计使用 {{used}} tokens，超出上下文限制（{{max}} tokens）。请新建会话继续对话。",
-      "emptyWithApiKey": "有什么可以帮你的？",
-      "emptyWithoutApiKey": "请先在「设置 → AI配置」中填写 API Key",
-      "emptyGreetingVariants": {
-        "0": "你好呀，今天想一起处理点什么？",
-        "1": "嗨，我在这儿，随时可以帮你。",
-        "2": "欢迎回来，先聊聊你现在最想解决的问题吧。",
-        "3": "今天也一起高效一点，你想从哪件事开始？"
-      },
-      "aiGeneratedDisclaimer": "内容由 AI 生成，请仔细甄别。",
-      "localModelGenerated": "本地模型生成",
-      "agentError": "mihtnelis agent 返回错误",
-      "noModelOutput": "⚠️ 未收到模型输出，请检查 DeepSeek 配置与服务端日志。",
-      "noModelOutputOllama": "⚠️ 未收到模型输出，请检查 Ollama 服务是否运行中。",
-      "noModelOutputCustomDirect": "⚠️ 未收到模型输出，请检查自定义 API 端点和密钥是否正确。",
-      "localToolExecuteFailed": "本地工具执行失败",
-      "localToolSubmitFailed": "本地工具结果提交失败",
-      "localToolRequestConflict": "本地工具请求 ID 与另一调用冲突",
-      "apiRequestFailed": "API 请求失败 ({{status}}): {{detail}}",
-      "cannotReadResponseStream": "无法读取响应流"
+    "notInstalled": {
+      "title": "未检测到 {{name}}",
+      "hint": "请先用下面的命令安装，然后重新检测。",
+      "recheck": "重新检测"
     },
-    "timeline": {
-      "todoList": "任务清单",
-      "todoTitle": "待办事项",
-      "todo": {
-        "toggle": "展开或折叠任务清单"
-      },
-      "thinkingProcess": "思考过程 #{{index}}",
-      "thinking": {
-        "thinking": "思考中…",
-        "thought": "思考",
-        "elapsed": " 用时 {{seconds}} 秒",
-        "toggleThought": "展开或折叠思考过程"
-      },
-      "toolResultTitle": "工具返回结果",
-      "toolStatus": {
-        "pending": "执行中",
-        "success": "完成",
-        "failed": "失败"
-      }
+    "tool": {
+      "pending": "等待中",
+      "in_progress": "执行中",
+      "completed": "已完成",
+      "failed": "失败"
     },
-    "localToolAccess": {
-      "title": "本地高风险操作授权",
-      "requestHint": "Agent 请求执行以下本地操作，是否允许？",
-      "argumentsTitle": "参数",
-      "toolLabel": "工具",
-      "purposeTitle": "用途",
-      "purposeFallback": "未提供用途说明",
-      "riskLabel": "风险等级",
-      "screenshotTag": "截图",
-      "riskLevel": {
-        "high": "高"
-      },
-      "allow": "允许执行",
-      "deny": "拒绝执行",
-      "expiredHint": "本地工具授权请求已失效，请重新发起请求后再授权。"
-    },
-    "webAccess": {
-      "title": "网页访问授权",
-      "allow": "允许访问",
-      "deny": "拒绝访问",
-      "requestHint": "Agent 需要访问以下 URL，是否允许？",
-      "allowedHint": "已授权，下一轮可继续读取该 URL。",
-      "deniedHint": "已拒绝该 URL 访问。",
-      "expiredHint": "网页授权请求已失效，请重新发起请求后再授权。",
-      "policyLabel": "此域名授权策略",
-      "policy": {
-        "ask": "每次都询问",
-        "allow": "始终批准",
-        "deny": "始终禁止"
-      }
-    },
-    "auth": {
-      "entryTitle": "登录后即可使用 AI 智能助手",
-      "gotoLogin": "前往登录",
-      "gotoRegister": "前往注册",
-      "hint": "mihtnelis Agent 为登录用户提供 AI 对话、工具调用与知识检索服务。"
+    "permission": {
+      "title": "需要你的许可",
+      "queued": "还有 {{count}} 条等待",
+      "cancel": "取消"
     },
     "input": {
-      "generatingPlaceholder": "生成中...",
-      "placeholder": "输入消息..."
-    },
-    "contextUsage": {
-      "title": "上下文使用量",
-      "inline": "{{used}} / {{max}} · {{percent}}",
-      "tooltip": "上下文使用：{{used}} / {{max}}（{{percent}}）",
-      "aria": "上下文使用情况：{{used}} / {{max}}（{{percent}}）"
-    },
-    "agentMode": {
-      "switch": "切换 Agent 模式"
-    },
-    "feedback": {
-      "issueTitle": "Agent输出不符合预期 - {{traceId}}"
+      "placeholder": "输入消息（回车发送，Shift+回车换行）",
+      "send": "发送",
+      "stop": "停止",
+      "attachImage": "添加图片",
+      "removeImage": "移除图片",
+      "attachLimit": "部分图片已跳过：最多 8 张，每张不超过 8 MB。",
+      "attachFailed": "无法读取该图片。"
     }
   },
   "urlFavoritesTab": {
@@ -2748,10 +2650,6 @@
       "music-whitelist": "播放器白名单",
       "music-lyrics": "歌词源",
       "music-smtc": "SMTC",
-      "ai": "AI Agent",
-      "general": "通用配置",
-      "r1pxc": "r1pxc Agent",
-      "ollama": "Ollama 本地",
       "shortcut": "快捷键",
       "user": "用户中心",
       "update": "更新设置",
@@ -2827,11 +2725,6 @@
     "weatherPages": {
       "location": "定位配置",
       "provider": "接口配置"
-    },
-    "aiPages": {
-      "general": "通用配置",
-      "r1pxc": "r1pxc Agent",
-      "ollama": "Ollama 本地"
     },
     "musicPages": {
       "whitelist": "白名单",
@@ -3845,72 +3738,6 @@
           "page": "第 {{page}} / {{total}} 页"
         }
       }
-    },
-    "ai": {
-      "apiKey": "API Key",
-      "apiEndpoint": "API Endpoint",
-      "model": "模型",
-      "deepseekThinking": "DeepSeek Thinking 模式",
-      "deepseekThinkingOptions": {
-        "off": "关闭",
-        "on": "开启"
-      },
-      "deepseekReasoningEffort": "DeepSeek 推理强度",
-      "mimoReasoningEffort": "Mimo 推理强度",
-      "ollamaReasoningEffort": "思考强度",
-      "customReasoningEffort": "推理强度",
-      "minimaxReasoningEffort": "MiniMax 推理强度",
-      "deepseekReasoningEffortOptions": {
-        "low": "低 (low)",
-        "medium": "中 (medium)",
-        "high": "高 (high)"
-      },
-      "mcpEndpoint": "MCP Endpoint",
-      "mcpPlaceholder": "http://localhost:3000/mcp (可选)",
-      "systemPrompt": "System Prompt",
-      "promptPlaceholder": "你是一个有用的助手。",
-      "saveTitle": "保存 (Ctrl+Enter)",
-      "editPromptTitle": "编辑 Prompt",
-      "credentialsTitle": "模型凭据",
-      "credentialsHint": "兼容 OpenAI 接口协议，填写你的 API Key、Endpoint 与模型名称",
-      "agentModel": "Agent 模型",
-      "agentModelFetching": "正在获取…",
-      "agentModelFetchBtn": "获取可用模型",
-      "agentModelDropdown": "模型下拉选择",
-      "agentModelSelectPlaceholder": "请选择模型",
-      "agentModelFetchNeedEndpoint": "请先填写 API Endpoint",
-      "agentModelFetchOk": "已获取 {{count}} 个模型",
-      "agentModelFetchEmpty": "未获取到模型，请检查接口是否支持 /models",
-      "agentModelFetchFail": "获取模型列表失败，请检查 Endpoint / Key",
-      "mcpTitle": "MCP 工具接入",
-      "mcpHint": "可选，配置 MCP 服务端点后 Agent 可调用对接的外部工具",
-      "systemPromptHint": "用于限定 Agent 的角色与风格，留空则使用默认提示词",
-      "workspaceTitle": "Agent 工作区",
-      "workspaceHint": "配置 Agent 可操作的文件目录，所有文件读写、搜索、命令执行仅限于工作区内",
-      "workspaceAdd": "+ 添加工作区文件夹",
-      "workspaceRemove": "移除",
-      "workspaceEmpty": "未配置工作区，Agent 文件操作将被禁止",
-      "ollamaTitle": "Ollama 本地模型",
-      "ollamaHint": "配置本地 Ollama 服务地址与默认模型，在模型下拉中选择 ollama 即可使用",
-      "ollamaModel": "模型名称",
-      "ollamaFetching": "正在获取…",
-      "ollamaFetchBtn": "获取本地模型列表",
-      "ollamaFetchEmpty": "未检测到本地 Ollama 模型",
-      "ollamaFetchOk": "已找到 {{count}} 个本地模型",
-      "ollamaFetchFail": "获取模型列表失败，请检查 Ollama 服务",
-      "ollamaBaseUrl": "服务地址",
-      "ollamaDetecting": "正在检测…",
-      "ollamaDetectBtn": "自动检测 Ollama 端口",
-      "ollamaDetectOk": "已检测到 {{url}}",
-      "ollamaDetectFail": "未检测到运行中的 Ollama 服务，请确认已启动 ollama serve",
-      "r1pxcConfigTitle": "r1pxc Agent 头像配置",
-      "r1pxcConfigHint": "支持拖入图片或从文件资源管理器选择，不支持 URL",
-      "r1pxcAvatarReplace": "点击或拖入图片以替换头像",
-      "r1pxcAvatarUploadHint": "拖入图片，或点击从文件资源管理器选择",
-      "r1pxcAvatarClear": "清除头像",
-      "r1pxcAvatarFileTypeError": "请选择图片文件（png/jpg/webp 等）",
-      "r1pxcAvatarReadError": "头像读取失败，请换一张图片重试",
-      "pagination": "AI 设置分页"
     },
     "about": {
       "pagination": "关于软件分页",

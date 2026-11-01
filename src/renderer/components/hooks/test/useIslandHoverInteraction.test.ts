@@ -89,7 +89,7 @@ describe('useIslandHoverInteraction 真实轮询和状态交互', () => {
     expect(input.setHover).not.toHaveBeenCalled(); outside(); await vi.advanceTimersByTimeAsync(50);
     expect(browser.api.enableMousePassthrough).toHaveBeenCalledOnce();
   });
-  it.each(['notification', 'agent', 'cli', 'guide', 'login', 'register', 'resetPassword', 'payment', 'questionnaire', 'musicProvidersLogin'] as const)('专用面板 %s 在窗口内禁用穿透，窗口外不退出', async (state) => {
+  it.each(['notification', 'cli', 'guide', 'login', 'register', 'resetPassword', 'payment', 'questionnaire', 'musicProvidersLogin'] as const)('专用面板 %s 在窗口内禁用穿透，窗口外不退出', async (state) => {
     const input = options(state); await mount(input); outside(); await vi.advanceTimersByTimeAsync(50);
     expect(browser.api.disableMousePassthrough).toHaveBeenCalledOnce(); expect(input.setHover).not.toHaveBeenCalled(); expect(input.setIdle).not.toHaveBeenCalled();
   });
