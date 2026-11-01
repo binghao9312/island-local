@@ -262,6 +262,9 @@ export interface IslandSlice {
   returnFromAuth: () => void;
   setLyrics: () => void;
   setLyricsTranslation: () => void;
+  /** 收起状态是否允许自动显示歌词行（设置项 music:lyrics-idle-display-enabled 的镜像） */
+  lyricsIdleDisplayEnabled: boolean;
+  setLyricsIdleDisplayEnabled: (enabled: boolean) => void;
   setNotification: (data: NotificationData) => void;
 
   setGuide: () => void;

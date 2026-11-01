@@ -991,6 +991,21 @@ const api = {
     return ipcRenderer.invoke('music:lyrics-translation-enabled:set', enabled);
   },
   /**
+   * 获取收起状态显示歌词开关
+   * @returns 收起状态是否显示歌词
+   */
+  musicLyricsIdleDisplayEnabledGet: (): Promise<boolean> => {
+    return ipcRenderer.invoke('music:lyrics-idle-display-enabled:get');
+  },
+  /**
+   * 设置收起状态显示歌词开关
+   * @param enabled - 是否在收起状态显示歌词
+   * @returns 是否保存成功
+   */
+  musicLyricsIdleDisplayEnabledSet: (enabled: boolean): Promise<boolean> => {
+    return ipcRenderer.invoke('music:lyrics-idle-display-enabled:set', enabled);
+  },
+  /**
    * 获取逐字扫光开关
    * @returns 是否启用逐字扫光
    */

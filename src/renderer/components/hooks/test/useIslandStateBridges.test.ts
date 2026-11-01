@@ -40,16 +40,16 @@ vi.mock('../../../store/isLandStore', async (load) => {
 });
 type Options = Parameters<typeof useIslandStateBridges>[0];
 let settings: ((channel: string, value: unknown) => void) | null;
-const enabled = vi.fn(() => Promise.resolve(true)); const translationEnabled = vi.fn(() => Promise.resolve(true));
+const enabled = vi.fn(() => Promise.resolve(true)); const translationEnabled = vi.fn(() => Promise.resolve(true)); const idleDisplayEnabled = vi.fn(() => Promise.resolve(true));
 const unsubscribeSettings = vi.fn(() => { settings = null; });
 const ipc = {
-  musicLyricsEnabledGet: enabled, musicLyricsTranslationEnabledGet: translationEnabled,
+  musicLyricsEnabledGet: enabled, musicLyricsTranslationEnabledGet: translationEnabled, musicLyricsIdleDisplayEnabledGet: idleDisplayEnabled,
   onSettingsChanged: vi.fn((callback: (channel: string, value: unknown) => void) => { settings = callback; return unsubscribeSettings; }),
 };
 beforeEach(() => {
-  resetBrowser(); enabled.mockResolvedValue(true); translationEnabled.mockResolvedValue(true); settings = null;
+  resetBrowser(); enabled.mockResolvedValue(true); translationEnabled.mockResolvedValue(true); idleDisplayEnabled.mockResolvedValue(true); settings = null;
   vi.stubGlobal('window', Object.assign(browser, { api: { ...browser.api, ...ipc } }));
-  useIslandStore.setState({ uiStateLocked: false, currentPositionMs: 0 });
+  useIslandStore.setState({ uiStateLocked: false, currentPositionMs: 0, lyricsIdleDisplayEnabled: true });
 });
 afterEach(() => { unmountHooks(); vi.unstubAllGlobals(); });
 /**
@@ -125,6 +125,20 @@ describe('useIslandStateBridges 实际状态与设置', () => {
   it('初始两个设置读取拒绝仍保持默认设置', async () => {
     enabled.mockRejectedValueOnce(new Error('offline')); translationEnabled.mockRejectedValueOnce(new Error('offline'));
     const input = options(); await mount(input); expect(input.setLyrics).toHaveBeenCalledOnce();
+  });
+  it('收起状态歌词关闭时不自动进入歌词页，设置读取后生效', async () => {
+    idleDisplayEnabled.mockResolvedValue(false);
+    const input = options(); commit(input); await settle(); vi.mocked(input.setLyrics).mockClear(); commit(input);
+    expect(useIslandStore.getState().lyricsIdleDisplayEnabled).toBe(false);
+    expect(input.setLyrics).not.toHaveBeenCalled();
+    expect(input.setLyricsTranslation).not.toHaveBeenCalled();
+  });
+  it('歌词页收到收起歌词关闭事件后回到 idle，之后不再自动切回歌词页', async () => {
+    const input = options({ state: 'lyrics' }); await mount(input);
+    browser.dispatchEvent(new CustomEvent('island:setting-changed', { detail: { channel: 'music:lyrics-idle-display-enabled', value: false } }));
+    expect(useIslandStore.getState().state).toBe('idle');
+    vi.mocked(input.setLyrics).mockClear(); commit({ ...input, state: 'idle' });
+    expect(input.setLyrics).not.toHaveBeenCalled();
   });
   it('卸载移除原生与本地设置事件监听', async () => {
     const input = options({ state: 'hover', isPlaying: false }); await mount(input); commit({ ...input, state: 'idle' });

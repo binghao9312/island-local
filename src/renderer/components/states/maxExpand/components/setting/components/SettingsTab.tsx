@@ -348,6 +348,8 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
     setLyricsEnabled,
     lyricsTranslationEnabled,
     setLyricsTranslationEnabled,
+    lyricsIdleDisplayEnabled,
+    setLyricsIdleDisplayEnabled,
     lyricsKaraoke,
     setLyricsKaraoke,
     lyricsClock,
@@ -828,6 +830,8 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
               setLyricsEnabled={setLyricsEnabled}
               lyricsTranslationEnabled={lyricsTranslationEnabled}
               setLyricsTranslationEnabled={setLyricsTranslationEnabled}
+              lyricsIdleDisplayEnabled={lyricsIdleDisplayEnabled}
+              setLyricsIdleDisplayEnabled={setLyricsIdleDisplayEnabled}
               lyricsKaraoke={lyricsKaraoke}
               setLyricsKaraoke={setLyricsKaraoke}
               lyricsClock={lyricsClock}

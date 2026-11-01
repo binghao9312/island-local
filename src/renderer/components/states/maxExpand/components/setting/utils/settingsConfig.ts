@@ -579,6 +579,7 @@ export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutDisabledEntri
   // ── 歌曲设置 > 歌词源 ──
   { label: '歌词功能', desc: '关闭后不再发送歌词相关网络请求，不显示歌词，不切换到歌词状态', labelKey: 'settings.music.lyrics.enabledTitle', descKey: 'settings.music.lyrics.enabledHint', tab: 'music', musicPage: 'lyrics' },
   { label: '翻译歌词', desc: '关闭后不显示翻译歌词，不切换到翻译歌词状态', labelKey: 'settings.music.lyrics.translationTitle', descKey: 'settings.music.lyrics.translationHint', tab: 'music', musicPage: 'lyrics' },
+  { label: '收起时显示歌词', desc: '关闭后收起状态的灵动岛不显示歌词行，其他视图中的歌词不受影响', labelKey: 'settings.music.lyrics.idleDisplayTitle', descKey: 'settings.music.lyrics.idleDisplayHint', tab: 'music', musicPage: 'lyrics' },
   { label: '歌词源', desc: '自动模式根据 SMTC 检测到的播放器进程选择对应源，失败后依次尝试其他源，最后使用 LRCLIB 兜底', labelKey: 'settings.music.lyrics.title', descKey: 'settings.music.lyrics.hint', tab: 'music', musicPage: 'lyrics' },
   { label: '歌词显示', desc: '控制歌词界面的展示效果', labelKey: 'settings.music.lyrics.displayTitle', descKey: 'settings.music.lyrics.displayHint', tab: 'music', musicPage: 'lyrics' },
   { label: '歌词校准', desc: '歌词加载后按播放时长延迟校准进度，暂停时停止计时；修改设置对当前歌曲立即生效', labelKey: 'settings.music.lyrics.calibrateTitle', descKey: 'settings.music.lyrics.calibrateHint', tab: 'music', musicPage: 'lyrics' },

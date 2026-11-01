@@ -62,7 +62,7 @@ const native = {
   expandMouseleaveIdleGet: vi.fn(() => Promise.resolve(false)), maxexpandMouseleaveIdleGet: vi.fn(() => Promise.resolve(false)),
   idleClickExpandGet: vi.fn(() => Promise.resolve(false)), springAnimationGet: vi.fn(() => Promise.resolve(true)),
   animationSpeedGet: vi.fn(() => Promise.resolve('medium')), shapeModeGet: vi.fn(() => Promise.resolve('notch')),
-  musicLyricsEnabledGet: vi.fn(() => Promise.resolve(false)), musicLyricsTranslationEnabledGet: vi.fn(() => Promise.resolve(false)),
+  musicLyricsEnabledGet: vi.fn(() => Promise.resolve(false)), musicLyricsTranslationEnabledGet: vi.fn(() => Promise.resolve(false)), musicLyricsIdleDisplayEnabledGet: vi.fn(() => Promise.resolve(true)),
   getMouseWindowState: vi.fn(() => Promise.resolve({ mousePosition: { x: -1, y: -1 }, bounds: { x: 0, y: 0, width: 100, height: 50 } })),
   getMousePosition: vi.fn(() => Promise.resolve({ x: 0, y: 0 })), moveWindowDelta: vi.fn(),
 };

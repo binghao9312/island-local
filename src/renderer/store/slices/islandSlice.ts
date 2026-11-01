@@ -117,6 +117,7 @@ export const createIslandSlice: StateCreator<
   springAnimation: true,
   animationSpeed: 'medium' as const,
   shapeMode: 'notch' as const,
+  lyricsIdleDisplayEnabled: true,
 
   setIdle: (force?: boolean) => set((prev) => {
     // 固定性能监控时拒绝一切自动收起（含 force），用户主动导航会先取消固定。
@@ -294,21 +295,49 @@ export const createIslandSlice: StateCreator<
     return { state: target, authReturnState: null };
   }),
 
-  setLyrics: () => set((prev) => {
-    if (prev.uiStateLocked && prev.state !== 'lyrics') return prev;
-    beginIslandWindowTransition(prev.state, 'lyrics');
-    window.api?.expandWindowLyrics(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
-    window.api?.enableMousePassthrough();
-    return { state: 'lyrics', authReturnState: null };
-  }),
+  /**
+   * 进入歌词状态；收起状态歌词关闭时统一退回 idle，使各回退路径（悬停离开、通知/剪贴板返回）都不再显示歌词行。
+   */
+  setLyrics: () => {
+    if (!get().lyricsIdleDisplayEnabled) {
+      if (get().state !== 'idle') get().setIdle();
+      return;
+    }
+    set((prev) => {
+      if (prev.uiStateLocked && prev.state !== 'lyrics') return prev;
+      beginIslandWindowTransition(prev.state, 'lyrics');
+      window.api?.expandWindowLyrics(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
+      window.api?.enableMousePassthrough();
+      return { state: 'lyrics', authReturnState: null };
+    });
+  },
 
-  setLyricsTranslation: () => set((prev) => {
-    if (prev.uiStateLocked && prev.state !== 'lyricsTranslation') return prev;
-    beginIslandWindowTransition(prev.state, 'lyricsTranslation');
-    window.api?.expandWindowLyricsTranslation(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
-    window.api?.enableMousePassthrough();
-    return { state: 'lyricsTranslation', authReturnState: null };
-  }),
+  /**
+   * 进入翻译歌词状态；收起状态歌词关闭时行为同 setLyrics。
+   */
+  setLyricsTranslation: () => {
+    if (!get().lyricsIdleDisplayEnabled) {
+      if (get().state !== 'idle') get().setIdle();
+      return;
+    }
+    set((prev) => {
+      if (prev.uiStateLocked && prev.state !== 'lyricsTranslation') return prev;
+      beginIslandWindowTransition(prev.state, 'lyricsTranslation');
+      window.api?.expandWindowLyricsTranslation(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
+      window.api?.enableMousePassthrough();
+      return { state: 'lyricsTranslation', authReturnState: null };
+    });
+  },
+
+  /**
+   * 更新收起状态显示歌词开关；关闭时若正处于歌词状态则立即收起到 idle。
+   * @param enabled - 是否允许收起状态显示歌词行
+   */
+  setLyricsIdleDisplayEnabled: (enabled) => {
+    set({ lyricsIdleDisplayEnabled: enabled });
+    const { state } = get();
+    if (!enabled && (state === 'lyrics' || state === 'lyricsTranslation')) get().setIdle();
+  },
 
   setNotification: (data) => set((prev) => {
     if (prev.uiStateLocked && prev.state !== 'notification') return prev;

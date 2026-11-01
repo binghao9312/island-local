@@ -571,3 +571,33 @@ describe('Island slice tab, appearance and persistence settings', () => {
     });
   });
 });
+
+describe('Island slice idle lyrics display gate', () => {
+  it('关闭收起歌词后，悬停中的歌词与翻译入口都退回 idle', () => {
+    const island = store();
+    island.getState().setLyricsIdleDisplayEnabled(false);
+    island.getState().setHover();
+    island.getState().setLyrics();
+    expect(island.getState().state).toBe('idle');
+    island.getState().setHover();
+    island.getState().setLyricsTranslation();
+    expect(island.getState().state).toBe('idle');
+    expect(api.expandWindowLyrics).not.toHaveBeenCalled();
+    expect(api.expandWindowLyricsTranslation).not.toHaveBeenCalled();
+  });
+  it('歌词页中关闭收起歌词会立即回到 idle，重新开启后恢复进入歌词页', () => {
+    const island = store();
+    island.getState().setLyrics();
+    island.getState().setLyricsIdleDisplayEnabled(false);
+    expect(island.getState().state).toBe('idle');
+    island.getState().setLyricsIdleDisplayEnabled(true);
+    island.getState().setLyrics();
+    expect(island.getState().state).toBe('lyrics');
+  });
+  it('悬停中关闭收起歌词不打断当前视图', () => {
+    const island = store();
+    island.getState().setHover();
+    island.getState().setLyricsIdleDisplayEnabled(false);
+    expect(island.getState().state).toBe('hover');
+  });
+});

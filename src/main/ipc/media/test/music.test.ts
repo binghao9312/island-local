@@ -76,6 +76,7 @@ describe('registerMusicIpcHandlers', () => {
       lyricsCalibrateDelayStoreKey: 'lyricsCalibrateDelay',
       lyricsEnabledStoreKey: 'lyricsEnabled',
       lyricsTranslationEnabledStoreKey: 'lyricsTranslationEnabled',
+      lyricsIdleDisplayEnabledStoreKey: 'lyricsIdleDisplayEnabled',
       smtcUnsubscribeStoreKey: 'smtcUnsubscribe',
       defaultLyricsKaraoke: true,
       defaultLyricsClock: false,
@@ -451,9 +452,9 @@ describe('registerMusicIpcHandlers', () => {
   // ipcMain.handle registration
   // ---------------------------------------------------------------
   describe('channel registration', () => {
-    it('registers exactly 19 IPC channels', () => {
+    it('registers exactly 21 IPC channels', () => {
       register();
-      expect(handleMock).toHaveBeenCalledTimes(19);
+      expect(handleMock).toHaveBeenCalledTimes(21);
     });
 
     it('registers all expected channels', () => {

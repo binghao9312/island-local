@@ -58,6 +58,7 @@ interface SettingsConfigurationEffectsOptions {
   setLyricsSource: ReturnType<typeof useSettingsMusic>['setLyricsSource'];
   setLyricsEnabled: ReturnType<typeof useSettingsMusic>['setLyricsEnabled'];
   setLyricsTranslationEnabled: ReturnType<typeof useSettingsMusic>['setLyricsTranslationEnabled'];
+  setLyricsIdleDisplayEnabled: ReturnType<typeof useSettingsMusic>['setLyricsIdleDisplayEnabled'];
   setLyricsKaraoke: ReturnType<typeof useSettingsMusic>['setLyricsKaraoke'];
   setLyricsClock: ReturnType<typeof useSettingsMusic>['setLyricsClock'];
   setLyricsCalibrateEnabled: ReturnType<typeof useSettingsMusic>['setLyricsCalibrateEnabled'];
@@ -108,6 +109,7 @@ export function useSettingsConfigurationEffects(options: SettingsConfigurationEf
     setLyricsSource,
     setLyricsEnabled,
     setLyricsTranslationEnabled,
+    setLyricsIdleDisplayEnabled,
     setLyricsKaraoke,
     setLyricsClock,
     setLyricsCalibrateEnabled,
@@ -170,6 +172,10 @@ export function useSettingsConfigurationEffects(options: SettingsConfigurationEf
     window.api.musicLyricsTranslationEnabledGet().then((enabled) => {
       if (cancelled) return;
       setLyricsTranslationEnabled(enabled);
+    }).catch(() => { });
+    window.api.musicLyricsIdleDisplayEnabledGet().then((enabled) => {
+      if (cancelled) return;
+      setLyricsIdleDisplayEnabled(enabled);
     }).catch(() => { });
     window.api.musicLyricsKaraokeGet().then((enabled) => {
       if (cancelled) return;

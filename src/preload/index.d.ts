@@ -218,6 +218,8 @@ declare global {
       musicLyricsEnabledSet: (enabled: boolean) => Promise<boolean>;
       musicLyricsTranslationEnabledGet: () => Promise<boolean>;
       musicLyricsTranslationEnabledSet: (enabled: boolean) => Promise<boolean>;
+      musicLyricsIdleDisplayEnabledGet: () => Promise<boolean>;
+      musicLyricsIdleDisplayEnabledSet: (enabled: boolean) => Promise<boolean>;
       musicLyricsKaraokeGet: () => Promise<boolean>;
       musicLyricsKaraokeSet: (enabled: boolean) => Promise<boolean>;
       musicLyricsClockGet: () => Promise<boolean>;

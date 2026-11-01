@@ -200,6 +200,8 @@ const TRANSPORT_ROUTES = [
   ['musicLyricsEnabledSet', 'music:lyrics-enabled:set', 1, 'invoke'],
   ['musicLyricsTranslationEnabledGet', 'music:lyrics-translation-enabled:get', 0, 'invoke'],
   ['musicLyricsTranslationEnabledSet', 'music:lyrics-translation-enabled:set', 1, 'invoke'],
+  ['musicLyricsIdleDisplayEnabledGet', 'music:lyrics-idle-display-enabled:get', 0, 'invoke'],
+  ['musicLyricsIdleDisplayEnabledSet', 'music:lyrics-idle-display-enabled:set', 1, 'invoke'],
   ['musicLyricsKaraokeGet', 'music:lyrics-karaoke:get', 0, 'invoke'],
   ['musicLyricsKaraokeSet', 'music:lyrics-karaoke:set', 1, 'invoke'],
   ['musicLyricsClockGet', 'music:lyrics-clock:get', 0, 'invoke'],

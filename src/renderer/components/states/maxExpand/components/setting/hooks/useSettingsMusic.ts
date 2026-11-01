@@ -47,6 +47,7 @@ export function useSettingsMusic(options: SettingsMusicOptions) {
   const [lyricsSource, setLyricsSource] = useState<string>('auto');
   const [lyricsEnabled, setLyricsEnabled] = useState<boolean>(true);
   const [lyricsTranslationEnabled, setLyricsTranslationEnabled] = useState<boolean>(true);
+  const [lyricsIdleDisplayEnabled, setLyricsIdleDisplayEnabled] = useState<boolean>(true);
   const [lyricsKaraoke, setLyricsKaraoke] = useState<boolean>(false);
   const [lyricsClock, setLyricsClock] = useState<boolean>(true);
   const [lyricsCalibrateEnabled, setLyricsCalibrateEnabled] = useState<boolean>(true);
@@ -125,6 +126,8 @@ export function useSettingsMusic(options: SettingsMusicOptions) {
     setLyricsEnabled,
     lyricsTranslationEnabled,
     setLyricsTranslationEnabled,
+    lyricsIdleDisplayEnabled,
+    setLyricsIdleDisplayEnabled,
     lyricsKaraoke,
     setLyricsKaraoke,
     lyricsClock,
