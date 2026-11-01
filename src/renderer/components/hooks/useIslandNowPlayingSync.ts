@@ -251,6 +251,10 @@ export function useIslandNowPlayingSync(options: UseIslandNowPlayingSyncOptions)
 
     const unsubscribeCalibration = window.api?.onSettingsChanged?.((channel, value) => {
       if (disposed) return;
+      if (channel === 'music:lyrics-enabled' && typeof value === 'boolean') {
+        handleLyricsEnabledChanged(value);
+        return;
+      }
       if (channel === 'music:lyrics-calibrate-enabled' && typeof value === 'boolean') {
         calibrationEnabled = value;
         calibrationEnabledVersion += 1;
@@ -264,8 +268,10 @@ export function useIslandNowPlayingSync(options: UseIslandNowPlayingSyncOptions)
       else logCalibrationStatus(calibrationEnabled ? 'waiting-lyrics' : 'disabled', calibrationEnabled ? '校准已启用，等待歌词加载' : '校准已关闭，已取消待执行校准');
     });
 
+    let lastInfo: NowPlayingInfo | null = null;
     const applyNowPlaying = (info: NowPlayingInfo | null): void => {
       if (disposed) return;
+      lastInfo = info;
       timelineVersion += 1;
       handleNowPlayingUpdateRef.current(info);
       const nextPlaying = Boolean(info?.title && info.isPlaying);
@@ -303,7 +309,6 @@ export function useIslandNowPlayingSync(options: UseIslandNowPlayingSyncOptions)
         clearCalibration();
         setSyncedLyricsRef.current(null);
         setTranslationLyricsRef.current(null);
-        setLyricsLoadingRef.current(true);
         const capturedVersion = requestVersion;
         const isCurrent = () => !disposed && requestVersion === capturedVersion;
         const title = info!.title;
@@ -325,6 +330,8 @@ export function useIslandNowPlayingSync(options: UseIslandNowPlayingSyncOptions)
             logCalibrationStatus('skipped', '歌词功能已关闭，不启动校准', { reason: 'lyrics-disabled' });
             return;
           }
+          // 开关确认开启后才进入加载态，关闭时不出现“正在加载歌词”占位。
+          setLyricsLoadingRef.current(true);
 
           let translationEnabled = true;
           try {
@@ -442,6 +449,29 @@ export function useIslandNowPlayingSync(options: UseIslandNowPlayingSyncOptions)
       reconcileProgress();
     };
 
+    // 歌词开关在播放中切换：关闭时丢弃在途请求并清空歌词，开启时为当前曲目重新加载。
+    const handleLyricsEnabledChanged = (enabled: boolean): void => {
+      if (disposed) return;
+      if (!enabled) {
+        requestVersion += 1;
+        hasLyrics = false;
+        clearCalibration();
+        setSyncedLyricsRef.current(null);
+        setTranslationLyricsRef.current(null);
+        setLyricsLoadingRef.current(false);
+        return;
+      }
+      if (lastInfo?.title) {
+        songKeyRef.current = '';
+        applyNowPlaying(lastInfo);
+      }
+    };
+    const onLocalLyricsEnabled = (event: Event): void => {
+      const detail = (event as CustomEvent<{ channel?: unknown; value?: unknown }>).detail;
+      if (detail?.channel === 'music:lyrics-enabled' && typeof detail.value === 'boolean') handleLyricsEnabledChanged(detail.value);
+    };
+    window.addEventListener?.('island:setting-changed', onLocalLyricsEnabled);
+
     let receivedBroadcast = false;
     const unsubscribe = window.api?.onNowPlayingInfo((info: NowPlayingInfo | null) => {
       receivedBroadcast = true;
@@ -467,6 +497,7 @@ export function useIslandNowPlayingSync(options: UseIslandNowPlayingSyncOptions)
       songKeyRef.current = '';
       unsubscribe?.();
       unsubscribeCalibration?.();
+      window.removeEventListener?.('island:setting-changed', onLocalLyricsEnabled);
       stopProgress();
       clearCalibration();
     };

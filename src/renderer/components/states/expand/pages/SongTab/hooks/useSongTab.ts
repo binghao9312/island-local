@@ -51,10 +51,24 @@ export function useSongTab(): UseSongTabReturn {
 
   const [now, setNow] = useState(new Date());
   const [karaokeEnabled, setKaraokeEnabled] = useState(false);
+  const [lyricsEnabled, setLyricsEnabled] = useState(true);
 
   /** 加载逐字扫光配置 */
   useEffect(() => {
     window.api?.musicLyricsKaraokeGet().then(setKaraokeEnabled).catch(() => {});
+  }, []);
+
+  /** 加载并监听歌词功能开关，关闭时不显示歌词占位 */
+  useEffect(() => {
+    window.api?.musicLyricsEnabledGet?.().then(setLyricsEnabled).catch(() => {});
+    const handler = (event: Event): void => {
+      const detail = (event as CustomEvent<{ channel?: unknown; value?: unknown }>).detail;
+      if (detail?.channel === 'music:lyrics-enabled' && typeof detail.value === 'boolean') {
+        setLyricsEnabled(detail.value);
+      }
+    };
+    window.addEventListener?.('island:setting-changed', handler);
+    return () => window.removeEventListener?.('island:setting-changed', handler);
   }, []);
 
   /** 时钟 + 倒计时刷新 */
@@ -102,6 +116,7 @@ export function useSongTab(): UseSongTabReturn {
     mediaInfo,
     syncedLyrics,
     lyricsLoading,
+    lyricsEnabled,
     coverImage,
     dominantColor,
     weather,

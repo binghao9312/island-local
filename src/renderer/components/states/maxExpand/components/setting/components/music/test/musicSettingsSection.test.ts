@@ -125,6 +125,12 @@ describe('MusicSettingsSection', () => {
     invoke(toggle, 'onChange', { target: { checked: false } });
     expect(storage.setItem).toHaveBeenCalledWith('island_lyrics_convert_traditional', 'false');
   });
+  it('marks the lyrics switch as beta with a hint line', () => {
+    const tree = MusicSettingsSection({ ...makeProps(), musicSettingsPage: 'lyrics' as const, lyricsEnabled: true });
+    expect(textContent(tree)).toContain('settings.music.lyrics.betaHint');
+    const title = findElement(tree, (n) => elementProps(n).className === 'settings-card-title');
+    expect(findElement(title, (n) => typeof n.type === 'function' && n.type.name === 'BetaBadge')).toBeTruthy();
+  });
   it('gates logged-in provider mode and opens login for an unauthenticated provider', () => {
     resetState([false, false, false, 'guest']);
     const tree = MusicSettingsSection({ ...makeProps(), musicSettingsPage: 'providers' });

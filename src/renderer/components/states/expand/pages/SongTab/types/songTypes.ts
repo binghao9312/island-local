@@ -81,6 +81,7 @@ export interface UseSongTabReturn {
   mediaInfo: IIslandStore['mediaInfo'];
   syncedLyrics: SyncedLyricLine[] | null;
   lyricsLoading: boolean;
+  lyricsEnabled: boolean;
   coverImage: IIslandStore['coverImage'];
   dominantColor: RgbColor;
   weather: IIslandStore['weather'];

@@ -83,6 +83,17 @@ describe('SongTab', () => {
     expect(text(nodes(tree, '.current'))).toBe('line3');
   });
 
+  it('歌词功能关闭时不显示加载中或暂无歌词占位', async () => {
+    mocks.state.isMusicPlaying = true; mocks.state.lyricsLoading = true;
+    vi.stubGlobal('window', { api: { musicLyricsKaraokeGet: mocks.karaoke, musicLyricsEnabledGet: vi.fn().mockResolvedValue(false) } });
+    render(SongTab);
+    const cleanup = flushEffects(); await Promise.resolve();
+    expect(nodes(render(SongTab), '.ov-lrc-loading-dot')).toHaveLength(0);
+    mocks.state.lyricsLoading = false;
+    expect(text(render(SongTab))).not.toContain('songTab.lyrics.empty');
+    cleanup.forEach((fn) => fn());
+  });
+
   it('逐字模式传递真实音节进度，零时长和已完成音节正确限制到边界', async () => {
     mocks.state.isMusicPlaying = true; mocks.state.currentPositionMs = 1500;
     mocks.state.syncedLyrics = [{ time_ms: 1000, text: 'ABC', syllables: [

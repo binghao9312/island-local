@@ -28,9 +28,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { LyricsFetchResult } from '../../../api/lyrics/lrcApi';
 import type { NowPlayingInfo } from '../../../store/types';
 
-const { useEffectMock, fetchLyricsMock } = vi.hoisted(() => ({
+const { useEffectMock, fetchLyricsMock, fetchKaraokeMock } = vi.hoisted(() => ({
   useEffectMock: vi.fn(),
   fetchLyricsMock: vi.fn(),
+  fetchKaraokeMock: vi.fn(),
 }));
 
 vi.mock('react', () => ({
@@ -39,13 +40,15 @@ vi.mock('react', () => ({
   useRef: (value: unknown) => ({ current: value }),
 }));
 vi.mock('../../../api/lyrics/lrcApi', () => ({ fetchLyricsWithTranslation: fetchLyricsMock }));
-vi.mock('../../../api/lyrics/lrcs/karaoke', () => ({ fetchKaraokeLyrics: vi.fn() }));
+vi.mock('../../../api/lyrics/lrcs/karaoke', () => ({ fetchKaraokeLyrics: fetchKaraokeMock }));
 
 let onNowPlaying: (info: NowPlayingInfo | null) => void;
 let cleanup: (() => void) | undefined;
 const unsubscribe = vi.fn();
 const timestamp = vi.fn();
 const lyricsEnabled = vi.fn();
+const karaokeGet = vi.fn();
+const settingsListeners = new Set<(channel: string, value: unknown) => void>();
 const options = {
   handleNowPlayingUpdate: vi.fn(),
   updateProgress: vi.fn<(position: number) => void>(),
@@ -69,6 +72,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   lyricsEnabled.mockResolvedValue(false);
   fetchLyricsMock.mockResolvedValue(result);
+  karaokeGet.mockResolvedValue(false);
+  settingsListeners.clear();
   timestamp.mockResolvedValue({ isAvailable: false });
   cleanup = undefined;
   useEffectMock.mockImplementation((effect: () => (() => void)) => { cleanup = effect(); });
@@ -76,7 +81,11 @@ beforeEach(() => {
     onNowPlayingInfo: (listener: typeof onNowPlaying) => { onNowPlaying = listener; return unsubscribe; },
     musicLyricsEnabledGet: lyricsEnabled,
     musicLyricsTranslationEnabledGet: vi.fn().mockResolvedValue(true),
-    musicLyricsKaraokeGet: vi.fn().mockResolvedValue(false),
+    musicLyricsKaraokeGet: karaokeGet,
+    onSettingsChanged: (listener: (channel: string, value: unknown) => void) => {
+      settingsListeners.add(listener);
+      return () => settingsListeners.delete(listener);
+    },
     musicLyricsCalibrateEnabledGet: vi.fn().mockResolvedValue(true),
     musicLyricsCalibrateDelayGet: vi.fn().mockResolvedValue(20),
     smtcGetTimestamp: timestamp,
@@ -196,5 +205,53 @@ describe('useIslandNowPlayingSync lifecycle', () => {
     onNowPlaying(song);
     await vi.advanceTimersByTimeAsync(20000);
     expect(timestamp).toHaveBeenCalledOnce();
+  });
+
+  it('makes no lyric request and shows no loading placeholder while the lyrics switch is off', async () => {
+    lyricsEnabled.mockResolvedValue(false);
+    karaokeGet.mockResolvedValue(true);
+    await mount();
+    onNowPlaying(song);
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(fetchLyricsMock).not.toHaveBeenCalled();
+    expect(fetchKaraokeMock).not.toHaveBeenCalled();
+    expect(options.setLyricsLoading).not.toHaveBeenCalledWith(true);
+    expect(options.setLyricsLoading).toHaveBeenLastCalledWith(false);
+    expect(options.setSyncedLyrics).not.toHaveBeenCalledWith(expect.arrayContaining([expect.anything()]));
+  });
+
+  it('fetches lyrics and enters the loading state while the lyrics switch is on', async () => {
+    lyricsEnabled.mockResolvedValue(true);
+    await mount();
+    onNowPlaying(song);
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(options.setLyricsLoading).toHaveBeenCalledWith(true);
+    expect(fetchLyricsMock).toHaveBeenCalledOnce();
+    expect(options.setSyncedLyrics).toHaveBeenLastCalledWith(result.lyrics);
+    expect(options.setLyricsLoading).toHaveBeenLastCalledWith(false);
+  });
+
+  it('drops in-flight lyrics when the switch is turned off mid-song and refetches when turned on', async () => {
+    lyricsEnabled.mockResolvedValue(true);
+    let resolveLyrics!: (value: LyricsFetchResult) => void;
+    fetchLyricsMock.mockReturnValueOnce(new Promise<LyricsFetchResult>((resolve) => { resolveLyrics = resolve; }));
+    await mount();
+    onNowPlaying(song);
+    await vi.advanceTimersByTimeAsync(0);
+    settingsListeners.forEach((listener) => listener('music:lyrics-enabled', false));
+    options.setSyncedLyrics.mockClear();
+    resolveLyrics(result);
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(options.setSyncedLyrics).not.toHaveBeenCalledWith(result.lyrics);
+    expect(options.setLyricsLoading).toHaveBeenLastCalledWith(false);
+    expect(fetchLyricsMock).toHaveBeenCalledOnce();
+
+    settingsListeners.forEach((listener) => listener('music:lyrics-enabled', true));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(fetchLyricsMock).toHaveBeenCalledTimes(2);
+    expect(options.setSyncedLyrics).toHaveBeenLastCalledWith(result.lyrics);
   });
 });

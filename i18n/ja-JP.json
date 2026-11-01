@@ -1,6 +1,7 @@
 {
   "common": {
     "appName": "eIsland",
+    "beta": "ベータ",
     "errors": {
       "complexMode": "虚数単位 i を含む式は複素数モードで計算してください",
       "rootMountNotFound": "#root マウントノードが見つかりません"
@@ -3568,6 +3569,7 @@
         "enabledTitle": "歌詞機能",
         "enabledHint": "無効にすると、歌詞のネットワークリクエストを送信せず、歌詞の表示や歌詞状態への切り替えも行いません",
         "enabledToggle": "歌詞機能を有効にする",
+        "betaHint": "歌詞機能はベータ版です。取得元やタイミングが不正確な場合があります",
         "translationTitle": "歌詞の翻訳",
         "translationHint": "無効にすると、歌詞の翻訳を表示せず、翻訳歌詞状態への切り替えも行いません",
         "translationToggle": "歌詞の翻訳を表示",

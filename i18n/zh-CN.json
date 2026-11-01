@@ -1,6 +1,7 @@
 {
   "common": {
     "appName": "eIsland",
+    "beta": "Beta",
     "errors": {
       "complexMode": "含虚数单位 i 的公式请使用复数界面",
       "rootMountNotFound": "未找到 #root 挂载节点"
@@ -3568,6 +3569,7 @@
         "enabledTitle": "歌词功能",
         "enabledHint": "关闭后不再发送歌词相关网络请求，不显示歌词，不切换到歌词状态",
         "enabledToggle": "启用歌词功能",
+        "betaHint": "歌词功能目前处于 Beta 阶段，歌词来源与时间轴可能不准确",
         "translationTitle": "翻译歌词",
         "translationHint": "关闭后不显示翻译歌词，不切换到翻译歌词状态",
         "translationToggle": "显示翻译歌词",

@@ -48,6 +48,7 @@ export function SongTab(): ReactElement {
     mediaInfo,
     syncedLyrics,
     lyricsLoading,
+    lyricsEnabled,
     coverImage,
     dominantColor,
     weather,
@@ -103,7 +104,7 @@ export function SongTab(): ReactElement {
 
       {/* ========== 中栏：歌词 ========== */}
       <div className="ov-center">
-        {lyricsLoading && (
+        {lyricsEnabled && lyricsLoading && (
           <div className="ov-lrc-loading">
             <span className="ov-lrc-loading-dot" />
             <span className="ov-lrc-loading-dot" />
@@ -111,7 +112,7 @@ export function SongTab(): ReactElement {
             <span className="ov-lrc-loading-label">{t('songTab.lyrics.loading', { defaultValue: '正在加载歌词' })}</span>
           </div>
         )}
-        {!lyricsLoading && !hasLyrics && isMusicPlaying && <span className="ov-lrc-hint">{t('songTab.lyrics.empty', { defaultValue: '暂无歌词' })}</span>}
+        {lyricsEnabled && !lyricsLoading && !hasLyrics && isMusicPlaying && <span className="ov-lrc-hint">{t('songTab.lyrics.empty', { defaultValue: '暂无歌词' })}</span>}
         {!isMusicPlaying && (
           <div className="ov-onboarding">
             <div className="ov-onboarding-title">{t('songTab.onboarding.title', { defaultValue: '音乐总览' })}</div>

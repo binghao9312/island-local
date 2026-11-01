@@ -2583,6 +2583,22 @@
   flex-shrink: 0;
 }
 
+/* Beta 徽标 */
+.settings-beta-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 5px;
+  border: 1px solid rgba(var(--color-text-rgb), 0.25);
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  color: rgba(var(--color-text-rgb), 0.55);
+}
+
 /* 歌词源选择 */
 .settings-lyrics-source-options {
   display: flex;
