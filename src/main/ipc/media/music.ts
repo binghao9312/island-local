@@ -29,6 +29,7 @@ import { ipcMain } from 'electron';
 import { join } from 'path';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { broadcastSettingChange } from '../../utils/broadcast';
+import { sanitizeLyricsFontSize } from '../../../shared/lyricsFontSize';
 
 interface RegisterMusicIpcHandlersOptions {
   storeDir: string;
@@ -38,6 +39,7 @@ interface RegisterMusicIpcHandlersOptions {
   lyricsClockStoreKey: string;
   lyricsCalibrateEnabledStoreKey: string;
   lyricsCalibrateDelayStoreKey: string;
+  lyricsFontSizeStoreKey: string;
   lyricsEnabledStoreKey: string;
   lyricsTranslationEnabledStoreKey: string;
   lyricsIdleDisplayEnabledStoreKey: string;
@@ -46,6 +48,7 @@ interface RegisterMusicIpcHandlersOptions {
   defaultLyricsClock: boolean;
   defaultLyricsCalibrateEnabled: boolean;
   defaultLyricsCalibrateDelay: number;
+  defaultLyricsFontSize: number;
   getWhitelist: () => string[];
   setWhitelist: (list: string[]) => void;
   readLyricsSourceConfig: () => string;
@@ -254,6 +257,30 @@ export function registerMusicIpcHandlers(options: RegisterMusicIpcHandlersOption
       return true;
     } catch (err) {
       console.error('[LyricsCalibrateDelay] persist error:', err);
+      return false;
+    }
+  });
+
+  ipcMain.handle('music:lyrics-font-size:get', () => {
+    try {
+      const filePath = join(options.storeDir, `${options.lyricsFontSizeStoreKey}.json`);
+      if (!existsSync(filePath)) return options.defaultLyricsFontSize;
+      const raw = readFileSync(filePath, 'utf-8');
+      return sanitizeLyricsFontSize(JSON.parse(raw), options.defaultLyricsFontSize);
+    } catch {
+      return options.defaultLyricsFontSize;
+    }
+  });
+
+  ipcMain.handle('music:lyrics-font-size:set', (event, fontSize: number) => {
+    try {
+      const sanitized = sanitizeLyricsFontSize(fontSize, options.defaultLyricsFontSize);
+      const filePath = join(options.storeDir, `${options.lyricsFontSizeStoreKey}.json`);
+      writeFileSync(filePath, JSON.stringify(sanitized, null, 2), 'utf-8');
+      broadcastSettingChange(event.sender.id, 'music:lyrics-font-size', sanitized);
+      return true;
+    } catch (err) {
+      console.error('[LyricsFontSize] persist error:', err);
       return false;
     }
   });

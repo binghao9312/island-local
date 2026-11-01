@@ -117,6 +117,26 @@ describe('SongTab', () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
+  it('歌词字号读取设置并写入中栏变量，设置变更事件即时生效且限制在合法范围', async () => {
+    const listeners = new Map<string, (event: Event) => void>();
+    const fontSizeGet = vi.fn().mockResolvedValue(24);
+    vi.stubGlobal('window', {
+      addEventListener: (name: string, fn: (event: Event) => void) => { listeners.set(name, fn); },
+      removeEventListener: vi.fn(),
+      api: { musicLyricsKaraokeGet: mocks.karaoke, musicLyricsFontSizeGet: fontSizeGet },
+    });
+    mocks.state.isMusicPlaying = true;
+    render(SongTab);
+    const cleanup = flushEffects(); await Promise.resolve(); await Promise.resolve();
+    expect(fontSizeGet).toHaveBeenCalledOnce();
+    expect(value(render(SongTab), '.ov-center', 'style')).toEqual({ '--ov-lrc-font-size': '24px' });
+    listeners.get('island:setting-changed')?.({ detail: { channel: 'music:lyrics-font-size', value: 30 } } as unknown as Event);
+    expect(value(render(SongTab), '.ov-center', 'style')).toEqual({ '--ov-lrc-font-size': '28px' });
+    listeners.get('island:setting-changed')?.({ detail: { channel: 'music:lyrics-karaoke', value: true } } as unknown as Event);
+    expect(value(render(SongTab), '.ov-center', 'style')).toEqual({ '--ov-lrc-font-size': '28px' });
+    cleanup.forEach((fn) => fn());
+  });
+
   it.each([
     { ms: -1, key: 'expired' }, { ms: 2 * 86400000, key: 'dayHour' },
     { ms: 2 * 3600000, key: 'hourMinute' }, { ms: 5 * 60000, key: 'minute' },

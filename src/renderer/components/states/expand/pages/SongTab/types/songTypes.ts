@@ -82,6 +82,7 @@ export interface UseSongTabReturn {
   syncedLyrics: SyncedLyricLine[] | null;
   lyricsLoading: boolean;
   lyricsEnabled: boolean;
+  lyricsFontSize: number;
   coverImage: IIslandStore['coverImage'];
   dominantColor: RgbColor;
   weather: IIslandStore['weather'];

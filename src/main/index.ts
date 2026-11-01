@@ -106,7 +106,7 @@ import {
   DEFAULT_ISLAND_DISPLAY_SELECTION,
   WHITELIST_STORE_KEY, LYRICS_SOURCE_STORE_KEY,
   LYRICS_KARAOKE_STORE_KEY, LYRICS_CLOCK_STORE_KEY,
-  LYRICS_CALIBRATE_ENABLED_STORE_KEY, LYRICS_CALIBRATE_DELAY_STORE_KEY,
+  LYRICS_CALIBRATE_ENABLED_STORE_KEY, LYRICS_CALIBRATE_DELAY_STORE_KEY, LYRICS_FONT_SIZE_STORE_KEY,
   LYRICS_ENABLED_STORE_KEY, LYRICS_TRANSLATION_ENABLED_STORE_KEY, LYRICS_IDLE_DISPLAY_ENABLED_STORE_KEY,
   GMAIL_REMINDERS_ENABLED_STORE_KEY,
   SMTC_UNSUBSCRIBE_MS_STORE_KEY, HIDE_PROCESS_LIST_STORE_KEY,
@@ -138,6 +138,7 @@ import {
   readFirstLaunchConfig, writeFirstLaunchConfig, readStandaloneWindowModeEnabledConfig,
   STANDALONE_WINDOW_MODE_STORE_KEY, LEGACY_STANDALONE_WINDOW_MODE_STORE_KEY, APP_LANGUAGE_STORE_KEY,
 } from './config/storeConfig';
+import { LYRICS_FONT_SIZE_DEFAULT } from '../shared/lyricsFontSize';
 import { isIslandAlwaysOnTop, restoreIslandAlwaysOnTop } from './window/islandAlwaysOnTop';
 import { isIslandShown, showIsland } from './window/islandVisibility';
 import type { IslandPositionOffset } from './config/storeConfig';
@@ -563,6 +564,7 @@ function registerIpcHandlers(): void {
     lyricsClockStoreKey: LYRICS_CLOCK_STORE_KEY,
     lyricsCalibrateEnabledStoreKey: LYRICS_CALIBRATE_ENABLED_STORE_KEY,
     lyricsCalibrateDelayStoreKey: LYRICS_CALIBRATE_DELAY_STORE_KEY,
+    lyricsFontSizeStoreKey: LYRICS_FONT_SIZE_STORE_KEY,
     lyricsEnabledStoreKey: LYRICS_ENABLED_STORE_KEY,
     lyricsTranslationEnabledStoreKey: LYRICS_TRANSLATION_ENABLED_STORE_KEY,
     lyricsIdleDisplayEnabledStoreKey: LYRICS_IDLE_DISPLAY_ENABLED_STORE_KEY,
@@ -571,6 +573,7 @@ function registerIpcHandlers(): void {
     defaultLyricsClock: true,
     defaultLyricsCalibrateEnabled: true,
     defaultLyricsCalibrateDelay: 20,
+    defaultLyricsFontSize: LYRICS_FONT_SIZE_DEFAULT,
     getWhitelist: () => nowPlayingWhitelist,
     setWhitelist: (list) => {
       nowPlayingWhitelist = list;

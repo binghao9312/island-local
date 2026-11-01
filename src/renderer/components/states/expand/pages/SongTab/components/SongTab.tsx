@@ -50,6 +50,7 @@ export function SongTab(): ReactElement {
     syncedLyrics,
     lyricsLoading,
     lyricsEnabled,
+    lyricsFontSize,
     coverImage,
     dominantColor,
     weather,
@@ -111,7 +112,7 @@ export function SongTab(): ReactElement {
       </div>
 
       {/* ========== 中栏：歌词 ========== */}
-      <div className="ov-center">
+      <div className="ov-center" style={{ '--ov-lrc-font-size': `${lyricsFontSize}px` } as CSSProperties}>
         {lyricsEnabled && lyricsLoading && (
           <div className="ov-lrc-loading">
             <span className="ov-lrc-loading-dot" />

@@ -51,7 +51,8 @@ const api = {
   musicLyricsKaraokeSet: vi.fn<(value: unknown) => Promise<void>>(),
   musicLyricsClockSet: vi.fn<(value: unknown) => Promise<void>>(),
   musicLyricsCalibrateEnabledSet: vi.fn<(value: unknown) => Promise<void>>(),
-  musicLyricsCalibrateDelaySet: vi.fn<(value: unknown) => Promise<void>>()
+  musicLyricsCalibrateDelaySet: vi.fn<(value: unknown) => Promise<void>>(),
+  musicLyricsFontSizeSet: vi.fn<(value: unknown) => Promise<boolean>>()
 };
 const dispatchEvent = vi.fn<(event: CustomEvent<{ channel: string; value: boolean }> ) => boolean>();
 let props: ComponentProps<typeof MusicSettingsSection>;
@@ -90,6 +91,8 @@ function makeProps(): ComponentProps<typeof MusicSettingsSection> {
     setLyricsCalibrateEnabled: vi.fn(),
     lyricsCalibrateDelay: 10,
     setLyricsCalibrateDelay: vi.fn(),
+    lyricsFontSize: 18,
+    setLyricsFontSize: vi.fn(),
     musicSmtcUnsubscribeInput: '',
     setMusicSmtcUnsubscribeInput: vi.fn(),
     musicSmtcNeverUnsubscribe: false,
@@ -139,6 +142,7 @@ beforeEach(() => {
   [api.musicWhitelistSet, api.musicLyricsEnabledSet, api.musicLyricsTranslationEnabledSet, api.musicLyricsSourceSet, api.musicLyricsKaraokeSet, api.musicLyricsClockSet, api.musicLyricsCalibrateEnabledSet, api.musicLyricsCalibrateDelaySet].forEach((mock) => {
     mock.mockResolvedValue(undefined);
   });
+  api.musicLyricsFontSizeSet.mockResolvedValue(true);
   vi.stubGlobal('window', {
     api,
     dispatchEvent
@@ -325,6 +329,22 @@ describe('歌词真实事件与边界', () => {
     await settle();
     expect(props.setLyricsCalibrateDelay).toHaveBeenCalledWith(expected);
     expect(api.musicLyricsCalibrateDelaySet).toHaveBeenCalledWith(expected);
+  });
+
+  it('歌词字号滑块夹取到合法范围后持久化并分发设置事件', async () => {
+    props.musicSettingsPage = 'lyrics';
+    invoke(findElement(render(), (node) => node.type === 'input' && elementProps(node).type === 'range'), 'onChange', {
+      target: {
+        value: '99'
+      }
+    });
+    await settle();
+    expect(props.setLyricsFontSize).toHaveBeenCalledWith(28);
+    expect(api.musicLyricsFontSizeSet).toHaveBeenCalledWith(28);
+    expect(dispatchEvent.mock.calls.map(([event]) => event.detail)).toEqual([{
+      channel: 'music:lyrics-font-size',
+      value: 28
+    }]);
   });
 });
 describe('SMTC保存与反馈', () => {

@@ -74,6 +74,7 @@ describe('registerMusicIpcHandlers', () => {
       lyricsClockStoreKey: 'lyricsClock',
       lyricsCalibrateEnabledStoreKey: 'lyricsCalibrateEnabled',
       lyricsCalibrateDelayStoreKey: 'lyricsCalibrateDelay',
+      lyricsFontSizeStoreKey: 'lyricsFontSize',
       lyricsEnabledStoreKey: 'lyricsEnabled',
       lyricsTranslationEnabledStoreKey: 'lyricsTranslationEnabled',
       lyricsIdleDisplayEnabledStoreKey: 'lyricsIdleDisplayEnabled',
@@ -82,6 +83,7 @@ describe('registerMusicIpcHandlers', () => {
       defaultLyricsClock: false,
       defaultLyricsCalibrateEnabled: true,
       defaultLyricsCalibrateDelay: 20,
+      defaultLyricsFontSize: 18,
       getWhitelist: () => ['app-a', 'app-b'],
       setWhitelist: vi.fn(),
       readLyricsSourceConfig: () => 'netease',
@@ -202,6 +204,92 @@ describe('registerMusicIpcHandlers', () => {
       register();
       expect(call('music:lyrics-source:set', 'netease')).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith('[LyricsSource] persist error:', expect.any(Error));
+      consoleSpy.mockRestore();
+    });
+  });
+
+  // ---------------------------------------------------------------
+  // lyrics-font-size:get / set
+  // ---------------------------------------------------------------
+  describe('music:lyrics-font-size:get', () => {
+    it('returns the stored font size when the file holds a valid number', () => {
+      existsSyncMock.mockReturnValue(true);
+      readFileSyncMock.mockReturnValue('24');
+      register();
+      expect(call('music:lyrics-font-size:get')).toBe(24);
+    });
+
+    it('returns the default when the file does not exist', () => {
+      existsSyncMock.mockReturnValue(false);
+      register({ defaultLyricsFontSize: 18 });
+      expect(call('music:lyrics-font-size:get')).toBe(18);
+    });
+
+    it('clamps an out-of-range stored value into the allowed range', () => {
+      existsSyncMock.mockReturnValue(true);
+      readFileSyncMock.mockReturnValue('99');
+      register();
+      expect(call('music:lyrics-font-size:get')).toBe(28);
+    });
+
+    it('returns the default when the stored content is not a number', () => {
+      existsSyncMock.mockReturnValue(true);
+      readFileSyncMock.mockReturnValue('"big"');
+      register({ defaultLyricsFontSize: 18 });
+      expect(call('music:lyrics-font-size:get')).toBe(18);
+    });
+
+    it('returns the default when reading throws', () => {
+      existsSyncMock.mockReturnValue(true);
+      readFileSyncMock.mockImplementation(() => {
+        throw new Error('read error');
+      });
+      register({ defaultLyricsFontSize: 18 });
+      expect(call('music:lyrics-font-size:get')).toBe(18);
+    });
+  });
+
+  describe('music:lyrics-font-size:set', () => {
+    it('persists the rounded value, broadcasts it to other windows and returns true', () => {
+      register();
+      expect(call('music:lyrics-font-size:set', 20.4)).toBe(true);
+      expect(writeFileSyncMock).toHaveBeenCalledWith(
+        join('C:/store', 'lyricsFontSize.json'),
+        JSON.stringify(20, null, 2),
+        'utf-8',
+      );
+      expect(broadcastSettingChangeMock).toHaveBeenCalledWith(42, 'music:lyrics-font-size', 20);
+    });
+
+    it('clamps values above the maximum before persisting', () => {
+      register();
+      call('music:lyrics-font-size:set', 60);
+      expect(writeFileSyncMock).toHaveBeenCalledWith(
+        join('C:/store', 'lyricsFontSize.json'),
+        JSON.stringify(28, null, 2),
+        'utf-8',
+      );
+    });
+
+    it('falls back to the default for non-numeric input', () => {
+      register({ defaultLyricsFontSize: 18 });
+      call('music:lyrics-font-size:set', 'huge');
+      expect(writeFileSyncMock).toHaveBeenCalledWith(
+        join('C:/store', 'lyricsFontSize.json'),
+        JSON.stringify(18, null, 2),
+        'utf-8',
+      );
+    });
+
+    it('returns false when the write fails', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      writeFileSyncMock.mockImplementation(() => {
+        throw new Error('write error');
+      });
+
+      register();
+      expect(call('music:lyrics-font-size:set', 18)).toBe(false);
+      expect(consoleSpy).toHaveBeenCalledWith('[LyricsFontSize] persist error:', expect.any(Error));
       consoleSpy.mockRestore();
     });
   });
@@ -452,9 +540,9 @@ describe('registerMusicIpcHandlers', () => {
   // ipcMain.handle registration
   // ---------------------------------------------------------------
   describe('channel registration', () => {
-    it('registers exactly 21 IPC channels', () => {
+    it('registers exactly 23 IPC channels', () => {
       register();
-      expect(handleMock).toHaveBeenCalledTimes(21);
+      expect(handleMock).toHaveBeenCalledTimes(23);
     });
 
     it('registers all expected channels', () => {
@@ -471,6 +559,8 @@ describe('registerMusicIpcHandlers', () => {
         'music:lyrics-calibrate-enabled:set',
         'music:lyrics-calibrate-delay:get',
         'music:lyrics-calibrate-delay:set',
+        'music:lyrics-font-size:get',
+        'music:lyrics-font-size:set',
         'music:smtc-unsubscribe-ms:get',
         'music:smtc-unsubscribe-ms:set',
         'music:detect-source-app-id',
