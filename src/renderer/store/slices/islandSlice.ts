@@ -70,7 +70,6 @@ export const createIslandSlice: StateCreator<
   maxExpandLauncherVisible: true,
   cliProvider: readCliProvider(),
   notification: emptyNotification,
-  agentPrompt: '',
   springAnimation: true,
   animationSpeed: 'medium' as const,
   shapeMode: 'notch' as const,
@@ -241,7 +240,7 @@ export const createIslandSlice: StateCreator<
           window.api?.expandWindowLyrics(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
         }
         window.api?.enableMousePassthrough();
-      } else if (target === 'notification' || target === 'agent' || target === 'cli') {
+      } else if (target === 'notification' || target === 'cli') {
         window.api?.expandWindowNotification(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
         window.api?.disableMousePassthrough();
       }
@@ -288,14 +287,6 @@ export const createIslandSlice: StateCreator<
     window.api?.expandWindowSettings(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
     window.api?.disableMousePassthrough();
     return { state: 'questionnaire' as const, authReturnState: null };
-  }),
-
-  setAgent: (prompt?: string) => set((prev) => {
-    if (prev.uiStateLocked && prev.state !== 'agent') return prev;
-    beginIslandWindowTransition(prev.state, 'agent');
-    window.api?.expandWindowNotification(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
-    window.api?.disableMousePassthrough();
-    return { state: 'agent' as const, agentPrompt: prompt ?? '', authReturnState: null };
   }),
 
   setCli: () => set((prev) => {

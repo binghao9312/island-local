@@ -32,27 +32,6 @@ export type { ChunkInfo } from './core/ChunkInfo';
 export type { DownloadTaskSnapshot, DownloadTaskStatus } from './core/DownloadTaskSnapshot';
 export type { StartDownloadOptions } from './core/StartDownloadOptions';
 
-// Agent types
-export type { AgentLocalToolRequest } from './agent/AgentLocalToolRequest';
-export type { AgentLocalToolResult } from './agent/AgentLocalToolResult';
-export type { CustomDirectEvent, CustomDirectEventType } from './agent/CustomDirectEvent';
-export type { CustomDirectOrchestratorCallbacks } from './agent/CustomDirectOrchestratorCallbacks';
-export type { CustomDirectOrchestratorRequest } from './agent/CustomDirectOrchestratorRequest';
-export type { OllamaChatMessage } from './agent/OllamaChatMessage';
-export type { OllamaChatRequest } from './agent/OllamaChatRequest';
-export type { OllamaEvent, OllamaEventType } from './agent/OllamaEvent';
-export type { OllamaOrchestratorCallbacks } from './agent/OllamaOrchestratorCallbacks';
-export type { OllamaOrchestratorRequest } from './agent/OllamaOrchestratorRequest';
-export type { OllamaStreamCallbacks } from './agent/OllamaStreamCallbacks';
-export type { OllamaStreamChunk } from './agent/OllamaStreamChunk';
-export type { OllamaStreamChoice } from './agent/OllamaStreamChoice';
-export type { OllamaStreamDelta } from './agent/OllamaStreamDelta';
-export type { OpenAIChatMessage } from './agent/OpenAIChatMessage';
-export type { OpenAIChatRequest } from './agent/OpenAIChatRequest';
-export type { OpenAIStreamCallbacks } from './agent/OpenAIStreamCallbacks';
-export type { OpenAIStreamChunk } from './agent/OpenAIStreamChunk';
-export type { OpenAIStreamChoice } from './agent/OpenAIStreamChoice';
-export type { OpenAIStreamDelta } from './agent/OpenAIStreamDelta';
 
 // System types
 export type { ClaudeCodeHeatmapDailyCount, ClaudeCodeHeatmapDaily } from './system/ClaudeCodeHeatmapDailyCount';

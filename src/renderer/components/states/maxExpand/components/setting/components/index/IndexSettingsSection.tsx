@@ -26,7 +26,7 @@
 
 import { memo, useState, type MutableRefObject, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type AppSettingsPageKey, type MusicSettingsPageKey, type AiSettingsPageKey, type NetworkSettingsPageKey, type SettingsSidebarTabKey } from '../../utils/settingsConfig';
+import { type AppSettingsPageKey, type MusicSettingsPageKey, type NetworkSettingsPageKey, type SettingsSidebarTabKey } from '../../utils/settingsConfig';
 import IndexSettingsSearch from './indexSettingsSearch';
 
 interface IndexNavCard {
@@ -54,7 +54,6 @@ interface IndexSettingsSectionProps {
   persistNavConfig: (visible: string[], hidden: string[]) => void;
   setAppSettingsPage: (page: AppSettingsPageKey) => void;
   setMusicSettingsPage: (page: MusicSettingsPageKey) => void;
-  setAiSettingsPage?: (page: AiSettingsPageKey) => void;
   setNetworkSettingsPage?: (page: NetworkSettingsPageKey) => void;
   setActiveTab: (tab: SettingsSidebarTabKey) => void;
   onAction?: (actionId: string) => void;
@@ -79,7 +78,6 @@ export const IndexSettingsSection = memo(({
   persistNavConfig,
   setAppSettingsPage,
   setMusicSettingsPage,
-  setAiSettingsPage,
   setNetworkSettingsPage,
   setActiveTab,
   onAction,
@@ -117,7 +115,6 @@ export const IndexSettingsSection = memo(({
           <IndexSettingsSearch
             setAppSettingsPage={setAppSettingsPage}
             setMusicSettingsPage={setMusicSettingsPage}
-            setAiSettingsPage={setAiSettingsPage}
             setNetworkSettingsPage={setNetworkSettingsPage}
             setActiveTab={setActiveTab}
             onAction={onAction}

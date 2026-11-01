@@ -157,13 +157,6 @@ export const STATE_CONFIGS: Record<IslandState, StateConfig> = {
     enterDelay: 0,
     leaveDelay: 0,
   },
-  agent: {
-    name: 'agent',
-    mousePassthrough: false,
-    expanded: true,
-    enterDelay: 0,
-    leaveDelay: 0,
-  },
   cli: {
     name: 'cli',
     mousePassthrough: false,

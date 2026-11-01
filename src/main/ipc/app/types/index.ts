@@ -24,9 +24,6 @@
  * @author 鸡哥
  */
 
-// Agent
-export type { AgentLocalToolRequest } from '../../../types/agent/AgentLocalToolRequest';
-
 // Download
 export type { RegisterDownloadIpcHandlersOptions } from './RegisterDownloadIpcHandlersOptions';
 export type { DownloadStartPayload } from './DownloadStartPayload';

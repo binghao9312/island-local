@@ -32,7 +32,6 @@ import { setThemeMode as applyThemeMode } from '../../../../../../utils/theme';
 import { PLUGIN_MARKET_PAGES, UPDATE_SOURCES, applyIslandOpacity } from '../config/settingsTabConfig';
 import { useSettingsTabController } from '../hooks/useSettingsTabController';
 import {
-  AI_SETTINGS_PAGES,
   APP_SETTINGS_PAGES,
   LYRICS_SOURCE_OPTIONS,
   MAIL_SETTINGS_PAGES,
@@ -47,7 +46,6 @@ import {
 import { UPDATES_ENABLED } from '../../../../../../../shared/updatesConfig';
 import { SERVER_FEATURES_ENABLED } from '../../../../../../../shared/serverFeaturesConfig';
 import { AboutSettingsSection } from './about/AboutSettingsSection';
-import { AiSettingsSection } from './ai/AiSettingsSection';
 import { AppSettingsSection } from './app/AppSettingsSection';
 import { OverviewPreview } from './app/preview/OverviewPreview';
 import { IndexSettingsSection } from './index/IndexSettingsSection';
@@ -57,7 +55,6 @@ import { NetworkSettingsSection } from './network/NetworkSettingsSection';
 import { WallpaperContributionSection } from './pluginMarket/WallpaperContributionSection';
 import { WallpaperEditSection } from './pluginMarket/WallpaperEditSection';
 import { WallpaperMarketSection } from './pluginMarket/WallpaperMarketSection';
-import { SettingsField } from './SettingsField';
 import { SettingsPageNavigation, SettingsPageNavigationToggle } from './SettingsPageNavigation';
 import { ShortcutSettingsSection } from './shortcut/ShortcutSettingsSection';
 import { UpdateSettingsSection } from './update/UpdateSettingsSection';
@@ -87,7 +84,6 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
     persistNavConfig,
     setAppSettingsPage,
     setMusicSettingsPage,
-    setAiSettingsPage,
     setNetworkSettingsPage,
     handleNavAction,
     currentAppSettingsPageLabel,
@@ -368,12 +364,6 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
     setMusicSmtcConfigMessage,
     musicSmtcConfigMessage,
     translatedMusicSettingsPageLabels,
-    currentAiSettingsPageLabel,
-    aiSettingsPage,
-    aiConfig,
-    setAiConfig,
-    onAddWorkspace,
-    onRemoveWorkspace,
     aboutVersion,
     updateAutoPromptEnabled,
     updateStatus,
@@ -475,14 +465,6 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
             {getSettingsLabel('music')}
           </button>
           <button
-            className={`max-expand-settings-sidebar-item ${activeTab === 'ai' ? 'active' : ''}`}
-            onClick={() => setActiveTab('ai')}
-            type="button"
-          >
-            <span className="sidebar-dot" />
-            {getSettingsLabel('ai')}
-          </button>
-          <button
             className={`max-expand-settings-sidebar-item ${activeTab === 'shortcut' ? 'active' : ''}`}
             onClick={() => setActiveTab('shortcut')}
             type="button"
@@ -536,7 +518,6 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
               persistNavConfig={persistNavConfig}
               setAppSettingsPage={setAppSettingsPage}
               setMusicSettingsPage={setMusicSettingsPage}
-              setAiSettingsPage={setAiSettingsPage}
               setNetworkSettingsPage={setNetworkSettingsPage}
               setActiveTab={setActiveTab}
               onAction={handleNavAction}
@@ -867,22 +848,6 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
               musicSettingsPages={MUSIC_SETTINGS_PAGES}
               musicSettingsPageLabels={translatedMusicSettingsPageLabels}
               setMusicSettingsPage={setMusicSettingsPage}
-            />
-          )}
-
-          {activeTab === 'ai' && (
-            <AiSettingsSection
-              currentAiSettingsPageLabel={currentAiSettingsPageLabel}
-              aiSettingsPage={aiSettingsPage}
-              aiConfig={aiConfig}
-              setAiConfig={setAiConfig}
-              onAddWorkspace={onAddWorkspace}
-              onRemoveWorkspace={onRemoveWorkspace}
-              SettingsFieldComponent={SettingsField}
-              aiSettingsPages={AI_SETTINGS_PAGES}
-              aiSettingsPageLabels={translatedSettingsTabLabels}
-              setAiSettingsPage={setAiSettingsPage}
-              isProUser={isProUser}
             />
           )}
 

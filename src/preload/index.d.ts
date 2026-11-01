@@ -34,13 +34,6 @@ import type {
   SaveTextFilePayload,
   SaveTextFileResult,
   ComputeFileHashResult,
-  ExecuteAgentLocalToolRequest,
-  ExecuteAgentLocalToolResult,
-  OllamaChatRequest,
-  ChatEvent,
-  ChatStartResult,
-  ChatAbortResult,
-  CustomDirectChatRequest,
   NowPlayingInfo,
   MediaCommandResult,
   SmtcTimestampResult,
@@ -130,36 +123,12 @@ declare global {
       pickFeedbackLogFile: () => Promise<string | null>;
       pickFeedbackScreenshotFile: () => Promise<string | null>;
       pickLocalSearchDirectory: () => Promise<string | null>;
-      pickSkillFile: () => Promise<string | null>;
-      readTextFile: (filePath: string) => Promise<string | null>;
       saveTextFile: (payload: SaveTextFilePayload) => Promise<SaveTextFileResult>;
       searchLocalFiles: (
         rootDir: string,
         keyword: string,
         options?: SearchLocalFilesOptions,
       ) => Promise<SearchLocalFileResult[]>;
-      executeAgentLocalTool: (request: ExecuteAgentLocalToolRequest) => Promise<ExecuteAgentLocalToolResult>;
-      ollamaPing: (baseUrl?: string) => Promise<boolean>;
-      ollamaModels: (baseUrl?: string) => Promise<string[]>;
-      ollamaDetectBaseUrl: () => Promise<string | null>;
-      ollamaChatStart: (
-        sessionId: string,
-        request: OllamaChatRequest,
-      ) => Promise<ChatStartResult>;
-      ollamaChatAbort: (sessionId: string) => Promise<ChatAbortResult>;
-      onOllamaChatEvent: (
-        sessionId: string,
-        callback: (event: ChatEvent) => void,
-      ) => () => void;
-      customDirectChatStart: (
-        sessionId: string,
-        request: CustomDirectChatRequest,
-      ) => Promise<ChatStartResult>;
-      customDirectChatAbort: (sessionId: string) => Promise<ChatAbortResult>;
-      onCustomDirectChatEvent: (
-        sessionId: string,
-        callback: (event: ChatEvent) => void,
-      ) => () => void;
       clearLogsCache: () => Promise<{ success: boolean; freedBytes: number }>;
       windowMinimize: () => void;
       windowMaximize: () => void;

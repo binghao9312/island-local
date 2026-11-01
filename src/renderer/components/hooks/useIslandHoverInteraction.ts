@@ -139,7 +139,7 @@ export function useIslandHoverInteraction(options: UseIslandHoverInteractionOpti
         return;
       }
 
-      if (state === 'notification' || state === 'agent' || state === 'cli' || state === 'guide' || state === 'login' || state === 'register' || state === 'resetPassword' || state === 'payment' || state === 'questionnaire' || state === 'musicProvidersLogin') {
+      if (state === 'notification' || state === 'cli' || state === 'guide' || state === 'login' || state === 'register' || state === 'resetPassword' || state === 'payment' || state === 'questionnaire' || state === 'musicProvidersLogin') {
         if (inWindow) {
           setMousePassthrough(false);
         }

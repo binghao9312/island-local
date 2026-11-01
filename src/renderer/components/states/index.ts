@@ -33,7 +33,6 @@ export { GuideContent } from './guide/GuideContent';
 export { LoginContent } from './login';
 export { RegisterContent } from './register/RegisterContent';
 export { PaymentContent } from './payment/PaymentContent';
-export { AgentContent } from './agent/AgentContent';
 export { CliContent } from './cli';
 export { SetPasswordContent } from './setPassword';
 export { BindOAuthContent } from './bindOAuth';

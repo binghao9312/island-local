@@ -28,39 +28,21 @@ import { useShallow } from 'zustand/react/shallow';
 import useIslandStore from '../../../../../../store/slices';
 
 /**
- * 设置页共享 store 与 AI 工作区操作。
+ * 设置页共享 store 操作。
  * @returns 供设置视图组合使用的状态与操作
  */
 export function useSettingsStore() {
-  const { aiConfig, setAiConfig, fetchWeatherData, setLogin, setRegister, setNotification } = useIslandStore(useShallow((store) => ({
-    aiConfig: store.aiConfig,
-    setAiConfig: store.setAiConfig,
+  const { fetchWeatherData, setLogin, setRegister, setNotification } = useIslandStore(useShallow((store) => ({
     fetchWeatherData: store.fetchWeatherData,
     setLogin: store.setLogin,
     setRegister: store.setRegister,
     setNotification: store.setNotification,
   })));
 
-  const onAddWorkspace = async (): Promise<void> => {
-    const dir = await window.api.pickLocalSearchDirectory();
-    if (!dir) return;
-    const current = Array.isArray(aiConfig.workspaces) ? aiConfig.workspaces : [];
-    if (current.some((w) => w.toLowerCase() === dir.toLowerCase())) return;
-    setAiConfig({ workspaces: [...current, dir] });
-  };
-  const onRemoveWorkspace = (idx: number): void => {
-    const current = Array.isArray(aiConfig.workspaces) ? aiConfig.workspaces : [];
-    setAiConfig({ workspaces: current.filter((_, i) => i !== idx) });
-  };
-
   return {
-    aiConfig,
-    setAiConfig,
     fetchWeatherData,
     setLogin,
     setRegister,
     setNotification,
-    onAddWorkspace,
-    onRemoveWorkspace,
   };
 }

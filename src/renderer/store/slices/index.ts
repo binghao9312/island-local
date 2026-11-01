@@ -31,7 +31,6 @@ import { createWeatherSlice } from './weatherSlice';
 import { createTimerSlice } from './timerSlice';
 import { createNotificationSlice } from './notificationSlice';
 import { createMediaSlice } from './mediaSlice';
-import { createAiSlice } from './aiSlice';
 import { createPomodoroSlice } from './pomodoroSlice';
 
 const useIslandStore = create<IIslandStore>()((set, get, store) => ({
@@ -40,7 +39,6 @@ const useIslandStore = create<IIslandStore>()((set, get, store) => ({
   ...createTimerSlice(set, get, store),
   ...createNotificationSlice(set, get, store),
   ...createMediaSlice(set, get, store),
-  ...createAiSlice(set, get, store),
   ...createPomodoroSlice(set, get, store),
 }));
 

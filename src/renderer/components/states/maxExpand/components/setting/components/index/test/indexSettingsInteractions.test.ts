@@ -50,7 +50,6 @@ function makeProps(): ComponentProps<typeof IndexSettingsSection> {
     persistNavConfig: vi.fn(),
     setAppSettingsPage: vi.fn(),
     setMusicSettingsPage: vi.fn(),
-    setAiSettingsPage: vi.fn(),
     setNetworkSettingsPage: vi.fn(),
     setActiveTab: vi.fn(),
     onAction: vi.fn(),

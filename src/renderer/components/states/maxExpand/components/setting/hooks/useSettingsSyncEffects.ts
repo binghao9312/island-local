@@ -149,9 +149,6 @@ export function useSettingsSyncEffects(options: SettingsSyncEffectsOptions): voi
       if (!SERVER_FEATURES_ENABLED && (value === 'user' || value === 'pluginMarket' || value === 'questionnaire' || value === 'user-questionnaire')) {
         setActiveTab('index');
       }
-      if (value === 'ai') {
-        setActiveTab('ai');
-      }
       if (value === 'performance-monitor') {
         setActiveTab('app');
         setAppSettingsPage('performance-monitor');

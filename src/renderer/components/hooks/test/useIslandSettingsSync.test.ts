@@ -527,7 +527,7 @@ describe('Island shape transitions and window animations', () => {
     expect(api.expandWindowNotification).toHaveBeenCalledWith(duration);
   });
   it.each([
-    ['hover', 'expandWindow'], ['notification', 'expandWindowNotification'], ['agent', 'expandWindowNotification'],
+    ['hover', 'expandWindow'], ['notification', 'expandWindowNotification'],
     ['cli', 'expandWindowNotification'], ['lyrics', 'expandWindowLyrics'],
     ['lyricsTranslation', 'expandWindowLyricsTranslation'],
     ['expanded', 'expandWindowFull'], ['maxExpand', 'expandWindowSettings'], ['guide', 'expandWindowSettings'],

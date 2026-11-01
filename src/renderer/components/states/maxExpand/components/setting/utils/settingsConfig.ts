@@ -58,17 +58,16 @@ export const WEATHER_LOCATION_PRIORITY_OPTIONS: Array<{ value: WeatherLocationPr
   { value: 'custom', label: '自定义位置优先' },
 ];
 
-export const SETTINGS_TABS = ['index', 'app', 'pluginMarket', 'network', 'mail', 'weather', 'music', 'ai', 'shortcut', 'user', 'update', 'about'] as const;
+export const SETTINGS_TABS = ['index', 'app', 'pluginMarket', 'network', 'mail', 'weather', 'music', 'shortcut', 'user', 'update', 'about'] as const;
 export type SettingsSidebarTabKey = (typeof SETTINGS_TABS)[number];
 export type AppSettingsPageKey = 'layout-preview' | 'expand-layout' | 'maxexpand-layout' | 'album' | 'hide-process-list' | 'position' | 'theme' | 'language' | 'behavior' | 'animation' | 'url-parser' | 'clipboard-history' | 'alarm' | 'break-reminder' | 'autostart' | 'sound' | 'notification' | 'performance' | 'performance-monitor' | 'screenshot-settings';
 export type WeatherSettingsPageKey = 'location' | 'provider';
 export type MailSettingsPageKey = 'account' | 'imap' | 'preferences';
-export type AiSettingsPageKey = 'general' | 'r1pxc' | 'ollama';
 export type MusicSettingsPageKey = 'whitelist' | 'lyrics' | 'smtc' | 'providers';
 export type MusicNavCardKey = 'music-whitelist' | 'music-lyrics' | 'music-smtc' | 'music-providers';
 export type NetworkSettingsPageKey = 'timeout' | 'data-center';
 export type UpdateSettingsPageKey = 'update-check' | 'info-sync';
-export type SettingsTabLabelKey = SettingsSidebarTabKey | AppSettingsPageKey | AiSettingsPageKey | MusicNavCardKey | UpdateSettingsPageKey;
+export type SettingsTabLabelKey = SettingsSidebarTabKey | AppSettingsPageKey | MusicNavCardKey | UpdateSettingsPageKey;
 
 export const SETTINGS_TAB_LABELS: Record<SettingsTabLabelKey, string> = {
   index: '快速导航',
@@ -101,10 +100,6 @@ export const SETTINGS_TAB_LABELS: Record<SettingsTabLabelKey, string> = {
   'music-lyrics': '歌词源',
   'music-smtc': 'SMTC',
   'music-providers': '歌词提供源',
-  ai: 'AI Agent',
-  general: '通用配置',
-  r1pxc: 'r1pxc Agent',
-  ollama: 'Ollama 本地',
   shortcut: '快捷键',
   user: '用户中心',
   update: '更新设置',
@@ -144,10 +139,6 @@ export const SETTINGS_TAB_DESCRIPTIONS: Record<Exclude<SettingsTabLabelKey, 'ind
   'music-lyrics': '选择歌词来源与显示模式。',
   'music-smtc': '系统媒体传输控制相关配置。',
   'music-providers': '配置歌词获取来源与优先级。',
-  ai: 'AI 服务与 Prompt 配置',
-  general: '模型凭据与工作区配置。',
-  r1pxc: 'r1pxc Agent 头像与个性化配置。',
-  ollama: '本地 Ollama 模型与连接配置。',
   shortcut: '隐藏、关闭、截图快捷键',
   user: '登录、资料、注销等账号操作',
   update: '检查与下载软件更新',
@@ -172,7 +163,6 @@ export const SETTINGS_TAB_ICONS: Partial<Record<SettingsTabLabelKey, string>> = 
   'music-lyrics': SvgIcon.LRC,
   'music-smtc': SvgIcon.SMTC,
   'music-providers': SvgIcon.LRC,
-  ai: SvgIcon.AI,
   shortcut: SvgIcon.SHORTCUT_KEY,
   update: SvgIcon.UPDATE_TIME,
   about: SvgIcon.ABOUT,
@@ -366,12 +356,6 @@ export const MAIL_SETTINGS_PAGE_LABELS: Record<MailSettingsPageKey, string> = {
   imap: 'IMAP',
   preferences: '收信设置',
 };
-export const AI_SETTINGS_PAGES: AiSettingsPageKey[] = ['general', 'r1pxc', 'ollama'];
-export const AI_SETTINGS_PAGE_LABELS: Record<AiSettingsPageKey, string> = {
-  general: '通用配置',
-  r1pxc: 'r1pxc Agent',
-  ollama: 'Ollama 本地',
-};
 export const NETWORK_SETTINGS_PAGES: NetworkSettingsPageKey[] = ['timeout', 'data-center'];
 export const NETWORK_SETTINGS_PAGE_LABELS: Record<NetworkSettingsPageKey, string> = {
   timeout: '请求超时',
@@ -486,7 +470,6 @@ export const NAV_CARDS: NavCardDef[] = withoutDisabledEntries<NavCardDef>([
   { id: 'network', label: SETTINGS_TAB_LABELS.network, desc: SETTINGS_TAB_DESCRIPTIONS.network, icon: SETTINGS_TAB_ICONS.network, tab: 'network' },
   { id: 'mail', label: SETTINGS_TAB_LABELS.mail, desc: SETTINGS_TAB_DESCRIPTIONS.mail, icon: SETTINGS_TAB_ICONS.mail, tab: 'mail' },
   { id: 'weather', label: SETTINGS_TAB_LABELS.weather, desc: SETTINGS_TAB_DESCRIPTIONS.weather, icon: SETTINGS_TAB_ICONS.weather, tab: 'weather' },
-  { id: 'ai', label: SETTINGS_TAB_LABELS.ai, desc: SETTINGS_TAB_DESCRIPTIONS.ai, icon: SETTINGS_TAB_ICONS.ai, tab: 'ai' },
   { id: 'shortcut', label: SETTINGS_TAB_LABELS.shortcut, desc: SETTINGS_TAB_DESCRIPTIONS.shortcut, icon: SETTINGS_TAB_ICONS.shortcut, tab: 'shortcut' },
   { id: 'update', label: SETTINGS_TAB_LABELS.update, desc: SETTINGS_TAB_DESCRIPTIONS.update, icon: SETTINGS_TAB_ICONS.update, tab: 'update' },
   { id: 'pluginMarket', label: SETTINGS_TAB_LABELS.pluginMarket, desc: SETTINGS_TAB_DESCRIPTIONS.pluginMarket, icon: SETTINGS_TAB_ICONS.pluginMarket, tab: 'pluginMarket' },
@@ -508,7 +491,6 @@ export interface SearchableSettingItem {
   tab: SettingsSidebarTabKey;
   appPage?: AppSettingsPageKey;
   musicPage?: MusicSettingsPageKey;
-  aiPage?: AiSettingsPageKey;
   networkPage?: NetworkSettingsPageKey;
   actionId?: string;
 }
@@ -630,10 +612,6 @@ export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutDisabledEntri
   // ── 歌曲设置 > SMTC ──
   { label: 'SMTC 自动取消订阅', desc: '用于清理长时间无更新的播放会话，默认永不取消订阅', labelKey: 'settings.music.smtc.title', descKey: 'settings.music.smtc.hint', tab: 'music', musicPage: 'smtc' },
   // ── AI Agent ──
-  { label: '模型凭据', desc: '用于 Agent 中转调用的自定义 API 凭据（可选）', labelKey: 'settings.ai.credentialsTitle', descKey: 'settings.ai.credentialsHint', tab: 'ai', aiPage: 'general' },
-  { label: 'Agent 工作区', desc: '配置 Agent 可操作的文件目录,所有文件读写、搜索、命令执行仅限于工作区内', labelKey: 'settings.ai.workspaceTitle', descKey: 'settings.ai.workspaceHint', tab: 'ai', aiPage: 'general' },
-  { label: 'r1pxc Agent 头像配置', desc: '支持拖入图片或从文件资源管理器选择，不支持 URL', labelKey: 'settings.ai.r1pxcConfigTitle', descKey: 'settings.ai.r1pxcConfigHint', tab: 'ai', aiPage: 'r1pxc' },
-  { label: 'Ollama 本地模型', desc: '配置本地 Ollama 服务地址与默认模型，在模型下拉中选择 ollama 即可使用', labelKey: 'settings.ai.ollamaTitle', descKey: 'settings.ai.ollamaHint', tab: 'ai', aiPage: 'ollama' },
   // ── 快捷键 > 窗口操作 ──
   { label: '隐藏/显示快捷键', desc: '点击"修改"后按下组合键（如 Alt+X、Ctrl+Shift+H）', labelKey: 'settings.shortcut.window.toggleIsland.title', descKey: 'settings.shortcut.window.toggleIsland.hint', tab: 'shortcut' },
   { label: '关闭灵动岛快捷键', desc: '按下此快捷键将立即关闭灵动岛应用（如 Alt+Q、Ctrl+Shift+Q）', labelKey: 'settings.shortcut.window.quitApp.title', descKey: 'settings.shortcut.window.quitApp.hint', tab: 'shortcut' },

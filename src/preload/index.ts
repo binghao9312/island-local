@@ -37,13 +37,6 @@ import type {
   SaveTextFilePayload,
   SaveTextFileResult,
   ComputeFileHashResult,
-  ExecuteAgentLocalToolRequest,
-  ExecuteAgentLocalToolResult,
-  OllamaChatRequest,
-  ChatEvent,
-  ChatStartResult,
-  ChatAbortResult,
-  CustomDirectChatRequest,
   NowPlayingInfo,
   MediaCommandResult,
   SmtcTimestampResult,
@@ -296,18 +289,6 @@ const api = {
     return ipcRenderer.invoke('app:pick-local-search-directory');
   },
   /**
-   * 选择 Skill 文件 (.md)
-   */
-  pickSkillFile: (): Promise<string | null> => {
-    return ipcRenderer.invoke('app:pick-skill-file');
-  },
-  /**
-   * 读取文本文件内容
-   */
-  readTextFile: (filePath: string): Promise<string | null> => {
-    return ipcRenderer.invoke('app:read-text-file', filePath);
-  },
-  /**
    * 保存文本文件内容
    */
   saveTextFile: (payload: SaveTextFilePayload): Promise<SaveTextFileResult> => {
@@ -322,101 +303,6 @@ const api = {
     options?: SearchLocalFilesOptions,
   ): Promise<SearchLocalFileResult[]> => {
     return ipcRenderer.invoke('app:search-local-files', rootDir, keyword, options);
-  },
-  /**
-   * 执行本地 Agent 工具（主进程执行）
-   */
-  executeAgentLocalTool: (request: ExecuteAgentLocalToolRequest): Promise<ExecuteAgentLocalToolResult> => {
-    return ipcRenderer.invoke('agent:local-tool:execute', request);
-  },
-  /**
-   * 检测本地 Ollama 服务是否可用
-   */
-  ollamaPing: (baseUrl?: string): Promise<boolean> => {
-    return ipcRenderer.invoke('ollama:ping', baseUrl);
-  },
-  /**
-   * 获取 Ollama 本地可用模型列表
-   */
-  ollamaModels: (baseUrl?: string): Promise<string[]> => {
-    return ipcRenderer.invoke('ollama:models', baseUrl);
-  },
-  /**
-   * 自动检测本地 Ollama 服务运行的端口（baseUrl）
-   */
-  ollamaDetectBaseUrl: (): Promise<string | null> => {
-    return ipcRenderer.invoke('ollama:detectBaseUrl');
-  },
-  /**
-   * 启动 Ollama 本地 ReAct 编排会话
-   */
-  ollamaChatStart: (
-    sessionId: string,
-    request: OllamaChatRequest,
-  ): Promise<ChatStartResult> => {
-    return ipcRenderer.invoke('ollama:chat:start', sessionId, request);
-  },
-  /**
-   * 中止 Ollama 本地编排会话
-   */
-  ollamaChatAbort: (sessionId: string): Promise<ChatAbortResult> => {
-    return ipcRenderer.invoke('ollama:chat:abort', sessionId);
-  },
-  /**
-   * 监听 Ollama 编排会话事件
-   * @param sessionId - 会话 ID
-   * @param callback - 事件回调
-   * @returns 取消监听函数
-   */
-  onOllamaChatEvent: (
-    sessionId: string,
-    callback: (event: ChatEvent) => void,
-  ): (() => void) => {
-    const channel = `ollama:chat:event:${sessionId}`;
-    const handler = (
-      _event: Electron.IpcRendererEvent,
-      data: ChatEvent,
-    ): void => {
-      callback(data);
-    };
-    ipcRenderer.on(channel, handler);
-    return () => {
-      ipcRenderer.removeListener(channel, handler);
-    };
-  },
-  /**
-   * 启动自定义 API 直连 ReAct 编排会话
-   */
-  customDirectChatStart: (
-    sessionId: string,
-    request: CustomDirectChatRequest,
-  ): Promise<ChatStartResult> => {
-    return ipcRenderer.invoke('customDirect:chat:start', sessionId, request);
-  },
-  /**
-   * 中止自定义 API 直连编排会话
-   */
-  customDirectChatAbort: (sessionId: string): Promise<ChatAbortResult> => {
-    return ipcRenderer.invoke('customDirect:chat:abort', sessionId);
-  },
-  /**
-   * 监听自定义 API 直连编排会话事件
-   */
-  onCustomDirectChatEvent: (
-    sessionId: string,
-    callback: (event: ChatEvent) => void,
-  ): (() => void) => {
-    const channel = `customDirect:chat:event:${sessionId}`;
-    const handler = (
-      _event: Electron.IpcRendererEvent,
-      data: ChatEvent,
-    ): void => {
-      callback(data);
-    };
-    ipcRenderer.on(channel, handler);
-    return () => {
-      ipcRenderer.removeListener(channel, handler);
-    };
   },
   /**
    * 清理日志缓存
