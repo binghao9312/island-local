@@ -3353,8 +3353,7 @@
         "hint": "Only affects alarm ringing and ringtone preview volume."
       },
       "effectVolume": {
-        "title": "Effect Volume",
-        "hint": "Affects STT trigger sound and Mokugyo strike sound."
+        "title": "Effect Volume"
       }
     },
     "notification": {

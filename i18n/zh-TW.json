@@ -3353,8 +3353,7 @@
         "hint": "僅影響鬧鐘響鈴與試聽音量。"
       },
       "effectVolume": {
-        "title": "音效音量",
-        "hint": "影響 STT 觸發音與木魚敲擊音。"
+        "title": "音效音量"
       }
     },
     "notification": {
