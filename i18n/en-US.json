@@ -460,7 +460,8 @@
     "tools": {
       "timer": "Timer",
       "screenshot": "Screenshot",
-      "taskManager": "Task Manager"
+      "taskManager": "Task Manager",
+      "pomodoro": "Pomodoro"
     },
     "media": {
       "brightness": "Brightness",

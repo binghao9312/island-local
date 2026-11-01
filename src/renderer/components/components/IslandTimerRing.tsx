@@ -20,16 +20,18 @@
 
 /**
  * @file IslandTimerRing.tsx
- * @description 灵动岛外缘的进度线（倒计时琥珀色，歌曲进度使用专辑主色或 70% 白），按帧连续缩短；胶囊形态绕一整圈，刘海形态只走左、下、右三边
+ * @description 灵动岛外缘的进度线（倒计时琥珀色，番茄钟番茄红，歌曲进度使用专辑主色或 70% 白），按帧连续缩短；胶囊形态绕一整圈，刘海形态只走左、下、右三边
  * @author 鸡哥
  */
 
 import { useEffect, useRef, useState, type JSX } from 'react';
 import useIslandStore from '../../store/slices';
+import { POMODORO_DURATIONS } from '../states/expand/pages/OverviewTab/utils/overviewUtils';
 import type { IslandShapeMode, TimerState } from '../../store/types';
 import {
   buildTimerRingPath,
   getRingDashOffset,
+  isPomodoroRingVisible,
   isSongRingVisible,
   isTimerRingVisible,
   resolveRingColor,
@@ -42,6 +44,12 @@ export interface IslandTimerRingProps {
   remainingSeconds: number;
   totalSeconds: number;
   shapeMode: IslandShapeMode;
+  /** 番茄钟是否运行（可选覆盖项） */
+  pomodoroRunning?: boolean;
+  /** 番茄钟剩余秒数（可选覆盖项） */
+  pomodoroRemaining?: number;
+  /** 番茄钟当前阶段总秒数（可选覆盖项） */
+  pomodoroTotalSeconds?: number;
   /** 媒体会话是否激活（可选覆盖项） */
   isMusicPlaying?: boolean;
   /** 是否正在播放（可选覆盖项） */
@@ -60,7 +68,7 @@ export interface IslandTimerRingProps {
 const RADIUS_SETTLE_MS = 450;
 
 /**
- * 渲染灵动岛外缘进度线；倒计时运行时展示琥珀色环并具最高优先级；音乐播放时复用同条线展示歌曲剩余进度。
+ * 渲染灵动岛外缘进度线；优先级为倒计时（琥珀色）> 番茄钟（番茄红）> 歌曲进度；音乐播放时复用同条线展示歌曲剩余进度。
  * @param props - 组件入参
  * @returns 进度线 SVG
  */
@@ -70,6 +78,9 @@ export function IslandTimerRing(props: IslandTimerRingProps): JSX.Element {
     remainingSeconds,
     totalSeconds,
     shapeMode,
+    pomodoroRunning: propPomodoroRunning,
+    pomodoroRemaining: propPomodoroRemaining,
+    pomodoroTotalSeconds: propPomodoroTotalSeconds,
     isMusicPlaying: propIsMusicPlaying,
     isPlaying: propIsPlaying,
     currentPositionMs: propCurrentPositionMs,
@@ -78,6 +89,9 @@ export function IslandTimerRing(props: IslandTimerRingProps): JSX.Element {
     songProgressRingEnabled: propSongProgressRingEnabled,
   } = props;
 
+  const storePomodoroRunning = useIslandStore((s) => s.pomodoroRunning);
+  const storePomodoroRemaining = useIslandStore((s) => s.pomodoroRemaining);
+  const storePomodoroPhase = useIslandStore((s) => s.pomodoroPhase);
   const storeIsMusicPlaying = useIslandStore((s) => s.isMusicPlaying);
   const storeIsPlaying = useIslandStore((s) => s.isPlaying);
   const storePositionMs = useIslandStore((s) => s.currentPositionMs);
@@ -85,6 +99,9 @@ export function IslandTimerRing(props: IslandTimerRingProps): JSX.Element {
   const storeDominantColor = useIslandStore((s) => s.dominantColor);
   const storeRingEnabled = useIslandStore((s) => s.songProgressRingEnabled);
 
+  const pomodoroRunning = propPomodoroRunning ?? (storePomodoroRunning ?? false);
+  const pomodoroRemaining = propPomodoroRemaining ?? (storePomodoroRemaining ?? 0);
+  const pomodoroTotalSeconds = propPomodoroTotalSeconds ?? POMODORO_DURATIONS[storePomodoroPhase ?? 'work'];
   const isMusicPlaying = propIsMusicPlaying ?? storeIsMusicPlaying;
   const isPlaying = propIsPlaying ?? storeIsPlaying;
   const currentPositionMs = propCurrentPositionMs ?? storePositionMs;
@@ -100,10 +117,14 @@ export function IslandTimerRing(props: IslandTimerRingProps): JSX.Element {
   const [pathD, setPathD] = useState('');
 
   const timerVisible = isTimerRingVisible(timerState, totalSeconds);
-  const songVisible = !timerVisible && isSongRingVisible(songProgressRingEnabled, isMusicPlaying, durationMs);
-  const visible = timerVisible || songVisible;
-  const mode: 'timer' | 'song' = timerVisible ? 'timer' : 'song';
-  const running = timerVisible ? timerState === 'running' : (songVisible && isPlaying);
+  const pomodoroVisible = !timerVisible && isPomodoroRingVisible(pomodoroRunning, pomodoroTotalSeconds);
+  const songVisible = !timerVisible && !pomodoroVisible && isSongRingVisible(songProgressRingEnabled, isMusicPlaying, durationMs);
+  const visible = timerVisible || pomodoroVisible || songVisible;
+  const mode: 'timer' | 'pomodoro' | 'song' = timerVisible ? 'timer' : pomodoroVisible ? 'pomodoro' : 'song';
+  const running = timerVisible ? timerState === 'running' : pomodoroVisible ? true : (songVisible && isPlaying);
+  /** 倒计时与番茄钟共用的剩余/总秒数 */
+  const countdownRemaining = mode === 'pomodoro' ? pomodoroRemaining : remainingSeconds;
+  const countdownTotal = mode === 'pomodoro' ? pomodoroTotalSeconds : totalSeconds;
   const ringColor = resolveRingColor(mode, dominantColor);
   useEffect(() => {
     const svg = svgRef.current;
@@ -138,12 +159,12 @@ export function IslandTimerRing(props: IslandTimerRingProps): JSX.Element {
   }, [currentPositionMs, durationMs, isPlaying]);
 
   useEffect(() => {
-    if (!running || mode !== 'timer') {
+    if (!running || mode === 'song') {
       endAtRef.current = null;
       return;
     }
-    endAtRef.current = resolveRingEndAt(endAtRef.current, performance.now(), remainingSeconds);
-  }, [running, mode, remainingSeconds]);
+    endAtRef.current = resolveRingEndAt(endAtRef.current, performance.now(), countdownRemaining);
+  }, [running, mode, countdownRemaining]);
 
   useEffect(() => {
     if (!running) return undefined;
@@ -151,13 +172,13 @@ export function IslandTimerRing(props: IslandTimerRingProps): JSX.Element {
     const draw = (): void => {
       const path = pathRef.current;
       if (!path) return;
-      if (mode === 'timer') {
+      if (mode !== 'song') {
         const endAt = endAtRef.current;
         if (endAt !== null) {
           const leftSeconds = Math.max(0, (endAt - performance.now()) / 1000);
-          path.style.strokeDashoffset = String(getRingDashOffset(leftSeconds, totalSeconds));
+          path.style.strokeDashoffset = String(getRingDashOffset(leftSeconds, countdownTotal));
         }
-      } else if (mode === 'song') {
+      } else {
         const elapsed = Math.max(0, performance.now() - lastUpdatePerfMsRef.current);
         const currentPos = Math.min(durationMs, lastPositionMsRef.current + elapsed);
         const leftMs = Math.max(0, durationMs - currentPos);
@@ -167,11 +188,11 @@ export function IslandTimerRing(props: IslandTimerRingProps): JSX.Element {
     };
     frameId = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frameId);
-  }, [running, mode, totalSeconds, durationMs]);
+  }, [running, mode, countdownTotal, durationMs]);
 
   const initialDashOffset = visible
-    ? (mode === 'timer'
-        ? getRingDashOffset(remainingSeconds, totalSeconds)
+    ? (mode !== 'song'
+        ? getRingDashOffset(countdownRemaining, countdownTotal)
         : getRingDashOffset(Math.max(0, durationMs - currentPositionMs), durationMs))
     : 0;
 

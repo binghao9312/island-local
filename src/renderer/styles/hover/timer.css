@@ -223,7 +223,7 @@
   height: 20px;
 }
 
-/** 工具按钮组（倒计时、截图、任务管理器，排列为两行网格避免 60px 高度溢出） */
+/** 工具按钮组（倒计时、番茄钟、截图、任务管理器，排列为两行网格避免 60px 高度溢出） */
 .timer-tools {
   display: grid;
   grid-template-rows: repeat(2, 1fr);
@@ -316,6 +316,12 @@
   min-width: 36px;
   width: auto;
   padding: 0 4px;
+  border-radius: 6px;
+  background: rgba(var(--color-text-rgb), 0.15);
+}
+
+/** 番茄钟运行时的按钮按下态 */
+.timer-tools .pomodoro-toggle-btn.is-active {
   border-radius: 6px;
   background: rgba(var(--color-text-rgb), 0.15);
 }

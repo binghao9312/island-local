@@ -222,4 +222,59 @@ describe('IslandTimerRing', () => {
     });
     expect(className).toBe('island-timer-ring');
   });
+
+  it('番茄钟运行时展示番茄红环并按帧连续缩短', () => {
+    const { className, pathStyle, style } = mount({
+      timerState: 'idle',
+      remainingSeconds: 0,
+      totalSeconds: 0,
+      shapeMode: 'pill',
+      pomodoroRunning: true,
+      pomodoroRemaining: 100,
+      pomodoroTotalSeconds: 100,
+    });
+    expect(className).toBe('island-timer-ring island-timer-ring-visible');
+    expect(pathStyle.stroke).toBe('#ff6347');
+    clock.now = 25000;
+    clock.frames.shift()?.(clock.now);
+    expect(Number(style.strokeDashoffset)).toBeCloseTo(25, 5);
+  });
+
+  it('番茄钟未运行时隐藏，不影响空闲状态', () => {
+    const { className } = mount({
+      timerState: 'idle',
+      remainingSeconds: 0,
+      totalSeconds: 0,
+      shapeMode: 'pill',
+      pomodoroRunning: false,
+      pomodoroRemaining: 1500,
+      pomodoroTotalSeconds: 1500,
+    });
+    expect(className).toBe('island-timer-ring');
+  });
+
+  it('优先级为倒计时 > 番茄钟 > 歌曲进度', () => {
+    const base = {
+      remainingSeconds: 30,
+      totalSeconds: 60,
+      shapeMode: 'pill' as const,
+      pomodoroRunning: true,
+      pomodoroRemaining: 750,
+      pomodoroTotalSeconds: 1500,
+      isMusicPlaying: true,
+      isPlaying: true,
+      currentPositionMs: 0,
+      durationMs: 100000,
+      dominantColor: [40, 80, 120] as [number, number, number],
+      songProgressRingEnabled: true,
+    };
+    const withTimer = mount({ ...base, timerState: 'running' });
+    expect(withTimer.pathStyle.stroke).toBe('#ffb300');
+    expect(Number(withTimer.pathProps.strokeDashoffset)).toBeCloseTo(50, 5);
+    const withPomodoro = mount({ ...base, timerState: 'idle' });
+    expect(withPomodoro.pathStyle.stroke).toBe('#ff6347');
+    expect(Number(withPomodoro.pathProps.strokeDashoffset)).toBeCloseTo(50, 5);
+    const songOnly = mount({ ...base, timerState: 'idle', pomodoroRunning: false });
+    expect(songOnly.pathStyle.stroke).toBe('rgb(40, 80, 120)');
+  });
 });

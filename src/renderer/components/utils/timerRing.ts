@@ -20,7 +20,7 @@
 
 /**
  * @file timerRing.ts
- * @description 倒计时进度环的进度计算（按结束时间逐帧连续推进）
+ * @description 倒计时、番茄钟与歌曲进度环的显隐判断、颜色与进度计算（按结束时间逐帧连续推进）
  * @author 鸡哥
  */
 
@@ -43,6 +43,16 @@ export function isTimerRingVisible(state: TimerState, totalSeconds: number): boo
 }
 
 /**
+ * 判断番茄钟进度环是否应展示。
+ * @param pomodoroRunning - 番茄钟是否正在运行
+ * @param totalSeconds - 当前阶段总秒数
+ * @returns 运行中且总时长有效时为 true
+ */
+export function isPomodoroRingVisible(pomodoroRunning: boolean, totalSeconds: number): boolean {
+  return pomodoroRunning && totalSeconds > 0;
+}
+
+/**
  * 判断歌曲进度环是否应展示。
  * @param songProgressRingEnabled - 歌曲进度环设置开关
  * @param isMusicPlaying - 媒体会话是否激活
@@ -58,17 +68,20 @@ export function isSongRingVisible(
 }
 
 /**
- * 解析进度环颜色。倒计时优先使用琥珀色（#ffb300）；歌曲进度使用专辑主色，全黑或缺失时回退为 70% 白色。
- * @param mode - 进度环模式（'timer' 倒计时 | 'song' 歌曲进度）
+ * 解析进度环颜色。倒计时使用琥珀色（#ffb300），番茄钟使用番茄红（#ff6347）；歌曲进度使用专辑主色，全黑或缺失时回退为 70% 白色。
+ * @param mode - 进度环模式（'timer' 倒计时 | 'pomodoro' 番茄钟 | 'song' 歌曲进度）
  * @param dominantColor - 歌曲专辑主色 RGB 元组
  * @returns CSS 颜色字符串
  */
 export function resolveRingColor(
-  mode: 'timer' | 'song',
+  mode: 'timer' | 'pomodoro' | 'song',
   dominantColor?: [number, number, number] | null
 ): string {
   if (mode === 'timer') {
     return '#ffb300';
+  }
+  if (mode === 'pomodoro') {
+    return '#ff6347';
   }
   if (dominantColor && (dominantColor[0] > 0 || dominantColor[1] > 0 || dominantColor[2] > 0)) {
     return `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;

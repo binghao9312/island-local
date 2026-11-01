@@ -460,7 +460,8 @@
     "tools": {
       "timer": "倒數計時",
       "screenshot": "截圖",
-      "taskManager": "工作管理員"
+      "taskManager": "工作管理員",
+      "pomodoro": "番茄鐘"
     },
     "media": {
       "brightness": "亮度",

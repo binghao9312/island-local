@@ -36,7 +36,10 @@ vi.mock('react-i18next', () => ({
 
 const storeState = vi.hoisted(() => ({
   timerData: { state: 'idle', remainingSeconds: 0 },
+  pomodoroRunning: false,
 }));
+const pomodoro = vi.hoisted(() => ({ togglePomodoro: vi.fn() }));
+vi.mock('../../../../../../../components/states/expand/pages/OverviewTab/components/widgets/PomodoroWidget', () => pomodoro);
 vi.mock('../../../../../../../store/slices', () => ({
   default: (selector: (state: typeof storeState) => unknown) => selector(storeState),
 }));
@@ -50,12 +53,28 @@ describe('ToolButtons', () => {
     const onToggleCountdown = vi.fn();
     const root = ToolButtons({ onToggleCountdown, isCountdownOpen: false }) as TreeElement;
     const buttons = elements(root).filter((node) => node.type === 'button');
-    expect(buttons).toHaveLength(3);
+    expect(buttons).toHaveLength(4);
     buttons.forEach((button) => invoke(button, 'onClick'));
     expect(onToggleCountdown).toHaveBeenCalledOnce();
+    expect(pomodoro.togglePomodoro).toHaveBeenCalledOnce();
     expect(model.handleScreenshot).toHaveBeenCalledOnce();
     expect(model.handleTaskManager).toHaveBeenCalledOnce();
     expect(elements(root).filter((node) => node.type === 'img').every((node) => typeof node.props.alt === 'string')).toBe(true);
+  });
+
+  it('marks the pomodoro button pressed only while the pomodoro is running', () => {
+    const pomodoroButton = (): TreeElement => {
+      const root = ToolButtons() as TreeElement;
+      return elements(root).filter((node) => node.type === 'button')
+        .find((node) => node.props.title === 'hover.tools.pomodoro') as TreeElement;
+    };
+    storeState.pomodoroRunning = false;
+    expect(pomodoroButton().props.className).not.toContain('is-active');
+    expect(pomodoroButton().props['aria-pressed']).toBe(false);
+    storeState.pomodoroRunning = true;
+    expect(pomodoroButton().props.className).toContain('is-active');
+    expect(pomodoroButton().props['aria-pressed']).toBe(true);
+    storeState.pomodoroRunning = false;
   });
 
   it('renders remaining mm:ss text badge when timer is running or paused', () => {

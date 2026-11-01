@@ -49,6 +49,7 @@ const storeState = vi.hoisted(() => ({
 vi.mock('../../../../../../../store/slices', () => ({
   default: (selector: (state: typeof storeState) => unknown) => selector(storeState),
 }));
+vi.mock('../../../../../../../components/states/expand/pages/OverviewTab/components/widgets/PomodoroWidget', () => ({ togglePomodoro: vi.fn() }));
 
 const model = vi.hoisted(() => ({
   timerState: 'idle',

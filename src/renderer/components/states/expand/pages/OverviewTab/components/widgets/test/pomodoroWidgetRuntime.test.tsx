@@ -119,6 +119,25 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe('PomodoroWidget module runtime', () => {
+  it('togglePomodoro starts when idle and pauses when running without mounting the widget', async () => {
+    const { togglePomodoro } = await import('../PomodoroWidget');
+    await togglePomodoro();
+    expect(state().pomodoroRunning).toBe(true);
+    expect(vi.getTimerCount()).toBe(2);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(state().pomodoroRemaining).toBe(1499);
+    await togglePomodoro();
+    expect(state().pomodoroRunning).toBe(false);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+  it('togglePomodoro restores persisted state before starting and reads storage only once', async () => {
+    leaves.read.mockResolvedValue({ phase: 'shortBreak', remaining: 120, completedCount: 3 });
+    const { togglePomodoro } = await import('../PomodoroWidget');
+    await togglePomodoro();
+    expect(state()).toMatchObject({ pomodoroPhase: 'shortBreak', pomodoroRemaining: 120, pomodoroCompletedCount: 3, pomodoroRunning: true });
+    await togglePomodoro();
+    expect(leaves.read).toHaveBeenCalledTimes(1);
+  });
   it('loads persisted fields with their real setters once across component remount', async () => {
     leaves.read.mockResolvedValue({
       phase: 'longBreak',
