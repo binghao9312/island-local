@@ -34,7 +34,7 @@ import { KaraokeSyllableLine } from '../components/KaraokeSyllableLine';
 import type { TreeElement } from '../../test/tree';
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'zh-CN' } }) }));
 const model = vi.hoisted(() => ({
-  store: { isMusicPlaying: true, isPlaying: true, coverImage: 'cover.jpg', dominantColor: [10, 20, 30], syncedLyrics: [], lyricsLoading: false, currentPositionMs: 1500, mediaInfo: { title: 'Song', artist: 'Artist' }, setIdle: vi.fn(), translationLyrics: null as null | { status: string; lines: unknown[] } },
+  store: { isMusicPlaying: true, isPlaying: true, coverImage: 'cover.jpg', dominantColor: [10, 20, 30], syncedLyrics: [], lyricsLoading: false, currentPositionMs: 1500, mediaInfo: { title: 'Song', artist: 'Artist', album: '' }, setIdle: vi.fn(), translationLyrics: null as null | { status: string; lines: unknown[] } },
   settings: { karaokeEnabled: false, clockEnabled: true, musicOuterGlowEffectEnabled: true },
   lyric: { currentIdx: 1, hasLyrics: true, isIntro: false, currentLine: { time_ms: 1000, text: 'Original', syllables: [{ text: 'Original', start_offset_ms: 0, duration_ms: 1000 }] }, currentText: 'Original', hasSyllables: false },
 }));
@@ -48,6 +48,6 @@ beforeEach(() => { model.store.lyricsLoading = false; model.lyric.isIntro = fals
 describe('LyricsContent', () => {
   it('renders clock, cover and plain lyric', () => { const root = ((LyricsContent() as TreeElement)); expect(text(root)).toContain('12:34'); expect(text(root)).toContain('Original'); expect(find(root, (node) => node.type === ScrollingText).props.scrollProgress).toBe(0.5); expect(byClass(root, 'idle-album-cover').props.className).toContain('glowing'); });
   it('prioritizes loading and intro over current text', () => { model.store.lyricsLoading = true; expect(text(((LyricsContent() as TreeElement)))).toContain('songTab.lyrics.loading'); model.store.lyricsLoading = false; model.lyric.isIntro = true; expect(text(((LyricsContent() as TreeElement)))).toContain('Song'); expect(text(((LyricsContent() as TreeElement)))).not.toContain('Original'); });
-  it('renders empty fallback and omits disabled clock', () => { model.lyric.currentText = ''; model.settings.clockEnabled = false; const root = ((LyricsContent() as TreeElement)); expect(text(root)).toContain('songTab.lyrics.empty'); expect(text(root)).not.toContain('12:34'); });
+  it('renders artist and album as the no-lyrics fallback and omits disabled clock', () => { model.lyric.currentText = ''; model.settings.clockEnabled = false; model.store.mediaInfo = { title: 'Song', artist: 'Artist', album: 'Album' }; const root = ((LyricsContent() as TreeElement)); expect(text(root)).toContain('Artist · Album'); expect(text(root)).not.toContain('songTab.lyrics.empty'); expect(text(root)).not.toContain('12:34'); model.store.mediaInfo = { title: 'Song', artist: 'Artist', album: '' }; });
   it('forwards karaoke timing and marks paused glow', () => { model.settings.karaokeEnabled = true; model.lyric.hasSyllables = true; model.store.isPlaying = false; const root = ((LyricsContent() as TreeElement)); expect(find(root, (node) => node.type === KaraokeSyllableLine).props).toMatchObject({ lineStartMs: 1000, posMs: 1500 }); expect(byClass(root, 'idle-glow').props.className).toContain('paused'); });
 });

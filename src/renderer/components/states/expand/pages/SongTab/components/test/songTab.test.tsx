@@ -74,7 +74,12 @@ describe('SongTab', () => {
     mocks.state.isMusicPlaying = true; mocks.state.lyricsLoading = true;
     expect(nodes(render(SongTab), '.ov-lrc-loading-dot')).toHaveLength(3);
     mocks.state.lyricsLoading = false;
-    expect(text(render(SongTab))).toContain('songTab.lyrics.empty');
+    expect(nodes(render(SongTab), '.ov-lrc-hint')).toHaveLength(0);
+    mocks.state.mediaInfo = { title: 'Song', artist: 'Singer', album: '', duration_ms: 0 };
+    expect(text(nodes(render(SongTab), '.ov-lrc-hint'))).toBe('Singer');
+    mocks.state.mediaInfo = { title: 'Song', artist: 'Singer', album: 'Album', duration_ms: 0 };
+    expect(text(nodes(render(SongTab), '.ov-lrc-hint'))).toBe('Singer · Album');
+    expect(text(render(SongTab))).not.toContain('songTab.lyrics.empty');
     mocks.state.syncedLyrics = [...Array.from({ length: 7 }).keys()].map((index) => ({ time_ms: (index + 1) * 1000, text: `line${  index}` }));
     expect(nodes(render(SongTab), '.ov-lrc-intro-icon')).toHaveLength(1);
     expect(nodes(render(SongTab), '.ov-lrc-line')).toHaveLength(2);

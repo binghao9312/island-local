@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next';
 import { SvgIcon } from '../../../../../../utils/SvgIcon';
 import { formatTime } from '../../../../../../utils/timeUtils';
 import { abbreviateWeatherDescription } from '../../../../../../utils/weatherText';
+import { formatArtistAlbum } from '../../../../../../utils/artistAlbumText';
 import { SilkyWave } from '../../../../hover/pages/lyric/components/SilkyWave';
 import { useSongTab } from '../hooks/useSongTab';
 import { formatCountdownRemaining } from '../utils/songUtils';
@@ -72,6 +73,7 @@ export function SongTab(): ReactElement {
     handleNext,
     handleToggleLyrics,
   } = useSongTab();
+  const artistAlbumText = formatArtistAlbum(mediaInfo.artist, mediaInfo.album);
   const lyricsToggleLabel = lyricsEnabled
     ? t('songTab.controls.hideLyrics', { defaultValue: '隐藏歌词（显示音浪）' })
     : t('songTab.controls.showLyrics', { defaultValue: '显示歌词' });
@@ -121,7 +123,7 @@ export function SongTab(): ReactElement {
             <span className="ov-lrc-loading-label">{t('songTab.lyrics.loading', { defaultValue: '正在加载歌词' })}</span>
           </div>
         )}
-        {lyricsEnabled && !lyricsLoading && !hasLyrics && isMusicPlaying && <span className="ov-lrc-hint">{t('songTab.lyrics.empty', { defaultValue: '暂无歌词' })}</span>}
+        {lyricsEnabled && !lyricsLoading && !hasLyrics && isMusicPlaying && artistAlbumText && <span className="ov-lrc-hint">{artistAlbumText}</span>}
         {!isMusicPlaying && (
           <div className="ov-onboarding">
             <div className="ov-onboarding-title">{t('songTab.onboarding.title', { defaultValue: '音乐总览' })}</div>

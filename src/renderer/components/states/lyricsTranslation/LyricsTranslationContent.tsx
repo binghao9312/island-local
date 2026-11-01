@@ -27,6 +27,7 @@
 import { useEffect, useRef } from 'react';
 import type { ReactElement } from 'react';
 import useIslandStore from '../../../store/slices';
+import { formatArtistAlbum } from '../../../utils/artistAlbumText';
 import { useLyricsSettings } from '../lyrics/hooks/useLyricsSettings';
 import { useBeijingClock } from '../lyrics/hooks/useBeijingClock';
 import { useAutoIdle } from '../lyrics/hooks/useAutoIdle';
@@ -85,6 +86,7 @@ export function LyricsTranslationContent(): ReactElement {
       clockEnabled={clockEnabled}
       isIntro={isIntro}
       mediaTitle={mediaInfo.title}
+      fallbackText={formatArtistAlbum(mediaInfo.artist, mediaInfo.album)}
       currentIdx={currentIdx}
       currentText={currentText}
       currentLine={currentLine}

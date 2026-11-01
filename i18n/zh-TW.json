@@ -929,8 +929,7 @@
     "lyrics": {
       "all": "全部歌詞",
       "loading": "正在載入歌詞",
-      "empty": "暫無歌詞",
-      "enjoyMusic": "享受音樂"
+      "empty": "暫無歌詞"
     },
     "onboarding": {
       "title": "音樂總覽",

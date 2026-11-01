@@ -929,8 +929,7 @@
     "lyrics": {
       "all": "All lyrics",
       "loading": "Loading lyrics",
-      "empty": "No lyrics",
-      "enjoyMusic": "Enjoy the music"
+      "empty": "No lyrics"
     },
     "onboarding": {
       "title": "Music Overview",

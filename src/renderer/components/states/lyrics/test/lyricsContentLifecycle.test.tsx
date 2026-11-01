@@ -66,7 +66,7 @@ describe('真实普通歌词内容组合', () => {
     expect(elements(root).filter((element) => element.props.className === 'lyrics-loading-dot')).toHaveLength(3);
     expect(useIslandStore.getState().state).toBe('lyrics'); expect(contentApi.collapseWindow).not.toHaveBeenCalled();
     useIslandStore.setState({ lyricsLoading: false }); root = renderWithHooks(LyricsContent); runEffects();
-    expect(textContent(root)).toContain('songTab.lyrics.empty'); expect(useIslandStore.getState().state).toBe('idle');
+    expect(textContent(root)).toContain('Artist'); expect(textContent(root)).not.toContain('songTab.lyrics.empty'); expect(useIslandStore.getState().state).toBe('idle');
     expect(contentApi.collapseWindow).toHaveBeenCalledOnce(); expect(contentApi.enableMousePassthrough).toHaveBeenCalledOnce();
   });
   it('真实前奏只显示歌曲标题，空歌词行显示空态而非逐字组件', async () => {
@@ -74,7 +74,7 @@ describe('真实普通歌词内容组合', () => {
     expect(findElement(root, (element) => element.props.className === 'lyrics-intro-title-center').props.children).toBe('Album title');
     expect(elements(root).some((element) => element.type === ScrollingText)).toBe(false);
     useIslandStore.setState({ currentPositionMs: 1000, syncedLyrics: [{ time_ms: 1000, text: '' }] });
-    root = renderWithHooks(LyricsContent); expect(textContent(root)).toContain('songTab.lyrics.empty');
+    root = renderWithHooks(LyricsContent); expect(textContent(root)).toContain('Artist');
   });
   it('暂停保留光晕，失去封面或音乐关闭则不发光并真实闲置', async () => {
     useIslandStore.setState({ isPlaying: false }); let root = await commit();
