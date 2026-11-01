@@ -31,16 +31,16 @@ import { IslandTimerRing } from '../IslandTimerRing';
 const clock = { now: 0, frames: [] as FrameRequestCallback[] };
 
 /**
- * 渲染进度环，挂上假 rect 并执行 effect。
+ * 渲染进度环，挂上假 path 并执行 effect。
  * @param props - 组件入参
- * @returns svg 类名与假 rect 样式
+ * @returns svg 类名与假 path 样式
  */
 function mount(props: Parameters<typeof IslandTimerRing>[0]): { className: string; style: Record<string, string> } {
   const tree = render(IslandTimerRing, props);
   const svg = nodes(tree, 'svg')[0];
-  const rect = nodes(tree, 'rect')[0];
+  const path = nodes(tree, 'path')[0];
   const style: Record<string, string> = {};
-  (rect.props.ref as { current: unknown }).current = { style };
+  (path.props.ref as { current: unknown }).current = { style };
   flushEffects();
   return { className: String(svg.props.className), style };
 }
@@ -53,14 +53,14 @@ afterEach(() => {
 
 describe('IslandTimerRing', () => {
   it('空闲时隐藏', () => {
-    expect(mount({ timerState: 'idle', remainingSeconds: 0, totalSeconds: 0 }).className).toBe('island-timer-ring');
+    expect(mount({ timerState: 'idle', remainingSeconds: 0, totalSeconds: 0, shapeMode: 'pill' }).className).toBe('island-timer-ring');
   });
 
   it('运行时按帧连续缩短，而不是按秒跳变', () => {
     vi.stubGlobal('performance', { now: () => clock.now });
     vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => { clock.frames.push(cb); return clock.frames.length; });
     vi.stubGlobal('cancelAnimationFrame', vi.fn());
-    const { className, style } = mount({ timerState: 'running', remainingSeconds: 10, totalSeconds: 10 });
+    const { className, style } = mount({ timerState: 'running', remainingSeconds: 10, totalSeconds: 10, shapeMode: 'pill' });
     expect(className).toBe('island-timer-ring island-timer-ring-visible');
     clock.now = 2500;
     clock.frames.shift()?.(clock.now);
@@ -73,7 +73,7 @@ describe('IslandTimerRing', () => {
   it('暂停时不启动逐帧动画', () => {
     const raf = vi.fn();
     vi.stubGlobal('requestAnimationFrame', raf);
-    const { className } = mount({ timerState: 'paused', remainingSeconds: 5, totalSeconds: 10 });
+    const { className } = mount({ timerState: 'paused', remainingSeconds: 5, totalSeconds: 10, shapeMode: 'pill' });
     expect(className).toBe('island-timer-ring island-timer-ring-visible');
     expect(raf).not.toHaveBeenCalled();
   });

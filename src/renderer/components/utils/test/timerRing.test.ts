@@ -25,7 +25,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { getRingDashOffset, isTimerRingVisible, resolveRingEndAt } from '../timerRing';
+import { buildTimerRingPath, getRingDashOffset, isTimerRingVisible, resolveRingEndAt } from '../timerRing';
 
 describe('timerRing', () => {
   it('仅在运行或暂停且总时长有效时显示', () => {
@@ -48,5 +48,15 @@ describe('timerRing', () => {
     expect(resolveRingEndAt(null, 1000, 10)).toBe(11000);
     expect(resolveRingEndAt(11000, 2900, 9)).toBe(11000);
     expect(resolveRingEndAt(11000, 5000, 9)).toBe(14000);
+  });
+
+  it('刘海形态只走左、下、右三边，胶囊形态闭合一整圈', () => {
+    const notch = buildTimerRingPath(500, 60, 22, 'notch');
+    expect(notch.startsWith('M 1.5 0 ')).toBe(true);
+    expect(notch.endsWith('L 498.5 0')).toBe(true);
+    expect(notch).not.toContain('Z');
+    const pill = buildTimerRingPath(500, 60, 30, 'pill');
+    expect(pill.endsWith('Z')).toBe(true);
+    expect(buildTimerRingPath(0, 0, 10, 'pill')).toBe('');
   });
 });

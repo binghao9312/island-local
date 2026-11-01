@@ -24,10 +24,13 @@
  * @author 鸡哥
  */
 
-import type { TimerState } from '../../store/types';
+import type { IslandShapeMode, TimerState } from '../../store/types';
 
 /** 计时 tick 抖动容差（毫秒），超出则重新校准结束时间 */
 const END_AT_DRIFT_TOLERANCE_MS = 1500;
+
+/** 线宽的一半（px），路径向内收进以免被裁切 */
+const HALF_STROKE = 1.5;
 
 /**
  * 判断进度环是否显示。
@@ -62,4 +65,25 @@ export function resolveRingEndAt(prevEndAt: number | null, nowMs: number, remain
   const expected = nowMs + remainingSeconds * 1000;
   if (prevEndAt === null || Math.abs(prevEndAt - expected) > END_AT_DRIFT_TOLERANCE_MS) return expected;
   return prevEndAt;
+}
+
+/**
+ * 生成进度线路径。胶囊：从左上圆角后沿顺时针绕一整圈；刘海：从左上往下、沿底边、再往上到右上，不画顶边。
+ * @param width - 岛屿宽度（px）
+ * @param height - 岛屿高度（px）
+ * @param radius - 底部圆角半径（px）
+ * @param shapeMode - 岛屿形态
+ * @returns SVG path d；尺寸无效时为空串
+ */
+export function buildTimerRingPath(width: number, height: number, radius: number, shapeMode: IslandShapeMode): string {
+  const s = HALF_STROKE;
+  const w = width - s;
+  const h = height - s;
+  if (w <= s || h <= s) return '';
+  const r = Math.max(0, Math.min(radius - s, (w - s) / 2, (h - s) / 2));
+  if (shapeMode === 'notch') {
+    return `M ${s} 0 L ${s} ${h - r} A ${r} ${r} 0 0 0 ${s + r} ${h} L ${w - r} ${h} A ${r} ${r} 0 0 0 ${w} ${h - r} L ${w} 0`;
+  }
+  return `M ${s + r} ${s} L ${w - r} ${s} A ${r} ${r} 0 0 1 ${w} ${s + r} L ${w} ${h - r} A ${r} ${r} 0 0 1 ${w - r} ${h}`
+    + ` L ${s + r} ${h} A ${r} ${r} 0 0 1 ${s} ${h - r} L ${s} ${s + r} A ${r} ${r} 0 0 1 ${s + r} ${s} Z`;
 }

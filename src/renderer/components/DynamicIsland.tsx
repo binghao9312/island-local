@@ -49,6 +49,7 @@ function DynamicIsland(): JSX.Element {
   const { t, i18n } = useTranslation();
   const store = useIslandStore(useShallow(selectDynamicIslandState));
   const performanceModeEnabled = usePerformanceMode();
+  const shapeMode = useIslandStore((s) => s.shapeMode);
   const {
     state,
     weather,
@@ -116,6 +117,7 @@ function DynamicIsland(): JSX.Element {
         timerState={timerData?.state ?? 'idle'}
         remainingSeconds={timerData?.remainingSeconds ?? 0}
         totalSeconds={timerData?.totalSeconds ?? 0}
+        shapeMode={shapeMode}
       />
     </div>
   );

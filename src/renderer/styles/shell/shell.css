@@ -200,17 +200,11 @@
   opacity: 1;
 }
 
-.island-timer-ring rect {
-  x: 1.5px;
-  y: 1.5px;
-  width: calc(100% - 3px);
-  height: calc(100% - 3px);
-  rx: calc(var(--shell-pill-radius, 22px) - 1.5px);
-  ry: calc(var(--shell-pill-radius, 22px) - 1.5px);
+.island-timer-ring path {
   fill: none;
   stroke: #ffb300;
   stroke-width: 3px;
-  transition: rx 0.4s ease, ry 0.4s ease;
+  stroke-linecap: round;
 }
 
 

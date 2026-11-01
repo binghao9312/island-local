@@ -20,34 +20,68 @@
 
 /**
  * @file IslandTimerRing.tsx
- * @description 灵动岛外缘的倒计时进度环（琥珀色），在所有岛屿状态下叠加显示，按帧连续缩短
+ * @description 灵动岛外缘的倒计时进度线（琥珀色），按帧连续缩短；胶囊形态绕一整圈，刘海形态只走左、下、右三边
  * @author 鸡哥
  */
 
-import { useEffect, useRef, type JSX } from 'react';
-import type { TimerState } from '../../store/types';
-import { getRingDashOffset, isTimerRingVisible, resolveRingEndAt } from '../utils/timerRing';
+import { useEffect, useRef, useState, type JSX } from 'react';
+import type { IslandShapeMode, TimerState } from '../../store/types';
+import { buildTimerRingPath, getRingDashOffset, isTimerRingVisible, resolveRingEndAt } from '../utils/timerRing';
 
-/** 进度环入参 */
+/** 进度线入参 */
 interface IslandTimerRingProps {
   timerState: TimerState;
   remainingSeconds: number;
   totalSeconds: number;
+  shapeMode: IslandShapeMode;
 }
 
+/** 圆角过渡时长（毫秒），过渡结束后重新测量 */
+const RADIUS_SETTLE_MS = 450;
+
 /**
- * 渲染倒计时进度环；运行时用 requestAnimationFrame 按结束时间连续推进，暂停时冻结在当前位置。
+ * 渲染倒计时进度线；运行时用 requestAnimationFrame 按结束时间连续推进，暂停时冻结在当前位置。
  * @param props - 组件入参
  * @param props.timerState - 计时器状态
  * @param props.remainingSeconds - 剩余整秒
  * @param props.totalSeconds - 总秒数
- * @returns 进度环 SVG
+ * @param props.shapeMode - 岛屿形态（notch 不画顶边）
+ * @returns 进度线 SVG
  */
-export function IslandTimerRing({ timerState, remainingSeconds, totalSeconds }: IslandTimerRingProps): JSX.Element {
-  const rectRef = useRef<SVGRectElement>(null);
+export function IslandTimerRing({ timerState, remainingSeconds, totalSeconds, shapeMode }: IslandTimerRingProps): JSX.Element {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const pathRef = useRef<SVGPathElement>(null);
   const endAtRef = useRef<number | null>(null);
+  const [pathD, setPathD] = useState('');
   const visible = isTimerRingVisible(timerState, totalSeconds);
   const running = visible && timerState === 'running';
+
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg || !visible) return undefined;
+    let settleTimer = 0;
+    const measure = (): void => {
+      const shell = svg.parentElement;
+      const { width, height } = svg.getBoundingClientRect();
+      const radius = shell ? parseFloat(getComputedStyle(shell).borderBottomLeftRadius) || 0 : 0;
+      setPathD(buildTimerRingPath(width, height, radius, shapeMode));
+    };
+    const remeasure = (): void => {
+      measure();
+      window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(measure, RADIUS_SETTLE_MS);
+    };
+    remeasure();
+    const resizeObserver = new ResizeObserver(remeasure);
+    resizeObserver.observe(svg);
+    const classObserver = new MutationObserver(remeasure);
+    if (svg.parentElement) classObserver.observe(svg.parentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => {
+      window.clearTimeout(settleTimer);
+      resizeObserver.disconnect();
+      classObserver.disconnect();
+    };
+  }, [visible, shapeMode]);
 
   useEffect(() => {
     if (!running) {
@@ -61,11 +95,11 @@ export function IslandTimerRing({ timerState, remainingSeconds, totalSeconds }: 
     if (!running) return undefined;
     let frameId = 0;
     const draw = (): void => {
-      const rect = rectRef.current;
+      const path = pathRef.current;
       const endAt = endAtRef.current;
-      if (rect && endAt !== null) {
+      if (path && endAt !== null) {
         const leftSeconds = Math.max(0, (endAt - performance.now()) / 1000);
-        rect.style.strokeDashoffset = String(getRingDashOffset(leftSeconds, totalSeconds));
+        path.style.strokeDashoffset = String(getRingDashOffset(leftSeconds, totalSeconds));
       }
       frameId = requestAnimationFrame(draw);
     };
@@ -74,9 +108,10 @@ export function IslandTimerRing({ timerState, remainingSeconds, totalSeconds }: 
   }, [running, totalSeconds]);
 
   return (
-    <svg className={`island-timer-ring${visible ? ' island-timer-ring-visible' : ''}`} aria-hidden="true" focusable="false">
-      <rect
-        ref={rectRef}
+    <svg ref={svgRef} className={`island-timer-ring${visible ? ' island-timer-ring-visible' : ''}`} aria-hidden="true" focusable="false">
+      <path
+        ref={pathRef}
+        d={pathD}
         pathLength={100}
         strokeDasharray={100}
         strokeDashoffset={visible ? getRingDashOffset(remainingSeconds, totalSeconds) : 0}
