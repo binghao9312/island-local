@@ -31,6 +31,7 @@ import useIslandStore from '../../../../../../../../store/slices';
 import { SvgIcon } from '../../../../../../../../utils/SvgIcon';
 import type { AppSettingsSectionProps } from './types';
 import type { IslandShapeMode } from '../../../../../../../../store/types';
+import { GoogleCalendarSyncCard } from './GoogleCalendarSyncCard';
 
 type HoverScreenshotMode = 'region' | 'display';
 
@@ -238,6 +239,8 @@ export function BehaviorSettingsPage({
             </label>
           </div>
         </div>
+
+        <GoogleCalendarSyncCard />
 
         <div className="settings-card">
           <div className="settings-card-header">
