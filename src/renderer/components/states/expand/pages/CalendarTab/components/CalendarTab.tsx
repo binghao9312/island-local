@@ -24,7 +24,7 @@
  * @author 鸡哥
  */
 
-import { useMemo, type ReactElement } from 'react';
+import { useMemo, useState, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCalendar } from '../../../../maxExpand/components/calendar/hooks/useCalendar';
 import { useCalendarHolidays } from '../../../../maxExpand/components/calendar/hooks/useCalendarHolidays';
@@ -40,10 +40,16 @@ import {
 } from '../../../../maxExpand/components/calendar/utils/calendarUtils';
 import { getCalendarDateKey } from '../../../../maxExpand/components/calendar/utils/calendarHolidayUtils';
 import { useGoogleCalendar } from '../hooks/useGoogleCalendar';
+import { GoogleEventForm } from './GoogleEventForm';
 import {
+  createEventFormValues,
   getGoogleCalendarWindow,
   getGoogleStatusKey,
+  GOOGLE_EVENT_ID_PREFIX,
+  toEventInput,
   toGoogleTimelineEvents,
+  type GoogleEditorState,
+  type GoogleEventFormValues,
 } from '../utils/googleCalendarEvents';
 
 /** 7 个星期的简写头，基准从周日开始 */
@@ -85,6 +91,36 @@ export function CalendarTab(): ReactElement {
     [google.events, t],
   );
   const googleStatusKey = getGoogleStatusKey({ enabled: google.enabled, status: google.status, error: google.error });
+  const googleReady = google.enabled && google.status?.loggedIn === true;
+  const [editor, setEditor] = useState<GoogleEditorState | null>(null);
+  const editingEvent = editor?.kind === 'edit'
+    ? google.events.find((item) => item.id === editor.id) ?? null
+    : null;
+
+  /**
+   * 保存表单：新建或整体更新，成功后关闭表单
+   * @param values - 已在表单中校验过的字段
+   * @returns 是否保存成功
+   */
+  const handleGoogleSubmit = async (values: GoogleEventFormValues): Promise<boolean> => {
+    const input = toEventInput(values);
+    const result = editor?.kind === 'edit'
+      ? await google.updateEvent(editor.id, input)
+      : await google.createEvent(input);
+    if (result.ok) setEditor(null);
+    return result.ok;
+  };
+
+  /**
+   * 删除正在编辑的事件，成功后关闭表单
+   * @returns 是否删除成功
+   */
+  const handleGoogleDelete = async (): Promise<boolean> => {
+    if (editor?.kind !== 'edit') return false;
+    const result = await google.removeEvent(editor.id);
+    if (result.ok) setEditor(null);
+    return result.ok;
+  };
 
   const allEvents = useMemo(
     () => [...getCalendarTimelineEvents(holidayInfo.holidays, todos, countdowns, today), ...googleEvents],
@@ -231,15 +267,25 @@ export function CalendarTab(): ReactElement {
           <div className="compact-calendar-events-title">
             {selectedKey}
           </div>
-          {google.enabled && google.status?.loggedIn === true && (
-            <button
-              type="button"
-              className="compact-calendar-nav-btn"
-              onClick={google.refresh}
-              aria-label={t('expanded.calendar.google.refresh', { defaultValue: 'Refresh Google Calendar' })}
-            >
-              ↻
-            </button>
+          {googleReady && (
+            <div className="compact-calendar-events-actions">
+              <button
+                type="button"
+                className="compact-calendar-nav-btn"
+                onClick={() => setEditor({ kind: 'create' })}
+                aria-label={t('expanded.calendar.google.addEvent', { defaultValue: 'Add event' })}
+              >
+                +
+              </button>
+              <button
+                type="button"
+                className="compact-calendar-nav-btn"
+                onClick={google.refresh}
+                aria-label={t('expanded.calendar.google.refresh', { defaultValue: 'Refresh Google Calendar' })}
+              >
+                ↻
+              </button>
+            </div>
           )}
         </div>
         {googleStatusKey && (
@@ -247,31 +293,60 @@ export function CalendarTab(): ReactElement {
             {t(googleStatusKey, { defaultValue: 'Google Calendar unavailable' })}
           </div>
         )}
-        {selectedEvents.length === 0 ? (
+        {editor && (editor.kind === 'create' || editingEvent) ? (
+          <GoogleEventForm
+            key={editor.kind === 'create' ? `create-${selectedKey}` : `edit-${editor.id}`}
+            initialValues={createEventFormValues(editingEvent, selectedKey)}
+            editing={editor.kind === 'edit'}
+            onSubmit={handleGoogleSubmit}
+            onDelete={editor.kind === 'edit' ? handleGoogleDelete : undefined}
+            onClose={() => setEditor(null)}
+          />
+        ) : selectedEvents.length === 0 ? (
           <div className="compact-calendar-no-events">
             {t('expanded.calendar.noEvents', { defaultValue: '暂无日程安排' })}
           </div>
         ) : (
           <div className="compact-calendar-events-list">
-            {selectedEvents.map((event) => (
-              <div key={event.id} className="compact-calendar-event-item">
-                <span
-                  className={`compact-calendar-event-type-dot ${event.kind}`}
-                  style={event.color ? { backgroundColor: event.color } : undefined}
-                />
-                <span className="compact-calendar-event-label" title={event.label}>
-                  {event.label}
-                </span>
-                {event.kind === 'google' && (
+            {selectedEvents.map((event) => {
+              const content = (
+                <>
                   <span
-                    className="compact-calendar-google-badge"
-                    title={t('expanded.calendar.google.badge', { defaultValue: 'Google Calendar' })}
-                  >
-                    G
+                    className={`compact-calendar-event-type-dot ${event.kind}`}
+                    style={event.color ? { backgroundColor: event.color } : undefined}
+                  />
+                  <span className="compact-calendar-event-label" title={event.label}>
+                    {event.label}
                   </span>
-                )}
-              </div>
-            ))}
+                  {event.kind === 'google' && (
+                    <span
+                      className="compact-calendar-google-badge"
+                      title={t('expanded.calendar.google.badge', { defaultValue: 'Google Calendar' })}
+                    >
+                      G
+                    </span>
+                  )}
+                </>
+              );
+              // 仅单日 Google 事件可编辑：多日事件若只保存首日，会在提交时静默缩短。
+              if (event.kind === 'google' && event.start === event.end) {
+                return (
+                  <button
+                    key={event.id}
+                    type="button"
+                    className="compact-calendar-event-item compact-calendar-event-button"
+                    onClick={() => setEditor({ kind: 'edit', id: event.id.slice(GOOGLE_EVENT_ID_PREFIX.length) })}
+                  >
+                    {content}
+                  </button>
+                );
+              }
+              return (
+                <div key={event.id} className="compact-calendar-event-item">
+                  {content}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

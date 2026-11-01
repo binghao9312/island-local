@@ -306,3 +306,88 @@
   font-weight: 700;
   line-height: 1;
 }
+
+.compact-calendar-events-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.compact-calendar-event-button {
+  width: 100%;
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.compact-calendar-google-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--color-island-text);
+}
+
+.compact-calendar-google-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.compact-calendar-google-field-inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.compact-calendar-google-field input {
+  min-width: 0;
+  padding: 2px 4px;
+  border-radius: 4px;
+  border: 1px solid rgba(var(--color-text-rgb), 0.15);
+  background: rgba(var(--color-text-rgb), 0.06);
+  color: inherit;
+  font: inherit;
+}
+
+.compact-calendar-google-time-row {
+  display: flex;
+  gap: 6px;
+}
+
+.compact-calendar-google-time-row > .compact-calendar-google-field {
+  flex: 1;
+}
+
+.compact-calendar-google-error {
+  font-size: 10px;
+  color: #d93025;
+}
+
+.compact-calendar-google-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.compact-calendar-google-actions button {
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: none;
+  background: rgba(var(--color-text-rgb), 0.08);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.compact-calendar-google-actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.compact-calendar-google-danger {
+  color: #d93025;
+}

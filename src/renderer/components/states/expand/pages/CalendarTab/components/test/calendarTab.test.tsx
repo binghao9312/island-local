@@ -36,6 +36,7 @@ vi.hoisted(() => {
 
 import { render, nodes, text, trigger } from '../../../../../maxExpand/test/componentHarness';
 import { CalendarTab } from '../CalendarTab';
+import { GoogleEventForm } from '../GoogleEventForm';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -131,7 +132,8 @@ describe('CalendarTab in expanded view', () => {
     expect(text(tree)).toContain('10:00 Design review');
     expect(nodes(tree, '.compact-calendar-google-badge')).toHaveLength(1);
     expect(nodes(tree, '.compact-calendar-google-status')).toHaveLength(0);
-    expect(nodes(tree, '.compact-calendar-nav-btn')).toHaveLength(3);
+    // 两个月份切换按钮，加上新增与刷新按钮。
+    expect(nodes(tree, '.compact-calendar-nav-btn')).toHaveLength(4);
   });
 
   it('shows a status line and no Google UI when gws is missing', () => {
@@ -143,6 +145,30 @@ describe('CalendarTab in expanded view', () => {
     expect(nodes(tree, '.compact-calendar-google-status')).toHaveLength(1);
     expect(nodes(tree, '.compact-calendar-google-badge')).toHaveLength(0);
     expect(nodes(tree, '.compact-calendar-nav-btn')).toHaveLength(2);
+  });
+
+  it('opens the editor from a single-day Google event row', () => {
+    mockGoogle.enabled = true;
+    mockGoogle.status = { available: true, loggedIn: true };
+    mockGoogle.events = [
+      { id: 'g3', title: 'Lunch', allDay: true, start: '2026-11-01', end: '2026-11-01' },
+    ];
+
+    const tree = render(CalendarTab);
+    expect(nodes(tree, '.compact-calendar-event-button')).toHaveLength(1);
+    trigger(tree, '.compact-calendar-event-button', 'onClick');
+
+    expect(nodes(render(CalendarTab), GoogleEventForm)).toHaveLength(1);
+  });
+
+  it('keeps multi-day Google events read-only', () => {
+    mockGoogle.enabled = true;
+    mockGoogle.status = { available: true, loggedIn: true };
+    mockGoogle.events = [
+      { id: 'g4', title: 'Trip', allDay: true, start: '2026-11-01', end: '2026-11-03' },
+    ];
+
+    expect(nodes(render(CalendarTab), '.compact-calendar-event-button')).toHaveLength(0);
   });
 
   it('hides Google UI entirely while sync is disabled', () => {

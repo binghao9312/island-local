@@ -694,7 +694,20 @@
         "network": "网络异常，Google 日历同步失败。",
         "error": "无法加载 Google 日历。",
         "refresh": "刷新 Google 日历",
-        "writeFailed": "日程保存失败，请稍后重试。"
+        "writeFailed": "日程保存失败，请稍后重试。",
+        "addEvent": "添加日程",
+        "newEvent": "新建日程",
+        "editEvent": "编辑日程",
+        "fieldTitle": "标题",
+        "fieldDate": "日期",
+        "fieldStart": "开始",
+        "fieldEnd": "结束",
+        "allDay": "全天",
+        "save": "保存",
+        "cancel": "取消",
+        "delete": "删除",
+        "confirmDelete": "确认删除",
+        "invalid": "请检查标题、日期和时间。"
       }
     },
     "agentUsage": {

@@ -29,11 +29,14 @@ import { getCalendarDateKey } from '../../../../maxExpand/components/calendar/ut
 import type {
   GoogleCalendarErrorCode,
   GoogleCalendarEvent,
+  GoogleCalendarEventInput,
   GoogleCalendarStatus,
 } from '../../../../../../../shared/googleCalendarTypes';
 
 /** Google 事件使用品牌蓝，与本地节假日、待办、倒数日的颜色区分 */
 export const GOOGLE_EVENT_COLOR = '#4285f4';
+/** 时间轴事件 ID 的前缀，用于从时间轴事件还原 Google 事件 ID */
+export const GOOGLE_EVENT_ID_PREFIX = 'gcal:';
 
 const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 /** 日历网格在当月前后最多露出的天数，查询窗口需覆盖这些日期 */
@@ -57,7 +60,7 @@ export function getGoogleCalendarWindow(year: number, month: number): { timeMin:
  * @param date - 本地时间
  * @returns HH:mm 字符串
  */
-function formatClock(date: Date): string {
+export function formatClock(date: Date): string {
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
@@ -75,7 +78,7 @@ export function toGoogleTimelineEvents(events: GoogleCalendarEvent[], untitledLa
     if (event.allDay) {
       if (!DATE_KEY_PATTERN.test(event.start) || !DATE_KEY_PATTERN.test(event.end)) return [];
       const end = event.end < event.start ? event.start : event.end;
-      return [{ id: `gcal:${event.id}`, kind: 'google', label: title, start: event.start, end, color: GOOGLE_EVENT_COLOR }];
+      return [{ id: `${GOOGLE_EVENT_ID_PREFIX}${event.id}`, kind: 'google', label: title, start: event.start, end, color: GOOGLE_EVENT_COLOR }];
     }
     const startTime = Date.parse(event.start);
     const endTime = Date.parse(event.end);
@@ -83,7 +86,7 @@ export function toGoogleTimelineEvents(events: GoogleCalendarEvent[], untitledLa
     const start = new Date(startTime);
     const end = new Date(Math.max(startTime, endTime));
     return [{
-      id: `gcal:${event.id}`,
+      id: `${GOOGLE_EVENT_ID_PREFIX}${event.id}`,
       kind: 'google',
       label: `${formatClock(start)} ${title}`,
       start: getCalendarDateKey(start),
@@ -116,4 +119,59 @@ export function getGoogleStatusKey(input: GoogleStatusInput): string | null {
   if (input.error === 'network') return 'expanded.calendar.google.network';
   if (input.error) return 'expanded.calendar.google.error';
   return null;
+}
+
+/** 紧凑表单的字段值：日期为 YYYY-MM-DD，时间为本地 HH:mm */
+export interface GoogleEventFormValues {
+  title: string;
+  allDay: boolean;
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
+/** 日历中当前打开的 Google 表单：新建，或编辑指定 ID 的事件 */
+export type GoogleEditorState = { kind: 'create' } | { kind: 'edit'; id: string };
+
+/**
+ * 生成表单初始值
+ * @description 新建时默认 09:00-10:00 的定时事件；编辑时从已有事件还原本地日期与时间。
+ * @param event - 正在编辑的事件，新建时为 null
+ * @param defaultDate - 新建事件的默认日期 YYYY-MM-DD，即日历当前选中日
+ * @returns 表单初始值
+ */
+export function createEventFormValues(event: GoogleCalendarEvent | null, defaultDate: string): GoogleEventFormValues {
+  if (!event) return { title: '', allDay: false, date: defaultDate, startTime: '09:00', endTime: '10:00' };
+  if (event.allDay) return { title: event.title, allDay: true, date: event.start, startTime: '09:00', endTime: '10:00' };
+  const start = new Date(event.start);
+  return {
+    title: event.title,
+    allDay: false,
+    date: getCalendarDateKey(start),
+    startTime: formatClock(start),
+    endTime: formatClock(new Date(event.end)),
+  };
+}
+
+/**
+ * 校验表单字段
+ * @description 只做界面即时反馈，权威校验仍在主进程完成。定时事件的结束时间必须晚于开始时间。
+ * @param values - 表单字段值
+ * @returns 无问题时返回 null，否则返回 'invalid'
+ */
+export function validateEventFormValues(values: GoogleEventFormValues): 'invalid' | null {
+  if (!values.title.trim() || !values.date) return 'invalid';
+  if (!values.allDay && values.endTime <= values.startTime) return 'invalid';
+  return null;
+}
+
+/**
+ * 将表单字段转换为提交给主进程的输入
+ * @param values - 已通过 validateEventFormValues 校验的字段值
+ * @returns 事件输入；全天事件不携带时间字段
+ */
+export function toEventInput(values: GoogleEventFormValues): GoogleCalendarEventInput {
+  const title = values.title.trim();
+  if (values.allDay) return { title, allDay: true, date: values.date };
+  return { title, allDay: false, date: values.date, startTime: values.startTime, endTime: values.endTime };
 }

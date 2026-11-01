@@ -694,7 +694,20 @@
         "network": "Network error. Google Calendar could not be synced.",
         "error": "Google Calendar could not be loaded.",
         "refresh": "Refresh Google Calendar",
-        "writeFailed": "Could not save the event. Please try again."
+        "writeFailed": "Could not save the event. Please try again.",
+        "addEvent": "Add event",
+        "newEvent": "New event",
+        "editEvent": "Edit event",
+        "fieldTitle": "Title",
+        "fieldDate": "Date",
+        "fieldStart": "Start",
+        "fieldEnd": "End",
+        "allDay": "All day",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "confirmDelete": "Confirm delete",
+        "invalid": "Please check the title, date and time."
       }
     },
     "agentUsage": {

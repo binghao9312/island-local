@@ -694,7 +694,20 @@
         "network": "ネットワークエラーのため、Google カレンダーを同期できませんでした。",
         "error": "Google カレンダーを読み込めませんでした。",
         "refresh": "Google カレンダーを更新",
-        "writeFailed": "予定を保存できませんでした。もう一度お試しください。"
+        "writeFailed": "予定を保存できませんでした。もう一度お試しください。",
+        "addEvent": "予定を追加",
+        "newEvent": "新しい予定",
+        "editEvent": "予定を編集",
+        "fieldTitle": "タイトル",
+        "fieldDate": "日付",
+        "fieldStart": "開始",
+        "fieldEnd": "終了",
+        "allDay": "終日",
+        "save": "保存",
+        "cancel": "キャンセル",
+        "delete": "削除",
+        "confirmDelete": "削除を確定",
+        "invalid": "タイトル、日付、時刻を確認してください。"
       }
     },
     "agentUsage": {

@@ -694,7 +694,20 @@
         "network": "網路異常，Google 日曆同步失敗。",
         "error": "無法載入 Google 日曆。",
         "refresh": "重新整理 Google 日曆",
-        "writeFailed": "日程儲存失敗，請稍後再試。"
+        "writeFailed": "日程儲存失敗，請稍後再試。",
+        "addEvent": "新增日程",
+        "newEvent": "新增日程",
+        "editEvent": "編輯日程",
+        "fieldTitle": "標題",
+        "fieldDate": "日期",
+        "fieldStart": "開始",
+        "fieldEnd": "結束",
+        "allDay": "全天",
+        "save": "儲存",
+        "cancel": "取消",
+        "delete": "刪除",
+        "confirmDelete": "確認刪除",
+        "invalid": "請檢查標題、日期和時間。"
       }
     },
     "agentUsage": {

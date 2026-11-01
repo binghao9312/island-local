@@ -26,10 +26,13 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  createEventFormValues,
   GOOGLE_EVENT_COLOR,
   getGoogleCalendarWindow,
   getGoogleStatusKey,
+  toEventInput,
   toGoogleTimelineEvents,
+  validateEventFormValues,
 } from '../googleCalendarEvents';
 
 describe('getGoogleCalendarWindow', () => {
@@ -111,5 +114,46 @@ describe('getGoogleStatusKey', () => {
 
   it('returns null when everything is healthy', () => {
     expect(getGoogleStatusKey({ enabled: true, status: { available: true, loggedIn: true }, error: null })).toBeNull();
+  });
+});
+
+describe('event form values', () => {
+  it('starts new timed events on the selected day at 09:00-10:00', () => {
+    expect(createEventFormValues(null, '2026-11-02')).toEqual({
+      title: '',
+      allDay: false,
+      date: '2026-11-02',
+      startTime: '09:00',
+      endTime: '10:00',
+    });
+  });
+
+  it('restores local date and time when editing a timed event', () => {
+    const values = createEventFormValues({
+      id: 'e1',
+      title: 'Review',
+      allDay: false,
+      start: new Date(2026, 10, 2, 14, 30).toISOString(),
+      end: new Date(2026, 10, 2, 15, 15).toISOString(),
+    }, '2026-11-09');
+
+    expect(values).toEqual({ title: 'Review', allDay: false, date: '2026-11-02', startTime: '14:30', endTime: '15:15' });
+  });
+
+  it('validates blank titles, missing dates and inverted times', () => {
+    const base = { title: 'x', allDay: false, date: '2026-11-02', startTime: '10:00', endTime: '11:00' };
+
+    expect(validateEventFormValues(base)).toBeNull();
+    expect(validateEventFormValues({ ...base, title: '  ' })).toBe('invalid');
+    expect(validateEventFormValues({ ...base, date: '' })).toBe('invalid');
+    expect(validateEventFormValues({ ...base, endTime: '09:00' })).toBe('invalid');
+    expect(validateEventFormValues({ ...base, allDay: true, endTime: '09:00' })).toBeNull();
+  });
+
+  it('trims the title and omits time fields for all-day events', () => {
+    expect(toEventInput({ title: ' Trip ', allDay: true, date: '2026-11-02', startTime: '10:00', endTime: '11:00' }))
+      .toEqual({ title: 'Trip', allDay: true, date: '2026-11-02' });
+    expect(toEventInput({ title: 'Call', allDay: false, date: '2026-11-02', startTime: '10:00', endTime: '10:30' }))
+      .toEqual({ title: 'Call', allDay: false, date: '2026-11-02', startTime: '10:00', endTime: '10:30' });
   });
 });
