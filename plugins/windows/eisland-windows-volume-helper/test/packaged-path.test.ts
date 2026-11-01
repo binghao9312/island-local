@@ -111,4 +111,40 @@ describe('packaged volume helper path', () => {
       expect.objectContaining({ windowsHide: true }),
     );
   });
+
+  it('finds the helper inside the win-x64 RID folder of a published build', () => {
+    const asarDir = 'C:\Program Files\eIsland\resources\app.asar\node_modules\@eisland\windows-volume-helper';
+    const ridHelperPath = path.join(asarDir, 'src', 'bin', 'Release', 'net10.0', 'win-x64', 'eIslandVolumeHelper.exe');
+    const spawnSync = vi.fn(() => ({
+      status: 0,
+      error: undefined,
+      stdout: JSON.stringify({ level: 38 }),
+    }));
+    const vmModule = { exports: {} as VolumeModule };
+
+    vm.runInNewContext(
+      readFileSync(new URL('../index.js', import.meta.url), 'utf8'),
+      {
+        module: vmModule,
+        exports: vmModule.exports,
+        __dirname: asarDir,
+        process: { platform: 'win32' },
+        require: (id: string) => {
+          if (id === 'node:child_process') return { spawnSync, spawn: vi.fn() };
+          if (id === 'node:fs') return { existsSync: (candidate: string) => candidate === ridHelperPath };
+          if (id === 'node:path') return path;
+          if (id === 'node:events') return { EventEmitter };
+          if (id === './async-control') return { createAsyncControl: vi.fn() };
+          throw new Error(`Unexpected dependency: ${id}`);
+        },
+      },
+    );
+
+    expect(vmModule.exports.getVolume()).toBe(38);
+    expect(spawnSync).toHaveBeenCalledWith(
+      ridHelperPath,
+      ['get'],
+      expect.objectContaining({ windowsHide: true }),
+    );
+  });
 });
