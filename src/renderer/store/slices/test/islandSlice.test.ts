@@ -38,7 +38,7 @@ function createSliceState(creator: StateCreator<IslandState, [], [], IslandState
     const patch = typeof updater === 'function' ? updater(state) : updater;
     state = { ...state, ...patch };
   };
-  state = creator(setState as never, (() => state) as never, {} as never);
+  state = creator(setState as never, (() => state) as never, { subscribe: () => () => {} } as never);
   return { getState: () => state };
 }
 

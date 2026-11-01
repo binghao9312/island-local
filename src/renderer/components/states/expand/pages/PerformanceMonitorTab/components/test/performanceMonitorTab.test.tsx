@@ -33,11 +33,12 @@ const mocks = vi.hoisted(() => ({
   snapshot: vi.fn<(selection: unknown, includeHardware: boolean) => Promise<unknown>>(),
   read: vi.fn<(key: string) => Promise<unknown>>(), write: vi.fn<(key: string, data: unknown) => Promise<boolean>>(),
   subscribe: vi.fn<(callback: (channel: string, data: unknown) => void) => () => void>(),
-  unsubscribe: vi.fn(), preview: vi.fn<() => Promise<boolean>>(), open: vi.fn<() => Promise<boolean>>(), max: vi.fn(), select: vi.fn(),
+  unsubscribe: vi.fn(), pin: { value: false }, setPin: vi.fn<(pinned: boolean) => void>(), preview: vi.fn<() => Promise<boolean>>(), open: vi.fn<() => Promise<boolean>>(), max: vi.fn(), select: vi.fn(),
 }));
 // 状态 hook 在此测试直接调用；浅比较由 Zustand 负责，保留选择器输入。
 vi.mock('zustand/react/shallow', () => ({ useShallow: (selector: unknown) => selector }));
-vi.mock('../../../../../../../store/slices', () => ({ default: () => ({ setMaxExpand: mocks.max, setMaxExpandTab: mocks.select }) }));
+vi.mock('../../../../../../../store/slices', () => ({ default: () => ({ setMaxExpand: mocks.max, setMaxExpandTab: mocks.select,
+  pinned: mocks.pin.value, setPinned: mocks.setPin }) }));
 
 /**
  * 构造含缺失与越界硬件字段的接口结果。
@@ -77,7 +78,7 @@ function metrics(tree: ReactNode): ReactElement<Record<string, unknown>>[] {
 describe('PerformanceMonitorTab', () => {
   let component: unknown;
   beforeEach(async () => {
-    vi.resetModules(); vi.useFakeTimers();
+    vi.resetModules(); vi.useFakeTimers(); mocks.pin.value = false; mocks.setPin.mockClear();
     mocks.snapshot.mockResolvedValue(snapshot()); mocks.read.mockResolvedValue(null); mocks.write.mockResolvedValue(true);
     mocks.subscribe.mockReturnValue(mocks.unsubscribe); mocks.preview.mockResolvedValue(true); mocks.open.mockResolvedValue(true);
     vi.stubGlobal('document', Object.assign(new EventTarget(), { hidden: false }));
@@ -138,6 +139,31 @@ describe('PerformanceMonitorTab', () => {
     Object.assign(document, { hidden: false }); document.dispatchEvent(new Event('visibilitychange'));
     await vi.advanceTimersByTimeAsync(0); expect(mocks.snapshot).toHaveBeenCalledTimes(2);
     cleanup.forEach((fn) => fn()); expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('固定按钮反映固定状态并切换固定', async () => {
+    const cleanup = await start(component);
+    let button = nodes(render(component), '.pm-pin-btn')[0].props as Record<string, unknown>;
+    expect(button['aria-pressed']).toBe(false); expect(button.className).not.toContain('pm-pin-btn--active');
+    expect(button['aria-label']).toContain('performanceMonitor.pin:'); expect(button.title).toContain('performanceMonitor.pinHint');
+    fire(render(component), '.pm-pin-btn', 'onClick'); expect(mocks.setPin).toHaveBeenLastCalledWith(true);
+    mocks.pin.value = true;
+    button = nodes(render(component), '.pm-pin-btn')[0].props as Record<string, unknown>;
+    expect(button['aria-pressed']).toBe(true); expect(button.className).toContain('pm-pin-btn--active');
+    expect(button['aria-label']).toContain('performanceMonitor.unpin:');
+    fire(render(component), '.pm-pin-btn', 'onClick'); expect(mocks.setPin).toHaveBeenLastCalledWith(false);
+    cleanup.forEach((fn) => fn());
+  });
+
+  it('固定时文档隐藏也持续轮询，取消固定后恢复暂停', async () => {
+    mocks.pin.value = true;
+    const cleanup = await start(component);
+    expect(mocks.snapshot).toHaveBeenCalledOnce();
+    Object.assign(document, { hidden: true }); document.dispatchEvent(new Event('visibilitychange'));
+    await vi.advanceTimersByTimeAsync(4000); expect(mocks.snapshot).toHaveBeenCalledTimes(3);
+    mocks.pin.value = false; render(component); document.dispatchEvent(new Event('visibilitychange'));
+    await vi.advanceTimersByTimeAsync(4000); expect(mocks.snapshot).toHaveBeenCalledTimes(3);
+    cleanup.forEach((fn) => fn());
   });
 
   it.each(['integrated', 'standalone', 'legacy', 'failed'])('隐藏页面后更新导航并进入布局设置：%s', async (mode) => {

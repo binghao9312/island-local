@@ -42,6 +42,8 @@ export function PerformanceMonitorTab(): ReactElement {
     monitoringEnabled,
     failed,
     chartColors,
+    pinned,
+    togglePinned,
     startMonitoring,
     stopMonitoring,
     handleHidePage,
@@ -100,6 +102,23 @@ export function PerformanceMonitorTab(): ReactElement {
           </div>
           <button className="pm-hardware-settings-link" type="button" onClick={openHardwareSettings}>
             {t('expanded.performanceMonitor.hardwareSettingsLink', { defaultValue: '和您的硬件不一样？点击前往调整' })}
+          </button>
+          <button
+            className={`pm-pin-btn${pinned ? ' pm-pin-btn--active' : ''}`}
+            type="button"
+            aria-pressed={pinned}
+            aria-label={pinned
+              ? t('expanded.performanceMonitor.unpin', { defaultValue: '取消固定' })
+              : t('expanded.performanceMonitor.pin', { defaultValue: '固定常驻' })}
+            title={pinned
+              ? t('expanded.performanceMonitor.unpinHint', { defaultValue: '取消固定，恢复自动收起' })
+              : t('expanded.performanceMonitor.pinHint', { defaultValue: '固定后灵动岛不会自动收起，适合游戏时监控' })}
+            onClick={togglePinned}
+          >
+            <svg viewBox="0 0 24 24" width="12" height="12" fill={pinned ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 17v5" />
+              <path d="M9 3h6l-1 7 3 3v2H7v-2l3-3-1-7z" />
+            </svg>
           </button>
         </div>
         <div className="pm-dashboard-body">

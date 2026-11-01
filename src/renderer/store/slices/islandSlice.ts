@@ -49,12 +49,55 @@ function readCliProvider(): 'claude' | 'codex' {
   }
 }
 
+/** 判定固定状态所需的最小 Store 字段。 */
+export interface PerformanceMonitorPinSnapshot {
+  state: string;
+  expandTab: string;
+  performanceMonitorPinned: boolean;
+}
+
+/**
+ * 判断当前是否处于允许固定的上下文（展开态的性能监控页）。
+ * @param snapshot - Store 快照
+ * @returns 位于展开态性能监控页时为 true
+ */
+export function isPerformanceMonitorPinContext(snapshot: Pick<PerformanceMonitorPinSnapshot, 'state' | 'expandTab'>): boolean {
+  return snapshot.state === 'expanded' && snapshot.expandTab === 'performanceMonitor';
+}
+
+/**
+ * 判断性能监控固定是否正在生效；生效时所有自动收起路径都必须拒绝收起。
+ * @param snapshot - Store 快照
+ * @returns 已固定且仍位于展开态性能监控页时为 true
+ */
+export function isPerformanceMonitorPinActive(snapshot: PerformanceMonitorPinSnapshot): boolean {
+  return snapshot.performanceMonitorPinned && isPerformanceMonitorPinContext(snapshot);
+}
+
+/**
+ * 离开展开态性能监控页（切换标签、状态或被其它面板取代）时自动取消固定。
+ * @param store - Zustand Store API，用于订阅状态变化
+ * @param set - Store 的 set 方法
+ */
+function releasePerformanceMonitorPinOnLeave(
+  store: { subscribe: (listener: (current: IslandSlice) => void) => unknown },
+  set: (partial: Partial<IslandSlice>) => void,
+): void {
+  store.subscribe((current) => {
+    if (current.performanceMonitorPinned && !isPerformanceMonitorPinContext(current)) {
+      set({ performanceMonitorPinned: false });
+    }
+  });
+}
+
 export const createIslandSlice: StateCreator<
   IslandSlice,
   [],
   [],
   IslandSlice
-> = (set, get) => ({
+> = (set, get, store) => (
+  releasePerformanceMonitorPinOnLeave(store, set),
+  {
   state: 'idle',
   authReturnState: null,
   uiStateLocked: false,
@@ -65,6 +108,7 @@ export const createIslandSlice: StateCreator<
   musicProviderLogin: 'qishui',
   hoverTab: 'time',
   expandTab: 'overview',
+  performanceMonitorPinned: false,
   maxExpandTab: 'todo',
   maxExpandAppModeEnabled: false,
   maxExpandLauncherVisible: true,
@@ -76,6 +120,8 @@ export const createIslandSlice: StateCreator<
   shapeMode: 'notch' as const,
 
   setIdle: (force?: boolean) => set((prev) => {
+    // 固定性能监控时拒绝一切自动收起（含 force），用户主动导航会先取消固定。
+    if (isPerformanceMonitorPinActive(prev)) return prev;
     if (prev.uiStateLocked && prev.state !== 'idle') return prev;
     if (!force && (prev.state === 'expanded' || prev.state === 'maxExpand' || prev.state === 'guide' || prev.state === 'login' || prev.state === 'register' || prev.state === 'resetPassword' || prev.state === 'setPassword' || prev.state === 'bindOAuth' || prev.state === 'bindEmail' || prev.state === 'payment' || prev.state === 'questionnaire' || prev.state === 'musicProvidersLogin')) return prev;
     // 每次切换都传完整保护时长；快速反向切换时，原生画布可能仍比 prev.state 大。
@@ -314,6 +360,10 @@ export const createIslandSlice: StateCreator<
 
   setHoverTab: (tab) => set({ hoverTab: tab }),
   setExpandTab: (tab) => set({ expandTab: tab }),
+  setPerformanceMonitorPinned: (pinned) => set((prev) => {
+    if (pinned && !isPerformanceMonitorPinContext(prev)) return prev;
+    return prev.performanceMonitorPinned === pinned ? prev : { performanceMonitorPinned: pinned };
+  }),
   setMaxExpandTab: (tab) => set({ maxExpandTab: tab, maxExpandLauncherVisible: false }),
   showMaxExpandLauncher: () => set({ maxExpandLauncherVisible: true }),
   setCliProvider: (provider) => {

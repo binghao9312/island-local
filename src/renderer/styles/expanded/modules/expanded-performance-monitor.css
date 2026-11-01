@@ -125,7 +125,7 @@
 
 .pm-dashboard-head {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 8px;
   min-height: 24px;
@@ -212,6 +212,31 @@
 
 .pm-hardware-settings-link:hover {
   color: rgba(var(--color-text-rgb), 0.78);
+}
+
+.pm-pin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid rgba(var(--color-text-rgb), 0.18);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(var(--color-text-rgb), 0.55);
+  cursor: pointer;
+}
+
+.pm-pin-btn:hover {
+  background: rgba(var(--color-text-rgb), 0.14);
+  color: rgba(var(--color-text-rgb), 0.92);
+}
+
+.pm-pin-btn--active {
+  color: rgba(96, 165, 250, 1);
+  border-color: rgba(59, 130, 246, 0.45);
+  background: rgba(59, 130, 246, 0.18);
 }
 
 .pm-dashboard-body {
