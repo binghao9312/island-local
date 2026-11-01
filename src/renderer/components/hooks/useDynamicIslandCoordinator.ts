@@ -246,8 +246,6 @@ export function useDynamicIslandCoordinator(options: UseDynamicIslandCoordinator
   useIslandStartupUpdateCheck({
     language,
     startupAutoCheckHandledRef,
-    setNotificationRef,
-    t,
   });
 
   useIslandBackgroundVideoSync({

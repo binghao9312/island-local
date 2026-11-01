@@ -49,13 +49,11 @@ function makeProps(): ComponentProps<typeof WeatherSettingsSection> {
     saveWeatherLocationSettings: vi.fn(() => Promise.resolve()),
     weatherLocationConfigMessage: null,
     weatherCustomLocationTestMessage: null,
-    weatherProviderOptions: [{ value: 'open-meteo', label: 'Open' }, { value: 'qweather-pro', label: 'Pro' }],
-    weatherPrimaryProvider: 'open-meteo',
-    isProUser: false,
-    setWeatherPrimaryProvider: vi.fn(),
-    saveWeatherProviderConfig: vi.fn(),
-    weatherAlertEnabled: false,
-    setWeatherAlertEnabled: vi.fn(),
+    cwaApiKeyInput: '',
+    setCwaApiKeyInput: vi.fn(),
+    cwaApiKeyMessage: null,
+    saveCwaApiKeySetting: vi.fn(() => Promise.resolve()),
+    clearCwaApiKeySetting: vi.fn(),
     weatherSettingsPages: [],
     weatherSettingsPageLabels: { location: 'Location', provider: 'Provider' },
     setWeatherSettingsPage: vi.fn(),
@@ -88,17 +86,30 @@ describe('WeatherSettingsSection', () => {
     expect(props.setWeatherCustomLocationTestMessage).toHaveBeenCalledWith({ type: 'error', text: 'settings.weather.messages.testFailed' });
     expect(props.setWeatherLocationConfigMessage).toHaveBeenCalledWith({ type: 'error', text: 'settings.common.saveFailed' });
   });
-  it.each([false, true])('gates Pro provider and alerts for Pro=%s', (isProUser) => {
-    const props = { ...makeProps(), weatherSettingsPage: 'provider' as const };
-    props.isProUser = isProUser;
+  it('renders a masked CWA key field and wires edit, save and clear', () => {
+    const props = { ...makeProps(), weatherSettingsPage: 'provider' as const, cwaApiKeyInput: 'CWA-SECRET' };
     const tree = WeatherSettingsSection(props);
-    const provider = findElement(tree, (n) => n.type === 'button' && textContent(n).includes('settings.weather.options.providerPriority.qweatherPro'));
-    expect(elementProps(provider).disabled).toBe(!isProUser);
-    invoke(provider, 'onClick');
-    expect(props.setWeatherPrimaryProvider).toHaveBeenCalledTimes(isProUser ? 1 : 0);
-    const alert = findElement(tree, (n) => n.type === 'input' && elementProps(n).type === 'checkbox');
-    invoke(alert, 'onChange', { target: { checked: true } });
-    expect(props.setWeatherAlertEnabled).toHaveBeenCalledTimes(isProUser ? 1 : 0);
+    const input = findElement(tree, (n) => n.type === 'input');
+    expect(elementProps(input).type).toBe('password');
+    expect(elementProps(input).value).toBe('CWA-SECRET');
+    invoke(input, 'onChange', { target: { value: 'CWA-NEW' } });
+    expect(props.setCwaApiKeyInput).toHaveBeenCalledWith('CWA-NEW');
+    invoke(findElement(tree, (n) => n.type === 'button' && textContent(n) === 'settings.weather.cwa.save'), 'onClick');
+    expect(props.saveCwaApiKeySetting).toHaveBeenCalledTimes(1);
+    invoke(findElement(tree, (n) => n.type === 'button' && textContent(n) === 'settings.weather.cwa.clear'), 'onClick');
+    expect(props.clearCwaApiKeySetting).toHaveBeenCalledTimes(1);
+  });
+  it('opens the CWA registration page and disables clear while the key is empty', () => {
+    const openUrl = vi.fn(() => Promise.resolve(true));
+    vi.stubGlobal('window', { api: { clipboardOpenUrl: openUrl } });
+    const tree = WeatherSettingsSection({ ...makeProps(), weatherSettingsPage: 'provider' as const });
+    expect(elementProps(findElement(tree, (n) => n.type === 'button' && textContent(n) === 'settings.weather.cwa.clear')).disabled).toBe(true);
+    invoke(findElement(tree, (n) => n.type === 'button' && textContent(n) === 'settings.weather.cwa.register'), 'onClick');
+    expect(openUrl).toHaveBeenCalledWith('https://opendata.cwa.gov.tw/userLogin');
+  });
+  it('shows the CWA key message with a matching colour', () => {
+    const tree = WeatherSettingsSection({ ...makeProps(), weatherSettingsPage: 'provider' as const, cwaApiKeyMessage: { type: 'error', text: 'bad key' } });
+    expect(elementProps(findElement(tree, (n) => n.type === 'div' && textContent(n) === 'bad key')).style).toEqual({ color: '#ff7f7f' });
   });
   it('shows testing disabled state and both error and success messages', () => {
     const tree = WeatherSettingsSection({ ...makeProps(), weatherCustomLocationTesting: true, weatherLocationConfigMessage: { type: 'error', text: 'failure' }, weatherCustomLocationTestMessage: { type: 'success', text: 'success' } });

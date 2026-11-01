@@ -297,22 +297,6 @@ describe('NotificationContent real hooks', () => {
     await click('restartNow');
     expect(model.store.setIdle).toHaveBeenCalledTimes(4);
   });
-  it.each([undefined, '  ', 'not-a-date', '2026-10-06T12:34:00'] as const)('formats weather metadata %s and dismisses for the startup hook to continue', async (time) => {
-    props.type = 'weather-alert-startup';
-    props.weatherAlertTime = time;
-    props.startupUpdateSource = 'github';
-    props.startupUpdateResolvedUrl = 'https://source.example';
-    await mount();
-    let expected = '10-06 12:34';
-    if (time === undefined || time === '  ') expected = 'notification.weatherAlert.timeUnknown';
-    else if (time === 'not-a-date') expected = time;
-    expect(text(run())).toContain(expected);
-    await click('closeAndContinueUpdateCheck');
-    expect(model.store.setIdle).toHaveBeenCalledOnce();
-    expect(api.updaterCheck).not.toHaveBeenCalled();
-    surface.api = undefined;
-    await click('closeAndContinueUpdateCheck');
-  });
   it.each(['external-agent-active', 'external-agent-stopped'] as const)('dismisses %s status', async (type) => {
     props.type = type;
     await mount();

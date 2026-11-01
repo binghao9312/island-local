@@ -33,7 +33,7 @@ import { ALARM_SOUND_STOP_EVENT } from '../../../utils/audio/alarmSound';
 import { getWebsiteFaviconUrl, getWebsiteFaviconUrls, getWebsiteHostname } from '../../../api/site/siteMetaApi';
 import { fetchUpdateSourceUrl } from '../../../api/user/userAccountApi';
 import { readLocalToken } from '../../../utils/userAccount';
-import { URL_FAVORITES_STORE_KEY, URL_FAVORITES_FOCUS_KEY, UPDATE_SOURCE_STORE_KEY, SETTINGS_OPEN_TAB_STORE_KEY, STARTUP_UPDATE_CONTINUE_EVENT } from './config/notificationConstants';
+import { URL_FAVORITES_STORE_KEY, URL_FAVORITES_FOCUS_KEY, UPDATE_SOURCE_STORE_KEY, SETTINGS_OPEN_TAB_STORE_KEY } from './config/notificationConstants';
 import type { NotificationContentProps, UrlFavoriteItem } from './config/notificationTypes';
 import { formatBytes, formatEta, normalizeUrl, resolveNotificationIconUrl, normalizeUpdateSource, isProOnlySource, sanitizeFavorites, persistFavorites } from './utils/notificationHelpers';
 import { useNotificationFavorites } from './hooks/useNotificationFavorites';
@@ -54,7 +54,6 @@ export function NotificationContent({
   sourceAppId: _sourceAppId,
   updateVersion,
   updateSourceLabel,
-  weatherAlertTime,
   urls,
   breakReminderItemId,
   agentName: _agentName,
@@ -84,24 +83,6 @@ export function NotificationContent({
     const faviconUrl = clipboardFavicon || getWebsiteFaviconUrl(currentClipboardUrl);
     return faviconUrl || icon;
   })();
-
-  const weatherAlertTimeDisplay = (() => {
-    if (type !== 'weather-alert-startup') return '';
-    const raw = typeof weatherAlertTime === 'string' ? weatherAlertTime.trim() : '';
-    if (!raw) {
-      return t('notification.weatherAlert.timeUnknown', { defaultValue: '未知' });
-    }
-    const parsed = new Date(raw);
-    if (Number.isNaN(parsed.getTime())) {
-      return raw;
-    }
-    const month = String(parsed.getMonth() + 1).padStart(2, '0');
-    const day = String(parsed.getDate()).padStart(2, '0');
-    const hours = String(parsed.getHours()).padStart(2, '0');
-    const minutes = String(parsed.getMinutes()).padStart(2, '0');
-    return `${month}-${day} ${hours}:${minutes}`;
-  })();
-  const showWeatherAlertMeta = type === 'weather-alert-startup';
 
   const currentClipboardDomain = (() => {
     if (type !== 'clipboard-url' || !currentClipboardUrl) return '';
@@ -314,12 +295,6 @@ export function NotificationContent({
 
   const handleDismissUpdate = (): void => { dismiss(); };
 
-  const handleCloseWeatherAlertAndContinueUpdateCheck = (): void => {
-    // 显式按钮及天气通知离开都由启动 Hook 统一续行并去重。
-    window.dispatchEvent(new Event(STARTUP_UPDATE_CONTINUE_EVENT));
-    dismiss();
-  };
-
   const handleRestartNow = (): void => { void window.api?.restartApp?.().catch(() => {}); dismiss(); };  const handleRestartLater = (): void => { dismiss(); };
   const handleSwitchToCli = (): void => {
     void window.api?.cliGlowHide?.();
@@ -366,7 +341,7 @@ export function NotificationContent({
 
   return (
     <div className="notification-content">
-      <div className={showWeatherAlertMeta ? 'notification-main-row notification-main-row--with-meta' : 'notification-main-row'}>
+      <div className="notification-main-row">
         <div className={`notification-icon${type === 'cli-session-detected' ? ' notification-icon--lg' : ''}`}>
           {resolvedDisplayIcon ? (
             <img
@@ -399,12 +374,6 @@ export function NotificationContent({
             {isOfficialSite && <span className="notification-official-badge">{t('notification.clipboard.officialBadge', { defaultValue: '官网' })}</span>}
           </div>
         </div>
-        {showWeatherAlertMeta && (
-          <div className="notification-meta-right" title={weatherAlertTimeDisplay}>
-            <span className="notification-meta-label">{t('notification.weatherAlert.timeLabel', { defaultValue: '预警时间' })}</span>
-            <span className="notification-meta-value">{weatherAlertTimeDisplay}</span>
-          </div>
-        )}
       </div>
 
       {type === 'update-downloading' ? (
@@ -429,18 +398,6 @@ export function NotificationContent({
             <button type="button" className="notification-action-btn notification-action-complete" onClick={handleGoToUpdate}>{t('notification.actions.downloadNow', { defaultValue: '立即下载' })}</button>
             <button type="button" className="notification-action-btn notification-action-ignore" onClick={handleConfigureUpdateSource}>{t('notification.actions.configureUpdateSource', { defaultValue: '自行配置更新源' })}</button>
             <button type="button" className="notification-action-btn notification-action-ignore" onClick={handleDismissUpdate}>{t('notification.actions.ignore', { defaultValue: '忽略' })}</button>
-          </div>
-        </div>
-      ) : type === 'weather-alert-startup' ? (
-        <div className="notification-actions notification-actions--right notification-actions--weather-alert-startup">
-          <div className="notification-decision-actions">
-            <button
-              type="button"
-              className="notification-action-btn notification-action-complete"
-              onClick={handleCloseWeatherAlertAndContinueUpdateCheck}
-            >
-              {t('notification.actions.closeAndContinueUpdateCheck', { defaultValue: '关闭并继续检查更新' })}
-            </button>
           </div>
         </div>
       ) : type === 'restart-required' ? (

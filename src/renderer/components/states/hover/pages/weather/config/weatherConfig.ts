@@ -26,3 +26,9 @@
 
 /** 天气图标加载失败时的兜底图标路径 */
 export const FALLBACK_WEATHER_ICON = '../svg/app/NA.svg';
+
+/** 设置页打开 Tab 存储键（与设置页读取约定一致） */
+export const SETTINGS_OPEN_TAB_STORE_KEY = 'settings-open-tab';
+
+/** 空状态下跳转到的设置分区 */
+export const WEATHER_SETTINGS_TAB = 'weather';

@@ -34,11 +34,7 @@ const storage = vi.hoisted(() => ({
     customLocation: {
       city: string;
     } | null;
-  }>(),
-  loadWeatherProviderConfig: vi.fn<() => {
-    primaryProvider: string;
-  }>(),
-  saveWeatherProviderConfig: vi.fn()
+  }>()
 }));
 vi.mock('../../../../../../../store/utils/storage', () => storage);
 vi.mock('react', async (original) => ({
@@ -47,7 +43,7 @@ vi.mock('react', async (original) => ({
   ...(await import('./settingsCoverageHarness')).lifecycleHooks
 }));
 type Options = Parameters<typeof useSettingsAppearanceEffects>[0];
-const setterNames = ["setWeatherPrimaryProvider", "setWeatherLocationPriority", "setWeatherCustomCityInput", "setWeatherAlertEnabled", "setIslandPositionOffset", "setIslandPositionLocked", "setIslandDisplayOptions", "setIslandDisplaySelection", "setIslandOpacity", "setAutoDimEnabled", "setAutoDimDelaySec", "setBgVideoFit", "setBgVideoMuted", "setBgVideoLoop", "setBgVideoVolume", "setBgVideoRate", "setBgVideoHwDecode", "setSyncDesktopWallpaperOnBackgroundChange", "setBgImageOpacity", "setBgImageBlur", "setBgMedia", "setBgMediaPreviewUrl"] as const;
+const setterNames = ["setWeatherLocationPriority", "setWeatherCustomCityInput", "setIslandPositionOffset", "setIslandPositionLocked", "setIslandDisplayOptions", "setIslandDisplaySelection", "setIslandOpacity", "setAutoDimEnabled", "setAutoDimDelaySec", "setBgVideoFit", "setBgVideoMuted", "setBgVideoLoop", "setBgVideoVolume", "setBgVideoRate", "setBgVideoHwDecode", "setSyncDesktopWallpaperOnBackgroundChange", "setBgImageOpacity", "setBgImageBlur", "setBgMedia", "setBgMediaPreviewUrl"] as const;
 const setters = Object.fromEntries(setterNames.map((name) => [name, vi.fn<(value: unknown) => void>()])) as Record<typeof setterNames[number], Mock<(value: unknown) => void>>;
 const values = new Map<string, unknown>();
 const api = {
@@ -89,9 +85,6 @@ beforeEach(() => {
   vi.resetAllMocks();
   values.clear();
   listener = undefined;
-  storage.loadWeatherProviderConfig.mockReturnValue({
-    primaryProvider: 'uapi'
-  });
   storage.loadWeatherLocationConfig.mockReturnValue({
     priority: 'custom',
     customLocation: {
@@ -102,8 +95,6 @@ beforeEach(() => {
   options = {
     ...setters,
     t: t as unknown as Options['t'],
-    isProUser: true,
-    weatherPrimaryProvider: 'qweather-pro',
     opacitySaveTimerRef: {
       current: null
     },
@@ -115,7 +106,6 @@ beforeEach(() => {
     }
   };
   Object.entries({
-    'weather-alert-enabled': false,
     'island-position-locked': true,
     'island-auto-dim-enabled': true,
     'island-auto-dim-delay': 5.7,
@@ -178,10 +168,8 @@ describe('外观初始化与清理', () => {
   it('真实规范化位置、显示器、透明度和所有背景设置', async () => {
     mount();
     await settle();
-    expect(setters.setWeatherPrimaryProvider).toHaveBeenCalledWith('uapi');
     expect(setters.setWeatherLocationPriority).toHaveBeenCalledWith('custom');
     expect(setters.setWeatherCustomCityInput).toHaveBeenCalledWith('Beijing');
-    expect(setters.setWeatherAlertEnabled).toHaveBeenCalledWith(false);
     expect(setters.setIslandPositionOffset).toHaveBeenCalledWith({
       x: 2,
       y: -2
@@ -219,27 +207,13 @@ describe('外观初始化与清理', () => {
     unmountHooks();
     expect(unsubscribe).toHaveBeenCalledOnce();
   });
-  it.each([true, false])('PRO=%s时是否禁用和风天气', async (isProUser) => {
-    options.isProUser = isProUser;
-    mount();
-    await settle();
-    expect(storage.saveWeatherProviderConfig).toHaveBeenCalledTimes(isProUser ? 0 : 1);
-    if (!isProUser) {
-      expect(storage.saveWeatherProviderConfig).toHaveBeenCalledWith({
-        primaryProvider: 'open-meteo'
-      });
-    }
-  });
-  it('非PRO使用免费天气保持配置，没有自定义城市使用空输入', async () => {
-    options.isProUser = false;
-    options.weatherPrimaryProvider = 'uapi';
+  it('没有自定义城市使用空输入', async () => {
     storage.loadWeatherLocationConfig.mockReturnValue({
       priority: 'ip',
       customLocation: null
     });
     mount();
     await settle();
-    expect(storage.saveWeatherProviderConfig).not.toHaveBeenCalled();
     expect(setters.setWeatherCustomCityInput).toHaveBeenCalledWith('');
   });
   it('卸载忽略迟到位置、屏幕和所有持久化值', async () => {
@@ -256,7 +230,6 @@ describe('外观初始化与清理', () => {
     unmountHooks();
     resolve(null);
     await settle();
-    expect(setters.setWeatherAlertEnabled).not.toHaveBeenCalled();
     expect(setters.setIslandPositionOffset).not.toHaveBeenCalled();
     expect(setters.setIslandPositionLocked).not.toHaveBeenCalled();
     expect(setters.setIslandDisplayOptions).not.toHaveBeenCalled();
@@ -399,13 +372,12 @@ describe('位置、屏幕和数值边界', () => {
     expect(setters.setIslandOpacity).toHaveBeenCalledWith(expected);
   });
   it.each([null, 'wrong', Infinity, NaN])('媒体/数值非法%o不覆盖既有有效值', async (invalid) => {
-    ['island-auto-dim-enabled', 'island-auto-dim-delay', 'island-bg-video-fit', 'island-bg-video-muted', 'island-bg-video-loop', 'island-bg-video-volume', 'island-bg-video-rate', 'island-bg-video-hw-decode', 'island-bg-sync-system-wallpaper', 'island-bg-opacity', 'island-bg-blur', 'weather-alert-enabled'].forEach((key) => {
+    ['island-auto-dim-enabled', 'island-auto-dim-delay', 'island-bg-video-fit', 'island-bg-video-muted', 'island-bg-video-loop', 'island-bg-video-volume', 'island-bg-video-rate', 'island-bg-video-hw-decode', 'island-bg-sync-system-wallpaper', 'island-bg-opacity', 'island-bg-blur'].forEach((key) => {
       values.set(key, invalid);
     });
     values.set('island-bg-media', null);
     mount();
     await settle();
-    expect(setters.setWeatherAlertEnabled).toHaveBeenCalledWith(true);
     expect(setters.setAutoDimEnabled).not.toHaveBeenCalled();
     expect(setters.setAutoDimDelaySec).not.toHaveBeenCalled();
     expect(setters.setBgVideoFit).not.toHaveBeenCalled();

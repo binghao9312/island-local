@@ -40,4 +40,8 @@ export interface LocationInfo {
   countryCode?: string;
   /** 定位服务的地区短码，可能是 ISO 或 FIPS，不能无条件当作 ISO 3166-2。 */
   regionCode?: string;
+  /** CWA 縣市名称（由台湾地名解析得到，可能缺失） */
+  county?: string;
+  /** CWA 鄉鎮市區名称（由台湾地名解析得到，可能缺失） */
+  township?: string;
 }

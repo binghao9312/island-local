@@ -101,9 +101,6 @@ export function DynamicIslandStateContent({
         sourceAppId={notification.sourceAppId}
         updateVersion={notification.updateVersion}
         updateSourceLabel={notification.updateSourceLabel}
-        weatherAlertTime={notification.weatherAlertTime}
-        startupUpdateSource={notification.startupUpdateSource}
-        startupUpdateResolvedUrl={notification.startupUpdateResolvedUrl}
         urls={notification.urls}
         breakReminderItemId={notification.breakReminderItemId}
         agentName={notification.agentName}

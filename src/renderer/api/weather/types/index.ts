@@ -25,11 +25,4 @@
  */
 
 export type { WeatherApiConfig } from './WeatherApiConfig';
-export type { WeatherAlertLocation, WeatherAlertSummary, StartupWeatherAlertPayload } from './WeatherAlert';
 export type { LocationInfo } from './LocationInfo';
-export type {
-  DistrictQueryParams,
-  DistrictItem,
-  DistrictResolvedLocation,
-  DistrictQueryResult,
-} from './District';

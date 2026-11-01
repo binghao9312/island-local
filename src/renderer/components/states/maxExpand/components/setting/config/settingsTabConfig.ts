@@ -41,7 +41,6 @@ export const STANDALONE_WINDOW_MAC_CONTROLS_STORE_KEY = 'standalone-window-mac-c
 export const ISLAND_DISPLAY_STORE_KEY = 'island-display-id';
 export const UPDATE_SOURCE_STORE_KEY = 'update-source';
 export const UPDATE_AUTO_PROMPT_STORE_KEY = 'update-auto-prompt-enabled';
-export const WEATHER_ALERT_ENABLED_STORE_KEY = 'weather-alert-enabled';
 export const MAIL_CONFIG_STORE_KEY = 'mail-account-config';
 export const MAIL_ACCOUNTS_STORE_KEY = 'mail-accounts-config';
 export const MAIL_FETCH_LIMIT_STORE_KEY = 'mail-fetch-limit';

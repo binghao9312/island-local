@@ -55,7 +55,7 @@ export interface NotificationContentProps {
   /** 通知图标（可选） */
   icon?: string;
   /** 通知类型 */
-  type?: 'default' | 'source-switch' | 'update-available' | 'update-downloading' | 'update-ready' | 'weather-alert-startup' | 'clipboard-url' | 'restart-required' | 'external-agent-active' | 'external-agent-stopped' | 'cli-session-detected';
+  type?: 'default' | 'source-switch' | 'update-available' | 'update-downloading' | 'update-ready' | 'clipboard-url' | 'restart-required' | 'external-agent-active' | 'external-agent-stopped' | 'cli-session-detected';
   /** 检测到 CLI session 时应切换到的提供方 */
   cliProvider?: CliProvider;
   /** 外部 Agent 名称（仅 external-agent-active / external-agent-stopped 类型） */
@@ -66,12 +66,6 @@ export interface NotificationContentProps {
   updateVersion?: string;
   /** 当前更新源展示文案（仅 update-available） */
   updateSourceLabel?: string;
-  /** 天气预警发布时间文案（仅 weather-alert-startup） */
-  weatherAlertTime?: string;
-  /** 启动自动检查更新时要使用的更新源（仅 weather-alert-startup） */
-  startupUpdateSource?: UpdateSourceKey;
-  /** 启动自动检查更新时解析后的更新源地址（仅 weather-alert-startup） */
-  startupUpdateResolvedUrl?: string;
   /** 检测到的 URL 列表（仅 clipboard-url） */
   urls?: string[];
   /** 休息提醒条目 ID（仅默认通知中由休息提醒触发时使用） */

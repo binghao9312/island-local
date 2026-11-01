@@ -28,7 +28,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import '../styles/index.css';
 import useIslandStore from '../store/slices';
-import { hydrateWeatherLocationConfigFromStore } from '../store/utils/storage';
+import { hydrateCwaApiKeyFromStore, hydrateWeatherLocationConfigFromStore } from '../store/utils/storage';
 import { initTheme } from '../utils/theme';
 import { initFonts } from '../utils/font';
 import { bootstrapAuthSession, refreshAuthSession } from '../utils/authSession';
@@ -52,6 +52,7 @@ async function bootstrap(): Promise<void> {
   await initFonts();
   const token = await bootstrapAuthSession();
   await hydrateWeatherLocationConfigFromStore();
+  await hydrateCwaApiKeyFromStore();
 
   /** 启动时初始化灵动岛透明度（在 React 挂载前设置，避免首次渲染闪烁） */
   window.api?.islandOpacityGet?.().then((val) => {

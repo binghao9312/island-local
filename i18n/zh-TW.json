@@ -509,7 +509,27 @@
         "dayAfterTomorrow": "後"
       },
       "rainPrefix": "雨",
-      "windPrefix": "風"
+      "windPrefix": "風",
+      "metrics": {
+        "humidity": "濕度",
+        "rain": "降雨",
+        "wind": "風速"
+      },
+      "empty": {
+        "noKey": {
+          "title": "尚未設定 CWA 授權碼",
+          "hint": "到 設定 → 天氣 → 介面設定 填入中央氣象署授權碼"
+        },
+        "invalidKey": {
+          "title": "CWA 授權碼無效",
+          "hint": "請到 設定 → 天氣 → 介面設定 重新填寫授權碼"
+        },
+        "outOfRegion": {
+          "title": "目前位置不在臺灣",
+          "hint": "CWA 只提供臺灣地區天氣，可在設定中改用自訂位置"
+        },
+        "openSettings": "前往設定"
+      }
     }
   },
   "weatherAbbr": {
@@ -599,15 +619,6 @@
       "readyTitle": "更新就緒",
       "readyBody": "新版本 v{{version}} 已下載完成，是否立即安裝？"
     },
-    "weatherAlert": {
-      "title": "天氣預警提醒",
-      "defaultTitle": "天氣預警",
-      "unknownCity": "當前位置",
-      "bodySingle": "{{city}}：{{title}}",
-      "bodyWithMore": "{{city}}：{{title}}，另有 {{count}} 條預警。",
-      "timeLabel": "更新時間",
-      "timeUnknown": "未知"
-    },
     "clipboard": {
       "detectedTitle": "檢測到鏈接",
       "officialBadge": "官網",
@@ -646,7 +657,6 @@
       "snooze5m": "稍後 5m",
       "snooze15m": "稍後 15m",
       "snooze1h": "稍後 1h",
-      "closeAndContinueUpdateCheck": "關閉並繼續檢查更新",
       "complete": "完成"
     }
   },
@@ -3424,33 +3434,16 @@
         "hint": "選擇天氣定位優先使用 IP 自動定位或自定義位置"
       },
       "customCityTitle": "自定義城市",
-      "customCityHint": "僅在“自定義位置優先”生效，可先測試再保存；支持中文 / 拼音 / 英文。",
+      "customCityHint": "僅在「自訂位置優先」生效，可先測試再儲存；支援縣市 / 鄉鎮市區名稱（台 / 臺 皆可）。",
       "cityName": "城市名稱",
-      "cityPlaceholder": "例如：杭州 / Tokyo / New York",
+      "cityPlaceholder": "例如：台北 / 新北市新店區 / 高雄",
       "testing": "測試中...",
-      "testCustomLocation": "測試自定義位置（多接口）",
+      "testCustomLocation": "測試自訂位置（CWA）",
       "saveLocation": "保存定位配置",
-      "providerPriority": {
-        "title": "天氣接口優先級",
-        "hint": "可選擇優先使用 Open-Meteo、UAPI 或和風天氣，失敗時自動切換到可用源"
-      },
-      "alert": {
-        "title": "啟動天氣預警提醒",
-        "hint": "應用啟動自動檢查更新前，先請求和風天氣預警並提示；確認關閉後再繼續檢查更新。",
-        "enabled": "開啟預警提醒",
-        "disabled": "關閉預警提醒"
-      },
-      "proBadge": "",
-      "proOnlyHint": "當前賬戶不可用",
       "options": {
         "locationPriority": {
           "ip": "IP 定位優先",
           "custom": "自定義位置優先"
-        },
-        "providerPriority": {
-          "openMeteo": "Open-Meteo 優先",
-          "uapi": "UAPI 優先",
-          "qweatherPro": "和風天氣優先"
         }
       },
       "messages": {
@@ -3458,28 +3451,45 @@
         "testFailed": "測試失敗：{{error}}",
         "cityRequired": "請先輸入城市名稱後再測試",
         "cityResolveFailed": "城市解析失敗：{{error}}",
-        "providerNonJson": "{{name}} 返回了非 JSON",
-        "providerAvailable": "{{name}} 可用",
         "providerUnavailable": "{{name}} 不可用：{{error}}",
-        "proLoginRequired": "請先登錄賬號",
         "testResult": "{{city}}（{{lat}}, {{lng}}） - {{details}}",
-        "detailSeparator": "；",
         "customNeedsCity": "選擇“自定義位置優先”時請先輸入城市名稱",
         "priorityApplied": "定位來源優先級已應用",
         "customMissingFallback": "已切換為自定義位置優先，但未配置城市，將自動回退到 IP 定位",
         "configSavedWithCity": "天氣定位配置已保存（{{city}} {{lat}}, {{lng}}）",
-        "configSaved": "天氣定位配置已保存"
+        "configSaved": "天氣定位配置已保存",
+        "cwaAvailable": "CWA 可用：{{temperature}}°C {{description}}"
       },
-      "adcode": {
-        "missingParams": "District API 缺少查詢參數（adcode 或 keyword）",
-        "httpError": "Adcode API HTTP {{status}}：{{body}}",
-        "nonJson": "Adcode API 返回了非 JSON 內容，請檢查網絡環境",
-        "errorCode": "Adcode API 返回錯誤碼 {{code}}",
+      "pagination": "天氣配置分頁",
+      "cwa": {
+        "title": "中央氣象署（CWA）授權碼",
+        "hint": "天氣資料來自中央氣象署開放資料平臺，需要免費授權碼。授權碼只儲存在本機，不會上傳。",
+        "keyLabel": "API 授權碼",
+        "keyPlaceholder": "CWA-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+        "save": "儲存並驗證",
+        "clear": "清除授權碼",
+        "register": "前往申請授權碼",
+        "registerHint": "在 opendata.cwa.gov.tw 註冊並登入後，於「取得授權碼」頁面取得。",
+        "messages": {
+          "cleared": "已清除 CWA 授權碼",
+          "checking": "已儲存，正在驗證…",
+          "valid": "授權碼可用，天氣已更新",
+          "invalid": "授權碼無效，請確認是否完整複製",
+          "savedOutOfRegion": "已儲存；目前位置不在臺灣，CWA 無法提供天氣",
+          "checkFailed": "已儲存，但天氣更新失敗，請檢查網路後重試"
+        },
+        "status": {
+          "noKey": "尚未設定 CWA 授權碼",
+          "invalidKey": "CWA 授權碼無效",
+          "outOfRegion": "該位置不在臺灣，CWA 無法提供天氣"
+        }
+      },
+      "geocoding": {
+        "httpError": "地理編碼服務 HTTP {{status}}：{{body}}",
+        "nonJson": "地理編碼服務回傳了非 JSON 內容，請檢查網路環境",
         "emptyKeyword": "請輸入城市名稱",
-        "notFound": "未查詢到該城市，請嘗試更完整名稱",
-        "noCoords": "查詢結果缺少經緯度信息"
-      },
-      "pagination": "天氣配置分頁"
+        "notFound": "查無此城市，請嘗試更完整的名稱"
+      }
     },
     "music": {
       "whitelist": {
