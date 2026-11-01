@@ -167,11 +167,6 @@ const transitions: {
   resize: 'expandWindowSettings',
   passthrough: 'disable'
 }, {
-  state: 'announcement',
-  invoke: (slice) => slice.setAnnouncement(),
-  resize: 'expandWindowSettings',
-  passthrough: 'disable'
-}, {
   state: 'questionnaire',
   invoke: (slice) => slice.setQuestionnaire(),
   resize: 'expandWindowSettings',
@@ -197,7 +192,7 @@ const transitions: {
   resize: 'expandWindowNotification',
   passthrough: 'disable'
 }];
-const protectedStates: IslandState[] = ['expanded', 'maxExpand', 'guide', 'login', 'register', 'resetPassword', 'setPassword', 'bindOAuth', 'bindEmail', 'payment', 'announcement', 'questionnaire', 'musicProvidersLogin'];
+const protectedStates: IslandState[] = ['expanded', 'maxExpand', 'guide', 'login', 'register', 'resetPassword', 'setPassword', 'bindOAuth', 'bindEmail', 'payment', 'questionnaire', 'musicProvidersLogin'];
 const authTransitions = transitions.filter((entry) => ['login', 'register', 'payment', 'setPassword', 'bindOAuth', 'bindEmail', 'musicProvidersLogin'].includes(entry.state));
 const expectedAuthReturnStates: Record<string, IslandState[]> = {
   login: ['hover', 'hover', 'hover', 'setPassword', 'bindOAuth', 'bindEmail', 'musicProvidersLogin'],
@@ -249,10 +244,6 @@ const authReturns: {
   method: 'expandWindowSettings',
   passthrough: 'disable',
   result: 'maxExpand'
-}, {
-  state: 'announcement',
-  method: 'expandWindowSettings',
-  passthrough: 'disable'
 }, {
   state: 'musicProvidersLogin',
   method: 'expandWindowSettings',

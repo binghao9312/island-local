@@ -219,7 +219,7 @@ describe('壳层真实状态动作和形变时序', () => {
     input.state = 'hover'; commit(input).handleIslandClick();
     expect(useIslandStore.getState().state).toBe('expanded'); expect(native.expandWindowFull).toHaveBeenCalledOnce();
   });
-  it.each(['expanded', 'maxExpand', 'announcement'] as const)('%s退出进入hover，调用真实窗口动作', async (state) => {
+  it.each(['expanded', 'maxExpand'] as const)('%s退出进入hover，调用真实窗口动作', async (state) => {
     useIslandStore.setState({ state }); (await mount(options({ state }))).handleIslandClick();
     expect(useIslandStore.getState().state).toBe('hover'); expect(native.expandWindow).toHaveBeenCalledOnce();
   });

@@ -533,7 +533,7 @@ describe('Island shape transitions and window animations', () => {
     ['expanded', 'expandWindowFull'], ['maxExpand', 'expandWindowSettings'], ['guide', 'expandWindowSettings'],
     ['login', 'expandWindowSettings'], ['register', 'expandWindowSettings'], ['resetPassword', 'expandWindowSettings'],
     ['setPassword', 'expandWindowSettings'], ['bindOAuth', 'expandWindowSettings'], ['bindEmail', 'expandWindowSettings'],
-    ['payment', 'expandWindowSettings'], ['announcement', 'expandWindowSettings'], ['questionnaire', 'expandWindowSettings'],
+    ['payment', 'expandWindowSettings'], ['questionnaire', 'expandWindowSettings'],
     ['musicProvidersLogin', 'expandWindowSettings'], ['idle', 'collapseWindow']
   ] as const)('resizes state %s through %s', async (state, method) => {
     io.state = state;

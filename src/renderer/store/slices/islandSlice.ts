@@ -77,7 +77,7 @@ export const createIslandSlice: StateCreator<
 
   setIdle: (force?: boolean) => set((prev) => {
     if (prev.uiStateLocked && prev.state !== 'idle') return prev;
-    if (!force && (prev.state === 'expanded' || prev.state === 'maxExpand' || prev.state === 'guide' || prev.state === 'login' || prev.state === 'register' || prev.state === 'resetPassword' || prev.state === 'setPassword' || prev.state === 'bindOAuth' || prev.state === 'bindEmail' || prev.state === 'payment' || prev.state === 'announcement' || prev.state === 'questionnaire' || prev.state === 'musicProvidersLogin')) return prev;
+    if (!force && (prev.state === 'expanded' || prev.state === 'maxExpand' || prev.state === 'guide' || prev.state === 'login' || prev.state === 'register' || prev.state === 'resetPassword' || prev.state === 'setPassword' || prev.state === 'bindOAuth' || prev.state === 'bindEmail' || prev.state === 'payment' || prev.state === 'questionnaire' || prev.state === 'musicProvidersLogin')) return prev;
     // 每次切换都传完整保护时长；快速反向切换时，原生画布可能仍比 prev.state 大。
     beginIslandWindowTransition(prev.state, 'idle');
     window.api?.collapseWindow(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
@@ -225,7 +225,7 @@ export const createIslandSlice: StateCreator<
       } else if (target === 'expanded') {
         window.api?.expandWindowFull(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
         window.api?.disableMousePassthrough();
-      } else if (target === 'maxExpand' || target === 'guide' || target === 'announcement' || target === 'questionnaire') {
+      } else if (target === 'maxExpand' || target === 'guide' || target === 'questionnaire') {
         window.api?.expandWindowSettings(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
         window.api?.disableMousePassthrough();
       } else if (target === 'lyrics' || target === 'agentVoiceInput' || target === 'lyricsTranslation') {
@@ -273,14 +273,6 @@ export const createIslandSlice: StateCreator<
     window.api?.expandWindowSettings(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
     window.api?.disableMousePassthrough();
     return { state: 'guide' as const, authReturnState: null };
-  }),
-
-  setAnnouncement: () => set((prev) => {
-    if (prev.uiStateLocked && prev.state !== 'announcement') return prev;
-    beginIslandWindowTransition(prev.state, 'announcement');
-    window.api?.expandWindowSettings(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
-    window.api?.disableMousePassthrough();
-    return { state: 'announcement' as const, authReturnState: null };
   }),
 
   setQuestionnaire: () => set((prev) => {

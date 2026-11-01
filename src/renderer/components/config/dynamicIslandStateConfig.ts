@@ -150,13 +150,6 @@ export const STATE_CONFIGS: Record<IslandState, StateConfig> = {
     enterDelay: 0,
     leaveDelay: 0,
   },
-  announcement: {
-    name: 'announcement',
-    mousePassthrough: false,
-    expanded: true,
-    enterDelay: 0,
-    leaveDelay: 0,
-  },
   questionnaire: {
     name: 'questionnaire',
     mousePassthrough: false,

@@ -26,11 +26,8 @@
 
 import { memo, useState, type MutableRefObject, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import useIslandStore from '../../../../../../../store/slices';
-import { QuestionnaireBanner, useAnnouncementQuestionnaire } from '../../../../../../../components/components/DynamicIslandQuestionnaireBanner';
 import { type AppSettingsPageKey, type MusicSettingsPageKey, type AiSettingsPageKey, type NetworkSettingsPageKey, type SettingsSidebarTabKey } from '../../utils/settingsConfig';
 import IndexSettingsSearch from './indexSettingsSearch';
-import '../../../../../../../styles/announcement/announcement.css';
 
 interface IndexNavCard {
   id: string;
@@ -88,8 +85,6 @@ export const IndexSettingsSection = memo(({
   onAction,
 }: IndexSettingsSectionProps): ReactElement => {
   const { t } = useTranslation();
-  const setQuestionnaire = useIslandStore((state) => state.setQuestionnaire);
-  const questionnaireReminder = useAnnouncementQuestionnaire();
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const getCardOutlineClass = (cardId: string): string => {
     if (cardId === 'user-pro') return ' settings-user-pro-nav-card--outline';
@@ -129,15 +124,6 @@ export const IndexSettingsSection = memo(({
           />
         </div>
       </div>
-      {questionnaireReminder.questionnaire && (
-        <div style={{ marginTop: 2 }}>
-          <QuestionnaireBanner
-            count={questionnaireReminder.count}
-            onOpen={setQuestionnaire}
-            onDismiss={questionnaireReminder.dismiss}
-          />
-        </div>
-      )}
       <div className="settings-index-cards" aria-label={t('settings.index.ariaNav', { defaultValue: '设置快速导航' })}>
           {visibleCards.map((card, idx) => (
             navEditMode ? (

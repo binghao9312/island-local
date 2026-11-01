@@ -75,8 +75,7 @@ import { SvgIcon } from '../../../../../../../utils/SvgIcon';
 import { resolveCountryIcon } from '../../../../../../../utils/SvgIcon/country-icon';
 import { EMAIL_PATTERN } from '../../../../../../../components/config/dynamicIslandPatterns';
 import { LoginHeatmap } from './components/LoginHeatmap';
-import { QuestionnaireBanner, useAnnouncementQuestionnaire } from '../../../../../../components/DynamicIslandQuestionnaireBanner';
-import '../../../../../../../styles/announcement/announcement.css';
+import { QuestionnaireBanner, useQuestionnaireReminder } from '../../../../../../components/DynamicIslandQuestionnaireBanner';
 import { readLoginDays, recordLoginDay } from './utils/loginHeatmapStorage';
 import { SettingsPageNavigation, SettingsPageNavigationToggle } from '../SettingsPageNavigation';
 import { UserPlanDetailSkeleton, UserProfileSkeleton, UserRecordSkeletonList, UserValueSkeleton } from './components/userSettingsSkeleton';
@@ -214,7 +213,7 @@ export function UserSettingsSection({ initialProfilePage = 'info' }: UserSetting
     setPayment: store.setPayment,
     setQuestionnaire: store.setQuestionnaire,
   })));
-  const questionnaireReminder = useAnnouncementQuestionnaire();
+  const questionnaireReminder = useQuestionnaireReminder();
   const [token, setToken] = useState<string | null>(() => readLocalToken());
   const [profile, setProfile] = useState<UserAccountProfile | null>(() => readLocalProfile());
   const [loadingProfile, setLoadingProfile] = useState(false);

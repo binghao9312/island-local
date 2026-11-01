@@ -40,8 +40,6 @@ interface IslandRuntimeRefsState {
   expandLeaveIdleRef: React.MutableRefObject<boolean>;
   maxExpandLeaveIdleRef: React.MutableRefObject<boolean>;
   idleClickExpandRef: React.MutableRefObject<boolean>;
-  pendingAnnouncementAfterGuideRef: React.MutableRefObject<boolean>;
-  pendingAnnouncementAppVersionRef: React.MutableRefObject<string>;
   startupAutoCheckHandledRef: React.MutableRefObject<boolean>;
   autoDimEnabledRef: React.MutableRefObject<boolean>;
   autoDimDelayRef: React.MutableRefObject<number>;
@@ -64,8 +62,6 @@ export function useIslandRuntimeRefs(options: UseIslandRuntimeRefsOptions): Isla
   const expandLeaveIdleRef = useRef(false);
   const maxExpandLeaveIdleRef = useRef(false);
   const idleClickExpandRef = useRef(false);
-  const pendingAnnouncementAfterGuideRef = useRef(false);
-  const pendingAnnouncementAppVersionRef = useRef('');
   const startupAutoCheckHandledRef = useRef(false);
   const autoDimEnabledRef = useRef(false);
   const autoDimDelayRef = useRef(10);
@@ -84,8 +80,6 @@ export function useIslandRuntimeRefs(options: UseIslandRuntimeRefsOptions): Isla
     expandLeaveIdleRef,
     maxExpandLeaveIdleRef,
     idleClickExpandRef,
-    pendingAnnouncementAfterGuideRef,
-    pendingAnnouncementAppVersionRef,
     startupAutoCheckHandledRef,
     autoDimEnabledRef,
     autoDimDelayRef,

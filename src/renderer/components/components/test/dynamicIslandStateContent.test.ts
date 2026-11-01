@@ -46,7 +46,6 @@ vi.mock('../../states/register/RegisterContent', () => ({ RegisterContent: Objec
 vi.mock('../../states/resetPassword', () => ({ ResetPasswordContent: Object.assign(vi.fn(), { displayName: 'ResetPasswordContent' }) }));
 vi.mock('../../states/payment/PaymentContent', () => ({ PaymentContent: Object.assign(vi.fn(), { displayName: 'PaymentContent' }) }));
 vi.mock('../../states/questionnaire', () => ({ QuestionnaireContent: Object.assign(vi.fn(), { displayName: 'QuestionnaireContent' }) }));
-vi.mock('../../states/announcement/AnnouncementContent', () => ({ AnnouncementContent: Object.assign(vi.fn(), { displayName: 'AnnouncementContent' }) }));
 vi.mock('../../states/agentVoiceInput/AgentVoiceInputContent', () => ({ AgentVoiceInputContent: Object.assign(vi.fn(), { displayName: 'AgentVoiceInputContent' }) }));
 vi.mock('../../states/agent/AgentContent', () => ({ AgentContent: Object.assign(vi.fn(), { displayName: 'AgentContent' }) }));
 vi.mock('../../states/stt/SttContent', () => ({ SttContent: Object.assign(vi.fn(), { displayName: 'SttContent' }) }));
@@ -61,7 +60,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); });
 describe('DynamicIslandStateContent', () => {
-  it.each([['idle', 'IdleContent'], ['hover', 'HoverContent'], ['expanded', 'ExpandedContent'], ['notification', 'NotificationContent'], ['maxExpand', 'MaxExpandContent'], ['lyrics', 'LyricsContent'], ['lyricsTranslation', 'LyricsTranslationContent'], ['guide', 'GuideContent'], ['login', 'LoginContent'], ['register', 'RegisterContent'], ['resetPassword', 'ResetPasswordContent'], ['setPassword', 'SetPasswordContent'], ['bindOAuth', 'BindOAuthContent'], ['bindEmail', 'BindEmailContent'], ['musicProvidersLogin', 'MusicProvidersLoginContent'], ['payment', 'PaymentContent'], ['announcement', 'AnnouncementContent'], ['questionnaire', 'QuestionnaireContent'], ['agentVoiceInput', 'AgentVoiceInputContent'], ['agent', 'AgentContent'], ['stt', 'SttContent'], ['cli', 'CliContent']] as const)('routes %s to its matching %s component', (state, expected) => {
+  it.each([['idle', 'IdleContent'], ['hover', 'HoverContent'], ['expanded', 'ExpandedContent'], ['notification', 'NotificationContent'], ['maxExpand', 'MaxExpandContent'], ['lyrics', 'LyricsContent'], ['lyricsTranslation', 'LyricsTranslationContent'], ['guide', 'GuideContent'], ['login', 'LoginContent'], ['register', 'RegisterContent'], ['resetPassword', 'ResetPasswordContent'], ['setPassword', 'SetPasswordContent'], ['bindOAuth', 'BindOAuthContent'], ['bindEmail', 'BindEmailContent'], ['musicProvidersLogin', 'MusicProvidersLoginContent'], ['payment', 'PaymentContent'], ['questionnaire', 'QuestionnaireContent'], ['agentVoiceInput', 'AgentVoiceInputContent'], ['agent', 'AgentContent'], ['stt', 'SttContent'], ['cli', 'CliContent']] as const)('routes %s to its matching %s component', (state, expected) => {
     const tree = DynamicIslandStateContent({ state, ...props });
     expect((tree?.type as unknown as {
       displayName: string;

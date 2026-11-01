@@ -41,18 +41,18 @@ describe('useIslandRuntimeRefs 实际共享引用', () => {
       setNotificationRef: setNotification,
       initRef: false, isHoveringRef: false, enterTimerRef: null, leaveTimerRef: null,
       expandLeaveIdleRef: false, maxExpandLeaveIdleRef: false, idleClickExpandRef: false,
-      pendingAnnouncementAfterGuideRef: false, pendingAnnouncementAppVersionRef: '', startupAutoCheckHandledRef: false,
+      startupAutoCheckHandledRef: false,
       autoDimEnabledRef: false, autoDimDelayRef: 10, positionLockedRef: false,
     });
   });
   it('重新求值保留已有引用与外部状态，布局提交后更新通知回调', () => {
     const first = vi.fn<(data: NotificationData) => void>(); const second = vi.fn<(data: NotificationData) => void>();
     const previous = renderWithHooks(() => useIslandRuntimeRefs({ setNotification: first })); runEffects();
-    previous.initRef.current = true; previous.autoDimDelayRef.current = 20; previous.pendingAnnouncementAppVersionRef.current = '1.0';
+    previous.initRef.current = true; previous.autoDimDelayRef.current = 20; previous.startupAutoCheckHandledRef.current = true;
     const result = renderWithHooks(() => useIslandRuntimeRefs({ setNotification: second }));
     Object.entries(previous).forEach(([key, ref]) => { expect(result[key as keyof typeof result]).toBe(ref); });
     expect(result.setNotificationRef.current).toBe(first); runEffects(); result.setNotificationRef.current({ title: 'Title', body: 'Body' });
     expect(second).toHaveBeenCalledWith({ title: 'Title', body: 'Body' }); expect(first).not.toHaveBeenCalled();
-    expect(result.initRef.current).toBe(true); expect(result.autoDimDelayRef.current).toBe(20); expect(result.pendingAnnouncementAppVersionRef.current).toBe('1.0');
+    expect(result.initRef.current).toBe(true); expect(result.autoDimDelayRef.current).toBe(20); expect(result.startupAutoCheckHandledRef.current).toBe(true);
   });
 });

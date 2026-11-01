@@ -19,7 +19,7 @@
  */
 
 /**
- * @file useAnnouncementQuestionnaire.ts
+ * @file useQuestionnaireReminder.ts
  * @description 未完成问卷提醒数据 Hook。
  * @author 鸡哥
  */
@@ -38,7 +38,7 @@ import {
  * 挂载时查询一次当前问卷并过滤本机完成或屏蔽标记。
  * @returns 待提醒问卷与关闭提醒操作。
  */
-export function useAnnouncementQuestionnaire() {
+export function useQuestionnaireReminder() {
   const [questionnaires, setQuestionnaires] = useState<QuestionnaireData[]>([]);
 
   const reload = useCallback(async (): Promise<void> => {

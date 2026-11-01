@@ -39,14 +39,12 @@ function makeProps(): ComponentProps<typeof UpdateSettingsSection> {
   return {
     aboutVersion: '',
     updateAutoPromptEnabled: false,
-    announcementShowMode: 'always',
     updateStatus: 'idle',
     updateVersion: '',
     downloadProgress: null,
     currentSourceLabel: '',
     updateError: '',
     onUpdateAutoPromptEnabledChange: vi.fn(),
-    onAnnouncementShowModeChange: vi.fn(),
     onCheckUpdate: vi.fn(),
     onDownloadUpdate: vi.fn(),
     onInstallUpdate: vi.fn(),
@@ -74,10 +72,8 @@ describe('实际更新设置边界与操作', () => {
     props.updateStatus = 'error'; props.updateError = 'first\\nsecond'; tree = render(props); expect(textContent(tree)).toContain('first\nsecond');
     props.updateError = ''; tree = render(props); expect(elements(tree).some((node) => elementProps(node).className === 'settings-about-update-error')).toBe(false);
   });
-  it('两种公告选择的实际处理器执行，导航展开收起及空页兜底', () => {
+  it('导航展开收起及空页兜底', () => {
     const props = makeProps(); props.updateSettingsPage = 'info-sync';
-    const radios = elements(render(props)).filter((node) => node.type === 'input' && elementProps(node).type === 'radio'); radios.forEach((node) => invoke(node, 'onChange'));
-    expect(props.onAnnouncementShowModeChange).toHaveBeenNthCalledWith(1, 'always'); expect(props.onAnnouncementShowModeChange).toHaveBeenNthCalledWith(2, 'version-update-only');
     invoke(findElement(render(props), (node) => typeof elementProps(node).onToggle === 'function'), 'onToggle');
     expect(elementProps(findElement(render(props), (node) => typeof elementProps(node).onToggle === 'function')).label).toBe('settings.navigation.collapse');
     invoke(findElement(render(props), (node) => typeof elementProps(node).onToggle === 'function'), 'onToggle');

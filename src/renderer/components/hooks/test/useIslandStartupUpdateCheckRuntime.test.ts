@@ -19,27 +19,22 @@
  */
 
 /**
- * @file useIslandStartupAnnouncementsRuntime.test.ts
- * @description 启动更新与天气预警真实异步流程、公告去重、引导延后与订阅清理测试。
+ * @file useIslandStartupUpdateCheckRuntime.test.ts
+ * @description 启动更新与天气预警真实异步流程与订阅清理测试。
  * @author 鸡哥
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushHookEffects, renderHook, resetHook, settleHook, unmountHook } from './startupHookHarness';
-import type { AnnouncementData, AnnouncementShowMode } from '../../../api/announcement/announcementApi';
 import type { StartupWeatherAlertPayload } from '../../../api/weather/types/WeatherAlert';
-type Options = Parameters<typeof import('../useIslandStartupAnnouncements').useIslandStartupAnnouncements>[0];
+type Options = Parameters<typeof import('../useIslandStartupUpdateCheck').useIslandStartupUpdateCheck>[0];
 const leaves = vi.hoisted(() => ({
   state: 'expand',
   notification: null as Parameters<Options['setNotificationRef']['current']>[0] | null,
   subscribers: new Set<() => void>(),
   token: vi.fn<() => string | null>(),
   weather: vi.fn<(token: string) => Promise<StartupWeatherAlertPayload>>(),
-  source: vi.fn<typeof import('../../../api/user/userAccountApi.profile').fetchUpdateSourceUrl>(),
-  announcements: vi.fn<() => Promise<AnnouncementData[]>>(),
-  mode: vi.fn<() => Promise<AnnouncementShowMode>>(),
-  last: vi.fn<() => Promise<string>>(),
-  write: vi.fn<(value: string) => Promise<void>>()
+  source: vi.fn<typeof import('../../../api/user/userAccountApi.profile').fetchUpdateSourceUrl>()
 }));
 vi.mock('../../../store/isLandStore', () => ({
   default: {
@@ -67,32 +62,16 @@ vi.mock('../../../api/weather/weatherApi', () => ({
 vi.mock('../../../api/user/userAccountApi', () => ({
   fetchUpdateSourceUrl: leaves.source
 }));
-vi.mock('../../../api/announcement/announcementApi', () => ({
-  fetchAnnouncements: leaves.announcements,
-  readAnnouncementShowMode: leaves.mode,
-  readAnnouncementLastShownAppVersion: leaves.last,
-  writeAnnouncementLastShownAppVersion: leaves.write
-}));
 vi.mock('../../config/dynamicIslandConfig', async () => ({
   ...(await import('../../config/dynamicIslandUpdateSource')),
   ...(await import('../../config/dynamicIslandStorageKeys'))
 }));
-const {
-  useIslandStartupAnnouncements,
-  createAnnouncementShownMarker
-} = await import('../useIslandStartupAnnouncements');
+const { useIslandStartupUpdateCheck } = await import('../useIslandStartupUpdateCheck');
 let startup: (() => void) | undefined;
-let unavailable: (() => void) | undefined;
 let options: Options;
 let store: Record<string, unknown>;
 let notification: ReturnType<typeof vi.fn<Options['setNotificationRef']['current']>>;
 let api: ReturnType<typeof bridge>;
-const bulletin: AnnouncementData = {
-  id: 5,
-  title: 'Notice',
-  content: 'Content',
-  updatedAt: 'now'
-};
 /** 生成真实归一化函数可解析的角色 JWT。
  * @param role - 角色
  * @returns JWT
@@ -111,20 +90,15 @@ function bridge() {
       startup = callback;
       return vi.fn();
     }),
-    onUpdaterNotAvailable: vi.fn((callback: () => void) => {
-      unavailable = callback;
-      return vi.fn();
-    }),
     storeRead: vi.fn((key: string): Promise<unknown> => Promise.resolve(store[key])),
-    updaterCheck: vi.fn<(source: string, url?: string) => Promise<void>>(() => Promise.resolve()),
-    updaterVersion: vi.fn<() => Promise<string | undefined>>(() => Promise.resolve('1.0'))
+    updaterCheck: vi.fn<(source: string, url?: string) => Promise<void>>(() => Promise.resolve())
   };
 }
 /** 提交真实 Hook 生命周期。
  * @returns 完成后处理函数
  */
 function mount(): void {
-  renderHook(useIslandStartupAnnouncements, options);
+  renderHook(useIslandStartupUpdateCheck, options);
   flushHookEffects();
 }
 /** 调用捕获的原生启动订阅并等待真实 async 回调。
@@ -170,7 +144,6 @@ beforeEach(() => {
   leaves.notification = null;
   leaves.subscribers.clear();
   startup = undefined;
-  unavailable = undefined;
   store = {};
   leaves.token.mockReturnValue(null);
   leaves.weather.mockResolvedValue(payload('', '', '', 0));
@@ -182,10 +155,6 @@ beforeEach(() => {
       url: 'https://source.example/latest'
     }
   });
-  leaves.announcements.mockResolvedValue([bulletin]);
-  leaves.mode.mockResolvedValue('version-update-only');
-  leaves.last.mockResolvedValue('');
-  leaves.write.mockResolvedValue();
   notification = vi.fn((data) => {
     leaves.state = 'notification';
     leaves.notification = data;
@@ -193,17 +162,9 @@ beforeEach(() => {
   });
   options = {
     language: 'zh-CN',
-    state: 'expand',
-    setAnnouncement: vi.fn(),
     t: vi.fn((key: string) => key),
     startupAutoCheckHandledRef: {
       current: false
-    },
-    pendingAnnouncementAfterGuideRef: {
-      current: false
-    },
-    pendingAnnouncementAppVersionRef: {
-      current: ''
     },
     setNotificationRef: {
       current: notification
@@ -220,17 +181,15 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.useRealTimers();
 });
-describe('useIslandStartupAnnouncements runtime', () => {
-  it('handles startup once and unregisters both subscriptions', async () => {
+describe('useIslandStartupUpdateCheck runtime', () => {
+  it('handles startup once and unregisters its subscription', async () => {
     await triggerStartup();
     startup?.();
     await settleHook();
     expect(api.updaterCheck).toHaveBeenCalledExactlyOnceWith('cloudflare-r2', undefined);
     const [unsubscribeStartup] = api.onUpdaterStartupAutoCheckRequest.mock.results;
-    const [unsubscribeUnavailable] = api.onUpdaterNotAvailable.mock.results;
     unmountHook();
     expect(unsubscribeStartup.value).toHaveBeenCalledTimes(1);
-    expect(unsubscribeUnavailable.value).toHaveBeenCalledTimes(1);
   });
   it('disabled auto prompt exits before token/source/weather or update reads', async () => {
     store['update-auto-prompt-enabled'] = false;
@@ -410,108 +369,25 @@ describe('useIslandStartupAnnouncements runtime', () => {
     }));
     expect(api.updaterCheck).not.toHaveBeenCalled();
   });
-  it.each(['login', 'register', 'resetPassword', 'payment'])('avoids announcement over protected state %s', async (state) => {
-    leaves.state = state;
-    mount();
-    unavailable?.();
-    await settleHook();
-    expect(leaves.mode).not.toHaveBeenCalled();
-    expect(options.setAnnouncement).not.toHaveBeenCalled();
-  });
-  it('skips empty announcements and same version/content fingerprint', async () => {
-    leaves.announcements.mockResolvedValueOnce([]);
-    mount();
-    unavailable?.();
-    await settleHook();
-    expect(options.setAnnouncement).not.toHaveBeenCalled();
-    leaves.last.mockResolvedValue(createAnnouncementShownMarker('1.0', [bulletin]));
-    unavailable?.();
-    await settleHook();
-    expect(options.setAnnouncement).not.toHaveBeenCalled();
-    expect(leaves.write).not.toHaveBeenCalled();
-  });
-  it('shows changed announcement and persists the full marker', async () => {
-    mount();
-    unavailable?.();
-    await settleHook();
-    expect(options.setAnnouncement).toHaveBeenCalledTimes(1);
-    expect(leaves.write).toHaveBeenCalledExactlyOnceWith(createAnnouncementShownMarker('1.0', [bulletin]));
-  });
-  it('always mode shows without reading last marker or writing one', async () => {
-    leaves.mode.mockResolvedValue('always');
-    mount();
-    unavailable?.();
-    await settleHook();
-    expect(options.setAnnouncement).toHaveBeenCalledTimes(1);
-    expect(leaves.last).not.toHaveBeenCalled();
-    expect(leaves.write).not.toHaveBeenCalled();
-  });
-  it('missing version still shows announcement but does not persist an immediate marker', async () => {
-    api.updaterVersion.mockResolvedValue(undefined);
-    mount();
-    unavailable?.();
-    await settleHook();
-    expect(options.setAnnouncement).toHaveBeenCalledTimes(1);
-    expect(leaves.write).not.toHaveBeenCalled();
-  });
-  it.each(['guide', 'login', 'register', 'resetPassword', 'payment'])('defers pending guide announcement during %s and applies after exit', async (state) => {
-    leaves.state = 'guide';
-    options.state = 'guide';
-    mount();
-    unavailable?.();
-    await settleHook();
-    expect(options.pendingAnnouncementAfterGuideRef.current).toBe(true);
-    expect(options.pendingAnnouncementAppVersionRef.current).toBe(createAnnouncementShownMarker('1.0', [bulletin]));
-    options.state = state;
-    mount();
-    expect(options.setAnnouncement).not.toHaveBeenCalled();
-    options.state = 'expand';
-    mount();
-    await settleHook();
-    expect(options.setAnnouncement).toHaveBeenCalledTimes(1);
-    expect(leaves.write).toHaveBeenCalledExactlyOnceWith(createAnnouncementShownMarker('1.0', [bulletin]));
-    expect(options.pendingAnnouncementAfterGuideRef.current).toBe(false);
-    expect(options.pendingAnnouncementAppVersionRef.current).toBe('');
-  });
-  it('guide in always mode resumes without a marker', async () => {
-    leaves.state = 'guide';
-    options.state = 'guide';
-    leaves.mode.mockResolvedValue('always');
-    mount();
-    unavailable?.();
-    await settleHook();
-    expect(options.pendingAnnouncementAppVersionRef.current).toBe('');
-    options.state = 'expand';
-    mount();
-    await settleHook();
-    expect(options.setAnnouncement).toHaveBeenCalledTimes(1);
-    expect(leaves.write).not.toHaveBeenCalled();
-  });
   it('absent optional bridge/listener registration and teardown are safe', () => {
     vi.stubGlobal('window', {});
     mount();
     unmountHook();
-    expect(api.onUpdaterNotAvailable).not.toHaveBeenCalled();
     resetHook();
     vi.stubGlobal('window', {
       api: {}
     });
     mount();
     unmountHook();
-    expect(options.setAnnouncement).not.toHaveBeenCalled();
   });
-  it('registered callbacks tolerate bridge disappearing before startup or version lookup', async () => {
+  it('registered callback tolerates the bridge disappearing before startup', async () => {
     mount();
     vi.stubGlobal('window', {});
     startup?.();
     await settleHook();
-    unavailable?.();
-    await settleHook();
     expect(api.updaterCheck).not.toHaveBeenCalled();
-    expect(options.setAnnouncement).toHaveBeenCalledTimes(1);
-    expect(leaves.write).not.toHaveBeenCalled();
   });
-  it('bridge without optional store/version methods uses default values', async () => {
+  it('bridge without optional store methods uses default values', async () => {
     mount();
     vi.stubGlobal('window', {
       api: {
@@ -519,11 +395,8 @@ describe('useIslandStartupAnnouncements runtime', () => {
       }
     });
     startup?.();
-    unavailable?.();
     await settleHook();
     expect(api.updaterCheck).toHaveBeenCalledWith('cloudflare-r2', undefined);
-    expect(options.setAnnouncement).toHaveBeenCalledTimes(1);
-    expect(leaves.write).not.toHaveBeenCalled();
   });
   it('language change cleans the startup subscription and creates a new one', () => {
     mount();
@@ -532,15 +405,5 @@ describe('useIslandStartupAnnouncements runtime', () => {
     mount();
     expect(first.value).toHaveBeenCalledTimes(1);
     expect(api.onUpdaterStartupAutoCheckRequest).toHaveBeenCalledTimes(2);
-    expect(api.onUpdaterNotAvailable).toHaveBeenCalledTimes(1);
-  });
-  it('creates stable markers when API optional id/date metadata are absent', () => {
-    expect(createAnnouncementShownMarker('', [{
-      title: 'No metadata',
-      content: ''
-    }])).toBe(JSON.stringify({
-      appVersion: '',
-      fingerprints: ['@']
-    }));
   });
 });

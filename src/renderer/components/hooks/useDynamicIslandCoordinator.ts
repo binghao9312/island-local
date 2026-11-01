@@ -32,7 +32,7 @@ import { useIslandHoverInteraction } from './useIslandHoverInteraction';
 import { useIslandNowPlayingSync } from './useIslandNowPlayingSync';
 import { useIslandNotificationSubscriptions } from './useIslandNotificationSubscriptions';
 import { useIslandSettingsSync } from './useIslandSettingsSync';
-import { useIslandStartupAnnouncements } from './useIslandStartupAnnouncements';
+import { useIslandStartupUpdateCheck } from './useIslandStartupUpdateCheck';
 import { useIslandTimerAndAlarm } from './useIslandTimerAndAlarm';
 import { useIslandBreakReminder } from './useIslandBreakReminder';
 import { useIslandBackgroundVideoSync } from './useIslandBackgroundVideoSync';
@@ -82,7 +82,6 @@ export function useDynamicIslandCoordinator(options: UseDynamicIslandCoordinator
     setLyrics,
     setLyricsTranslation,
     setHoverTab,
-    setAnnouncement,
     setAgentVoiceInput,
     timerData,
     setTimerData,
@@ -114,8 +113,6 @@ export function useDynamicIslandCoordinator(options: UseDynamicIslandCoordinator
     expandLeaveIdleRef,
     maxExpandLeaveIdleRef,
     idleClickExpandRef,
-    pendingAnnouncementAfterGuideRef,
-    pendingAnnouncementAppVersionRef,
     startupAutoCheckHandledRef,
     autoDimEnabledRef,
     autoDimDelayRef,
@@ -249,13 +246,9 @@ export function useDynamicIslandCoordinator(options: UseDynamicIslandCoordinator
     setExpanded,
   });
 
-  useIslandStartupAnnouncements({
+  useIslandStartupUpdateCheck({
     language,
-    state,
-    setAnnouncement,
     startupAutoCheckHandledRef,
-    pendingAnnouncementAfterGuideRef,
-    pendingAnnouncementAppVersionRef,
     setNotificationRef,
     t,
   });

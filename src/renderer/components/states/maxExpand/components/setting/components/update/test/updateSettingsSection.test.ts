@@ -26,7 +26,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { UpdateSettingsSection } from '../UpdateSettingsSection';
-import { elementProps, elements, findElement, invoke, resetState, textContent } from '../../../../../../../test/elementHarness';
+import { elementProps, findElement, invoke, resetState, textContent } from '../../../../../../../test/elementHarness';
 import type { ComponentProps } from 'react';
 /**
  * 构造隔离设置状态和可观察回调的完整配置。
@@ -36,14 +36,12 @@ function makeProps(): ComponentProps<typeof UpdateSettingsSection> {
   return {
     aboutVersion: '',
     updateAutoPromptEnabled: false,
-    announcementShowMode: 'always',
     updateStatus: 'idle',
     updateVersion: '',
     downloadProgress: null,
     currentSourceLabel: '',
     updateError: '',
     onUpdateAutoPromptEnabledChange: vi.fn(),
-    onAnnouncementShowModeChange: vi.fn(),
     onCheckUpdate: vi.fn(),
     onDownloadUpdate: vi.fn(),
     onInstallUpdate: vi.fn(),
@@ -88,9 +86,6 @@ describe('UpdateSettingsSection', () => {
     const tree = UpdateSettingsSection(props);
     invoke(findElement(tree, (n) => n.type === 'input' && elementProps(n).type === 'checkbox'), 'onChange', { target: { checked: true } });
     expect(props.onUpdateAutoPromptEnabledChange).toHaveBeenCalledWith(true);
-    const radios = elements(tree).filter((n) => n.type === 'input' && elementProps(n).type === 'radio');
-    invoke(radios[1], 'onChange');
-    expect(props.onAnnouncementShowModeChange).toHaveBeenCalledWith('version-update-only');
     invoke(findElement(tree, (n) => n.type === 'button' && textContent(n) === 'settings.update.actions.resetGuide'), 'onClick');
     expect(props.onResetGuide).toHaveBeenCalledOnce();
     expect(textContent(tree)).toContain(guideResetStatus === 'success' ? 'settings.update.guideResetSuccess' : 'settings.update.guideResetError');

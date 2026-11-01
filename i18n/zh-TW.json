@@ -535,25 +535,6 @@
     "sunny": "晴天",
     "unknown": "未知"
   },
-  "announcement": {
-    "loading": "正在加載公告…",
-    "empty": "暫無公告內容",
-    "subtitle": "當前已是最新版本，以下為最新公告內容。",
-    "defaultTitle": "系統公告",
-    "updatedAt": "更新時間：{{time}}",
-    "showList": "展開公告列表",
-    "hideList": "收起公告列表",
-    "qqQrAlt": "QQ 群二維碼",
-    "close": "關閉",
-    "adSpace": "廣告位招租",
-    "adPrev": "上一張",
-    "adNext": "下一張",
-    "questionnaireBanner": {
-      "title": "未完成問卷：{{count}} 份",
-      "open": "前往填寫",
-      "dismiss": "忽略當前問卷"
-    }
-  },
   "questionnaire": {
     "loading": "正在加載問卷…",
     "emptyTitle": "當前暫無有效問卷",
@@ -585,7 +566,12 @@
     "rewardDays": "已獲贈 {{days}} 天 Pro 會員",
     "rewardExpireAt": "新的到期時間：{{time}}",
     "noReward": "本問卷未配置 Pro 獎勵",
-    "rewardBanner": "完成本問卷可獲贈 {{days}} 天 Pro 會員"
+    "rewardBanner": "完成本問卷可獲贈 {{days}} 天 Pro 會員",
+    "banner": {
+      "title": "未完成問卷：{{count}} 份",
+      "open": "前往填寫",
+      "dismiss": "忽略當前問卷"
+    }
   },
   "notification": {
     "alarm": {
@@ -3852,10 +3838,8 @@
       "versionCardTitle": "版本信息",
       "versionCardHint": "查看當前版本並選擇更新源，應用所有補丁包均通過該更新源下載",
       "autoPromptTitle": "更新提示",
-      "autoPromptHintStatic": "控制是否自動提示版本更新和公告展示策略",
+      "autoPromptHintStatic": "控制是否自動提示版本更新",
       "autoPromptEnabled": "自動提示版本更新",
-      "announcementShowModeAlways": "每次都顯示公告",
-      "announcementShowModeVersionOnly": "僅版本更新時顯示公告",
       "actionCardTitle": "檢查與安裝",
       "actionCardHint": "手動觸發檢查，有新版本時可下載安裝；下載完成後點擊“安裝並重啟”應用更新",
       "currentVersion": "當前版本",

@@ -31,8 +31,6 @@ import type { ReactElement, ComponentProps } from 'react';
 const render = (props: ComponentProps<typeof IndexSettingsSection>): ReactElement => (IndexSettingsSection as unknown as {
   type: (value: ComponentProps<typeof IndexSettingsSection>) => ReactElement;
 }).type(props);
-const store = vi.hoisted(() => ({ setQuestionnaire: vi.fn() }));
-const reminder = vi.hoisted(() => ({ questionnaire: null, count: 0, dismiss: vi.fn() }));
 /**
  * 构造隔离设置状态和可观察回调的完整配置。
  * @returns 配置状态及可观察回调。
@@ -63,8 +61,6 @@ vi.mock('react', async (importOriginal) => ({
   ...(await import('../../../../../../../test/elementHarness')).hookMocks,
 }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { resolvedLanguage: 'en-US', language: 'en-US', changeLanguage: vi.fn(() => Promise.resolve()) } }) }));
-vi.mock('../../../../../../../../store/slices', () => ({ default: (selector: (value: typeof store) => unknown) => selector(store) }));
-vi.mock('../../../../../../../../components/components/DynamicIslandQuestionnaireBanner', () => ({ QuestionnaireBanner: vi.fn(), useAnnouncementQuestionnaire: () => reminder }));
 beforeEach(() => {
   vi.clearAllMocks();
   resetState();

@@ -41,17 +41,17 @@ export function QuestionnaireBanner({
 }: QuestionnaireBannerProps): ReactElement {
   const { t } = useTranslation();
   return (
-    <div className="announcement-questionnaire-banner" role="status">
-      <span className="announcement-questionnaire-banner-text">
+    <div className="questionnaire-banner" role="status">
+      <span className="questionnaire-banner-text">
         <img src={SvgIcon.QUESTIONNAIRE} alt="" draggable={false} />
-        {t('announcement.questionnaireBanner.title', { count })}
+        {t('questionnaire.banner.title', { count })}
       </span>
       <div>
         <button type="button" className="primary" onClick={onOpen}>
-          {t('announcement.questionnaireBanner.open')}
+          {t('questionnaire.banner.open')}
         </button>
         <button type="button" onClick={onDismiss}>
-          {t('announcement.questionnaireBanner.dismiss')}
+          {t('questionnaire.banner.dismiss')}
         </button>
       </div>
     </div>

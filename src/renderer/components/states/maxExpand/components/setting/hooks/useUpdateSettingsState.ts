@@ -28,11 +28,6 @@ import { useEffect, useState } from 'react';
 import type { TFunction } from 'i18next';
 import { fetchUpdateSourceUrl } from '../../../../../../api/user/userAccountApi';
 import {
-  readAnnouncementShowMode,
-  writeAnnouncementShowMode,
-  type AnnouncementShowMode,
-} from '../../../../../../api/announcement/announcementApi';
-import {
   UPDATE_SOURCE_STORE_KEY,
   UPDATE_AUTO_PROMPT_STORE_KEY,
   UPDATE_SOURCES,
@@ -62,7 +57,6 @@ export default function useUpdateSettingsState({ t, isProUser, sessionToken }: U
   const [updateError, setUpdateError] = useState<string>('');
   const [downloadProgress, setDownloadProgress] = useState<UpdateDownloadProgress | null>(null);
   const [updateAutoPromptEnabled, setUpdateAutoPromptEnabled] = useState<boolean>(true);
-  const [announcementShowMode, setAnnouncementShowMode] = useState<AnnouncementShowMode>('version-update-only');
   const [updateSource, setUpdateSource] = useState<UpdateSourceKey>('esa-cdn');
   const [guideResetStatus, setGuideResetStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
@@ -120,11 +114,6 @@ export default function useUpdateSettingsState({ t, isProUser, sessionToken }: U
     window.api.storeWrite(UPDATE_AUTO_PROMPT_STORE_KEY, enabled).catch(() => {});
   };
 
-  const handleAnnouncementShowModeChange = (mode: AnnouncementShowMode): void => {
-    setAnnouncementShowMode(mode);
-    void writeAnnouncementShowMode(mode);
-  };
-
   useEffect(() => {
     let cancelled = false;
     window.api.storeRead(UPDATE_SOURCE_STORE_KEY).then((value) => {
@@ -139,15 +128,6 @@ export default function useUpdateSettingsState({ t, isProUser, sessionToken }: U
     window.api.storeRead(UPDATE_AUTO_PROMPT_STORE_KEY).then((value) => {
       if (cancelled) return;
       setUpdateAutoPromptEnabled(typeof value === 'boolean' ? value : true);
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    readAnnouncementShowMode().then((mode) => {
-      if (cancelled) return;
-      setAnnouncementShowMode(mode);
     }).catch(() => {});
     return () => { cancelled = true; };
   }, []);
@@ -237,14 +217,11 @@ export default function useUpdateSettingsState({ t, isProUser, sessionToken }: U
     setDownloadProgress,
     updateAutoPromptEnabled,
     setUpdateAutoPromptEnabled,
-    announcementShowMode,
-    setAnnouncementShowMode,
     updateSource,
     setUpdateSource,
     currentSourceLabel,
     handleUpdateSourceChange,
     handleUpdateAutoPromptEnabledChange,
-    handleAnnouncementShowModeChange,
     handleCheckUpdate,
     handleDownloadUpdate,
     handleInstallUpdate,

@@ -29,11 +29,8 @@ import { IndexSettingsSection } from '../IndexSettingsSection';
 import { elementProps, elements, findElement, invoke, textContent } from '../../../../../../../test/elementHarness';
 import { renderWithHooks, resetLifecycle } from '../../app/components/test/themeHookHarness';
 import type { ComponentProps, ReactElement } from 'react';
-const { store, reminder } = vi.hoisted(() => ({ store: { setQuestionnaire: vi.fn() }, reminder: { questionnaire: null as object | null, count: 0, dismiss: vi.fn() } }));
 vi.mock('react', async (original) => ({ ...(await original<typeof import('react')>()), ...(await import('../../../../../../../test/elementHarness')).hookMocks, ...(await import('../../app/components/test/themeHookHarness')).lifecycleHooks }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
-vi.mock('../../../../../../../../store/slices', () => ({ default: (selector: (value: typeof store) => unknown) => selector(store) }));
-vi.mock('../../../../../../../../components/components/DynamicIslandQuestionnaireBanner', () => ({ QuestionnaireBanner: vi.fn(), useAnnouncementQuestionnaire: () => reminder }));
 /**
  * 创建符合公开契约的导航状态。
  * @returns 导航输入及可观察回调。
@@ -69,17 +66,13 @@ function render(props: ComponentProps<typeof IndexSettingsSection>) {
   const { type } = IndexSettingsSection as unknown as { type: (input: ComponentProps<typeof IndexSettingsSection>) => ReactElement };
   return renderWithHooks(() => type(props));
 }
-beforeEach(() => { resetLifecycle(); vi.clearAllMocks(); reminder.questionnaire = null; });
+beforeEach(() => { resetLifecycle(); vi.clearAllMocks(); });
 describe('实际导航完整交互', () => {
   it('Pro 与充值卡片保留特殊边框，普通卡片和缺失 action 回调转交分类', () => {
     const props = makeProps(); props.visibleCards = [{ id: 'user-pro', label: 'Pro', desc: 'Plan', tab: 'user', icon: 'pro.svg' }, { id: 'user-recharge', label: 'Recharge', desc: 'Credit', tab: 'user', icon: 'recharge.svg', actionId: 'recharge' }]; props.onAction = undefined;
     const cards = elements(render(props)).filter((node) => node.type === 'button' && String(elementProps(node).className).startsWith('settings-index-card'));
     expect(elementProps(cards[0]).className).toContain('settings-user-pro-nav-card--outline'); expect(elementProps(cards[1]).className).toContain('settings-user-recharge-nav-card--outline');
     cards.forEach((node) => invoke(node, 'onClick')); expect(props.setActiveTab).toHaveBeenCalledTimes(2); expect(props.setActiveTab).toHaveBeenCalledWith('user'); expect(elements(cards[0]).some((node) => node.type === 'img')).toBe(true);
-  });
-  it('问卷叶服务返回提醒时真实 Banner 接收到打开和忽略回调', () => {
-    reminder.questionnaire = {}; reminder.count = 2; const props = makeProps(); const banner = findElement(render(props), (node) => typeof elementProps(node).onDismiss === 'function');
-    expect(elementProps(banner).count).toBe(2); invoke(banner, 'onOpen', {}); invoke(banner, 'onDismiss'); expect(store.setQuestionnaire).toHaveBeenCalledOnce(); expect(reminder.dismiss).toHaveBeenCalledOnce();
   });
   it('拖拽经过、离开、同源放置与结束均更新实际高亮及公开 ref', () => {
     const props = makeProps(); props.navEditMode = true; props.visibleCards = [{ id: 'a', label: 'A', desc: '', tab: 'app', icon: 'a.svg' }, { id: 'b', label: 'B', desc: '', tab: 'music' }]; props.navOrder = ['a','b'];

@@ -535,25 +535,6 @@
     "sunny": "晴れ",
     "unknown": "不明"
   },
-  "announcement": {
-    "loading": "お知らせを読み込み中…",
-    "empty": "お知らせはありません",
-    "subtitle": "最新バージョンを使用しています。最新のお知らせは以下をご覧ください。",
-    "defaultTitle": "システムからのお知らせ",
-    "updatedAt": "更新日時: {{time}}",
-    "showList": "お知らせ一覧を展開",
-    "hideList": "お知らせ一覧を折りたたむ",
-    "qqQrAlt": "QQ グループの QR コード",
-    "close": "閉じる",
-    "adSpace": "広告掲載募集中",
-    "adPrev": "前へ",
-    "adNext": "次へ",
-    "questionnaireBanner": {
-      "title": "未回答のアンケート: {{count}} 件",
-      "open": "回答する",
-      "dismiss": "現在のアンケートを無視"
-    }
-  },
   "questionnaire": {
     "loading": "アンケートを読み込み中…",
     "emptyTitle": "受付中のアンケートはありません",
@@ -585,7 +566,12 @@
     "rewardDays": "Pro の利用期間を {{days}} 日分獲得しました",
     "rewardExpireAt": "新しい有効期限: {{time}}",
     "noReward": "このアンケートには Pro 特典はありません",
-    "rewardBanner": "このアンケートに回答すると Pro を {{days}} 日間利用できます"
+    "rewardBanner": "このアンケートに回答すると Pro を {{days}} 日間利用できます",
+    "banner": {
+      "title": "未回答のアンケート: {{count}} 件",
+      "open": "回答する",
+      "dismiss": "現在のアンケートを無視"
+    }
   },
   "notification": {
     "alarm": {
@@ -3852,10 +3838,8 @@
       "versionCardTitle": "バージョン情報",
       "versionCardHint": "現在のバージョンを確認し、更新元を選択します。すべてのパッチは選択した更新元からダウンロードされます。",
       "autoPromptTitle": "更新通知",
-      "autoPromptHintStatic": "新しいバージョンの自動通知とお知らせの表示方法を設定します",
+      "autoPromptHintStatic": "新しいバージョンの自動通知を設定します",
       "autoPromptEnabled": "新しいバージョンを自動で通知",
-      "announcementShowModeAlways": "お知らせを毎回表示",
-      "announcementShowModeVersionOnly": "バージョン更新時のみお知らせを表示",
       "actionCardTitle": "確認とインストール",
       "actionCardHint": "手動で更新を確認します。新しいバージョンがある場合はダウンロードできます。完了後、「インストールして再起動」をクリックして適用します。",
       "currentVersion": "現在のバージョン",

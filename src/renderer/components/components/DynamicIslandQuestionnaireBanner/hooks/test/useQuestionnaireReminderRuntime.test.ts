@@ -19,13 +19,13 @@
  */
 
 /**
- * @file useAnnouncementQuestionnaireRuntime.test.ts
+ * @file useQuestionnaireReminderRuntime.test.ts
  * @description 问卷提醒 Hook 真实刷新、完成和屏蔽过滤以及空提醒关闭边界测试。
  * @author 鸡哥
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushHookEffects, renderHook, resetHook, settleHook, unmountHook } from '../../../../states/maxExpand/components/calendar/hooks/test/calendarHookHarness';
-import { useAnnouncementQuestionnaire } from '../useAnnouncementQuestionnaire';
+import { useQuestionnaireReminder } from '../useQuestionnaireReminder';
 import type * as QuestionnaireApi from '../../../../../api/questionnaire/questionnaireApi';
 const leaves = vi.hoisted(() => ({
   fetch: vi.fn<typeof QuestionnaireApi.fetchActiveQuestionnaires>(),
@@ -53,12 +53,12 @@ beforeEach(() => {
 afterEach(() => {
   unmountHook();
 });
-describe('useAnnouncementQuestionnaire runtime', () => {
+describe('useQuestionnaireReminder runtime', () => {
   it('empty reminder dismiss is safe and reload forwards token and filters completed/dismissed ids', async () => {
-    renderHook(useAnnouncementQuestionnaire);
+    renderHook(useQuestionnaireReminder);
     flushHookEffects();
     await settleHook();
-    renderHook(useAnnouncementQuestionnaire).dismiss();
+    renderHook(useQuestionnaireReminder).dismiss();
     expect(leaves.dismiss).not.toHaveBeenCalled();
     leaves.fetch.mockResolvedValue([1, 2, 3].map((id) => ({
       id,
@@ -71,19 +71,19 @@ describe('useAnnouncementQuestionnaire runtime', () => {
     })));
     leaves.completed.mockImplementation((id) => id === 1);
     leaves.dismissed.mockImplementation((id) => id === 2);
-    await renderHook(useAnnouncementQuestionnaire).reload();
-    expect(renderHook(useAnnouncementQuestionnaire)).toMatchObject({
+    await renderHook(useQuestionnaireReminder).reload();
+    expect(renderHook(useQuestionnaireReminder)).toMatchObject({
       questionnaire: {
         id: 3
       },
       count: 1
     });
     expect(leaves.fetch).toHaveBeenLastCalledWith('token');
-    renderHook(useAnnouncementQuestionnaire).dismiss();
+    renderHook(useQuestionnaireReminder).dismiss();
     expect(leaves.dismiss).toHaveBeenCalledWith(3);
-    expect(renderHook(useAnnouncementQuestionnaire).questionnaire).toBeNull();
+    expect(renderHook(useQuestionnaireReminder).questionnaire).toBeNull();
     leaves.fetch.mockResolvedValue([]);
-    await renderHook(useAnnouncementQuestionnaire).reload();
-    expect(renderHook(useAnnouncementQuestionnaire).count).toBe(0);
+    await renderHook(useQuestionnaireReminder).reload();
+    expect(renderHook(useQuestionnaireReminder).count).toBe(0);
   });
 });

@@ -42,14 +42,12 @@ interface DownloadProgressData {
 interface UpdateSettingsSectionProps {
   aboutVersion: string;
   updateAutoPromptEnabled: boolean;
-  announcementShowMode: 'always' | 'version-update-only';
   updateStatus: UpdateStatus;
   updateVersion: string;
   downloadProgress: DownloadProgressData | null;
   currentSourceLabel: string;
   updateError: string;
   onUpdateAutoPromptEnabledChange: (enabled: boolean) => void;
-  onAnnouncementShowModeChange: (mode: 'always' | 'version-update-only') => void;
   onCheckUpdate: () => void;
   onDownloadUpdate: () => void;
   onInstallUpdate: () => void;
@@ -70,14 +68,12 @@ interface UpdateSettingsSectionProps {
 export function UpdateSettingsSection({
   aboutVersion,
   updateAutoPromptEnabled,
-  announcementShowMode,
   updateStatus,
   updateVersion,
   downloadProgress,
   currentSourceLabel,
   updateError,
   onUpdateAutoPromptEnabledChange,
-  onAnnouncementShowModeChange,
   onCheckUpdate,
   onDownloadUpdate,
   onInstallUpdate,
@@ -187,7 +183,7 @@ export function UpdateSettingsSection({
       <div className="settings-card">
         <div className="settings-card-header">
           <div className="settings-card-title">{t('settings.update.autoPromptTitle', { defaultValue: '更新提示' })}</div>
-          <div className="settings-card-subtitle">{t('settings.update.autoPromptHintStatic', { defaultValue: '控制是否自动提示版本更新和公告展示策略' })}</div>
+          <div className="settings-card-subtitle">{t('settings.update.autoPromptHintStatic', { defaultValue: '控制是否自动提示版本更新' })}</div>
         </div>
 
         <label className="settings-card-check">
@@ -197,24 +193,6 @@ export function UpdateSettingsSection({
             onChange={(e) => onUpdateAutoPromptEnabledChange(e.target.checked)}
           />
           <span>{t('settings.update.autoPromptEnabled', { defaultValue: '自动提示版本更新' })}</span>
-        </label>
-        <label className="settings-card-check" style={{ marginTop: 6 }}>
-          <input
-            type="radio"
-            name="announcement-show-mode"
-            checked={announcementShowMode === 'always'}
-            onChange={() => onAnnouncementShowModeChange('always')}
-          />
-          <span>{t('settings.update.announcementShowModeAlways', { defaultValue: '每次都显示公告' })}</span>
-        </label>
-        <label className="settings-card-check" style={{ marginTop: 6 }}>
-          <input
-            type="radio"
-            name="announcement-show-mode"
-            checked={announcementShowMode === 'version-update-only'}
-            onChange={() => onAnnouncementShowModeChange('version-update-only')}
-          />
-          <span>{t('settings.update.announcementShowModeVersionOnly', { defaultValue: '仅版本更新时显示公告' })}</span>
         </label>
       </div>
 

@@ -100,7 +100,7 @@ export function useIslandHoverInteraction(options: UseIslandHoverInteractionOpti
       }
     };
 
-    if (state === 'maxExpand' || state === 'expanded' || state === 'announcement' || state === 'questionnaire') {
+    if (state === 'maxExpand' || state === 'expanded' || state === 'questionnaire') {
       isHoveringRef.current = true;
     }
 
@@ -139,7 +139,7 @@ export function useIslandHoverInteraction(options: UseIslandHoverInteractionOpti
         return;
       }
 
-      if (state === 'notification' || state === 'agent' || state === 'stt' || state === 'cli' || state === 'agentVoiceInput' || state === 'guide' || state === 'login' || state === 'register' || state === 'resetPassword' || state === 'payment' || state === 'announcement' || state === 'questionnaire' || state === 'musicProvidersLogin') {
+      if (state === 'notification' || state === 'agent' || state === 'stt' || state === 'cli' || state === 'agentVoiceInput' || state === 'guide' || state === 'login' || state === 'register' || state === 'resetPassword' || state === 'payment' || state === 'questionnaire' || state === 'musicProvidersLogin') {
         if (inWindow) {
           setMousePassthrough(false);
         }

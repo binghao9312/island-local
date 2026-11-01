@@ -452,3 +452,125 @@
   color: rgba(var(--color-text-rgb), .42);
   font-size: 10px;
 }
+.questionnaire-header-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.questionnaire-close-btn {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text);
+  border-radius: 10px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.questionnaire-close-btn img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  filter: brightness(0) invert(var(--icon-invert));
+  opacity: 0.5;
+}
+
+.questionnaire-close-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.questionnaire-list-toggle-btn {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.questionnaire-list-toggle-btn img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  filter: brightness(0) invert(var(--icon-invert));
+  opacity: 0.5;
+}
+
+.questionnaire-list-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.questionnaire-list-toggle-btn.active {
+  background: rgba(124, 188, 255, 0.2);
+  border-color: rgba(124, 188, 255, 0.4);
+}
+
+.questionnaire-list-toggle-btn.active img {
+  opacity: 0.9;
+}
+
+.questionnaire-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+  padding: 7px 9px 7px 11px;
+  border: 1px solid rgba(124, 188, 255, .2);
+  border-radius: 8px;
+  color: rgba(var(--color-text-rgb), .82);
+  background: rgba(124, 188, 255, .08);
+  font-size: 11px;
+}
+
+.questionnaire-banner-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.questionnaire-banner-text > img {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.questionnaire-banner > div {
+  display: flex;
+  flex-shrink: 0;
+  gap: 6px;
+}
+
+.questionnaire-banner button {
+  padding: 4px 8px;
+  border: 1px solid rgba(var(--color-text-rgb), .12);
+  border-radius: 6px;
+  color: rgba(var(--color-text-rgb), .62);
+  background: rgba(var(--color-text-rgb), .05);
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.questionnaire-banner button:hover {
+  color: var(--color-text);
+  background: rgba(var(--color-text-rgb), .1);
+}
+
+.questionnaire-banner button.primary {
+  border-color: rgba(124, 188, 255, .35);
+  color: #9dceff;
+  background: rgba(124, 188, 255, .14);
+}

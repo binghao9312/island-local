@@ -110,7 +110,7 @@ vi.mock('../../../../../../../../store/slices', () => ({
 }));
 vi.mock('../../../../../../../components/DynamicIslandQuestionnaireBanner', () => ({
   QuestionnaireBanner: () => null,
-  useAnnouncementQuestionnaire: () => mocks.reminder
+  useQuestionnaireReminder: () => mocks.reminder
 }));
 vi.mock('../utils/loginHeatmapStorage', () => ({
   readLoginDays: () => new Set(['2026-10-06']),

@@ -382,14 +382,12 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
     onRemoveWorkspace,
     aboutVersion,
     updateAutoPromptEnabled,
-    announcementShowMode,
     updateStatus,
     updateVersion,
     downloadProgress,
     currentSourceLabel,
     updateError,
     handleUpdateAutoPromptEnabledChange,
-    handleAnnouncementShowModeChange,
     handleCheckUpdate,
     handleDownloadUpdate,
     handleInstallUpdate,
@@ -900,14 +898,12 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
             <UpdateSettingsSection
               aboutVersion={aboutVersion}
               updateAutoPromptEnabled={updateAutoPromptEnabled}
-              announcementShowMode={announcementShowMode}
               updateStatus={updateStatus}
               updateVersion={updateVersion}
               downloadProgress={downloadProgress}
               currentSourceLabel={currentSourceLabel}
               updateError={updateError}
               onUpdateAutoPromptEnabledChange={handleUpdateAutoPromptEnabledChange}
-              onAnnouncementShowModeChange={handleAnnouncementShowModeChange}
               onCheckUpdate={handleCheckUpdate}
               onDownloadUpdate={handleDownloadUpdate}
               onInstallUpdate={handleInstallUpdate}

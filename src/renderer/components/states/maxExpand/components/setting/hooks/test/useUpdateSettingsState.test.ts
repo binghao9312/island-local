@@ -135,19 +135,18 @@ describe('Update settings persistence and sources', () => {
   });
 
   it.each([
-    { source: 'github', prompt: false, mode: 'always' },
-    { source: 'invalid', prompt: 'false', mode: 'invalid' },
-    { source: 'esa-cdn', prompt: true, mode: 'version-update-only' }
-  ])('restores source $source and validates saved settings', async ({ source, prompt, mode }) => {
+    { source: 'github', prompt: false },
+    { source: 'invalid', prompt: 'false' },
+    { source: 'esa-cdn', prompt: true }
+  ])('restores source $source and validates saved settings', async ({ source, prompt }) => {
     api.storeRead.mockImplementation((key) => {
       if (key === 'update-source') return Promise.resolve(source);
       if (key === 'update-auto-prompt-enabled') return Promise.resolve(prompt);
-      return Promise.resolve(mode);
+      return Promise.resolve(undefined);
     });
     await commit();
     expect(view().updateSource).toBe(source === 'invalid' ? 'cloudflare-r2' : source);
     expect(view().updateAutoPromptEnabled).toBe(typeof prompt === 'boolean' ? prompt : true);
-    expect(view().announcementShowMode).toBe(mode === 'always' ? 'always' : 'version-update-only');
   });
 
   it('keeps defaults when reads fail and absorbs rejected preference writes', async () => {
@@ -157,11 +156,9 @@ describe('Update settings persistence and sources', () => {
     expect(view().updateSource).toBe('esa-cdn');
     view().handleUpdateSourceChange('github');
     view().handleUpdateAutoPromptEnabledChange(false);
-    view().handleAnnouncementShowModeChange('always');
     await commit();
     expect(view().updateSource).toBe('github');
     expect(view().updateAutoPromptEnabled).toBe(false);
-    expect(view().announcementShowMode).toBe('always');
   });
 
   it('ignores every pending read after unmount', async () => {
@@ -180,7 +177,6 @@ describe('Update settings persistence and sources', () => {
     await Promise.resolve();
     expect(view().updateSource).toBe('esa-cdn');
     expect(view().updateAutoPromptEnabled).toBe(true);
-    expect(view().announcementShowMode).toBe('version-update-only');
   });
 });
 

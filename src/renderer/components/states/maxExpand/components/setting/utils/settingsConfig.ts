@@ -598,7 +598,7 @@ export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = [
   // ── 更新设置 ──
   { label: '版本信息', desc: '查看当前版本信息，更新源可在网络配置中设置', labelKey: 'settings.update.versionCardTitle', descKey: 'settings.update.versionCardHint', tab: 'update' },
   { label: '检查与安装', desc: '手动触发检查,有新版本时可下载安装;下载完成后点击"安装并重启"应用更新', labelKey: 'settings.update.actionCardTitle', descKey: 'settings.update.actionCardHint', tab: 'update' },
-  { label: '更新提示', desc: '控制是否自动提示版本更新和公告展示策略', labelKey: 'settings.update.autoPromptTitle', descKey: 'settings.update.autoPromptHintStatic', tab: 'update' },
+  { label: '更新提示', desc: '控制是否自动提示版本更新', labelKey: 'settings.update.autoPromptTitle', descKey: 'settings.update.autoPromptHintStatic', tab: 'update' },
   { label: '引导界面', desc: '重新显示首次启动引导界面', labelKey: 'settings.update.guideCardTitle', descKey: 'settings.update.guideCardHint', tab: 'update' },
   // ── 插件市场 ──
   { label: '综合市场', desc: '浏览并应用社区分享的壁纸资源，支持图片和视频壁纸', labelKey: 'settings.pluginMarket.search.wallpaperTitle', descKey: 'settings.pluginMarket.search.wallpaperHint', tab: 'pluginMarket' },

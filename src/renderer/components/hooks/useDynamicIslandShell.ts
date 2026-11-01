@@ -155,7 +155,7 @@ export function useDynamicIslandShell(options: UseDynamicIslandShellOptions): Dy
       return;
     }
 
-    if (state === 'expanded' || state === 'maxExpand' || state === 'announcement') {
+    if (state === 'expanded' || state === 'maxExpand') {
       const store = useIslandStore.getState();
       const launcherVisible = store.maxExpandAppModeEnabled && store.maxExpandLauncherVisible;
       // 退出 maxExpand 时，仅当当前在 CLI 子标签且存在活跃的 Claude 会话才进入 cli 态

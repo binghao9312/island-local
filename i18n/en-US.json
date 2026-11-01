@@ -535,25 +535,6 @@
     "sunny": "Clr",
     "unknown": "N/A"
   },
-  "announcement": {
-    "loading": "Loading announcements…",
-    "empty": "No announcements",
-    "subtitle": "You are on the latest version. Below are the latest announcements.",
-    "defaultTitle": "System Announcement",
-    "updatedAt": "Updated: {{time}}",
-    "showList": "Expand announcement list",
-    "hideList": "Collapse announcement list",
-    "qqQrAlt": "QQ group QR code",
-    "close": "Close",
-    "adSpace": "Ad Space for Rent",
-    "adPrev": "Previous",
-    "adNext": "Next",
-    "questionnaireBanner": {
-      "title": "Unfinished questionnaires: {{count}}",
-      "open": "Fill them out",
-      "dismiss": "Ignore current"
-    }
-  },
   "questionnaire": {
     "loading": "Loading questionnaire…",
     "emptyTitle": "No active questionnaire",
@@ -585,7 +566,12 @@
     "rewardDays": "You received {{days}} day(s) of Pro",
     "rewardExpireAt": "New expiration: {{time}}",
     "noReward": "This questionnaire has no Pro reward",
-    "rewardBanner": "Complete this questionnaire to get {{days}} day(s) of Pro"
+    "rewardBanner": "Complete this questionnaire to get {{days}} day(s) of Pro",
+    "banner": {
+      "title": "Unfinished questionnaires: {{count}}",
+      "open": "Fill them out",
+      "dismiss": "Ignore current"
+    }
   },
   "notification": {
     "alarm": {
@@ -3852,10 +3838,8 @@
       "versionCardTitle": "Version Info",
       "versionCardHint": "View the current version and pick an update source. All patches are downloaded through the selected source.",
       "autoPromptTitle": "Update Prompt",
-      "autoPromptHintStatic": "Control whether to auto-prompt for version updates and announcement display strategy",
+      "autoPromptHintStatic": "Control whether to auto-prompt for version updates",
       "autoPromptEnabled": "Auto prompt for new versions",
-      "announcementShowModeAlways": "Always show announcements",
-      "announcementShowModeVersionOnly": "Show announcements only on version updates",
       "actionCardTitle": "Check & Install",
       "actionCardHint": "Trigger a manual check; when a new version is available you can download it. After the download finishes, click 'Install & Restart' to apply.",
       "currentVersion": "Current Version",

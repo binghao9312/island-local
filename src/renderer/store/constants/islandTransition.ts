@@ -43,7 +43,6 @@ export const ISLAND_STATE_AREA: Record<string, number> = {
   bindOAuth: 860 * 400,
   bindEmail: 860 * 400,
   payment: 860 * 400,
-  announcement: 860 * 400,
   questionnaire: 860 * 400,
   agentVoiceInput: 500 * 42,
   agent: 500 * 88,

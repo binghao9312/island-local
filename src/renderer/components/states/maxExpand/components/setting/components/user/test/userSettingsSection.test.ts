@@ -38,7 +38,7 @@ vi.mock('react', async (importOriginal) => ({
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { resolvedLanguage: 'en-US', language: 'en-US', changeLanguage: vi.fn(() => Promise.resolve()) } }) }));
 vi.mock('../../../../../../../../utils/userAccount', () => ({ readLocalToken: () => session.token, readLocalProfile: () => session.profile, clearLocalAccount: vi.fn(), writeLocalProfile: vi.fn(), writeLocalToken: vi.fn(), subscribeUserAccountSessionChanged: vi.fn() }));
 vi.mock('../../../../../../../../store/slices', () => ({ default: () => store }));
-vi.mock('../../../../../../../components/DynamicIslandQuestionnaireBanner', () => ({ QuestionnaireBanner: vi.fn(), useAnnouncementQuestionnaire: () => ({ questionnaire: null, count: 0, dismiss: vi.fn() }) }));
+vi.mock('../../../../../../../components/DynamicIslandQuestionnaireBanner', () => ({ QuestionnaireBanner: vi.fn(), useQuestionnaireReminder: () => ({ questionnaire: null, count: 0, dismiss: vi.fn() }) }));
 vi.mock('../utils/loginHeatmapStorage', () => ({ readLoginDays: () => new Set<string>(), recordLoginDay: vi.fn() }));
 beforeEach(() => {
   vi.clearAllMocks();

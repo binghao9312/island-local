@@ -19,8 +19,8 @@
  */
 
 /**
- * @file useIslandStartupAnnouncements.ts
- * @description 启动阶段更新检查与公告展示 Hook。
+ * @file useIslandStartupUpdateCheck.ts
+ * @description 启动阶段更新检查与天气预警提醒 Hook。
  * @author 鸡哥
  */
 
@@ -29,13 +29,6 @@ import useIslandStore from '../../store/isLandStore';
 import { SvgIcon } from '../../utils/SvgIcon';
 import { fetchStartupWeatherAlerts } from '../../api/weather/weatherApi';
 import { fetchUpdateSourceUrl } from '../../api/user/userAccountApi';
-import {
-  fetchAnnouncements,
-  readAnnouncementLastShownAppVersion,
-  readAnnouncementShowMode,
-  writeAnnouncementLastShownAppVersion,
-  type AnnouncementData,
-} from '../../api/announcement/announcementApi';
 import { readLocalToken } from '../../utils/userAccount';
 import {
   UPDATE_SOURCE_STORE_KEY,
@@ -50,13 +43,9 @@ import type { UpdateSourceKey } from '../config/dynamicIslandConfig';
 
 const STARTUP_PRECHECK_TIMEOUT_MS = 30_000;
 
-interface UseIslandStartupAnnouncementsOptions {
+interface UseIslandStartupUpdateCheckOptions {
   language: string | undefined;
-  state: string;
-  setAnnouncement: () => void;
   startupAutoCheckHandledRef: React.MutableRefObject<boolean>;
-  pendingAnnouncementAfterGuideRef: React.MutableRefObject<boolean>;
-  pendingAnnouncementAppVersionRef: React.MutableRefObject<string>;
   setNotificationRef: React.MutableRefObject<(data: {
     title: string;
     body: string;
@@ -74,33 +63,13 @@ interface UseIslandStartupAnnouncementsOptions {
 }
 
 /**
- * 创建公告展示标记，使同一应用版本内新增或更新公告仍可再次触发。
- * @param appVersion - 当前应用版本。
- * @param announcements - 当前生效的公告列表。
- * @returns 包含应用版本和公告指纹的稳定字符串。
+ * @description 处理启动更新提醒与天气预警触发逻辑。
+ * @param options - 启动更新检查配置。
  */
-export function createAnnouncementShownMarker(
-  appVersion: string,
-  announcements: AnnouncementData[],
-): string {
-  const fingerprints = announcements
-    .map((announcement) => `${announcement.id ?? ''}@${announcement.updatedAt ?? ''}`)
-    .sort();
-  return JSON.stringify({ appVersion, fingerprints });
-}
-
-/**
- * @description 处理启动更新提醒、天气预警与公告触发逻辑。
- * @param options - 启动公告与更新检查配置。
- */
-export function useIslandStartupAnnouncements(options: UseIslandStartupAnnouncementsOptions): void {
+export function useIslandStartupUpdateCheck(options: UseIslandStartupUpdateCheckOptions): void {
   const {
     language,
-    state,
-    setAnnouncement,
     startupAutoCheckHandledRef,
-    pendingAnnouncementAfterGuideRef,
-    pendingAnnouncementAppVersionRef,
     setNotificationRef,
     t,
   } = options;
@@ -251,55 +220,4 @@ export function useIslandStartupAnnouncements(options: UseIslandStartupAnnouncem
       unsub?.();
     };
   }, [language, t, startupAutoCheckHandledRef, setNotificationRef]);
-
-  useEffect(() => {
-    const unsub = window.api?.onUpdaterNotAvailable?.(() => {
-      void (async () => {
-        const current = useIslandStore.getState().state as string;
-        if (current === 'login' || current === 'register' || current === 'resetPassword' || current === 'payment') return;
-
-        const mode = await readAnnouncementShowMode();
-        const currentVersion = await window.api?.updaterVersion?.() ?? '';
-        const announcements = await fetchAnnouncements();
-        if (announcements.length === 0) return;
-
-        const shownMarker = createAnnouncementShownMarker(currentVersion, announcements);
-        if (mode === 'version-update-only') {
-          const lastShownMarker = await readAnnouncementLastShownAppVersion();
-          if (lastShownMarker === shownMarker) return;
-        }
-
-        const applyShownMarker = async (): Promise<void> => {
-          if (mode !== 'version-update-only' || !currentVersion) return;
-          await writeAnnouncementLastShownAppVersion(shownMarker);
-        };
-
-        if (current === 'guide') {
-          pendingAnnouncementAfterGuideRef.current = true;
-          pendingAnnouncementAppVersionRef.current = mode === 'version-update-only' ? shownMarker : '';
-          return;
-        }
-
-        setAnnouncement();
-        await applyShownMarker();
-      })();
-    });
-    return () => {
-      unsub?.();
-    };
-  }, [setAnnouncement, pendingAnnouncementAfterGuideRef, pendingAnnouncementAppVersionRef]);
-
-  useEffect(() => {
-    if (!pendingAnnouncementAfterGuideRef.current) return;
-    if (state === 'guide' || state === 'login' || state === 'register' || state === 'resetPassword' || state === 'payment') return;
-
-    pendingAnnouncementAfterGuideRef.current = false;
-    setAnnouncement();
-
-    const pendingVersion = pendingAnnouncementAppVersionRef.current;
-    pendingAnnouncementAppVersionRef.current = '';
-    if (pendingVersion) {
-      void writeAnnouncementLastShownAppVersion(pendingVersion);
-    }
-  }, [state, setAnnouncement, pendingAnnouncementAfterGuideRef, pendingAnnouncementAppVersionRef]);
 }

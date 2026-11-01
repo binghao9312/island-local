@@ -42,9 +42,7 @@ vi.mock('react-i18next', async (load) => ({
 let Component: typeof import('../QuestionnaireContent').QuestionnaireContent;
 let store: typeof import('../../../../store/slices').default;
 let list: ReturnType<typeof survey>[];
-let social: Record<string, string>;
 let submitReply: { code: number; message?: string; data?: unknown };
-let deferredSocial: Promise<{ ok: boolean; status: number; body: string }> | undefined;
 let deferredSubmit: Promise<{ ok: boolean; status: number; body: string }> | undefined;
 const write = vi.fn<Window['api']['storeWrite']>();
 const observed = { observe: vi.fn(), disconnect: vi.fn() };
@@ -102,13 +100,11 @@ beforeEach(async () => {
   vi.useFakeTimers(); resetBrowser();
   storage.set('user-account-token', 'token');
   list = [survey(1), survey(2)];
-  social = { bilibiliUrl: 'https://bilibili.com/a', githubUrl: 'https://github.com/a', qqInviteUrl: 'https://qq.com/invite', qqQrImageUrl: '' };
   submitReply = { code: 200, data: { id: 9, rewardProDays: 2, rewardProExpireAt: '2026-11-01T00:00:00', submittedAt: '2026-10-06' } };
-  deferredSocial = undefined; deferredSubmit = undefined;
+  deferredSubmit = undefined;
   write.mockReset().mockResolvedValue(true);
   Object.assign(api, { storeWrite: write, expandWindow: vi.fn(), enableMousePassthrough: vi.fn() });
   api.netFetch.mockImplementation((url) => {
-    if (url.includes('/social-config')) return deferredSocial ?? Promise.resolve({ ok: true, status: 200, body: JSON.stringify({ code: 200, data: social }) });
     if (url.includes('/results')) return deferredSubmit ?? Promise.resolve({ ok: true, status: 200, body: JSON.stringify(submitReply) });
     return Promise.resolve({ ok: true, status: 200, body: JSON.stringify({ code: 200, data: list }) });
   });
@@ -135,14 +131,12 @@ describe('问卷组件真实 API 与交互', () => {
     expect(stopPropagation).toHaveBeenCalledOnce();
     list = [survey(1)]; click('questionnaire.retry'); await settle(); root = view(); runEffects();
     expect(text(root)).toContain('Survey 1');
-    invoke(byClass(root, 'announcement-close-btn'), 'onClick');
+    invoke(byClass(root, 'questionnaire-close-btn'), 'onClick');
     expect(store.getState().state).toBe('hover');
   });
-  it('真实社交配置开链接，列表折叠恢复，问题 ref 与题号跳转实际滚动', async () => {
+  it('列表折叠恢复，问题 ref 与题号跳转实际滚动', async () => {
     let root = await load();
     const stopPropagation = vi.fn(); invoke(elements(root)[0], 'onClick', { stopPropagation });
-    ['announcement-bilibili-btn', 'announcement-qq-btn', 'announcement-github-btn'].forEach((className) => invoke(byClass(root, className), 'onClick'));
-    expect(api.clipboardOpenUrl.mock.calls).toEqual([[social.bilibiliUrl], [social.qqInviteUrl], [social.githubUrl]]);
     const target = { scrollIntoView: vi.fn() };
     const [, section] = elements(root).filter((node) => node.props.className === 'questionnaire-question-section');
     invoke(section, 'ref', target);
@@ -153,21 +147,15 @@ describe('问卷组件真实 API 与交互', () => {
     invoke(elements(toc).filter((node) => node.type === 'button')[1], 'onClick');
     expect(target.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
     vi.advanceTimersByTime(600);
-    invoke(byClass(view(), 'announcement-list-toggle-btn'), 'onClick');
+    invoke(byClass(view(), 'questionnaire-list-toggle-btn'), 'onClick');
     expect(byClass(view(), 'questionnaire-list').props.className).toContain('collapsed');
-    invoke(byClass(view(), 'announcement-list-toggle-btn'), 'onClick');
+    invoke(byClass(view(), 'questionnaire-list-toggle-btn'), 'onClick');
     expect(byClass(view(), 'questionnaire-list').props.className).toBe('questionnaire-list');
     root = view();
     invoke(elements(byClass(root, 'questionnaire-list')).filter((node) => node.type === 'button')[1], 'onClick');
     root = view(); runEffects();
     expect(text(root)).toContain('Other survey');
     expect(elements(root).some((node) => node.props.className === 'questionnaire-reward-banner')).toBe(false);
-  });
-  it('仅二维码社交配置展示按钮但没有邀请链接时不打开 URL', async () => {
-    social = { qqInviteUrl: '', qqQrImageUrl: 'https://qq.com/qr' };
-    await load();
-    invoke(byClass(view(), 'announcement-qq-btn'), 'onClick');
-    expect(api.clipboardOpenUrl).not.toHaveBeenCalled();
   });
   it('真实保存草稿、提交等待、失败提示与编辑恢复，举报入口写入设置意图', async () => {
     await load();
@@ -225,23 +213,6 @@ describe('问卷组件真实 API 与交互', () => {
     expect(byClass(view(), 'settings-user-primary-btn').props.disabled).toBe(true);
     click('questionnaire.saveDraft');
     expect(JSON.parse(storage.get('questionnaire-draft:1') ?? '{}')).toMatchObject({ answers: { required: 'answer' } });
-  });
-  it('卸载后迟到的真实社交请求不再写入组件状态', async () => {
-    let resolve!: (reply: { ok: boolean; status: number; body: string }) => void;
-    deferredSocial = new Promise((done) => { resolve = done; });
-    await load();
-    unmountHooks();
-    resolve({ ok: true, status: 200, body: JSON.stringify({ code: 200, data: social }) });
-    await settle();
-    expect(elements(view()).some((node) => node.props.className === 'announcement-github-btn')).toBe(false);
-  });
-  it('原生社交请求拒绝由真实 API 捕获并回退空按钮配置', async () => {
-    api.netFetch.mockImplementation((url) => url.includes('/social-config')
-      ? Promise.reject(new Error('network'))
-      : Promise.resolve({ ok: true, status: 200, body: JSON.stringify({ code: 200, data: list }) }));
-    await load();
-    expect(elements(view()).some((node) => node.props.className === 'announcement-github-btn')).toBe(false);
-    expect(text(view())).toContain('Survey 1');
   });
 
 });
