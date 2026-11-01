@@ -24,9 +24,12 @@
  * @author 鸡哥
  */
 
-import { useCallback, useEffect, useState, type KeyboardEvent, type ReactElement } from 'react';
+import { useCallback, useEffect, useState, type CSSProperties, type KeyboardEvent, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import useIslandStore from '../../../../../../../store/slices';
+import { AGENT_QUOTA_FONT_SCALE } from '../../config/overviewConfig';
+import { useAgentQuotaSettings } from '../../hooks/useAgentQuotaSettings';
+import type { AgentQuotaSettings } from '../../types/overviewTypes';
 import {
   AGENT_USAGE_PROVIDER_ICONS,
   FIVE_HOUR_WINDOW_MINUTES,
@@ -58,9 +61,10 @@ let cachedSnapshot: AgentUsageSnapshot | null = null;
  * @param props.quota - 额度窗口，套餐未提供时为 null
  * @param props.now - 快照生成时间
  * @param props.t - 翻译函数
+ * @param props.compact - 为 true 时只显示文字，不渲染进度条
  * @returns 额度行
  */
-function QuotaRow({ label, quota, now, t }: { label: string; quota: AgentUsageRateLimitWindow | null; now: number; t: Translate }): ReactElement {
+function QuotaRow({ label, quota, now, t, compact }: { label: string; quota: AgentUsageRateLimitWindow | null; now: number; t: Translate; compact: boolean }): ReactElement {
   if (!quota) {
     return (
       <div className="ov-dash-agent-quota-row">
@@ -70,8 +74,17 @@ function QuotaRow({ label, quota, now, t }: { label: string; quota: AgentUsageRa
     );
   }
   const percent = effectivePercent(quota, now);
-  const level = quotaLevel(percent);
   const resetText = resetLabel(quota.resetsAt, now, t);
+  if (compact) {
+    return (
+      <div className="ov-dash-agent-quota-row ov-dash-agent-quota-row--compact">
+        <span className="ov-dash-agent-quota-window">{label}</span>
+        <span className="ov-dash-agent-quota-percent">{`${Math.round(percent)}%`}</span>
+        {resetText && <span className="ov-dash-agent-quota-reset">{resetText}</span>}
+      </div>
+    );
+  }
+  const level = quotaLevel(percent);
   return (
     <div className="ov-dash-agent-quota-row">
       <span className="ov-dash-agent-quota-window">{label}</span>
@@ -91,21 +104,26 @@ function QuotaRow({ label, quota, now, t }: { label: string; quota: AgentUsageRa
  * @param props.provider - 来源快照
  * @param props.now - 快照生成时间
  * @param props.t - 翻译函数
+ * @param props.settings - 额度卡片设置，决定强调色与显示样式
  * @returns 来源条目
  */
-function ProviderItem({ provider, now, t }: { provider: AgentUsageProviderSnapshot; now: number; t: Translate }): ReactElement {
+function ProviderItem({ provider, now, t, settings }: { provider: AgentUsageProviderSnapshot; now: number; t: Translate; settings: AgentQuotaSettings }): ReactElement {
+  const compact = settings.style === 'compact';
   const renderBody = (): ReactElement => {
     if (!provider.available) return <span className="ov-dash-agent-quota-hint">{t('expanded.agentUsage.unavailable')}</span>;
     if (!provider.rateLimits) return <span className="ov-dash-agent-quota-hint">{quotaStatusText(provider.quotaStatus, provider.provider, t)}</span>;
     return (
       <>
-        <QuotaRow label={t('expanded.agentUsage.window.fiveHour')} quota={findRateLimitWindow(provider.rateLimits, FIVE_HOUR_WINDOW_MINUTES)} now={now} t={t} />
-        <QuotaRow label={t('expanded.agentUsage.window.weekly')} quota={findRateLimitWindow(provider.rateLimits, WEEKLY_WINDOW_MINUTES)} now={now} t={t} />
+        <QuotaRow label={t('expanded.agentUsage.window.fiveHour')} quota={findRateLimitWindow(provider.rateLimits, FIVE_HOUR_WINDOW_MINUTES)} now={now} t={t} compact={compact} />
+        <QuotaRow label={t('expanded.agentUsage.window.weekly')} quota={findRateLimitWindow(provider.rateLimits, WEEKLY_WINDOW_MINUTES)} now={now} t={t} compact={compact} />
       </>
     );
   };
   return (
-    <div className={`ov-dash-agent-quota-item ov-dash-agent-quota-item--${provider.provider}`}>
+    <div
+      className={`ov-dash-agent-quota-item ov-dash-agent-quota-item--${provider.provider}`}
+      style={{ '--ov-agent-accent': settings.colors[provider.provider] } as CSSProperties}
+    >
       <div className="ov-dash-agent-quota-head">
         <img className="ov-dash-agent-quota-icon" src={AGENT_USAGE_PROVIDER_ICONS[provider.provider]} alt="" draggable={false} />
         <span className="ov-dash-agent-quota-name">{t(`expanded.agentUsage.providers.${provider.provider}`)}</span>
@@ -146,6 +164,7 @@ function AgentQuotaSkeleton(): ReactElement {
 export function AgentQuotaWidget(): ReactElement {
   const { t } = useTranslation();
   const setExpandTab = useIslandStore((store) => store.setExpandTab);
+  const [settings] = useAgentQuotaSettings();
   const [snapshot, setSnapshot] = useState<AgentUsageSnapshot | null>(() => cachedSnapshot);
   const [failed, setFailed] = useState(false);
 
@@ -213,7 +232,9 @@ export function AgentQuotaWidget(): ReactElement {
     if (snapshot) {
       return (
         <div className="ov-dash-agent-quota-list">
-          {snapshot.providers.map((provider) => <ProviderItem key={provider.provider} provider={provider} now={snapshot.generatedAt} t={t} />)}
+          {snapshot.providers.map((provider) => (
+            <ProviderItem key={provider.provider} provider={provider} now={snapshot.generatedAt} t={t} settings={settings} />
+          ))}
         </div>
       );
     }
@@ -222,7 +243,7 @@ export function AgentQuotaWidget(): ReactElement {
   };
 
   return (
-    <div className="ov-dash-widget ov-dash-agent-quota-widget">
+    <div className="ov-dash-widget ov-dash-agent-quota-widget" style={{ '--ov-agent-quota-scale': AGENT_QUOTA_FONT_SCALE[settings.fontSize] } as CSSProperties}>
       <div className="ov-dash-widget-header">
         <span className="ov-dash-widget-title ov-dash-widget-title--link"
           role="button"

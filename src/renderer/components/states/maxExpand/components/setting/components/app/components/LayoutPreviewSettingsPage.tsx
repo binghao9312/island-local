@@ -31,6 +31,7 @@ import { useTranslation } from 'react-i18next';
 import useIslandStore from '../../../../../../../../store/slices';
 import { SilkyWave } from '../../../../../../hover/pages/lyric/components/SilkyWave';
 import { MusicBgWavePreview } from '../preview/MusicBgWavePreview';
+import { AgentQuotaSettingsCard } from './AgentQuotaSettingsCard';
 import { HOVER_MUSIC_BG_STYLE_STORE_KEY } from '../../../config/settingsTabConfig';
 import type { AppSettingsSectionProps } from './types';
 
@@ -162,6 +163,8 @@ export function LayoutPreviewSettingsPage({
             </div>
           </div>
         </div>
+
+        <AgentQuotaSettingsCard />
 
         <div className="settings-card">
           <div className="settings-card-header">

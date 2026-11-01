@@ -25,6 +25,7 @@
  */
 
 import {
+  DEFAULT_AGENT_QUOTA_SETTINGS,
   DEFAULT_LAYOUT,
   DEFAULT_OVERVIEW_GRADIENT_COLORS,
   OVERVIEW_CLOCK_STYLE_OPTIONS,
@@ -32,6 +33,9 @@ import {
 } from '../config/overviewConfig';
 import type { CSSProperties } from 'react';
 import type {
+  AgentQuotaFontSize,
+  AgentQuotaSettings,
+  AgentQuotaStyle,
   OverviewClockParts,
   OverviewClockStyle,
   OverviewLayoutConfig,
@@ -39,8 +43,36 @@ import type {
 } from '../types/overviewTypes';
 import type { TodoItem } from './types';
 
-function isHexColor(value: unknown): value is string {
+/**
+ * 判断是否为 #rrggbb 格式的颜色值。
+ * @param value - 待判断的值
+ * @returns 六位十六进制颜色返回 true
+ */
+export function isHexColor(value: unknown): value is string {
   return typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value);
+}
+
+/**
+ * 标准化 Agent 额度卡片设置。
+ * @param raw - 存储中的原始配置
+ * @returns 合法的设置，非法字段回退默认值
+ */
+export function normalizeAgentQuotaSettings(raw: unknown): AgentQuotaSettings {
+  const candidate = (raw && typeof raw === 'object' ? raw : {}) as {
+    fontSize?: unknown;
+    style?: unknown;
+    colors?: { claude?: unknown; codex?: unknown };
+  };
+  const fontSizes: readonly AgentQuotaFontSize[] = ['small', 'medium', 'large'];
+  const styles: readonly AgentQuotaStyle[] = ['bars', 'compact'];
+  return {
+    fontSize: fontSizes.find((value) => value === candidate.fontSize) ?? DEFAULT_AGENT_QUOTA_SETTINGS.fontSize,
+    style: styles.find((value) => value === candidate.style) ?? DEFAULT_AGENT_QUOTA_SETTINGS.style,
+    colors: {
+      claude: isHexColor(candidate.colors?.claude) ? candidate.colors.claude : DEFAULT_AGENT_QUOTA_SETTINGS.colors.claude,
+      codex: isHexColor(candidate.colors?.codex) ? candidate.colors.codex : DEFAULT_AGENT_QUOTA_SETTINGS.colors.codex,
+    },
+  };
 }
 
 /**

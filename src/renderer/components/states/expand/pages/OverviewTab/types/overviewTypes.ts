@@ -25,6 +25,7 @@
  */
 
 import type { DragEvent, RefObject } from 'react';
+import type { AgentUsageProviderId } from '../../../../../../../preload/types/agentUsage';
 import type { AppShortcut, TodoItem } from '../utils/types';
 
 /** 总览控件类型 */
@@ -37,6 +38,19 @@ export interface OverviewGradientColors {
   start: string;
   middle: string;
   end: string;
+}
+
+/** Agent 额度卡片字号档位 */
+export type AgentQuotaFontSize = 'small' | 'medium' | 'large';
+
+/** Agent 额度卡片显示样式：进度条或紧凑文字 */
+export type AgentQuotaStyle = 'bars' | 'compact';
+
+/** Agent 额度卡片设置；颜色按来源分别配置，值为 #rrggbb */
+export interface AgentQuotaSettings {
+  fontSize: AgentQuotaFontSize;
+  style: AgentQuotaStyle;
+  colors: Record<AgentUsageProviderId, string>;
 }
 
 /** 总览布局配置 */
