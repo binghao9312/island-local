@@ -25,6 +25,7 @@
  */
 
 const chinaIcon = '../svg/countries/CHN.svg';
+const taiwanIcon = '../svg/countries/TWN.svg';
 const usaIcon = '../svg/countries/USA.svg';
 const japanIcon = '../svg/countries/JP.svg';
 const koreaIcon = '../svg/countries/KR.svg';
@@ -38,7 +39,7 @@ export const COUNTRY_ALIASES: Record<string, string> = {
   china: 'CHN',
   zh: 'CHN',
   'zh-cn': 'CHN',
-  'zh-tw': 'CHN',
+  'zh-tw': 'TWN',
   us: 'USA',
   usa: 'USA',
   en: 'USA',
@@ -62,6 +63,7 @@ export const COUNTRY_ALIASES: Record<string, string> = {
 
 export const CountryIcon = {
   CHN: chinaIcon,
+  TWN: taiwanIcon,
   USA: usaIcon,
   JP: japanIcon,
   KR: koreaIcon,
