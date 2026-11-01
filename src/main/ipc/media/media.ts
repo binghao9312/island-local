@@ -28,6 +28,7 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import type { SmtcCommandName, SmtcCommandResult } from '../../music/smtcCommandProtocol';
 import { getMuteAsync as getMute, setMuteAsync as setMute } from '@eisland/windows-volume-helper';
+import { openYouTubeMusic } from '../../music/ytMusicLauncher';
 
 interface MediaSessionRuntimeEntry {
   payload: unknown;
@@ -63,6 +64,8 @@ export function registerMediaIpcHandlers(options: RegisterMediaIpcHandlersOption
     const isPlaying = Boolean(entry && (entry.payload as Record<string, unknown>)?.isPlaying);
     return options.requestCommand(isPlaying ? 'pause' : 'play');
   });
+
+  ipcMain.handle('media:open-youtube-music', () => openYouTubeMusic());
 
   ipcMain.handle('media:next', () => {
     if (!options.isWhitelisted()) return;

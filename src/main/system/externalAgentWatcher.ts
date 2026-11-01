@@ -34,7 +34,6 @@ const AGENT_PROCESS_MAP: Record<string, string> = {
   'codex.exe': 'Codex',
   'gemini cli.exe': 'Gemini CLI',
   'opencode.exe': 'OpenCode',
-  'orca.exe': 'Orca',
 };
 
 const AGENT_PROCESS_NAMES = Object.keys(AGENT_PROCESS_MAP);

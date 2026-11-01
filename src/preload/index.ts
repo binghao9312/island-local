@@ -349,6 +349,12 @@ const api = {
     return ipcRenderer.invoke('media:play-pause');
   },
   /**
+   * 打开 YouTube Music 桌面版，找不到时打开网页版
+   */
+  mediaOpenYouTubeMusic: (): Promise<'desktop' | 'web'> => {
+    return ipcRenderer.invoke('media:open-youtube-music');
+  },
+  /**
    * 下一曲
    */
   mediaNext: (): Promise<void> => {

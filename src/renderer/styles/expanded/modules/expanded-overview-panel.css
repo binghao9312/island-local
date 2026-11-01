@@ -49,6 +49,7 @@
 
 /** 圆形碟片封面 */
 .ov-disc {
+  cursor: pointer;
   width: 70px;
   height: 70px;
   border-radius: 50%;
@@ -549,3 +550,18 @@
   color: rgba(var(--color-text-rgb), 0.60);
   font-variant-numeric: tabular-nums;
 }
+
+/** 未播放时打开 YouTube Music 的按钮 */
+.ov-open-player {
+  margin-top: 8px;
+  padding: 3px 12px;
+  border: 1px solid rgba(var(--color-text-rgb), 0.2);
+  border-radius: 999px;
+  background: rgba(var(--color-text-rgb), 0.08);
+  color: rgba(var(--color-text-rgb), 0.9);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ov-open-player:hover { background: rgba(var(--color-text-rgb), 0.16); }

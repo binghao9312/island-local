@@ -929,6 +929,7 @@
     }
   },
   "songTab": {
+    "openYouTubeMusic": "YouTube Music を開く",
     "quick": {
       "idleLyrics": "アイランド歌詞",
       "progressRing": "進捗ライン"

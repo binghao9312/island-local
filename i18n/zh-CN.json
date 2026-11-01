@@ -929,6 +929,7 @@
     }
   },
   "songTab": {
+    "openYouTubeMusic": "打开 YouTube Music",
     "quick": {
       "idleLyrics": "岛上歌词",
       "progressRing": "进度线"

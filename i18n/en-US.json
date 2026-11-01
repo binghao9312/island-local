@@ -929,6 +929,7 @@
     }
   },
   "songTab": {
+    "openYouTubeMusic": "Open YouTube Music",
     "quick": {
       "idleLyrics": "Island lyrics",
       "progressRing": "Progress line"

@@ -137,6 +137,7 @@ declare global {
       openStandaloneWindow: () => Promise<boolean>;
       closeStandaloneWindow: () => Promise<boolean>;
       mediaPlayPause: () => Promise<void>;
+      mediaOpenYouTubeMusic: () => Promise<'desktop' | 'web'>;
       mediaNext: () => Promise<void>;
       mediaPrev: () => Promise<void>;
       mediaSeek: (positionMs: number) => Promise<MediaCommandResult | undefined>;

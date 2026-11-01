@@ -32,6 +32,11 @@ import { formatArtistAlbum } from '../../../../../../utils/artistAlbumText';
 import { SilkyWave } from '../../../../hover/pages/lyric/components/SilkyWave';
 import { useSongTab } from '../hooks/useSongTab';
 import { formatCountdownRemaining } from '../utils/songUtils';
+
+/** 打开 YouTube Music 桌面版，失败时由主进程改开网页版 */
+function openYouTubeMusic(): void {
+  window.api?.mediaOpenYouTubeMusic?.()?.catch(() => {});
+}
 import { KaraokeSyllableLine } from './KaraokeSyllableLine';
 import { MarqueeLyricText } from './MarqueeLyricText';
 import { SongQuickToggles } from './SongQuickToggles';
@@ -45,6 +50,7 @@ import type { CSSProperties, ReactElement } from 'react';
  */
 export function SongTab(): ReactElement {
   const { t } = useTranslation();
+  const openYouTubeMusicLabel = t('songTab.openYouTubeMusic', { defaultValue: '打开 YouTube Music' });
   const {
     isMusicPlaying,
     isPlaying,
@@ -87,6 +93,8 @@ export function SongTab(): ReactElement {
         <div
           className={`ov-disc ${isPlaying ? 'spinning' : ''}`}
           style={{ '--disc-glow': `rgba(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]}, 0.45)` } as CSSProperties}
+          title={openYouTubeMusicLabel}
+          onClick={(e) => { e.stopPropagation(); openYouTubeMusic(); }}
         >
           <div
             className="ov-disc-cover"
@@ -135,6 +143,9 @@ export function SongTab(): ReactElement {
               <div className="ov-onboarding-feat"><span className="ov-onboarding-dot" /><span>{t('songTab.onboarding.feature2', { defaultValue: '时间、天气与倒计时一览' })}</span></div>
             </div>
             <div className="ov-onboarding-hint">{t('songTab.onboarding.hint', { defaultValue: '播放任意歌曲即可开始' })}</div>
+            <button type="button" className="ov-open-player" onClick={(e) => { e.stopPropagation(); openYouTubeMusic(); }}>
+              {openYouTubeMusicLabel}
+            </button>
           </div>
         )}
         {!lyricsEnabled && isMusicPlaying && (

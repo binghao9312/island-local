@@ -115,6 +115,7 @@ const TRANSPORT_ROUTES = [
   ['openStandaloneWindow', 'app:open-standalone-window', 0, 'invoke'],
   ['closeStandaloneWindow', 'app:close-standalone-window', 0, 'invoke'],
   ['mediaPlayPause', 'media:play-pause', 0, 'invoke'],
+  ['mediaOpenYouTubeMusic', 'media:open-youtube-music', 0, 'invoke'],
   ['mediaNext', 'media:next', 0, 'invoke'],
   ['mediaPrev', 'media:prev', 0, 'invoke'],
   ['mediaSeek', 'media:seek', 1, 'invoke'],

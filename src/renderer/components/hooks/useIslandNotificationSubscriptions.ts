@@ -35,18 +35,6 @@ import { CLIPBOARD_URL_SUPPRESS_IN_FAVORITES_KEY, UPDATE_SOURCE_STORE_KEY, getUp
 /** Agent 启动通知开关存储键名 */
 const AGENT_NOTIFICATION_ENABLED_STORE_KEY = 'agent-notification-enabled';
 
-/**
- * 以 Windows 系统通知显示桌面 Agent 提醒，不占用灵动岛
- * @param title - 通知标题
- * @param body - 通知正文
- */
-function showSystemNotification(title: string, body: string): void {
-  if (typeof Notification === 'undefined') return;
-  try {
-    new Notification(title, { body });
-  } catch { /* 系统通知不可用时忽略 */ }
-}
-
 interface UseIslandNotificationSubscriptionsOptions {
   language: string | undefined;
   t: (key: string, options?: Record<string, unknown>) => string;
@@ -134,10 +122,13 @@ export function useIslandNotificationSubscriptions(options: UseIslandNotificatio
     if (!agentNotificationEnabled) return;
     const unsubAgent = window.api?.onExternalAgentStarted?.((data) => {
       const joined = data.agentNames.join('、');
-      showSystemNotification(
-        t('notification.externalAgent.title', { defaultValue: '检测到桌面 Agent', agentName: joined }),
-        t('notification.externalAgent.body', { defaultValue: '{{agentName}} 已开始工作', agentName: joined }),
-      );
+      setNotificationRef.current({
+        title: t('notification.externalAgent.title', { defaultValue: '检测到桌面 Agent', agentName: joined }),
+        body: t('notification.externalAgent.body', { defaultValue: '{{agentName}} 已开始工作', agentName: joined }),
+        icon: SvgIcon.CODING,
+        type: 'external-agent-active',
+        agentName: joined,
+      });
     });
     return () => {
       unsubAgent?.();
@@ -148,10 +139,13 @@ export function useIslandNotificationSubscriptions(options: UseIslandNotificatio
     if (!agentNotificationEnabled) return;
     const unsubAgentStopped = window.api?.onExternalAgentStopped?.((data) => {
       const joined = data.agentNames.join('、');
-      showSystemNotification(
-        t('notification.externalAgent.stoppedTitle', { defaultValue: '桌面 Agent 已关闭', agentName: joined }),
-        t('notification.externalAgent.stoppedBody', { defaultValue: '{{agentName}} 已停止工作', agentName: joined }),
-      );
+      setNotificationRef.current({
+        title: t('notification.externalAgent.stoppedTitle', { defaultValue: '桌面 Agent 已关闭', agentName: joined }),
+        body: t('notification.externalAgent.stoppedBody', { defaultValue: '{{agentName}} 已停止工作', agentName: joined }),
+        icon: SvgIcon.CODING,
+        type: 'external-agent-stopped',
+        agentName: joined,
+      });
     });
     return () => {
       unsubAgentStopped?.();
