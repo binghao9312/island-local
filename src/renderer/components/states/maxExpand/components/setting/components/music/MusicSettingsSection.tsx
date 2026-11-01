@@ -32,6 +32,8 @@ import type { MusicSettingsPageKey } from '../../utils/settingsConfig';
 import useIslandStore from '../../../../../../../store/slices';
 import { SettingsPageNavigation, SettingsPageNavigationToggle } from '../SettingsPageNavigation';
 import { PlayerIcon } from '../../../../../../../utils/SvgIcon/player-icon';
+import { saveLyricsConvertToTraditional } from '../../../../../../../store/utils/storage';
+import { shouldConvertLyricsToTraditional } from '../../../../../../../api/lyrics/lrcs/lyricsTraditional';
 
 interface MusicSourceOption {
   value: string;
@@ -113,6 +115,7 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
   const [pageNavigationExpanded, setPageNavigationExpanded] = useState(false);
   const lyricsSourceOptionKeyMap: Record<string, string> = {
     auto: 'settings.music.lyrics.sourceOptions.auto',
+    'lrcred-only': 'settings.music.lyrics.sourceOptions.lrcredOnly',
     'netease-only': 'settings.music.lyrics.sourceOptions.neteaseOnly',
     'qqmusic-only': 'settings.music.lyrics.sourceOptions.qqmusicOnly',
     'kugou-only': 'settings.music.lyrics.sourceOptions.kugouOnly',
@@ -168,6 +171,7 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
   const [qishuiLoggedIn, setQishuiLoggedIn] = useState(false);
   const [qishuiAuthLoading, setQishuiAuthLoading] = useState(true);
   const [qishuiMode, setQishuiMode] = useState<'guest' | 'logged-in'>('guest');
+  const [convertToTraditional, setConvertToTraditional] = useState(() => shouldConvertLyricsToTraditional());
 
   useEffect(() => {
     Promise.all([
@@ -418,6 +422,24 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
                         }}
                       />
                       {t('settings.music.lyrics.karaokeToggle', { defaultValue: '启用逐字扫光效果' })}
+                    </label>
+                  </div>
+                </div>
+
+                <div className="settings-card-subgroup">
+                  <div className="settings-card-subgroup-title">{t('settings.music.lyrics.traditionalTitle', { defaultValue: '歌词转繁体' })}</div>
+                  <div className="settings-music-hint">{t('settings.music.lyrics.traditionalHint', { defaultValue: '将简体中文歌词转换为台湾繁体（含用词）；含日文或韩文的歌曲不会被转换，对下一首歌生效。未手动设置时，界面语言为繁体中文则默认开启' })}</div>
+                  <div className="settings-card-inline-row">
+                    <label className="settings-card-check">
+                      <input
+                        type="checkbox"
+                        checked={convertToTraditional}
+                        onChange={(e) => {
+                          setConvertToTraditional(e.target.checked);
+                          saveLyricsConvertToTraditional(e.target.checked);
+                        }}
+                      />
+                      {t('settings.music.lyrics.traditionalToggle', { defaultValue: '将简体歌词转换为繁体' })}
                     </label>
                   </div>
                 </div>

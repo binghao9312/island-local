@@ -117,6 +117,14 @@ describe('MusicSettingsSection', () => {
     await Promise.resolve();
     expect(props.setMusicSmtcConfigMessage).toHaveBeenCalledWith({ type: 'error', text: 'settings.common.saveFailed' });
   });
+  it('persists the Traditional Chinese lyric conversion toggle and defaults to the stored choice', () => {
+    const storage = { getItem: vi.fn(() => 'true'), setItem: vi.fn() };
+    vi.stubGlobal('localStorage', storage);
+    const tree = MusicSettingsSection({ ...makeProps(), musicSettingsPage: 'lyrics' as const });
+    const toggle = findElement(tree, (n) => n.type === 'input' && elementProps(n).checked === true && n.props.type === 'checkbox');
+    invoke(toggle, 'onChange', { target: { checked: false } });
+    expect(storage.setItem).toHaveBeenCalledWith('island_lyrics_convert_traditional', 'false');
+  });
   it('gates logged-in provider mode and opens login for an unauthenticated provider', () => {
     resetState([false, false, false, 'guest']);
     const tree = MusicSettingsSection({ ...makeProps(), musicSettingsPage: 'providers' });

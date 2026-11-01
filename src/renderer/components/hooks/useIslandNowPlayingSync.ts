@@ -309,6 +309,8 @@ export function useIslandNowPlayingSync(options: UseIslandNowPlayingSyncOptions)
         const title = info!.title;
         const artist = info!.artist;
         const deviceId = info!.deviceId;
+        // SMTC 时间线可能晚于曲目切换到达，此时为 0，歌词源会按「时长未知」处理
+        const durationMs = Number.isFinite(info!.duration_ms) && info!.duration_ms > 0 ? info!.duration_ms : 0;
 
         const loadLyrics = async (): Promise<void> => {
           let lyricsEnabled = true;
@@ -357,12 +359,12 @@ export function useIslandNowPlayingSync(options: UseIslandNowPlayingSyncOptions)
           }
           logCalibrationStatus(calibrationEnabled ? 'waiting-lyrics' : 'disabled', calibrationEnabled ? '校准已启用，等待歌词加载' : '校准已关闭');
 
-          const normalLyricsPromise = fetchLyricsWithTranslation(title, artist, deviceId)
+          const normalLyricsPromise = fetchLyricsWithTranslation(title, artist, deviceId, durationMs)
             .catch(() => null);
 
           if (karaokeEnabled) {
             try {
-              const karaoke = await fetchKaraokeLyrics(title, artist, deviceId);
+              const karaoke = await fetchKaraokeLyrics(title, artist, deviceId, durationMs);
               if (!isCurrent()) return;
               if (karaoke && karaoke.length > 0) {
                 const mapped: SyncedLyricLine[] = karaoke.map((line: KaraokeLine) => ({

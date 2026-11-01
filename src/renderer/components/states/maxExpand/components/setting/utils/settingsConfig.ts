@@ -30,6 +30,7 @@ import type { WeatherProvider, WeatherLocationPriority } from '../../../../../..
 
 export const LYRICS_SOURCE_OPTIONS = [
   { value: 'auto', label: '自动（跟随播放器）' },
+  { value: 'lrcred-only', label: '仅 lrc.red' },
   { value: 'netease-only', label: '仅网易云' },
   { value: 'qqmusic-only', label: '仅 QQ音乐' },
   { value: 'kugou-only', label: '仅酷狗' },

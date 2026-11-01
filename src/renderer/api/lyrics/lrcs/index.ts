@@ -26,6 +26,7 @@
 
 import type { LyricLine, LyricsFetchResult } from './normal/types';
 import { fetchLyricsFromLrclib } from './normal/providers/lrclib';
+import { fetchLyricsFromLrcRed } from './normal/providers/lrcred';
 import { fetchLyricsWithTranslationFromNetease } from './normal/providers/netease';
 import { fetchLyricsWithTranslationFromQQMusic } from './normal/providers/qqmusic';
 import { fetchLyricsFromKugou } from './normal/providers/kugou';
@@ -34,6 +35,7 @@ import { fetchLyricsFromAppleMusic } from './normal/providers/appleMusic';
 import { fetchLyricsFromSpotify } from './normal/providers/spotify';
 import { fetchLyricsFromMoeKoe } from './normal/providers/moeKoe';
 import { unsupportedTranslationLyrics } from './normal/translation';
+import { convertLyricsResultToTraditional, shouldConvertLyricsToTraditional } from './lyricsTraditional';
 
 export type {
   LyricLine,
@@ -42,6 +44,7 @@ export type {
   TranslationLyricsStatus,
 } from './normal/types';
 export { fetchLyricsFromLrclib } from './normal/providers/lrclib';
+export { fetchLyricsFromLrcRed } from './normal/providers/lrcred';
 export { fetchLyricsFromNetease, fetchLyricsWithTranslationFromNetease } from './normal/providers/netease';
 export { fetchLyricsFromQQMusic, fetchLyricsWithTranslationFromQQMusic } from './normal/providers/qqmusic';
 export { fetchLyricsFromKugou } from './normal/providers/kugou';
@@ -50,32 +53,36 @@ export { fetchLyricsFromAppleMusic } from './normal/providers/appleMusic';
 export { fetchLyricsFromSpotify } from './normal/providers/spotify';
 export { fetchLyricsFromMoeKoe } from './normal/providers/moeKoe';
 
-type Provider = 'netease' | 'qqmusic' | 'kugou' | 'sodamusic' | 'applemusic' | 'spotify' | 'moekoe';
+type Provider = 'lrcred' | 'netease' | 'qqmusic' | 'kugou' | 'sodamusic' | 'applemusic' | 'spotify' | 'moekoe';
 
-type FetchFn = (title: string, artist: string) => Promise<LyricsFetchResult | null>;
+/** `durationMs` 为播放器时长，目前仅 lrc.red 与 LRCLIB 用它挑选版本，其余源忽略 */
+type FetchFn = (title: string, artist: string, durationMs?: number) => Promise<LyricsFetchResult | null>;
 
 async function fetchWithUnsupportedTranslation(
-  fetchLyricsOnly: (title: string, artist: string) => Promise<LyricLine[] | null>,
+  fetchLyricsOnly: (title: string, artist: string, durationMs?: number) => Promise<LyricLine[] | null>,
   title: string,
   artist: string,
+  durationMs?: number,
 ): Promise<LyricsFetchResult | null> {
-  const lyrics = await fetchLyricsOnly(title, artist);
+  const lyrics = await fetchLyricsOnly(title, artist, durationMs);
   return lyrics && lyrics.length > 0
     ? { lyrics, translation: unsupportedTranslationLyrics() }
     : null;
 }
 
 const PROVIDER_MAP: Record<Provider, FetchFn> = {
-  netease: fetchLyricsWithTranslationFromNetease,
-  qqmusic: fetchLyricsWithTranslationFromQQMusic,
+  lrcred: (title, artist, durationMs) => fetchWithUnsupportedTranslation(fetchLyricsFromLrcRed, title, artist, durationMs),
+  netease: (title, artist) => fetchLyricsWithTranslationFromNetease(title, artist),
+  qqmusic: (title, artist) => fetchLyricsWithTranslationFromQQMusic(title, artist),
   kugou: (title, artist) => fetchWithUnsupportedTranslation(fetchLyricsFromKugou, title, artist),
-  sodamusic: fetchLyricsWithTranslationFromSodaMusic,
+  sodamusic: (title, artist) => fetchLyricsWithTranslationFromSodaMusic(title, artist),
   applemusic: (title, artist) => fetchWithUnsupportedTranslation(fetchLyricsFromAppleMusic, title, artist),
   spotify: (title, artist) => fetchWithUnsupportedTranslation(fetchLyricsFromSpotify, title, artist),
   moekoe: (title, artist) => fetchWithUnsupportedTranslation(fetchLyricsFromMoeKoe, title, artist),
 };
 
-const ALL_PROVIDERS: Provider[] = ['netease', 'qqmusic', 'kugou', 'sodamusic', 'applemusic', 'spotify', 'moekoe'];
+/** lrc.red 排在最前：它按时长挑选版本，比各播放器自带源更不易拿到「另一个版本」的歌词 */
+const ALL_PROVIDERS: Provider[] = ['lrcred', 'netease', 'qqmusic', 'kugou', 'sodamusic', 'applemusic', 'spotify', 'moekoe'];
 
 const PROCESS_TO_PROVIDER: Array<{ pattern: RegExp; provider: Provider }> = [
   { pattern: /cloudmusic/i, provider: 'netease' },
@@ -100,12 +107,13 @@ async function tryProviders(
   providers: Provider[],
   title: string,
   artist: string,
+  durationMs?: number,
 ): Promise<LyricsFetchResult | null> {
   return providers.reduce<Promise<LyricsFetchResult | null>>(async (prevPromise, provider) => {
     const prev = await prevPromise;
     if (prev) return prev;
     try {
-      const result = await PROVIDER_MAP[provider](title, artist);
+      const result = await PROVIDER_MAP[provider](title, artist, durationMs);
       return result && result.lyrics.length > 0 ? result : null;
     } catch {
       return null;
@@ -114,6 +122,7 @@ async function tryProviders(
 }
 
 const SOURCE_SETTING_TO_PROVIDER: Record<string, Provider> = {
+  'lrcred-only': 'lrcred',
   'netease-only': 'netease',
   'qqmusic-only': 'qqmusic',
   'kugou-only': 'kugou',
@@ -131,45 +140,73 @@ async function readLyricsSourceSetting(): Promise<string> {
   }
 }
 
-export async function fetchLyricsWithTranslation(
+/**
+ * 按设置与 SMTC 进程选源并拉取歌词（不含繁体转换）
+ * @param title - 歌名
+ * @param artist - 艺术家
+ * @param sourceAppId - 可选的 SMTC sourceAppId
+ * @param durationMs - 可选的播放器时长（毫秒）
+ * @returns 歌词与翻译；所有源均未命中返回 null
+ */
+async function selectLyricsWithTranslation(
   title: string,
   artist: string,
   sourceAppId?: string,
+  durationMs?: number,
 ): Promise<LyricsFetchResult | null> {
   const setting = await readLyricsSourceSetting();
 
   if (setting === 'lrclib-only') {
-    return fetchWithUnsupportedTranslation(fetchLyricsFromLrclib, title, artist);
+    return fetchWithUnsupportedTranslation(fetchLyricsFromLrclib, title, artist, durationMs);
   }
 
   const forced = SOURCE_SETTING_TO_PROVIDER[setting];
   if (forced) {
-    const result = await tryProviders([forced], title, artist);
+    const result = await tryProviders([forced], title, artist, durationMs);
     if (result) return result;
-    return fetchWithUnsupportedTranslation(fetchLyricsFromLrclib, title, artist);
+    return fetchWithUnsupportedTranslation(fetchLyricsFromLrclib, title, artist, durationMs);
   }
 
   const appId = sourceAppId ?? await resolveSourceAppId();
   const primary = detectProviderFromProcess(appId);
 
   if (primary) {
-    const fallback = ALL_PROVIDERS.filter((p) => p !== primary);
-    const result = await tryProviders([primary, ...fallback], title, artist);
+    const fallback = ALL_PROVIDERS.filter((p) => p !== primary && p !== 'lrcred');
+    const result = await tryProviders(['lrcred', primary, ...fallback], title, artist, durationMs);
     if (result) return result;
   } else {
-    const result = await tryProviders(ALL_PROVIDERS, title, artist);
+    const result = await tryProviders(ALL_PROVIDERS, title, artist, durationMs);
     if (result) return result;
   }
 
-  return fetchWithUnsupportedTranslation(fetchLyricsFromLrclib, title, artist);
+  return fetchWithUnsupportedTranslation(fetchLyricsFromLrclib, title, artist, durationMs);
+}
+
+/**
+ * 拉取歌词（含翻译），并按设置把简体歌词转换为台湾繁体
+ * @param title - 歌名
+ * @param artist - 艺术家
+ * @param sourceAppId - 可选的 SMTC sourceAppId，未传入时主动查询
+ * @param durationMs - 可选的播放器时长（毫秒），供 lrc.red / LRCLIB 挑选时长匹配的版本
+ * @returns 歌词与翻译；所有源均未命中返回 null
+ */
+export async function fetchLyricsWithTranslation(
+  title: string,
+  artist: string,
+  sourceAppId?: string,
+  durationMs?: number,
+): Promise<LyricsFetchResult | null> {
+  const result = await selectLyricsWithTranslation(title, artist, sourceAppId, durationMs);
+  return result && shouldConvertLyricsToTraditional() ? convertLyricsResultToTraditional(result) : result;
 }
 
 export async function fetchLyrics(
   title: string,
   artist: string,
   sourceAppId?: string,
+  durationMs?: number,
 ): Promise<LyricLine[] | null> {
-  const result = await fetchLyricsWithTranslation(title, artist, sourceAppId);
+  const result = await fetchLyricsWithTranslation(title, artist, sourceAppId, durationMs);
   return result?.lyrics ?? null;
 }
 
