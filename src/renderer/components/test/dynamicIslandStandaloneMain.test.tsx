@@ -40,7 +40,7 @@ vi.mock('../../i18n', () => ({ default: { t: (key: string) => key } }));
 vi.mock('../../utils/theme', () => ({ initTheme: mocks.theme }));
 vi.mock('../../utils/font', () => ({ initFonts: mocks.fonts }));
 vi.mock('../../utils/authSession', () => ({ bootstrapAuthSession: mocks.auth, refreshAuthSession: mocks.refreshAuth }));
-vi.mock('../../store/utils/storage', () => ({ hydrateWeatherLocationConfigFromStore: mocks.weatherConfig }));
+vi.mock('../../store/utils/storage', () => ({ hydrateWeatherLocationConfigFromStore: mocks.weatherConfig, hydrateCwaApiKeyFromStore: vi.fn() }));
 vi.mock('../../store/slices', () => ({ default: { getState: () => ({ fetchWeatherData: mocks.weather, handleNowPlayingUpdate: mocks.update }) } }));
 vi.mock('../StandaloneWindow', () => ({ StandaloneWindow: mocks.view }));
 describe('DynamicIslandStandaloneMain', () => {

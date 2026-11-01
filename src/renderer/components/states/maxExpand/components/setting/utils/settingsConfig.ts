@@ -28,7 +28,7 @@ import type { OverviewLayoutConfig } from '../../../../expand/pages/OverviewTab'
 import { SvgIcon } from '../../../../../../utils/SvgIcon';
 import { UPDATES_ENABLED } from '../../../../../../../shared/updatesConfig';
 import { SERVER_FEATURES_ENABLED } from '../../../../../../../shared/serverFeaturesConfig';
-import type { WeatherProvider, WeatherLocationPriority } from '../../../../../../store/utils/storage';
+import type { WeatherLocationPriority } from '../../../../../../store/utils/storage';
 
 export const LYRICS_SOURCE_OPTIONS = [
   { value: 'auto', label: '自动（跟随播放器）' },
@@ -46,12 +46,6 @@ export const LYRICS_SOURCE_OPTIONS = [
 export function normalizeLyricsSource(value: string): string {
   return LYRICS_SOURCE_OPTIONS.some((option) => option.value === value) ? value : 'auto';
 }
-
-export const WEATHER_PROVIDER_OPTIONS: Array<{ value: WeatherProvider; label: string }> = [
-  { value: 'open-meteo', label: 'Open-Meteo 优先' },
-  { value: 'uapi', label: 'UAPI 优先' },
-  { value: 'qweather-pro', label: '和风天气优先' },
-];
 
 export const WEATHER_LOCATION_PRIORITY_OPTIONS: Array<{ value: WeatherLocationPriority; label: string }> = [
   { value: 'ip', label: 'IP 定位优先' },
@@ -615,9 +609,8 @@ export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutDisabledEntri
   { label: '收信设置', desc: '控制每次获取邮件的数量和其他收信行为。', labelKey: 'settings.mail.preferences.title', descKey: 'settings.mail.preferences.hint', tab: 'mail' },
   // ── 天气配置 ──
   { label: '定位来源优先级', desc: '选择天气定位优先使用 IP 自动定位或自定义位置', labelKey: 'settings.weather.locationPriority.title', descKey: 'settings.weather.locationPriority.hint', tab: 'weather' },
-  { label: '自定义城市', desc: '仅在"自定义位置优先"生效，可先测试再保存；支持中文 / 拼音 / 英文。', labelKey: 'settings.weather.customCityTitle', descKey: 'settings.weather.customCityHint', tab: 'weather' },
-  { label: '天气接口优先级', desc: '可选择优先使用 Open-Meteo 或 UAPI，失败时自动切换到另一源', labelKey: 'settings.weather.providerPriority.title', descKey: 'settings.weather.providerPriority.hint', tab: 'weather' },
-  { label: '启动天气预警提醒', desc: '应用启动自动检查更新前，先请求和风天气预警并提示；确认关闭后再继续检查更新。', labelKey: 'settings.weather.alert.title', descKey: 'settings.weather.alert.hint', tab: 'weather' },
+  { label: '自定义城市', desc: '仅在"自定义位置优先"生效，可先测试再保存；支持縣市 / 鄉鎮市區名称（台 / 臺 均可）。', labelKey: 'settings.weather.customCityTitle', descKey: 'settings.weather.customCityHint', tab: 'weather' },
+  { label: '中央氣象署（CWA）授权码', desc: '天气数据来自中央氣象署开放资料平台，需要免费授权码。授权码只保存在本机，不会上传。', labelKey: 'settings.weather.cwa.title', descKey: 'settings.weather.cwa.hint', tab: 'weather' },
   // ── 歌曲设置 > 白名单 ──
   { label: '播放器白名单', desc: '只有白名单内的播放器才会触发歌曲信息获取', labelKey: 'settings.music.whitelist.title', descKey: 'settings.music.whitelist.hint', tab: 'music', musicPage: 'whitelist' },
   { label: '添加播放器', desc: '手动输入播放器进程名，或自动从当前 SMTC 会话中检测', labelKey: 'settings.music.whitelist.addTitle', descKey: 'settings.music.whitelist.addHint', tab: 'music', musicPage: 'whitelist' },

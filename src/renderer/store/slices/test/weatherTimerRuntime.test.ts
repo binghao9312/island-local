@@ -20,7 +20,7 @@
 
 /**
  * @file weatherTimerRuntime.test.ts
- * @description 天气真实供应商网络失败持久化保护与计时器部分补丁边界测试。
+ * @description CWA 天气请求网络失败持久化保护与计时器部分补丁边界测试。
  * @author 鸡哥
  */
 
@@ -37,7 +37,7 @@ const setItem = vi.fn<Storage['setItem']>();
 beforeEach(() => {
   netFetch.mockReset();
   netFetch.mockRejectedValue(new Error('offline'));
-  getItem.mockReturnValue(null);
+  getItem.mockImplementation((key: string) => (key === 'island_cwa_api_key' ? 'CWA-TEST-KEY' : null));
   setItem.mockImplementation(() => undefined);
   vi.stubGlobal('localStorage', { getItem, setItem });
   vi.stubGlobal('window', { location: { hostname: 'app' }, api: { netFetch } });
@@ -48,11 +48,11 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('真实天气与计时器切片边界', () => {
-  it('所有真实天气供应商经原生网络拒绝后保留已有天气及持久化缓存', async () => {
+  it('CWA 请求经原生网络拒绝后保留已有天气及持久化缓存', async () => {
     const store = createStore(createWeatherSlice);
     const before = store.getState().weather;
-    await expect(store.getState().fetchWeatherData({ latitude: 31, longitude: 121 })).resolves.toBeUndefined();
-    expect(netFetch).toHaveBeenCalledTimes(2);
+    await expect(store.getState().fetchWeatherData({ latitude: 25, longitude: 121.5, county: '臺北市' })).resolves.toBe('error');
+    expect(netFetch).toHaveBeenCalledTimes(3);
     expect(store.getState().weather).toBe(before);
     expect(setItem).not.toHaveBeenCalled();
     expect(console.error).toHaveBeenCalledWith('[Weather] 获取天气数据失败:', expect.any(Error));

@@ -60,16 +60,6 @@
   margin-top: -5px;
 }
 
-.notification-actions--weather-alert-startup {
-  width: 100%;
-  margin-top: -8px;
-}
-
-.notification-actions--weather-alert-startup .notification-decision-actions {
-  width: 100%;
-  justify-content: flex-end;
-}
-
 .notification-actions--update-available {
   justify-content: space-between;
   align-items: center;

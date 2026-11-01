@@ -509,7 +509,27 @@
         "dayAfterTomorrow": "D+2"
       },
       "rainPrefix": "R",
-      "windPrefix": "W"
+      "windPrefix": "W",
+      "metrics": {
+        "humidity": "Humidity",
+        "rain": "Rain",
+        "wind": "Wind"
+      },
+      "empty": {
+        "noKey": {
+          "title": "CWA key not set",
+          "hint": "Open Settings → Weather → API and enter your CWA key"
+        },
+        "invalidKey": {
+          "title": "CWA key is invalid",
+          "hint": "Re-enter it in Settings → Weather → API"
+        },
+        "outOfRegion": {
+          "title": "Location is outside Taiwan",
+          "hint": "CWA only covers Taiwan; pick a custom location in Settings"
+        },
+        "openSettings": "Open settings"
+      }
     }
   },
   "weatherAbbr": {
@@ -599,15 +619,6 @@
       "readyTitle": "Update ready",
       "readyBody": "Version v{{version}} has been downloaded. Install now?"
     },
-    "weatherAlert": {
-      "title": "Weather Alert",
-      "defaultTitle": "Weather Warning",
-      "unknownCity": "Current location",
-      "bodySingle": "{{city}}: {{title}}",
-      "bodyWithMore": "{{city}}: {{title}}, plus {{count}} more alerts.",
-      "timeLabel": "Updata Time",
-      "timeUnknown": "Unknown"
-    },
     "clipboard": {
       "detectedTitle": "Link detected",
       "officialBadge": "Official",
@@ -646,7 +657,6 @@
       "snooze5m": "Later 5m",
       "snooze15m": "Later 15m",
       "snooze1h": "Later 1h",
-      "closeAndContinueUpdateCheck": "Close and continue update check",
       "complete": "Complete"
     }
   },
@@ -3423,33 +3433,16 @@
         "hint": "Prefer IP-based auto location or custom location"
       },
       "customCityTitle": "Custom City",
-      "customCityHint": "Only used when 'Custom Location First' is active. Test before saving; Chinese / Pinyin / English are supported.",
+      "customCityHint": "Only used when “Custom location first” is on. Test before saving; county / township names are supported (台 and 臺 both work).",
       "cityName": "City Name",
-      "cityPlaceholder": "e.g. Hangzhou / Tokyo / New York",
+      "cityPlaceholder": "e.g. Taipei / Xindian District, New Taipei / Kaohsiung",
       "testing": "Testing...",
-      "testCustomLocation": "Test Custom Location (Multiple APIs)",
+      "testCustomLocation": "Test custom location (CWA)",
       "saveLocation": "Save Location Settings",
-      "providerPriority": {
-        "title": "Weather Provider Priority",
-        "hint": "Prefer Open-Meteo, UAPI, or QWeather, then auto-fallback"
-      },
-      "alert": {
-        "title": "Startup Weather Alert Prompt",
-        "hint": "Before startup auto update check, request QWeather alerts first. Update check continues after you confirm close.",
-        "enabled": "Enable alert prompt",
-        "disabled": "Disable alert prompt"
-      },
-      "proBadge": "",
-      "proOnlyHint": "Unavailable for current account",
       "options": {
         "locationPriority": {
           "ip": "IP Location First",
           "custom": "Custom Location First"
-        },
-        "providerPriority": {
-          "openMeteo": "Open-Meteo First",
-          "uapi": "UAPI First",
-          "qweatherPro": "QWeather First"
         }
       },
       "messages": {
@@ -3457,28 +3450,45 @@
         "testFailed": "Test failed: {{error}}",
         "cityRequired": "Please enter a city name before testing",
         "cityResolveFailed": "Failed to resolve city: {{error}}",
-        "providerNonJson": "{{name}} returned non-JSON",
-        "providerAvailable": "{{name}} available",
         "providerUnavailable": "{{name}} unavailable: {{error}}",
-        "proLoginRequired": "Please sign in first",
         "testResult": "{{city}} ({{lat}}, {{lng}}) - {{details}}",
-        "detailSeparator": "; ",
         "customNeedsCity": "Please enter a city name before choosing 'Custom Location First'",
         "priorityApplied": "Location priority applied",
         "customMissingFallback": "Switched to Custom Location First, but no city is configured; falling back to IP location",
         "configSavedWithCity": "Weather location saved ({{city}} {{lat}}, {{lng}})",
-        "configSaved": "Weather location saved"
+        "configSaved": "Weather location saved",
+        "cwaAvailable": "CWA works: {{temperature}}°C {{description}}"
       },
-      "adcode": {
-        "missingParams": "District API is missing query params (adcode or keyword)",
-        "httpError": "Adcode API HTTP {{status}}: {{body}}",
-        "nonJson": "Adcode API returned non-JSON content, please check your network",
-        "errorCode": "Adcode API returned error code {{code}}",
-        "emptyKeyword": "Please enter a city name",
-        "notFound": "No matching city found, try a more complete name",
-        "noCoords": "Query result is missing coordinates"
+      "pagination": "Weather settings pagination",
+      "cwa": {
+        "title": "Central Weather Administration (CWA) API key",
+        "hint": "Weather data comes from the CWA Open Data Platform and needs a free API key. The key is stored only on this device.",
+        "keyLabel": "API key",
+        "keyPlaceholder": "CWA-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+        "save": "Save and verify",
+        "clear": "Clear key",
+        "register": "Get a key",
+        "registerHint": "Register and sign in at opendata.cwa.gov.tw, then copy the key from the “Get API key” page.",
+        "messages": {
+          "cleared": "CWA key cleared",
+          "checking": "Saved. Verifying…",
+          "valid": "Key works; weather updated",
+          "invalid": "Invalid key. Please check that it was copied completely.",
+          "savedOutOfRegion": "Saved; your location is outside Taiwan, so CWA cannot provide weather",
+          "checkFailed": "Saved, but the weather update failed. Check your network and try again."
+        },
+        "status": {
+          "noKey": "CWA key not set",
+          "invalidKey": "CWA key is invalid",
+          "outOfRegion": "This location is outside Taiwan; CWA cannot provide weather"
+        }
       },
-      "pagination": "Weather settings pagination"
+      "geocoding": {
+        "httpError": "Geocoding service HTTP {{status}}: {{body}}",
+        "nonJson": "The geocoding service returned non-JSON content. Check your network.",
+        "emptyKeyword": "Enter a city name",
+        "notFound": "City not found. Try a fuller name."
+      }
     },
     "music": {
       "whitelist": {

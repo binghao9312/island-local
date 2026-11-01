@@ -55,7 +55,7 @@ export function useSettingsTabController() {
   const behavior = useSettingsBehavior();
   const network = useSettingsNetwork();
   const mail = useSettingsMail();
-  const weather = useSettingsWeather({ t, fetchWeatherData: store.fetchWeatherData, networkTimeoutMs: network.networkTimeoutMs });
+  const weather = useSettingsWeather({ t, fetchWeatherData: store.fetchWeatherData });
   const shortcuts = useSettingsShortcuts({ t });
   const state = {
     t,

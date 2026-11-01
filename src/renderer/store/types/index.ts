@@ -25,7 +25,7 @@
  */
 
 import type { LocationInfo } from '../../api/weather/locationApi';
-import type { WeatherApiConfig } from '../../api/weather/weatherApi';
+import type { WeatherApiConfig } from '../../api/weather/types/WeatherApiConfig';
 import type { TranslationLyricsResult } from '../../api/lyrics/lrcApi';
 import type { MusicProviderId } from '../../../shared/musicProviderAuth';
 
@@ -156,6 +156,8 @@ export interface WeatherData {
   humidity: number;
   windSpeed: number;
   uvIndex: number;
+  /** 当前降雨机率（%）；缺测为 -1，旧缓存可能缺失 */
+  precipitationProbability?: number;
   forecast: [DayForecast, DayForecast];
   iconCode: number;
 }
@@ -178,7 +180,7 @@ export interface NotificationData {
   body: string;
   icon?: string;
   /** 通知类型：默认通知 / 播放源切换请求 / 有新版本 / 更新下载中 / 更新就绪 / 启动天气预警 / 剪贴板URL / 重启确认 / 外部Agent启动 / 外部Agent关闭 / 检测到 Claude Code 流事件 */
-  type?: 'default' | 'source-switch' | 'update-available' | 'update-downloading' | 'update-ready' | 'weather-alert-startup' | 'clipboard-url' | 'restart-required' | 'external-agent-active' | 'external-agent-stopped' | 'cli-session-detected';
+  type?: 'default' | 'source-switch' | 'update-available' | 'update-downloading' | 'update-ready' | 'clipboard-url' | 'restart-required' | 'external-agent-active' | 'external-agent-stopped' | 'cli-session-detected';
   /** 检测到 CLI session 时应切换到的提供方 */
   cliProvider?: CliProvider;
   /** 外部 Agent 名称（仅 external-agent-active / external-agent-stopped 类型） */
@@ -189,12 +191,6 @@ export interface NotificationData {
   updateVersion?: string;
   /** 当前更新源展示文案（用于 update-available 类型） */
   updateSourceLabel?: string;
-  /** 天气预警发布时间文案（仅 weather-alert-startup 类型） */
-  weatherAlertTime?: string;
-  /** 启动自动检查更新时要使用的更新源（仅 weather-alert-startup 类型） */
-  startupUpdateSource?: 'cloudflare-r2' | 'esa-cdn' | 'tencent-cos' | 'aliyun-oss' | 'github';
-  /** 启动自动检查更新时解析后的更新源地址（仅 weather-alert-startup 类型） */
-  startupUpdateResolvedUrl?: string;
   /** 检测到的 URL 列表（仅 clipboard-url 类型） */
   urls?: string[];
   /** 休息提醒条目 ID（仅默认通知中由休息提醒触发时使用） */
@@ -401,14 +397,20 @@ export interface IslandSlice {
   setShapeMode: (mode: IslandShapeMode) => void;
 }
 
+/** 天气请求状态：ok 成功；no-key 未设置 CWA 授权码；invalid-key 授权码被拒；out-of-region 位置不在台湾；error 其他失败 */
+export type WeatherStatus = 'ok' | 'no-key' | 'invalid-key' | 'out-of-region' | 'error';
+
 /** 天气 Slice */
 export interface WeatherSlice {
   weather: WeatherData;
+  /** 最近一次天气请求的状态，供界面显示空状态与提示。 */
+  weatherStatus: WeatherStatus;
   location: LocationInfo | null;
   /** 共用定位策略、缓存及并发请求，不触发天气查询。 */
   refreshLocation: (forceRefresh?: boolean) => Promise<LocationInfo | null>;
   setWeather: (data: WeatherData) => void;
-  fetchWeatherData: (config?: WeatherApiConfig, forceRefresh?: boolean) => Promise<void>;
+  /** 请求并保存天气数据，返回本次请求的状态。 */
+  fetchWeatherData: (config?: WeatherApiConfig, forceRefresh?: boolean) => Promise<WeatherStatus>;
 }
 
 /** 计时器 Slice */

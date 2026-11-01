@@ -51,7 +51,6 @@ export const ISLAND_SETTINGS_REGISTRY: Array<{ key: string; description: string;
   { key: 'autostart-mode', description: '开机自启模式 (disabled/enabled/high-priority)', type: 'string' },
   { key: 'update-auto-prompt-enabled', description: '自动提示版本更新', type: 'boolean' },
   { key: 'update-source', description: '更新源 (cloudflare-r2/github/tencent-cos/aliyun-oss)', type: 'string' },
-  { key: 'weather-alert-enabled', description: '天气预警通知', type: 'boolean' },
   { key: 'island-position-offset', description: '灵动岛位置偏移 {x, y}', type: 'object' },
   { key: 'island-position-locked', description: 'pill 模式下锁定灵动岛位置', type: 'boolean' },
   { key: 'island-display-id', description: '灵动岛显示器选择 (primary 或显示器 id)', type: 'string' },

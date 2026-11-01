@@ -27,11 +27,7 @@
 import { useEffect } from 'react';
 import type { useTranslation } from 'react-i18next';
 import { ISLAND_POSITION_LOCKED_STORE_KEY } from '../../../../../../../shared/storeKeys';
-import {
-  loadWeatherLocationConfig,
-  loadWeatherProviderConfig,
-  saveWeatherProviderConfig,
-} from '../../../../../../store/utils/storage';
+import { loadWeatherLocationConfig } from '../../../../../../store/utils/storage';
 import {
   applyIslandOpacity,
   ISLAND_AUTO_DIM_DELAY_STORE_KEY,
@@ -47,19 +43,13 @@ import {
   ISLAND_BG_VIDEO_VOLUME_STORE_KEY,
   normalizeBgMediaConfig,
   resolveBgMediaPreviewUrl,
-  WEATHER_ALERT_ENABLED_STORE_KEY,
 } from '../config/settingsTabConfig';
 import type { useSettingsAppearance } from './useSettingsAppearance';
-import type { useSettingsNavigation } from './useSettingsNavigation';
 import type { useSettingsWeather } from './useSettingsWeather';
 
 interface SettingsAppearanceEffectsOptions {
-  setWeatherPrimaryProvider: ReturnType<typeof useSettingsWeather>['setWeatherPrimaryProvider'];
-  isProUser: ReturnType<typeof useSettingsNavigation>['isProUser'];
-  weatherPrimaryProvider: ReturnType<typeof useSettingsWeather>['weatherPrimaryProvider'];
   setWeatherLocationPriority: ReturnType<typeof useSettingsWeather>['setWeatherLocationPriority'];
   setWeatherCustomCityInput: ReturnType<typeof useSettingsWeather>['setWeatherCustomCityInput'];
-  setWeatherAlertEnabled: ReturnType<typeof useSettingsWeather>['setWeatherAlertEnabled'];
   setIslandPositionOffset: ReturnType<typeof useSettingsAppearance>['setIslandPositionOffset'];
   setIslandPositionLocked: ReturnType<typeof useSettingsAppearance>['setIslandPositionLocked'];
   t: ReturnType<typeof useTranslation>['t'];
@@ -91,12 +81,8 @@ interface SettingsAppearanceEffectsOptions {
  */
 export function useSettingsAppearanceEffects(options: SettingsAppearanceEffectsOptions): void {
   const {
-    setWeatherPrimaryProvider,
-    isProUser,
-    weatherPrimaryProvider,
     setWeatherLocationPriority,
     setWeatherCustomCityInput,
-    setWeatherAlertEnabled,
     setIslandPositionOffset,
     setIslandPositionLocked,
     t,
@@ -122,30 +108,9 @@ export function useSettingsAppearanceEffects(options: SettingsAppearanceEffectsO
   } = options;
 
   useEffect(() => {
-    const cfg = loadWeatherProviderConfig();
-    setWeatherPrimaryProvider(cfg.primaryProvider);
-  }, []);
-
-  useEffect(() => {
-    if (isProUser) return;
-    if (weatherPrimaryProvider !== 'qweather-pro') return;
-    setWeatherPrimaryProvider('open-meteo');
-    saveWeatherProviderConfig({ primaryProvider: 'open-meteo' });
-  }, [isProUser, weatherPrimaryProvider]);
-
-  useEffect(() => {
     const cfg = loadWeatherLocationConfig();
     setWeatherLocationPriority(cfg.priority);
     setWeatherCustomCityInput(cfg.customLocation?.city || '');
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    window.api.storeRead(WEATHER_ALERT_ENABLED_STORE_KEY).then((value) => {
-      if (cancelled) return;
-      setWeatherAlertEnabled(typeof value === 'boolean' ? value : true);
-    }).catch(() => { });
-    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {

@@ -509,7 +509,27 @@
         "dayAfterTomorrow": "2日後"
       },
       "rainPrefix": "雨",
-      "windPrefix": "風"
+      "windPrefix": "風",
+      "metrics": {
+        "humidity": "湿度",
+        "rain": "降水",
+        "wind": "風速"
+      },
+      "empty": {
+        "noKey": {
+          "title": "CWA キーが未設定です",
+          "hint": "設定 → 天気 → API設定 で CWA キーを入力してください"
+        },
+        "invalidKey": {
+          "title": "CWA キーが無効です",
+          "hint": "設定 → 天気 → API設定 でキーを入力し直してください"
+        },
+        "outOfRegion": {
+          "title": "現在地は台湾外です",
+          "hint": "CWA は台湾のみ対応です。設定でカスタム位置を選べます"
+        },
+        "openSettings": "設定を開く"
+      }
     }
   },
   "weatherAbbr": {
@@ -599,15 +619,6 @@
       "readyTitle": "更新の準備ができました",
       "readyBody": "バージョン v{{version}} をダウンロードしました。今すぐインストールしますか？"
     },
-    "weatherAlert": {
-      "title": "気象警報のお知らせ",
-      "defaultTitle": "気象警報",
-      "unknownCity": "現在地",
-      "bodySingle": "{{city}}: {{title}}",
-      "bodyWithMore": "{{city}}: {{title}}、ほか {{count}} 件の警報。",
-      "timeLabel": "更新日時",
-      "timeUnknown": "不明"
-    },
     "clipboard": {
       "detectedTitle": "リンクを検出しました",
       "officialBadge": "公式",
@@ -646,7 +657,6 @@
       "snooze5m": "5分後に再通知",
       "snooze15m": "15分後に再通知",
       "snooze1h": "1時間後に再通知",
-      "closeAndContinueUpdateCheck": "閉じて更新の確認を続ける",
       "complete": "完了"
     }
   },
@@ -3423,33 +3433,16 @@
         "hint": "IP による自動位置情報と指定した場所のどちらを優先するか選択します"
       },
       "customCityTitle": "都市を指定",
-      "customCityHint": "「指定した場所を優先」の場合のみ使用します。保存前にテストできます。中国語 / ピンイン / 英語に対応しています。",
+      "customCityHint": "「カスタム位置を優先」のときだけ使われます。保存前にテストできます。県市 / 郷鎮区の名前に対応（台・臺どちらも可）。",
       "cityName": "都市名",
-      "cityPlaceholder": "例：Hangzhou / Tokyo / New York",
+      "cityPlaceholder": "例：台北 / 新北市新店区 / 高雄",
       "testing": "テスト中...",
-      "testCustomLocation": "指定した場所をテスト（複数の API）",
+      "testCustomLocation": "カスタム位置をテスト（CWA）",
       "saveLocation": "位置情報の設定を保存",
-      "providerPriority": {
-        "title": "天気プロバイダーの優先順位",
-        "hint": "Open-Meteo、UAPI、QWeather のいずれかを優先し、失敗時は自動で別の取得元に切り替えます"
-      },
-      "alert": {
-        "title": "起動時の気象警報",
-        "hint": "起動時の自動更新確認の前に QWeather の警報を取得します。警報を確認して閉じると、更新確認を続行します。",
-        "enabled": "警報の表示を有効にする",
-        "disabled": "警報の表示を無効にする"
-      },
-      "proBadge": "",
-      "proOnlyHint": "現在のアカウントでは利用できません",
       "options": {
         "locationPriority": {
           "ip": "IP の位置情報を優先",
           "custom": "指定した場所を優先"
-        },
-        "providerPriority": {
-          "openMeteo": "Open-Meteo を優先",
-          "uapi": "UAPI を優先",
-          "qweatherPro": "QWeather を優先"
         }
       },
       "messages": {
@@ -3457,28 +3450,45 @@
         "testFailed": "テストに失敗しました：{{error}}",
         "cityRequired": "テストする前に都市名を入力してください",
         "cityResolveFailed": "都市の特定に失敗しました：{{error}}",
-        "providerNonJson": "{{name}} が JSON 以外のデータを返しました",
-        "providerAvailable": "{{name}} は利用可能です",
         "providerUnavailable": "{{name}} は利用できません：{{error}}",
-        "proLoginRequired": "先にログインしてください",
         "testResult": "{{city}} ({{lat}}, {{lng}}) - {{details}}",
-        "detailSeparator": "; ",
         "customNeedsCity": "「指定した場所を優先」を選ぶ前に都市名を入力してください",
         "priorityApplied": "位置情報の優先順位を適用しました",
         "customMissingFallback": "指定した場所を優先する設定に切り替えましたが、都市が未設定のため IP の位置情報を使用します",
         "configSavedWithCity": "天気の位置情報を保存しました ({{city}} {{lat}}, {{lng}})",
-        "configSaved": "天気の位置情報を保存しました"
+        "configSaved": "天気の位置情報を保存しました",
+        "cwaAvailable": "CWA 利用可能：{{temperature}}°C {{description}}"
       },
-      "adcode": {
-        "missingParams": "District API のクエリパラメーター（adcode または keyword）がありません",
-        "httpError": "Adcode API HTTP {{status}}: {{body}}",
-        "nonJson": "Adcode API が JSON 以外の内容を返しました。ネットワークを確認してください",
-        "errorCode": "Adcode API がエラーコード {{code}} を返しました",
+      "pagination": "天気設定のページ切り替え",
+      "cwa": {
+        "title": "中央気象署（CWA）APIキー",
+        "hint": "天気データは中央気象署のオープンデータプラットフォームから取得します。無料のAPIキーが必要です。キーはこの端末にのみ保存されます。",
+        "keyLabel": "APIキー",
+        "keyPlaceholder": "CWA-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+        "save": "保存して確認",
+        "clear": "キーを削除",
+        "register": "キーを取得",
+        "registerHint": "opendata.cwa.gov.tw で登録・ログインし、「認証コード取得」ページでキーを取得してください。",
+        "messages": {
+          "cleared": "CWA キーを削除しました",
+          "checking": "保存しました。確認中…",
+          "valid": "キーは有効です。天気を更新しました",
+          "invalid": "キーが無効です。完全にコピーされているか確認してください",
+          "savedOutOfRegion": "保存しました。現在地が台湾外のため CWA では天気を取得できません",
+          "checkFailed": "保存しましたが天気の更新に失敗しました。ネットワークを確認して再試行してください"
+        },
+        "status": {
+          "noKey": "CWA キーが未設定です",
+          "invalidKey": "CWA キーが無効です",
+          "outOfRegion": "この場所は台湾外のため CWA では天気を取得できません"
+        }
+      },
+      "geocoding": {
+        "httpError": "ジオコーディングサービス HTTP {{status}}：{{body}}",
+        "nonJson": "ジオコーディングサービスが JSON 以外を返しました。ネットワーク環境を確認してください",
         "emptyKeyword": "都市名を入力してください",
-        "notFound": "一致する都市が見つかりません。より詳しい名前を入力してください",
-        "noCoords": "検索結果に座標情報がありません"
-      },
-      "pagination": "天気設定のページ切り替え"
+        "notFound": "都市が見つかりません。より正確な名前をお試しください"
+      }
     },
     "music": {
       "whitelist": {

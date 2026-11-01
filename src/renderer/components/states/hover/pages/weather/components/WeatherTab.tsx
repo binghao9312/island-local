@@ -29,25 +29,36 @@ import { useTranslation } from 'react-i18next';
 import useIslandStore from '../../../../../../store/slices';
 import { abbreviateWeatherDescription } from '../../../../../../utils/weatherText';
 import '../../../../../../styles/hover/weather-tab.css';
-import { FALLBACK_WEATHER_ICON } from '../config/weatherConfig';
+import { FALLBACK_WEATHER_ICON, SETTINGS_OPEN_TAB_STORE_KEY, WEATHER_SETTINGS_TAB } from '../config/weatherConfig';
 import {
   getWeekLabel,
   getWeatherIconPath,
   getWeatherSmallIconPath,
+  formatHumidityText,
   formatPrecipitationText,
   formatWindText,
 } from '../utils/weatherUtils';
 
+/** 空状态对应的天气请求状态 */
+const EMPTY_STATE_KEYS = {
+  'no-key': 'noKey',
+  'invalid-key': 'invalidKey',
+  'out-of-region': 'outOfRegion',
+} as const;
+
 /**
  * 天气 Tab 内容
- * @description 显示当前天气及未来两天预报
+ * @description 显示当前气温、湿度 / 降雨机率 / 风速三项指标及未来两天预报；未设置 CWA 授权码时显示空状态
  * @returns 天气 Tab 元素
  */
 export function WeatherTab(): React.ReactElement {
   const { t } = useTranslation();
   const weather = useIslandStore(s => s.weather);
+  const weatherStatus = useIslandStore(s => s.weatherStatus);
   const location = useIslandStore(s => s.location);
   const fetchWeatherData = useIslandStore(s => s.fetchWeatherData);
+  const setMaxExpand = useIslandStore(s => s.setMaxExpand);
+  const setMaxExpandTab = useIslandStore(s => s.setMaxExpandTab);
   const [refreshing, setRefreshing] = useState(false);
   const hour = new Date().getHours();
   const isDay = hour >= 6 && hour < 18;
@@ -68,6 +79,33 @@ export function WeatherTab(): React.ReactElement {
     }
   };
 
+  const handleOpenSettings = (): void => {
+    window.api?.storeWrite?.(SETTINGS_OPEN_TAB_STORE_KEY, WEATHER_SETTINGS_TAB)?.catch(() => {});
+    setMaxExpandTab('settings');
+    setMaxExpand();
+  };
+
+  const emptyStateKey = weatherStatus === 'no-key' || weatherStatus === 'invalid-key' || weatherStatus === 'out-of-region'
+    ? EMPTY_STATE_KEYS[weatherStatus]
+    : null;
+
+  if (emptyStateKey) {
+    return (
+      <div className="weather-tab weather-tab-empty">
+        <img src={FALLBACK_WEATHER_ICON} alt="" className="weather-tab-icon" />
+        <div className="weather-tab-empty-text">
+          <span className="text-xs leading-tight">{t(`hover.weather.empty.${emptyStateKey}.title`, { defaultValue: '尚未设置 CWA 授权码' })}</span>
+          <span className="text-[10px] opacity-60 leading-tight">{t(`hover.weather.empty.${emptyStateKey}.hint`, { defaultValue: '到 设置 → 天气 → 接口配置 填入中央氣象署授权码' })}</span>
+        </div>
+        {emptyStateKey !== 'outOfRegion' && (
+          <button type="button" className="weather-tab-empty-btn" onClick={handleOpenSettings}>
+            {t('hover.weather.empty.openSettings', { defaultValue: '前往设置' })}
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="weather-tab">
       {/* 左侧：当前天气大图标（点击刷新） */}
@@ -80,26 +118,32 @@ export function WeatherTab(): React.ReactElement {
         title={t('hover.weather.refreshTitle', { defaultValue: '点击刷新天气' })}
       />
 
-      {/* 左侧：今日天气标题 + 当前天气（垂直排列） + 位置信息 */}
+      {/* 左侧：大号当前气温 + 天气描述 + 位置 */}
       <div className="weather-tab-left">
         <div className="weather-tab-current">
-          <span className="text-[10px] opacity-60 leading-tight">{t('hover.weather.today', { defaultValue: '今日天气' })}</span>
-          <div className="weather-tab-temp">
-            <span className="text-xl font-medium leading-none tabular-nums">
-              {weather.temperature}°
-            </span>
-            <span className="text-[10px] opacity-60 leading-tight">
-              {currentWeatherDesc}
-            </span>
-          </div>
-        </div>
-        <div className="weather-tab-location">
           <span className="text-[10px] opacity-60 leading-tight">
             {location?.city ?? t('hover.weather.unknownCity', { defaultValue: '未知' })}
           </span>
-          <span className="text-[10px] opacity-40 leading-tight tabular-nums">
-            {location ? `${location.latitude.toFixed(2)}°N ${location.longitude.toFixed(2)}°E` : ''}
+          <span className="weather-tab-big-temp tabular-nums">{weather.temperature}°</span>
+          <span className="text-[10px] opacity-60 leading-tight">
+            {t('hover.weather.today', { defaultValue: '今日天气' })} {currentWeatherDesc}
           </span>
+        </div>
+
+        {/* 三项指标：湿度、降雨机率、风速 */}
+        <div className="weather-tab-metrics">
+          <div className="weather-tab-metric">
+            <span className="weather-tab-metric-label">{t('hover.weather.metrics.humidity', { defaultValue: '湿度' })}</span>
+            <span className="weather-tab-metric-value tabular-nums">{formatHumidityText(weather.humidity, t)}</span>
+          </div>
+          <div className="weather-tab-metric">
+            <span className="weather-tab-metric-label">{t('hover.weather.metrics.rain', { defaultValue: '降雨' })}</span>
+            <span className="weather-tab-metric-value tabular-nums">{formatPrecipitationText(weather.precipitationProbability ?? -1, t)}</span>
+          </div>
+          <div className="weather-tab-metric">
+            <span className="weather-tab-metric-label">{t('hover.weather.metrics.wind', { defaultValue: '风速' })}</span>
+            <span className="weather-tab-metric-value tabular-nums">{formatWindText(weather.windSpeed, t)}</span>
+          </div>
         </div>
       </div>
 

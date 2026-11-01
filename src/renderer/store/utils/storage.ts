@@ -31,7 +31,8 @@ import type { LocationInfo } from '../../api/weather/locationApi';
 const WEATHER_STORAGE_KEY = 'island_weather';
 const LOCATION_STORAGE_KEY = 'island_location';
 const NETWORK_CONFIG_KEY = 'island_network_config';
-const WEATHER_PROVIDER_CONFIG_KEY = 'island_weather_provider_config';
+const CWA_API_KEY_STORAGE_KEY = 'island_cwa_api_key';
+const CWA_API_KEY_STORE_KEY = 'cwa-api-key';
 const WEATHER_LOCATION_CONFIG_KEY = 'island_weather_location_config';
 const WEATHER_LOCATION_CONFIG_STORE_KEY = 'weather-location-config';
 const LYRICS_CONVERT_TRADITIONAL_KEY = 'island_lyrics_convert_traditional';
@@ -40,7 +41,6 @@ const LYRICS_CONVERT_TRADITIONAL_KEY = 'island_lyrics_convert_traditional';
 export const DEFAULT_NETWORK_TIMEOUT_MS = 10000;
 export const DEFAULT_STATIC_ASSET_NODE_FREE: StaticAssetNode = 'r2';
 export const DEFAULT_STATIC_ASSET_NODE_PRO: StaticAssetNode = 'r2';
-export const DEFAULT_WEATHER_PRIMARY_PROVIDER: WeatherProvider = 'open-meteo';
 export const DEFAULT_WEATHER_LOCATION_PRIORITY: WeatherLocationPriority = 'ip';
 
 /** 网络配置类型 */
@@ -51,12 +51,7 @@ export interface NetworkConfig {
   staticAssetNode?: StaticAssetNode;
 }
 
-export type WeatherProvider = 'open-meteo' | 'uapi' | 'qweather-pro';
 export type WeatherLocationPriority = 'ip' | 'custom';
-
-export interface WeatherProviderConfig {
-  primaryProvider: WeatherProvider;
-}
 
 export interface WeatherCustomLocationConfig {
   latitude: number;
@@ -67,6 +62,9 @@ export interface WeatherCustomLocationConfig {
   country?: string;
   regionName?: string;
   regionCode?: string;
+  /** CWA 縣市 / 鄉鎮市區名称，由 Open-Meteo 地理编码结果映射得到。 */
+  county?: string;
+  township?: string;
 }
 
 export interface WeatherLocationConfig {
@@ -95,6 +93,8 @@ function normalizeWeatherCustomLocation(value: unknown): WeatherCustomLocationCo
     country?: unknown;
     regionName?: unknown;
     regionCode?: unknown;
+    county?: unknown;
+    township?: unknown;
   };
   const latitude = toFiniteNumber(row.latitude);
   const longitude = toFiniteNumber(row.longitude);
@@ -112,6 +112,8 @@ function normalizeWeatherCustomLocation(value: unknown): WeatherCustomLocationCo
     latitude,
     longitude,
     city: typeof row.city === 'string' ? row.city : '',
+    ...(typeof row.county === 'string' && row.county ? { county: row.county } : {}),
+    ...(typeof row.township === 'string' && row.township ? { township: row.township } : {}),
     ...metadata,
   };
 }
@@ -221,30 +223,52 @@ export function normalizeStaticAssetNode(value: unknown, proUser: boolean): Stat
 }
 
 /**
- * 从本地存储加载天气提供商配置
- * @returns WeatherProviderConfig 天气提供商配置对象，加载失败时返回默认值
+ * 读取 CWA 开放数据 API 授权码（本地存储，未设置返回空字符串）
+ * @returns 去除首尾空白后的授权码
  */
-export function loadWeatherProviderConfig(): WeatherProviderConfig {
+export function loadCwaApiKey(): string {
   try {
-    const raw = localStorage.getItem(WEATHER_PROVIDER_CONFIG_KEY);
-    if (raw) {
-      const data = JSON.parse(raw) as WeatherProviderConfig;
-      if (data.primaryProvider === 'open-meteo' || data.primaryProvider === 'uapi' || data.primaryProvider === 'qweather-pro') {
-        return data;
-      }
-    }
+    return (localStorage.getItem(CWA_API_KEY_STORAGE_KEY) ?? '').trim();
   } catch { /* 忽略 */ }
-  return { primaryProvider: DEFAULT_WEATHER_PRIMARY_PROVIDER };
+  return '';
 }
 
 /**
- * 保存天气提供商配置到本地存储
- * @param config - 要保存的天气提供商配置
+ * 保存 CWA 开放数据 API 授权码到本地存储及主进程 store
+ * @param key - 授权码；空字符串表示清除
  */
-export function saveWeatherProviderConfig(config: WeatherProviderConfig): void {
+export function saveCwaApiKey(key: string): void {
+  const normalized = key.trim();
   try {
-    localStorage.setItem(WEATHER_PROVIDER_CONFIG_KEY, JSON.stringify(config));
+    if (normalized) localStorage.setItem(CWA_API_KEY_STORAGE_KEY, normalized);
+    else localStorage.removeItem(CWA_API_KEY_STORAGE_KEY);
   } catch { /* 忽略 */ }
+  void window.api?.storeWrite?.(CWA_API_KEY_STORE_KEY, normalized).catch(() => {});
+}
+
+/**
+ * 启动时将 CWA 授权码从主进程 store 同步到本地缓存（并兼容首次迁移）
+ */
+export async function hydrateCwaApiKeyFromStore(): Promise<void> {
+  const storeRead = window.api?.storeRead;
+  const storeWrite = window.api?.storeWrite;
+  if (!storeRead || !storeWrite) {
+    return;
+  }
+  try {
+    const storeValue = await storeRead(CWA_API_KEY_STORE_KEY);
+    if (typeof storeValue === 'string') {
+      try {
+        if (storeValue.trim()) localStorage.setItem(CWA_API_KEY_STORAGE_KEY, storeValue.trim());
+        else localStorage.removeItem(CWA_API_KEY_STORAGE_KEY);
+      } catch { /* 忽略 */ }
+      return;
+    }
+  } catch { /* 忽略 */ }
+  const local = loadCwaApiKey();
+  if (local) {
+    try { await storeWrite(CWA_API_KEY_STORE_KEY, local); } catch { /* 忽略 */ }
+  }
 }
 
 /**

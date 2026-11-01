@@ -20,18 +20,24 @@
 
 /**
  * @file useSettingsWeather.test.ts
- * @description 天气位置保存、优先级、三个真实提供商测试流程和失败恢复回归。
+ * @description 天气位置保存、优先级、CWA 授权码保存与自定义位置测试流程、失败恢复回归。
  * @author 鸡哥
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useSettingsWeather } from '../useSettingsWeather';
+import { CwaError } from '../../../../../../../api/weather/cwa/cwaApi';
 import { renderWithHooks, resetLifecycle } from './settingsCoverageHarness';
 const mocks = vi.hoisted(() => ({
   resolveCity: vi.fn<() => Promise<{
     latitude: number;
     longitude: number;
     city: string;
+    countryCode?: string;
+    country?: string;
+    regionName?: string;
+    county?: string;
+    township?: string;
   }>>(),
   loadLocation: vi.fn<() => {
     customLocation: {
@@ -41,23 +47,23 @@ const mocks = vi.hoisted(() => ({
     } | null;
   }>(),
   saveLocation: vi.fn(),
-  request: vi.fn<(...args: unknown[]) => Promise<unknown>>(),
-  token: vi.fn<() => string | null>()
+  loadKey: vi.fn<() => string>(),
+  saveKey: vi.fn(),
+  fetchCwa: vi.fn<(config: unknown) => Promise<{ temperature: number; description: string }>>(),
 }));
-vi.mock('../../../../../../../api/weather/adcodeApi', () => ({
-  resolveDistrictLocationByKeyword: mocks.resolveCity
+vi.mock('../../../../../../../api/weather/geocodingApi', () => ({
+  resolveLocationByKeyword: mocks.resolveCity
 }));
-vi.mock('../../../../../../../api/user/userAccountApi.client', () => ({
-  request: mocks.request
-}));
-vi.mock('../../../../../../../utils/userAccount', () => ({
-  readLocalToken: mocks.token
+vi.mock('../../../../../../../api/weather/cwa/cwaApi', async (original) => ({
+  ...(await original<typeof import('../../../../../../../api/weather/cwa/cwaApi')>()),
+  fetchCwaWeather: mocks.fetchCwa
 }));
 vi.mock('../../../../../../../store/utils/storage', () => ({
   DEFAULT_WEATHER_LOCATION_PRIORITY: 'ip',
-  DEFAULT_WEATHER_PRIMARY_PROVIDER: 'open-meteo',
   loadWeatherLocationConfig: mocks.loadLocation,
-  saveWeatherLocationConfig: mocks.saveLocation
+  saveWeatherLocationConfig: mocks.saveLocation,
+  loadCwaApiKey: mocks.loadKey,
+  saveCwaApiKey: mocks.saveKey
 }));
 vi.mock('react', async (original) => ({
   ...(await original<typeof import('react')>()),
@@ -66,12 +72,6 @@ vi.mock('react', async (original) => ({
 }));
 type Options = Parameters<typeof useSettingsWeather>[0];
 const fetchWeatherData = vi.fn<Options['fetchWeatherData']>();
-const netFetch = vi.fn<(url: string, options: unknown) => Promise<{
-  ok: boolean;
-  status: number;
-  body: string;
-}>>();
-const storeWrite = vi.fn<(key: string, enabled: boolean) => Promise<void>>();
 const t = vi.fn<(key: string, values?: Record<string, unknown>) => string>((key) => key);
 const city = {
   latitude: 39.12345,
@@ -85,8 +85,7 @@ const city = {
 function render() {
   return renderWithHooks(() => useSettingsWeather({
     fetchWeatherData,
-    t: t as unknown as Options['t'],
-    networkTimeoutMs: 6500
+    t: t as unknown as Options['t']
   }));
 }
 /**
@@ -106,23 +105,15 @@ beforeEach(() => {
   mocks.loadLocation.mockReturnValue({
     customLocation: null
   });
-  mocks.request.mockResolvedValue({
-    ok: true
+  mocks.loadKey.mockReturnValue('');
+  mocks.fetchCwa.mockResolvedValue({
+    temperature: 27.4,
+    description: '多雲'
   });
-  mocks.token.mockReturnValue('token');
-  fetchWeatherData.mockResolvedValue(undefined);
-  netFetch.mockResolvedValue({
-    ok: true,
-    status: 200,
-    body: '{"weather":"ok"}'
-  });
-  storeWrite.mockResolvedValue(undefined);
+  fetchWeatherData.mockResolvedValue('ok');
   t.mockImplementation((key) => key);
   vi.stubGlobal('window', {
-    api: {
-      netFetch,
-      storeWrite
-    }
+    api: {}
   });
 });
 afterEach(() => {
@@ -238,13 +229,13 @@ describe('实际定位配置和优先级', () => {
     expect(mocks.saveLocation).not.toHaveBeenCalled();
   });
 });
-describe('实际城市测试与三提供商聚合', () => {
-  it('空城市立即提示，禁止所有外部服务', async () => {
+describe('实际城市测试（CWA）', () => {
+  it('空城市立即提示，禁止外部服务', async () => {
     render().setWeatherCustomCityInput(' ');
     await render().testWeatherCustomLocation();
     expect(render().weatherCustomLocationTestMessage?.text).toBe('settings.weather.messages.cityRequired');
     expect(mocks.resolveCity).not.toHaveBeenCalled();
-    expect(netFetch).not.toHaveBeenCalled();
+    expect(mocks.fetchCwa).not.toHaveBeenCalled();
   });
   it.each([new Error('city failed'), 'failure'])('城市解析错误%o恢复busy并使用错误回退', async (failure) => {
     render().setWeatherCustomCityInput('city');
@@ -255,131 +246,136 @@ describe('实际城市测试与三提供商聚合', () => {
     expect(t).toHaveBeenCalledWith('settings.weather.messages.cityResolveFailed', expect.objectContaining({
       error: failure instanceof Error ? failure.message : 'settings.common.unknownError'
     }));
-    expect(netFetch).not.toHaveBeenCalled();
+    expect(mocks.fetchCwa).not.toHaveBeenCalled();
   });
-  it.each(['success', 'http-failed', 'html', 'bad-json', 'error', 'non-error', 'pro-unauthorized', 'pro-no-token', 'pro-error', 'pro-non-error'])('并行提供商模式%s执行实际解析与聚合', async (mode) => {
-    render().setWeatherCustomCityInput(' Beijing ');
-    if (mode === 'http-failed') {
-      netFetch.mockResolvedValue({
-        ok: false,
-        status: 503,
-        body: '{}'
-      });
-    }
-    if (mode === 'html') {
-      netFetch.mockResolvedValue({
-        ok: true,
-        status: 200,
-        body: '  <html>offline</html>'
-      });
-    }
-    if (mode === 'bad-json') {
-      netFetch.mockResolvedValue({
-        ok: true,
-        status: 200,
-        body: 'not json'
-      });
-    }
-    if (mode === 'error') netFetch.mockRejectedValue(new Error('offline'));
-    if (mode === 'non-error') netFetch.mockRejectedValue('unknown');
-    if (mode === 'pro-unauthorized') {
-      mocks.request.mockResolvedValue({
-        ok: false,
-        code: 401,
-        message: 'not pro'
-      });
-    }
-    if (mode === 'pro-no-token') mocks.token.mockReturnValue(null);
-    if (mode === 'pro-error') mocks.request.mockRejectedValue(new Error('pro offline'));
-    if (mode === 'pro-non-error') mocks.request.mockRejectedValue('unknown');
+  it('解析出的縣市、鄉鎮与国家代码原样传给 CWA 并报告成功', async () => {
+    mocks.resolveCity.mockResolvedValue({
+      latitude: 24.9676,
+      longitude: 121.5417,
+      city: '新北市新店區',
+      countryCode: 'TW',
+      county: '新北市',
+      township: '新店區'
+    });
+    render().setWeatherCustomCityInput(' 新北市新店區 ');
     await render().testWeatherCustomLocation();
+    expect(mocks.fetchCwa).toHaveBeenCalledWith({
+      latitude: 24.9676,
+      longitude: 121.5417,
+      city: '新北市新店區',
+      county: '新北市',
+      township: '新店區',
+      countryCode: 'TW'
+    });
+    expect(render().weatherCustomLocationTestMessage?.type).toBe('success');
+    expect(t).toHaveBeenCalledWith('settings.weather.messages.cwaAvailable', expect.objectContaining({
+      temperature: 27.4,
+      description: '多雲'
+    }));
     expect(render().weatherCustomLocationTesting).toBe(false);
-    expect(render().weatherCustomLocationTestMessage?.type).toBe(mode === 'success' ? 'success' : 'error');
-    const [openCall, uapiCall] = netFetch.mock.calls;
-    const open = new URL(openCall[0]);
-    const uapi = new URL(uapiCall[0]);
-    expect(open.hostname).toBe('api.open-meteo.com');
-    expect(open.searchParams.get('latitude')).toBe('39.12345');
-    expect(open.searchParams.get('longitude')).toBe('116.54321');
-    expect(open.searchParams.get('current')).toBe('temperature_2m');
-    expect(openCall[1]).toEqual({
-      timeoutMs: 6500
-    });
-    expect(uapi.hostname).toBe('uapis.cn');
-    expect(uapi.searchParams.get('city')).toBe('Beijing');
-    expect(uapiCall[1]).toEqual({
-      timeoutMs: 6500
-    });
-    if (mode !== 'pro-no-token') {
-      expect(mocks.request).toHaveBeenCalledWith(expect.stringContaining('location=116.54321%2C39.12345'), {
-        method: 'GET',
-        auth: 'token',
-        timeoutMs: 6500
-      });
-    }
-    if (mode === 'non-error' || mode === 'pro-non-error') {
-      expect(t).toHaveBeenCalledWith('settings.weather.messages.providerUnavailable', expect.objectContaining({
-        error: 'settings.common.unknownError'
-      }));
-    }
-    if (mode === 'http-failed') {
-      expect(t).toHaveBeenCalledWith('settings.weather.messages.providerUnavailable', expect.objectContaining({
-        error: 'Open-Meteo HTTP 503'
-      }));
-    }
-    if (mode === 'html') {
-      expect(t).toHaveBeenCalledWith('settings.weather.messages.providerNonJson', expect.objectContaining({
-        name: 'UAPI'
-      }));
-    }
-    expect(t).toHaveBeenCalledWith('settings.weather.messages.testResult', expect.objectContaining({
-      city: 'Beijing',
-      lat: '39.1234',
-      lng: '116.5432'
+  });
+  it.each([
+    ['no-key', 'settings.weather.cwa.status.noKey'],
+    ['invalid-key', 'settings.weather.cwa.status.invalidKey'],
+    ['out-of-region', 'settings.weather.cwa.status.outOfRegion']
+  ] as const)('CWA 错误 %s 显示对应提示', async (code, key) => {
+    mocks.fetchCwa.mockRejectedValue(new CwaError(code, code));
+    render().setWeatherCustomCityInput('台北');
+    await render().testWeatherCustomLocation();
+    expect(render().weatherCustomLocationTestMessage?.type).toBe('error');
+    expect(t).toHaveBeenCalledWith(key, expect.anything());
+    expect(render().weatherCustomLocationTesting).toBe(false);
+  });
+  it.each([new Error('HTTP 500'), 'unknown'])('其他错误%o回退为不可用提示', async (failure) => {
+    mocks.fetchCwa.mockRejectedValue(failure);
+    render().setWeatherCustomCityInput('台北');
+    await render().testWeatherCustomLocation();
+    expect(t).toHaveBeenCalledWith('settings.weather.messages.providerUnavailable', expect.objectContaining({
+      name: 'CWA',
+      error: failure instanceof Error ? failure.message : 'settings.common.unknownError'
     }));
   });
-  it('解析后无城市名不发送UAPI city参数', async () => {
-    mocks.resolveCity.mockResolvedValue({
-      ...city,
-      city: ''
-    });
-    render().setWeatherCustomCityInput('coordinates');
-    await render().testWeatherCustomLocation();
-    expect(new URL(netFetch.mock.calls[1][0]).searchParams.has('city')).toBe(false);
-  });
-  it('服务等待时busy为true并清除旧消息，全部完成后恢复', async () => {
+  it('请求等待时busy为true并清除旧消息，完成后恢复', async () => {
     render().setWeatherCustomCityInput('city');
     render().setWeatherCustomLocationTestMessage({
       type: 'error',
       text: 'old'
     });
-    let resolve: (value: {
-      ok: boolean;
-      status: number;
-      body: string;
-    }) => void = () => undefined;
-    netFetch.mockReturnValue(new Promise((done) => {
+    let resolve: (value: { temperature: number; description: string }) => void = () => undefined;
+    mocks.fetchCwa.mockReturnValue(new Promise((done) => {
       resolve = done;
     }));
     const pending = render().testWeatherCustomLocation();
     await settle();
     expect(render().weatherCustomLocationTesting).toBe(true);
     expect(render().weatherCustomLocationTestMessage).toBeNull();
-    resolve({
-      ok: true,
-      status: 200,
-      body: '{}'
-    });
+    resolve({ temperature: 20, description: '晴' });
     await pending;
     expect(render().weatherCustomLocationTesting).toBe(false);
   });
 });
-describe('预警开关', () => {
-  it.each([true, false])('预警%s立即保存并隔离写入失败', async (enabled) => {
-    storeWrite.mockRejectedValue(new Error('write failed'));
-    render().applyWeatherAlertEnabled(enabled);
-    await settle();
-    expect(render().weatherAlertEnabled).toBe(enabled);
-    expect(storeWrite).toHaveBeenCalledWith('weather-alert-enabled', enabled);
+describe('CWA 授权码', () => {
+  it('初始值读取已保存的授权码', () => {
+    mocks.loadKey.mockReturnValue('CWA-SAVED');
+    expect(render().cwaApiKeyInput).toBe('CWA-SAVED');
+  });
+  it('保存时去除空白、写入存储并按刷新结果提示可用', async () => {
+    render().setCwaApiKeyInput('  CWA-NEW  ');
+    await render().saveCwaApiKeySetting();
+    expect(mocks.saveKey).toHaveBeenCalledWith('CWA-NEW');
+    expect(fetchWeatherData).toHaveBeenCalledWith(undefined, true);
+    expect(render().cwaApiKeyInput).toBe('CWA-NEW');
+    expect(render().cwaApiKeyMessage).toEqual({ type: 'success', text: 'settings.weather.cwa.messages.valid' });
+  });
+  it.each([
+    ['invalid-key', 'error', 'settings.weather.cwa.messages.invalid'],
+    ['out-of-region', 'success', 'settings.weather.cwa.messages.savedOutOfRegion'],
+    ['error', 'error', 'settings.weather.cwa.messages.checkFailed'],
+    ['no-key', 'error', 'settings.weather.cwa.messages.checkFailed']
+  ] as const)('刷新状态 %s 对应提示', async (status, type, text) => {
+    fetchWeatherData.mockResolvedValue(status);
+    render().setCwaApiKeyInput('CWA-KEY');
+    await render().saveCwaApiKeySetting();
+    expect(render().cwaApiKeyMessage).toEqual({ type, text });
+  });
+  it('保存空值等同清除并刷新到空状态', async () => {
+    render().setCwaApiKeyInput('   ');
+    await render().saveCwaApiKeySetting();
+    expect(mocks.saveKey).toHaveBeenCalledWith('');
+    expect(fetchWeatherData).toHaveBeenCalledWith(undefined, true);
+    expect(render().cwaApiKeyMessage?.text).toBe('settings.weather.cwa.messages.cleared');
+  });
+  it('清除按钮清空输入、存储并刷新天气', () => {
+    render().setCwaApiKeyInput('CWA-KEY');
+    render().clearCwaApiKeySetting();
+    expect(mocks.saveKey).toHaveBeenCalledWith('');
+    expect(render().cwaApiKeyInput).toBe('');
+    expect(fetchWeatherData).toHaveBeenCalledWith(undefined, true);
+    expect(render().cwaApiKeyMessage?.text).toBe('settings.weather.cwa.messages.cleared');
+  });
+  it('地理编码出的縣市与鄉鎮写入自定义位置配置', async () => {
+    mocks.resolveCity.mockResolvedValue({
+      latitude: 25.05,
+      longitude: 121.52,
+      city: '臺北市',
+      countryCode: 'TW',
+      country: '台灣',
+      regionName: '臺北市',
+      county: '臺北市'
+    });
+    render().setWeatherCustomCityInput('台北');
+    await render().saveWeatherLocationSettings();
+    expect(mocks.saveLocation).toHaveBeenCalledWith({
+      priority: 'ip',
+      customLocation: {
+        latitude: 25.05,
+        longitude: 121.52,
+        city: '臺北市',
+        countryCode: 'TW',
+        country: '台灣',
+        regionName: '臺北市',
+        county: '臺北市'
+      }
+    });
   });
 });

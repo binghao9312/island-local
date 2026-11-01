@@ -37,6 +37,7 @@ const {
   loadLocationFromStorageMock,
   saveLocationToStorageMock,
   loadWeatherLocationConfigMock,
+  loadCwaApiKeyMock,
 } = vi.hoisted(() => ({
   fetchWeatherMock: vi.fn(),
   fetchLocationMock: vi.fn(),
@@ -47,18 +48,20 @@ const {
   loadLocationFromStorageMock: vi.fn(),
   saveLocationToStorageMock: vi.fn(),
   loadWeatherLocationConfigMock: vi.fn(),
+  loadCwaApiKeyMock: vi.fn(),
 }));
 
-vi.mock('../../../api/weather/weatherApi', () => ({
-  fetchWeather: fetchWeatherMock,
+vi.mock('../../../api/weather/cwa/cwaApi', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../api/weather/cwa/cwaApi')>()),
+  fetchCwaWeather: fetchWeatherMock,
 }));
 
 vi.mock('../../../api/weather/locationApi', () => ({
   fetchLocation: fetchLocationMock,
 }));
 
-vi.mock('../../../api/weather/adcodeApi', () => ({
-  resolveDistrictLocationByCoordinates: resolveCoordinatesMock,
+vi.mock('../../../api/weather/geocodingApi', () => ({
+  resolveLocationByCoordinates: resolveCoordinatesMock,
 }));
 
 vi.mock('../../utils/storage', () => ({
@@ -67,6 +70,7 @@ vi.mock('../../utils/storage', () => ({
   loadLocationFromStorage: loadLocationFromStorageMock,
   saveLocationToStorage: saveLocationToStorageMock,
   loadWeatherLocationConfig: loadWeatherLocationConfigMock,
+  loadCwaApiKey: loadCwaApiKeyMock,
   saveWeatherLocationConfig: saveWeatherLocationConfigMock,
 }));
 
@@ -78,6 +82,7 @@ vi.mock('../../../utils/logger', () => ({
   },
 }));
 
+import { CwaError } from '../../../api/weather/cwa/cwaApi';
 import { createWeatherSlice } from '../weatherSlice';
 
 type WeatherState = ReturnType<typeof createWeatherSlice>;
@@ -107,6 +112,8 @@ describe('createWeatherSlice', () => {
     loadLocationFromStorageMock.mockReset();
     saveLocationToStorageMock.mockReset();
     loadWeatherLocationConfigMock.mockReset();
+    loadCwaApiKeyMock.mockReset();
+    loadCwaApiKeyMock.mockReturnValue('KEY');
 
     loadWeatherFromStorageMock.mockReturnValue(defaultWeather);
     loadLocationFromStorageMock.mockReturnValue(null);
@@ -208,7 +215,7 @@ describe('createWeatherSlice', () => {
     resolve({ latitude: 35.6, longitude: 139.7, city: 'Tokyo', regionName: 'Tokyo', country: 'Japan', countryCode: 'JP' });
     expect(await calendar).toMatchObject({ city: 'My city', countryCode: 'JP' });
     await weather;
-    expect(fetchWeatherMock).toHaveBeenCalledWith({ latitude: 35.6, longitude: 139.7 });
+    expect(fetchWeatherMock).toHaveBeenCalledWith(expect.objectContaining({ latitude: 35.6, longitude: 139.7 }));
     expect(fetchLocationMock).not.toHaveBeenCalled();
   });
 
@@ -229,7 +236,7 @@ describe('createWeatherSlice', () => {
     fetchWeatherMock.mockResolvedValue(defaultWeather);
     const store = createSliceState(createWeatherSlice);
     await store.getState().fetchWeatherData();
-    expect(fetchWeatherMock).toHaveBeenCalledWith({ latitude: 35.6, longitude: 139.7 });
+    expect(fetchWeatherMock).toHaveBeenCalledWith(expect.objectContaining({ latitude: 35.6, longitude: 139.7 }));
     expect(saveWeatherLocationConfigMock).not.toHaveBeenCalled();
     resolveCoordinatesMock.mockResolvedValue({ latitude: 35.6, longitude: 139.7, city: '', regionName: '', country: 'Japan', countryCode: 'JP' });
     expect(await store.getState().refreshLocation()).toMatchObject({ countryCode: 'JP' });
@@ -258,5 +265,45 @@ describe('createWeatherSlice', () => {
     const store = createSliceState(createWeatherSlice);
     expect(await store.getState().refreshLocation()).toMatchObject({ countryCode: 'JP' });
     expect(loadWeatherLocationConfigMock().priority).toBe('ip');
+  });
+
+  it('reports no-key without locating or requesting weather when no CWA key is stored', async () => {
+    loadCwaApiKeyMock.mockReturnValue('');
+    const store = createSliceState(createWeatherSlice);
+    expect(store.getState().weatherStatus).toBe('no-key');
+    expect(await store.getState().fetchWeatherData({ latitude: 25, longitude: 121.5 })).toBe('no-key');
+    expect(fetchWeatherMock).not.toHaveBeenCalled();
+    expect(fetchLocationMock).not.toHaveBeenCalled();
+    expect(store.getState().weatherStatus).toBe('no-key');
+  });
+
+  it('starts as ok when a key exists and returns ok after a successful request', async () => {
+    fetchWeatherMock.mockResolvedValue({ temperature: 28, description: '多雲' });
+    const store = createSliceState(createWeatherSlice);
+    expect(store.getState().weatherStatus).toBe('ok');
+    expect(await store.getState().fetchWeatherData({ latitude: 25, longitude: 121.5 })).toBe('ok');
+    expect(store.getState().weather).toEqual({ temperature: 28, description: '多雲' });
+  });
+
+  it('passes the resolved CWA county and township to the weather request', async () => {
+    loadWeatherLocationConfigMock.mockReturnValue({ priority: 'custom', customLocation: { latitude: 24.96, longitude: 121.54, city: '新北市新店區', county: '新北市', township: '新店區', countryCode: 'TW', country: '台灣', regionName: '新北市' } });
+    fetchWeatherMock.mockResolvedValue(defaultWeather);
+    const store = createSliceState(createWeatherSlice);
+    await store.getState().fetchWeatherData();
+    expect(fetchWeatherMock).toHaveBeenCalledWith(expect.objectContaining({ county: '新北市', township: '新店區', countryCode: 'TW', latitude: 24.96, longitude: 121.54 }));
+  });
+
+  it.each([
+    ['invalid-key', new CwaError('invalid-key', 'rejected')],
+    ['out-of-region', new CwaError('out-of-region', 'not taiwan')],
+    ['error', new CwaError('network', 'HTTP 500')],
+    ['error', new Error('boom')],
+  ] as const)('maps %s failures to the weather status and keeps the previous weather', async (status, error) => {
+    fetchWeatherMock.mockRejectedValue(error);
+    const store = createSliceState(createWeatherSlice);
+    expect(await store.getState().fetchWeatherData({ latitude: 25, longitude: 121.5 })).toBe(status);
+    expect(store.getState().weatherStatus).toBe(status);
+    expect(store.getState().weather).toEqual(defaultWeather);
+    expect(saveWeatherToStorageMock).not.toHaveBeenCalled();
   });
 });

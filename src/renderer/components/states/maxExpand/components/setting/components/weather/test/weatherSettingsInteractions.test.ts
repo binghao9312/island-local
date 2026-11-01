@@ -20,7 +20,7 @@
 
 /**
  * @file weatherSettingsInteractions.test.ts
- * @description 天气设置真实异常反馈、提供商与导航交互回归。
+ * @description 天气设置真实异常反馈、CWA 授权码与导航交互回归。
  * @author 鸡哥
  */
 
@@ -52,13 +52,11 @@ function makeProps(): ComponentProps<typeof WeatherSettingsSection> {
     saveWeatherLocationSettings: vi.fn(() => Promise.resolve()),
     weatherLocationConfigMessage: null,
     weatherCustomLocationTestMessage: null,
-    weatherProviderOptions: [{ value: 'open-meteo', label: 'Open' }, { value: 'qweather-pro', label: 'Pro' }],
-    weatherPrimaryProvider: 'open-meteo',
-    isProUser: false,
-    setWeatherPrimaryProvider: vi.fn(),
-    saveWeatherProviderConfig: vi.fn(),
-    weatherAlertEnabled: false,
-    setWeatherAlertEnabled: vi.fn(),
+    cwaApiKeyInput: '',
+    setCwaApiKeyInput: vi.fn(),
+    cwaApiKeyMessage: null,
+    saveCwaApiKeySetting: vi.fn(() => Promise.resolve()),
+    clearCwaApiKeySetting: vi.fn(),
     weatherSettingsPages: [],
     weatherSettingsPageLabels: { location: 'Location', provider: 'Provider' },
     setWeatherSettingsPage: vi.fn(),

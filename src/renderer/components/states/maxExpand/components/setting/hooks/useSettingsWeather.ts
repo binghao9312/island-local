@@ -20,47 +20,66 @@
 
 /**
  * @file useSettingsWeather.ts
- * @description 天气定位、提供商测试和预警配置操作
+ * @description 天气定位、CWA 授权码及自定义位置测试操作
  * @author 鸡哥
  */
 
 import { useState } from 'react';
 import type { useTranslation } from 'react-i18next';
-import { request as requestUserAccountApi } from '../../../../../../api/user/userAccountApi.client';
-import { resolveDistrictLocationByKeyword } from '../../../../../../api/weather/adcodeApi';
+import { CwaError, fetchCwaWeather } from '../../../../../../api/weather/cwa/cwaApi';
+import { resolveLocationByKeyword } from '../../../../../../api/weather/geocodingApi';
+import type { ResolvedLocation } from '../../../../../../api/weather/geocodingApi';
 import {
+  type WeatherCustomLocationConfig,
   type WeatherLocationPriority,
-  type WeatherProvider,
   DEFAULT_WEATHER_LOCATION_PRIORITY,
-  DEFAULT_WEATHER_PRIMARY_PROVIDER,
+  loadCwaApiKey,
   loadWeatherLocationConfig,
+  saveCwaApiKey,
   saveWeatherLocationConfig,
 } from '../../../../../../store/utils/storage';
-import { readLocalToken } from '../../../../../../utils/userAccount';
-import { WEATHER_ALERT_ENABLED_STORE_KEY } from '../config/settingsTabConfig';
-import type { useSettingsNetwork } from './useSettingsNetwork';
 import type { useSettingsStore } from './useSettingsStore';
 
 interface SettingsWeatherOptions {
   t: ReturnType<typeof useTranslation>['t'];
   fetchWeatherData: ReturnType<typeof useSettingsStore>['fetchWeatherData'];
-  networkTimeoutMs: ReturnType<typeof useSettingsNetwork>['networkTimeoutMs'];
+}
+
+interface SettingsMessage {
+  type: 'success' | 'error';
+  text: string;
 }
 
 /**
- * 天气定位、提供商测试和预警配置操作。
+ * 将地理编码结果转换为可持久化的自定义位置配置（含 CWA 縣市 / 鄉鎮映射）。
+ * @param resolved - 地理编码解析结果
+ * @returns 自定义位置配置
+ */
+export function toCustomLocationConfig(resolved: ResolvedLocation): WeatherCustomLocationConfig {
+  return {
+    latitude: resolved.latitude,
+    longitude: resolved.longitude,
+    city: resolved.city,
+    ...(resolved.countryCode ? { countryCode: resolved.countryCode, country: resolved.country ?? '', regionName: resolved.regionName ?? '' } : {}),
+    ...(resolved.county ? { county: resolved.county } : {}),
+    ...(resolved.township ? { township: resolved.township } : {}),
+  };
+}
+
+/**
+ * 天气定位、CWA 授权码及自定义位置测试操作。
  * @param options - 当前设置上下文
  * @returns 供设置视图组合使用的状态与操作
  */
 export function useSettingsWeather(options: SettingsWeatherOptions) {
-  const { t, fetchWeatherData, networkTimeoutMs } = options;
-  const [weatherPrimaryProvider, setWeatherPrimaryProvider] = useState<WeatherProvider>(DEFAULT_WEATHER_PRIMARY_PROVIDER);
+  const { t, fetchWeatherData } = options;
   const [weatherLocationPriority, setWeatherLocationPriority] = useState<WeatherLocationPriority>(DEFAULT_WEATHER_LOCATION_PRIORITY);
   const [weatherCustomCityInput, setWeatherCustomCityInput] = useState<string>('');
-  const [weatherAlertEnabled, setWeatherAlertEnabled] = useState<boolean>(true);
-  const [weatherLocationConfigMessage, setWeatherLocationConfigMessage] = useState<{ type: 'success' | 'error'; text: string; } | null>(null);
+  const [cwaApiKeyInput, setCwaApiKeyInput] = useState<string>(() => loadCwaApiKey());
+  const [cwaApiKeyMessage, setCwaApiKeyMessage] = useState<SettingsMessage | null>(null);
+  const [weatherLocationConfigMessage, setWeatherLocationConfigMessage] = useState<SettingsMessage | null>(null);
   const [weatherCustomLocationTesting, setWeatherCustomLocationTesting] = useState(false);
-  const [weatherCustomLocationTestMessage, setWeatherCustomLocationTestMessage] = useState<{ type: 'success' | 'error'; text: string; } | null>(null);
+  const [weatherCustomLocationTestMessage, setWeatherCustomLocationTestMessage] = useState<SettingsMessage | null>(null);
 
   const applyWeatherLocationPriority = async (nextPriority: WeatherLocationPriority): Promise<void> => {
     setWeatherLocationPriority(nextPriority);
@@ -72,12 +91,7 @@ export function useSettingsWeather(options: SettingsWeatherOptions) {
       let customLocation = existing;
 
       if (city) {
-        const resolved = await resolveDistrictLocationByKeyword(city);
-        customLocation = {
-          latitude: resolved.latitude,
-          longitude: resolved.longitude,
-          city: resolved.city,
-        };
+        customLocation = toCustomLocationConfig(await resolveLocationByKeyword(city));
       }
 
       saveWeatherLocationConfig({
@@ -120,14 +134,9 @@ export function useSettingsWeather(options: SettingsWeatherOptions) {
     }
 
     try {
-      let customLocation: { latitude: number; longitude: number; city: string; } | null = null;
+      let customLocation: WeatherCustomLocationConfig | null = null;
       if (city) {
-        const resolved = await resolveDistrictLocationByKeyword(city);
-        customLocation = {
-          latitude: resolved.latitude,
-          longitude: resolved.longitude,
-          city: resolved.city,
-        };
+        customLocation = toCustomLocationConfig(await resolveLocationByKeyword(city));
       }
 
       saveWeatherLocationConfig({
@@ -139,7 +148,7 @@ export function useSettingsWeather(options: SettingsWeatherOptions) {
         text: customLocation
           ? t('settings.weather.messages.configSavedWithCity', {
             defaultValue: '天气定位配置已保存（{{city}} {{lat}}, {{lng}}）',
-            city: customLocation.city,
+            city: customLocation.city ?? city,
             lat: customLocation.latitude.toFixed(4),
             lng: customLocation.longitude.toFixed(4),
           })
@@ -158,6 +167,23 @@ export function useSettingsWeather(options: SettingsWeatherOptions) {
     }
   };
 
+  /**
+   * 将 CWA 错误转换为用户可读提示。
+   * @param error - 捕获到的错误
+   * @returns 本地化提示文本
+   */
+  const describeCwaError = (error: unknown): string => {
+    const code = error instanceof CwaError ? error.code : null;
+    if (code === 'no-key') return t('settings.weather.cwa.status.noKey', { defaultValue: '尚未设置 CWA 授权码' });
+    if (code === 'invalid-key') return t('settings.weather.cwa.status.invalidKey', { defaultValue: 'CWA 授权码无效' });
+    if (code === 'out-of-region') return t('settings.weather.cwa.status.outOfRegion', { defaultValue: '该位置不在台湾，CWA 无法提供天气' });
+    return t('settings.weather.messages.providerUnavailable', {
+      defaultValue: '{{name}} 不可用：{{error}}',
+      name: 'CWA',
+      error: error instanceof Error ? error.message : t('settings.common.unknownError', { defaultValue: '未知错误' }),
+    });
+  };
+
   const testWeatherCustomLocation = async (): Promise<void> => {
     const city = weatherCustomCityInput.trim();
     const unknownError = t('settings.common.unknownError', { defaultValue: '未知错误' });
@@ -172,9 +198,9 @@ export function useSettingsWeather(options: SettingsWeatherOptions) {
     setWeatherCustomLocationTesting(true);
     setWeatherCustomLocationTestMessage(null);
 
-    let custom: { latitude: number; longitude: number; city: string; };
+    let custom: ResolvedLocation;
     try {
-      custom = await resolveDistrictLocationByKeyword(city);
+      custom = await resolveLocationByKeyword(city);
     } catch (error) {
       setWeatherCustomLocationTesting(false);
       setWeatherCustomLocationTestMessage({
@@ -187,137 +213,91 @@ export function useSettingsWeather(options: SettingsWeatherOptions) {
       return;
     }
 
-    const openMeteoParams = new URLSearchParams({
-      latitude: String(custom.latitude),
-      longitude: String(custom.longitude),
-      current: 'temperature_2m',
-      timezone: 'auto',
+    const describe = (details: string): string => t('settings.weather.messages.testResult', {
+      defaultValue: '{{city}}（{{lat}}, {{lng}}） - {{details}}',
+      city: custom.city,
+      lat: custom.latitude.toFixed(4),
+      lng: custom.longitude.toFixed(4),
+      details,
     });
-    const openMeteoUrl = `https://api.open-meteo.com/v1/forecast?${openMeteoParams.toString()}`;
-
-    const uapiParams = new URLSearchParams({
-      forecast: 'true',
-      extended: 'true',
-      lang: 'zh',
-    });
-    if (custom.city) uapiParams.set('city', custom.city);
-    const uapiUrl = `https://uapis.cn/api/v1/misc/weather?${uapiParams.toString()}`;
-
-    const testProvider = async (name: string, url: string): Promise<string> => {
-      const resp = await window.api.netFetch(url, { timeoutMs: networkTimeoutMs });
-      if (!resp.ok) {
-        throw new Error(`${name} HTTP ${resp.status}`);
-      }
-      if (resp.body.trimStart().startsWith('<')) {
-        throw new Error(t('settings.weather.messages.providerNonJson', { defaultValue: '{{name}} 返回了非 JSON', name }));
-      }
-      JSON.parse(resp.body);
-      return t('settings.weather.messages.providerAvailable', { defaultValue: '{{name}} 可用', name });
-    };
-    const testQWeatherPro = async (): Promise<string> => {
-      const token = readLocalToken();
-      const name = 'QWeather Pro';
-      if (!token) {
-        throw new Error(t('settings.weather.messages.proLoginRequired', { defaultValue: '请先登录 PRO 账号' }));
-      }
-      const qweatherParams = new URLSearchParams({
-        location: `${custom.longitude},${custom.latitude}`,
-        lang: 'zh',
-        unit: 'm',
-      });
-      const result = await requestUserAccountApi(`/v1/user/weather/daily-3d?${qweatherParams.toString()}`, {
-        method: 'GET',
-        auth: token,
-        timeoutMs: networkTimeoutMs,
-      });
-      if (!result.ok) {
-        throw new Error(`${name} ${result.code}: ${result.message}`);
-      }
-      return t('settings.weather.messages.providerAvailable', { defaultValue: '{{name}} 可用', name });
-    };
 
     try {
-      const [openMeteoResult, uapiResult, qweatherResult] = await Promise.allSettled([
-        testProvider('Open-Meteo', openMeteoUrl),
-        testProvider('UAPI', uapiUrl),
-        testQWeatherPro(),
-      ]);
-
-      const messages: string[] = [];
-      let hasFailure = false;
-
-      if (openMeteoResult.status === 'fulfilled') {
-        messages.push(openMeteoResult.value);
-      } else {
-        hasFailure = true;
-        messages.push(t('settings.weather.messages.providerUnavailable', {
-          defaultValue: '{{name}} 不可用：{{error}}',
-          name: 'Open-Meteo',
-          error: openMeteoResult.reason instanceof Error ? openMeteoResult.reason.message : unknownError,
-        }));
-      }
-
-      if (uapiResult.status === 'fulfilled') {
-        messages.push(uapiResult.value);
-      } else {
-        hasFailure = true;
-        messages.push(t('settings.weather.messages.providerUnavailable', {
-          defaultValue: '{{name}} 不可用：{{error}}',
-          name: 'UAPI',
-          error: uapiResult.reason instanceof Error ? uapiResult.reason.message : unknownError,
-        }));
-      }
-
-      if (qweatherResult.status === 'fulfilled') {
-        messages.push(qweatherResult.value);
-      } else {
-        hasFailure = true;
-        messages.push(t('settings.weather.messages.providerUnavailable', {
-          defaultValue: '{{name}} 不可用：{{error}}',
-          name: 'QWeather Pro',
-          error: qweatherResult.reason instanceof Error ? qweatherResult.reason.message : unknownError,
-        }));
-      }
-
-      const separator = t('settings.weather.messages.detailSeparator', { defaultValue: '；' });
-      setWeatherCustomLocationTestMessage({
-        type: hasFailure ? 'error' : 'success',
-        text: t('settings.weather.messages.testResult', {
-          defaultValue: '{{city}}（{{lat}}, {{lng}}） - {{details}}',
-          city: custom.city,
-          lat: custom.latitude.toFixed(4),
-          lng: custom.longitude.toFixed(4),
-          details: messages.join(separator),
-        }),
+      const weather = await fetchCwaWeather({
+        latitude: custom.latitude,
+        longitude: custom.longitude,
+        city: custom.city,
+        county: custom.county,
+        township: custom.township,
+        countryCode: custom.countryCode,
       });
+      setWeatherCustomLocationTestMessage({
+        type: 'success',
+        text: describe(t('settings.weather.messages.cwaAvailable', {
+          defaultValue: 'CWA 可用：{{temperature}}°C {{description}}',
+          temperature: weather.temperature,
+          description: weather.description,
+        })),
+      });
+    } catch (error) {
+      setWeatherCustomLocationTestMessage({ type: 'error', text: describe(describeCwaError(error)) });
     } finally {
       setWeatherCustomLocationTesting(false);
     }
   };
 
-  const applyWeatherAlertEnabled = (enabled: boolean): void => {
-    setWeatherAlertEnabled(enabled);
-    window.api.storeWrite(WEATHER_ALERT_ENABLED_STORE_KEY, enabled).catch(() => { });
+  /**
+   * 保存 CWA 授权码并立即刷新天气，按刷新结果提示授权码是否可用。
+   */
+  const saveCwaApiKeySetting = async (): Promise<void> => {
+    const key = cwaApiKeyInput.trim();
+    saveCwaApiKey(key);
+    setCwaApiKeyInput(key);
+    if (!key) {
+      setCwaApiKeyMessage({ type: 'success', text: t('settings.weather.cwa.messages.cleared', { defaultValue: '已清除 CWA 授权码' }) });
+      fetchWeatherData(undefined, true).catch(() => { });
+      return;
+    }
+    setCwaApiKeyMessage({ type: 'success', text: t('settings.weather.cwa.messages.checking', { defaultValue: '已保存，正在验证…' }) });
+    const status = await fetchWeatherData(undefined, true);
+    if (status === 'ok') {
+      setCwaApiKeyMessage({ type: 'success', text: t('settings.weather.cwa.messages.valid', { defaultValue: '授权码可用，天气已更新' }) });
+    } else if (status === 'invalid-key') {
+      setCwaApiKeyMessage({ type: 'error', text: t('settings.weather.cwa.messages.invalid', { defaultValue: '授权码无效，请确认是否完整复制' }) });
+    } else if (status === 'out-of-region') {
+      setCwaApiKeyMessage({ type: 'success', text: t('settings.weather.cwa.messages.savedOutOfRegion', { defaultValue: '已保存；当前位置不在台湾，CWA 无法提供天气' }) });
+    } else {
+      setCwaApiKeyMessage({ type: 'error', text: t('settings.weather.cwa.messages.checkFailed', { defaultValue: '已保存，但天气更新失败，请检查网络后重试' }) });
+    }
+  };
+
+  /**
+   * 清除已保存的 CWA 授权码并刷新天气（界面回到未设置的空状态）。
+   */
+  const clearCwaApiKeySetting = (): void => {
+    setCwaApiKeyInput('');
+    saveCwaApiKey('');
+    setCwaApiKeyMessage({ type: 'success', text: t('settings.weather.cwa.messages.cleared', { defaultValue: '已清除 CWA 授权码' }) });
+    fetchWeatherData(undefined, true).catch(() => { });
   };
 
   return {
-    weatherPrimaryProvider,
-    setWeatherPrimaryProvider,
     weatherLocationPriority,
     setWeatherLocationPriority,
     weatherCustomCityInput,
     setWeatherCustomCityInput,
-    weatherAlertEnabled,
-    setWeatherAlertEnabled,
     weatherLocationConfigMessage,
     setWeatherLocationConfigMessage,
     weatherCustomLocationTesting,
     setWeatherCustomLocationTesting,
     weatherCustomLocationTestMessage,
     setWeatherCustomLocationTestMessage,
+    cwaApiKeyInput,
+    setCwaApiKeyInput,
+    cwaApiKeyMessage,
     applyWeatherLocationPriority,
     saveWeatherLocationSettings,
     testWeatherCustomLocation,
-    applyWeatherAlertEnabled,
+    saveCwaApiKeySetting,
+    clearCwaApiKeySetting,
   };
 }

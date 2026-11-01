@@ -26,7 +26,7 @@
 
 import type { ReactElement } from 'react';
 import { memo } from 'react';
-import { saveNetworkConfig, saveWeatherProviderConfig } from '../../../../../../store/utils/storage';
+import { saveNetworkConfig } from '../../../../../../store/utils/storage';
 import { SvgIcon } from '../../../../../../utils/SvgIcon';
 import { setThemeMode as applyThemeMode } from '../../../../../../utils/theme';
 import { PLUGIN_MARKET_PAGES, UPDATE_SOURCES, applyIslandOpacity } from '../config/settingsTabConfig';
@@ -41,7 +41,6 @@ import {
   NETWORK_TIMEOUT_OPTIONS,
   UPDATE_SETTINGS_PAGES,
   WEATHER_LOCATION_PRIORITY_OPTIONS,
-  WEATHER_PROVIDER_OPTIONS,
   WEATHER_SETTINGS_PAGES,
 } from '../utils/settingsConfig';
 import { UPDATES_ENABLED } from '../../../../../../../shared/updatesConfig';
@@ -230,12 +229,13 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
     setWeatherCustomLocationTestMessage,
     weatherCustomLocationTesting,
     saveWeatherLocationSettings,
+    cwaApiKeyInput,
+    setCwaApiKeyInput,
+    cwaApiKeyMessage,
+    saveCwaApiKeySetting,
+    clearCwaApiKeySetting,
     weatherLocationConfigMessage,
     weatherCustomLocationTestMessage,
-    weatherPrimaryProvider,
-    setWeatherPrimaryProvider,
-    weatherAlertEnabled,
-    applyWeatherAlertEnabled,
     translatedWeatherSettingsPageLabels,
     setWeatherSettingsPage,
     hotkeyInputRef,
@@ -714,13 +714,11 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
               saveWeatherLocationSettings={saveWeatherLocationSettings}
               weatherLocationConfigMessage={weatherLocationConfigMessage}
               weatherCustomLocationTestMessage={weatherCustomLocationTestMessage}
-              weatherProviderOptions={WEATHER_PROVIDER_OPTIONS}
-              weatherPrimaryProvider={weatherPrimaryProvider}
-              isProUser={isProUser}
-              setWeatherPrimaryProvider={setWeatherPrimaryProvider}
-              saveWeatherProviderConfig={saveWeatherProviderConfig}
-              weatherAlertEnabled={weatherAlertEnabled}
-              setWeatherAlertEnabled={applyWeatherAlertEnabled}
+              cwaApiKeyInput={cwaApiKeyInput}
+              setCwaApiKeyInput={setCwaApiKeyInput}
+              cwaApiKeyMessage={cwaApiKeyMessage}
+              saveCwaApiKeySetting={saveCwaApiKeySetting}
+              clearCwaApiKeySetting={clearCwaApiKeySetting}
               weatherSettingsPages={WEATHER_SETTINGS_PAGES}
               weatherSettingsPageLabels={translatedWeatherSettingsPageLabels}
               setWeatherSettingsPage={setWeatherSettingsPage}

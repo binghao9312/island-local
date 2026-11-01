@@ -30,8 +30,9 @@ import {
   normalizeStaticAssetNode,
   loadNetworkConfig,
   saveNetworkConfig,
-  loadWeatherProviderConfig,
-  saveWeatherProviderConfig,
+  loadCwaApiKey,
+  saveCwaApiKey,
+  hydrateCwaApiKeyFromStore,
   loadLocationFromStorage,
   saveLocationToStorage,
   loadWeatherLocationConfig,
@@ -39,7 +40,6 @@ import {
   hydrateWeatherLocationConfigFromStore,
   DEFAULT_NETWORK_TIMEOUT_MS,
   DEFAULT_STATIC_ASSET_NODE_FREE,
-  DEFAULT_WEATHER_PRIMARY_PROVIDER,
 } from '../storage';
 
 /* ---------- localStorage mock ---------- */
@@ -222,44 +222,45 @@ describe('saveNetworkConfig', () => {
   });
 });
 
-describe('loadWeatherProviderConfig', () => {
-  beforeEach(() => {
-    mockLocalStorage();
+describe('CWA API key storage', () => {
+  beforeEach(() => { vi.stubGlobal('window', {}); mockLocalStorage(); mockWindowApi(); });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('returns an empty string when no key is stored', () => {
+    expect(loadCwaApiKey()).toBe('');
   });
 
-  it('returns default when localStorage is empty', () => {
-    const config = loadWeatherProviderConfig();
-    expect(config.primaryProvider).toBe(DEFAULT_WEATHER_PRIMARY_PROVIDER);
+  it('trims and persists the key to localStorage and the main store', () => {
+    saveCwaApiKey('  CWA-TEST-KEY  ');
+    expect(store.island_cwa_api_key).toBe('CWA-TEST-KEY');
+    expect(loadCwaApiKey()).toBe('CWA-TEST-KEY');
+    expect(window.api.storeWrite).toHaveBeenCalledWith('cwa-api-key', 'CWA-TEST-KEY');
   });
 
-  it('returns stored config for valid provider', () => {
-    store['island_weather_provider_config'] = JSON.stringify({ primaryProvider: 'uapi' });
-    const config = loadWeatherProviderConfig();
-    expect(config.primaryProvider).toBe('uapi');
+  it('removes the stored key when saving an empty value', () => {
+    saveCwaApiKey('CWA-TEST-KEY');
+    saveCwaApiKey('   ');
+    expect(store.island_cwa_api_key).toBeUndefined();
+    expect(loadCwaApiKey()).toBe('');
+    expect(window.api.storeWrite).toHaveBeenLastCalledWith('cwa-api-key', '');
   });
 
-  it('returns default when stored provider is invalid', () => {
-    store['island_weather_provider_config'] = JSON.stringify({ primaryProvider: 'unknown' });
-    const config = loadWeatherProviderConfig();
-    expect(config.primaryProvider).toBe(DEFAULT_WEATHER_PRIMARY_PROVIDER);
+  it('hydrates the local cache from the main store', async () => {
+    vi.mocked(window.api.storeRead).mockResolvedValue('CWA-FROM-STORE');
+    await hydrateCwaApiKeyFromStore();
+    expect(loadCwaApiKey()).toBe('CWA-FROM-STORE');
   });
 
-  it('returns default when JSON is malformed', () => {
-    store['island_weather_provider_config'] = '!!!';
-    const config = loadWeatherProviderConfig();
-    expect(config.primaryProvider).toBe(DEFAULT_WEATHER_PRIMARY_PROVIDER);
-  });
-});
-
-describe('saveWeatherProviderConfig', () => {
-  beforeEach(() => {
-    mockLocalStorage();
+  it('migrates an existing local key into the main store when the store is empty', async () => {
+    store.island_cwa_api_key = 'CWA-LOCAL';
+    await hydrateCwaApiKeyFromStore();
+    expect(window.api.storeWrite).toHaveBeenCalledWith('cwa-api-key', 'CWA-LOCAL');
+    expect(loadCwaApiKey()).toBe('CWA-LOCAL');
   });
 
-  it('writes config to localStorage', () => {
-    saveWeatherProviderConfig({ primaryProvider: 'qweather-pro' });
-    const written = JSON.parse(store['island_weather_provider_config']);
-    expect(written.primaryProvider).toBe('qweather-pro');
+  it('keeps county and township metadata of a custom location', () => {
+    saveWeatherLocationConfig({ priority: 'custom', customLocation: { latitude: 25, longitude: 121.5, city: '新北市新店區', county: '新北市', township: '新店區', countryCode: 'TW', country: '台灣', regionName: '新北市' } });
+    expect(loadWeatherLocationConfig().customLocation).toMatchObject({ county: '新北市', township: '新店區' });
   });
 });
 

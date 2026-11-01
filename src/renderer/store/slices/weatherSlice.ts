@@ -25,16 +25,17 @@
  */
 
 import type { StateCreator } from 'zustand';
-import type { WeatherSlice, WeatherApiConfig } from '../types';
-import { fetchWeather } from '../../api/weather/weatherApi';
+import type { WeatherSlice, WeatherApiConfig, WeatherStatus } from '../types';
+import { CwaError, fetchCwaWeather } from '../../api/weather/cwa/cwaApi';
 import { fetchLocation, type LocationInfo } from '../../api/weather/locationApi';
-import { resolveDistrictLocationByCoordinates } from '../../api/weather/adcodeApi';
+import { resolveLocationByCoordinates } from '../../api/weather/geocodingApi';
 import {
   loadWeatherFromStorage,
   saveWeatherToStorage,
   loadLocationFromStorage,
   saveLocationToStorage,
   loadWeatherLocationConfig,
+  loadCwaApiKey,
   saveWeatherLocationConfig,
   type WeatherLocationConfig,
 } from '../utils/storage';
@@ -57,6 +58,7 @@ export const createWeatherSlice: StateCreator<WeatherSlice, [], [], WeatherSlice
 
   return {
     weather: loadWeatherFromStorage(),
+    weatherStatus: loadCwaApiKey() ? 'ok' : 'no-key',
     location: loadLocationFromStorage(),
 
     setWeather: (data) => {
@@ -82,7 +84,7 @@ export const createWeatherSlice: StateCreator<WeatherSlice, [], [], WeatherSlice
               const metadata = cached?.latitude === customLocation.latitude && cached.longitude === customLocation.longitude
                 && /^[A-Z]{2}$/.test(cached.countryCode ?? '')
                 ? cached
-                : await resolveDistrictLocationByCoordinates(customLocation.latitude, customLocation.longitude);
+                : await resolveLocationByCoordinates(customLocation.latitude, customLocation.longitude);
               const enriched = { ...metadata, latitude: customLocation.latitude, longitude: customLocation.longitude, city: customLocation.city || metadata.city };
               const current = loadWeatherLocationConfig();
               if (locationSelectionKey(current) === selectionKey) {
@@ -120,20 +122,33 @@ export const createWeatherSlice: StateCreator<WeatherSlice, [], [], WeatherSlice
       }
     },
 
-    fetchWeatherData: async (config?: WeatherApiConfig, forceRefresh?: boolean) => {
+    fetchWeatherData: async (config?: WeatherApiConfig, forceRefresh?: boolean): Promise<WeatherStatus> => {
+      const finish = (weatherStatus: WeatherStatus): WeatherStatus => {
+        set({ weatherStatus });
+        return weatherStatus;
+      };
       try {
-        const location = config
-          ? { latitude: config.latitude, longitude: config.longitude }
-          : await get().refreshLocation(forceRefresh);
+        if (!loadCwaApiKey()) return finish('no-key');
+        const location = config ?? await get().refreshLocation(forceRefresh);
         if (!location) {
           logger.error('[Weather] 无可用位置信息，跳过天气获取');
-          return;
+          return finish('error');
         }
-        const weather = await fetchWeather({ latitude: location.latitude, longitude: location.longitude });
+        const weather = await fetchCwaWeather({
+          latitude: location.latitude,
+          longitude: location.longitude,
+          city: location.city,
+          county: location.county,
+          township: location.township,
+          countryCode: location.countryCode,
+        });
         saveWeatherToStorage(weather);
-        set({ weather });
+        set({ weather, weatherStatus: 'ok' });
+        return 'ok';
       } catch (error) {
         logger.error('[Weather] 获取天气数据失败:', error);
+        if (error instanceof CwaError && error.code !== 'network' && error.code !== 'invalid-response') return finish(error.code);
+        return finish('error');
       }
     },
   };

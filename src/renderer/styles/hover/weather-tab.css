@@ -114,3 +114,58 @@
   gap: 8px;
   white-space: nowrap;
 }
+
+.weather-tab-big-temp {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.weather-tab-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.weather-tab-metric {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 64px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(var(--color-text-rgb), 0.08);
+}
+
+.weather-tab-metric-label {
+  font-size: 9px;
+  line-height: 1.2;
+  opacity: 0.55;
+}
+
+.weather-tab-metric-value {
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.weather-tab-empty-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.weather-tab-empty-btn {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border: none;
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--color-island-text);
+  background: rgba(var(--color-text-rgb), 0.16);
+  cursor: pointer;
+}
+
+.weather-tab-empty-btn:hover {
+  background: rgba(var(--color-text-rgb), 0.26);
+}

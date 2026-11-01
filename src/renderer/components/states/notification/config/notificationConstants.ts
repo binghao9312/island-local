@@ -35,6 +35,3 @@ export const UPDATE_SOURCE_STORE_KEY = 'update-source';
 
 /** 设置页打开 Tab 存储键 */
 export const SETTINGS_OPEN_TAB_STORE_KEY = 'settings-open-tab';
-
-/** 天气提醒按钮显式继续启动更新检查，避免界面锁定阻止状态切换。 */
-export const STARTUP_UPDATE_CONTINUE_EVENT = 'updater:startup-continue';

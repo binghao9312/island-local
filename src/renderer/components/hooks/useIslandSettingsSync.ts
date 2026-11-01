@@ -45,7 +45,7 @@ import {
 } from '../config/dynamicIslandConfig';
 import { ISLAND_POSITION_LOCKED_STORE_KEY } from '../../../shared/storeKeys';
 import { ISLAND_AUTO_DIM_ENABLED_STORE_KEY, ISLAND_AUTO_DIM_DELAY_STORE_KEY, DEFAULT_AUTO_DIM_DELAY_SEC } from './useIslandAutoDim';
-import type { IslandBgMediaConfig, UpdateSourceKey } from '../config/dynamicIslandConfig';
+import type { IslandBgMediaConfig } from '../config/dynamicIslandConfig';
 
 interface UseIslandSettingsSyncOptions {
   language: string | undefined;
@@ -179,10 +179,7 @@ export function useIslandSettingsSync(options: UseIslandSettingsSyncOptions): vo
         }
         if (channel === 'notification:show') {
           if (value && typeof value === 'object' && 'title' in (value as object) && 'body' in (value as object)) {
-            setNotificationRef.current(value as NotificationData & {
-              startupUpdateSource?: UpdateSourceKey;
-              startupUpdateResolvedUrl?: string;
-            });
+            setNotificationRef.current(value as NotificationData);
           }
         }
         if (channel === 'island:opacity') {

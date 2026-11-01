@@ -79,3 +79,13 @@ export function formatPrecipitationText(value: number, t: TFunction): string {
 export function formatWindText(value: number, t: TFunction): string {
   return value < 0 ? ` ${t('hover.weather.na', { defaultValue: 'N/A' })}` : `${value}m/s`;
 }
+
+/**
+ * 格式化湿度文本
+ * @param value - 相对湿度（%），非正数表示无数据
+ * @param t - i18n 翻译函数
+ * @returns 格式化后的湿度字符串
+ */
+export function formatHumidityText(value: number | undefined, t: TFunction): string {
+  return typeof value !== 'number' || value <= 0 ? t('hover.weather.na', { defaultValue: 'N/A' }) : `${Math.round(value)}%`;
+}

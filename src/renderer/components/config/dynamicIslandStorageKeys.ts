@@ -37,4 +37,4 @@ export const ISLAND_BG_VIDEO_HW_DECODE_STORE_KEY = 'island-bg-video-hw-decode';
 export const LOCAL_ISLAND_BG_SYNC_EVENT = 'island-bg-local-sync';
 export const UPDATE_SOURCE_STORE_KEY = 'update-source';
 export const UPDATE_AUTO_PROMPT_STORE_KEY = 'update-auto-prompt-enabled';
-export const WEATHER_ALERT_ENABLED_STORE_KEY = 'weather-alert-enabled';
+

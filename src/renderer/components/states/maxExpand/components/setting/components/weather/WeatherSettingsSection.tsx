@@ -28,9 +28,11 @@ import { useState } from 'react';
 import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { WeatherSettingsPageKey } from '../../utils/settingsConfig';
-import type { WeatherLocationPriority, WeatherProvider } from '../../../../../../../store/utils/storage';
-import { SvgIcon } from '../../../../../../../utils/SvgIcon';
+import type { WeatherLocationPriority } from '../../../../../../../store/utils/storage';
 import { SettingsPageNavigation, SettingsPageNavigationToggle } from '../SettingsPageNavigation';
+
+/** CWA 开放资料平台入口，用于申请授权码 */
+const CWA_REGISTER_URL = 'https://opendata.cwa.gov.tw/userLogin';
 
 interface WeatherMessage {
   type: 'error' | 'success';
@@ -53,13 +55,11 @@ interface WeatherSettingsSectionProps {
   saveWeatherLocationSettings: () => Promise<void>;
   weatherLocationConfigMessage: WeatherMessage | null;
   weatherCustomLocationTestMessage: WeatherMessage | null;
-  weatherProviderOptions: Array<{ value: WeatherProvider; label: string }>;
-  weatherPrimaryProvider: WeatherProvider;
-  isProUser: boolean;
-  setWeatherPrimaryProvider: (value: WeatherProvider) => void;
-  saveWeatherProviderConfig: (payload: { primaryProvider: WeatherProvider }) => void;
-  weatherAlertEnabled: boolean;
-  setWeatherAlertEnabled: (value: boolean) => void;
+  cwaApiKeyInput: string;
+  setCwaApiKeyInput: (value: string) => void;
+  cwaApiKeyMessage: WeatherMessage | null;
+  saveCwaApiKeySetting: () => Promise<void>;
+  clearCwaApiKeySetting: () => void;
   weatherSettingsPages: WeatherSettingsPageKey[];
   weatherSettingsPageLabels: Record<WeatherSettingsPageKey, string>;
   setWeatherSettingsPage: (page: WeatherSettingsPageKey) => void;
@@ -77,11 +77,6 @@ export function WeatherSettingsSection(props: WeatherSettingsSectionProps): Reac
     ip: 'settings.weather.options.locationPriority.ip',
     custom: 'settings.weather.options.locationPriority.custom',
   };
-  const providerPriorityKeyMap: Record<WeatherProvider, string> = {
-    'open-meteo': 'settings.weather.options.providerPriority.openMeteo',
-    uapi: 'settings.weather.options.providerPriority.uapi',
-    'qweather-pro': 'settings.weather.options.providerPriority.qweatherPro',
-  };
   const {
     currentWeatherSettingsPageLabel,
     weatherSettingsPage,
@@ -98,13 +93,11 @@ export function WeatherSettingsSection(props: WeatherSettingsSectionProps): Reac
     saveWeatherLocationSettings,
     weatherLocationConfigMessage,
     weatherCustomLocationTestMessage,
-    weatherProviderOptions,
-    weatherPrimaryProvider,
-    isProUser,
-    setWeatherPrimaryProvider,
-    saveWeatherProviderConfig,
-    weatherAlertEnabled,
-    setWeatherAlertEnabled,
+    cwaApiKeyInput,
+    setCwaApiKeyInput,
+    cwaApiKeyMessage,
+    saveCwaApiKeySetting,
+    clearCwaApiKeySetting,
     weatherSettingsPages,
     weatherSettingsPageLabels,
     setWeatherSettingsPage,
@@ -159,7 +152,7 @@ export function WeatherSettingsSection(props: WeatherSettingsSectionProps): Reac
               <div className="settings-card">
                 <div className="settings-card-header">
                   <div className="settings-card-title">{t('settings.weather.customCityTitle', { defaultValue: '自定义城市' })}</div>
-                  <div className="settings-card-subtitle">{t('settings.weather.customCityHint', { defaultValue: '仅在“自定义位置优先”生效，可先测试再保存；支持中文 / 拼音 / 英文。' })}</div>
+                  <div className="settings-card-subtitle">{t('settings.weather.customCityHint', { defaultValue: '仅在“自定义位置优先”生效，可先测试再保存；支持縣市 / 鄉鎮市區名称（台 / 臺 均可）。' })}</div>
                 </div>
                 <div className="settings-hotkey-row">
                   <label className="settings-field" style={{ flex: 1 }}>
@@ -167,7 +160,7 @@ export function WeatherSettingsSection(props: WeatherSettingsSectionProps): Reac
                     <input
                       className="settings-field-input"
                       type="text"
-                      placeholder={t('settings.weather.cityPlaceholder', { defaultValue: '例如：杭州 / Tokyo / New York' })}
+                      placeholder={t('settings.weather.cityPlaceholder', { defaultValue: '例如：台北 / 新北市新店區 / 高雄' })}
                       value={weatherCustomCityInput}
                       onChange={(e) => {
                         setWeatherCustomCityInput(e.target.value);
@@ -195,7 +188,7 @@ export function WeatherSettingsSection(props: WeatherSettingsSectionProps): Reac
                   >
                     {weatherCustomLocationTesting
                       ? t('settings.weather.testing', { defaultValue: '测试中...' })
-                      : t('settings.weather.testCustomLocation', { defaultValue: '测试自定义位置（双接口）' })}
+                      : t('settings.weather.testCustomLocation', { defaultValue: '测试自定义位置（CWA）' })}
                   </button>
                   <button
                     className="settings-hotkey-btn"
@@ -234,83 +227,62 @@ export function WeatherSettingsSection(props: WeatherSettingsSectionProps): Reac
             <div className="settings-cards">
               <div className="settings-card">
                 <div className="settings-card-header">
-                  <div className="settings-card-title">{t('settings.weather.providerPriority.title', { defaultValue: '天气接口优先级' })}</div>
-                  <div className="settings-card-subtitle">{t('settings.weather.providerPriority.hint', { defaultValue: '可选择优先使用 Open-Meteo 或 UAPI，失败时自动切换到另一源' })}</div>
+                  <div className="settings-card-title">{t('settings.weather.cwa.title', { defaultValue: '中央氣象署（CWA）授权码' })}</div>
+                  <div className="settings-card-subtitle">{t('settings.weather.cwa.hint', { defaultValue: '天气数据来自中央氣象署开放资料平台，需要免费授权码。授权码只保存在本机，不会上传。' })}</div>
                 </div>
-                <div className="settings-lyrics-source-options">
-                  {weatherProviderOptions.map((opt) => (
-                    (() => {
-                      const isQweatherPro = opt.value === 'qweather-pro';
-                      const disabled = isQweatherPro && !isProUser;
-                      return (
-                    <button
-                      key={opt.value}
-                      className={`settings-lyrics-source-btn ${weatherPrimaryProvider === opt.value ? 'active' : ''}`}
-                      type="button"
-                      disabled={disabled}
-                      title={disabled ? t('settings.weather.proOnlyHint', { defaultValue: '当前账户不可用' }) : undefined}
-                      onClick={() => {
-                        if (disabled) return;
-                        setWeatherPrimaryProvider(opt.value);
-                        saveWeatherProviderConfig({ primaryProvider: opt.value });
-                      }}
-                    >
-                      {isQweatherPro && (
-                        <span
-                          className="settings-weather-provider-pro-badge"
-                          title={t('settings.weather.proOnlyHint', { defaultValue: '当前账户不可用' })}
-                        >
-                          <img
-                            src={SvgIcon.PRO}
-                            alt="PRO"
-                            width={14}
-                            height={14}
-                          />
-                        </span>
-                      )}
-                      {t(providerPriorityKeyMap[opt.value], { defaultValue: opt.label })}
-                    </button>
-                      );
-                    })()
-                  ))}
-                </div>
-              </div>
-
-              <div className="settings-card">
-                <div className="settings-card-header">
-                  <div className="settings-card-title">{t('settings.weather.alert.title', { defaultValue: '启动天气预警提醒' })}</div>
-                  <div className="settings-card-subtitle">{t('settings.weather.alert.hint', { defaultValue: '应用启动自动检查更新前，先请求和风天气预警并提示；确认关闭后再继续检查更新。' })}</div>
-                </div>
-                <div className="settings-card-inline-row">
-                  <label
-                    className="settings-card-check"
-                    title={!isProUser ? t('settings.weather.proOnlyHint', { defaultValue: '当前账户不可用' }) : undefined}
-                  >
+                <div className="settings-hotkey-row">
+                  <label className="settings-field" style={{ flex: 1 }}>
+                    <span className="settings-field-label">{t('settings.weather.cwa.keyLabel', { defaultValue: 'API 授权码' })}</span>
                     <input
-                      type="checkbox"
-                      checked={weatherAlertEnabled}
-                      disabled={!isProUser}
+                      className="settings-field-input"
+                      type="password"
+                      autoComplete="off"
+                      spellCheck={false}
+                      placeholder={t('settings.weather.cwa.keyPlaceholder', { defaultValue: 'CWA-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX' })}
+                      value={cwaApiKeyInput}
                       onChange={(e) => {
-                        if (!isProUser) return;
-                        setWeatherAlertEnabled(e.target.checked);
+                        setCwaApiKeyInput(e.target.value);
                       }}
                     />
-                    <span
-                      className="settings-weather-provider-pro-badge"
-                      title={t('settings.weather.proOnlyHint', { defaultValue: '当前账户不可用' })}
-                    >
-                      <img
-                        src={SvgIcon.PRO}
-                        alt="PRO"
-                        width={14}
-                        height={14}
-                      />
-                    </span>
-                    {t('settings.weather.alert.enabled', { defaultValue: '开启预警提醒' })}
                   </label>
                 </div>
+                <div className="settings-hotkey-row">
+                  <button
+                    className="settings-hotkey-btn"
+                    type="button"
+                    onClick={() => {
+                      saveCwaApiKeySetting().catch(() => { });
+                    }}
+                  >
+                    {t('settings.weather.cwa.save', { defaultValue: '保存并验证' })}
+                  </button>
+                  <button
+                    className="settings-hotkey-btn"
+                    type="button"
+                    disabled={!cwaApiKeyInput}
+                    onClick={clearCwaApiKeySetting}
+                  >
+                    {t('settings.weather.cwa.clear', { defaultValue: '清除授权码' })}
+                  </button>
+                  <button
+                    className="settings-hotkey-btn"
+                    type="button"
+                    onClick={() => {
+                      window.api?.clipboardOpenUrl?.(CWA_REGISTER_URL)?.catch(() => { });
+                    }}
+                  >
+                    {t('settings.weather.cwa.register', { defaultValue: '前往申请授权码' })}
+                  </button>
+                </div>
+                <div className="settings-music-hint">
+                  {t('settings.weather.cwa.registerHint', { defaultValue: '在 opendata.cwa.gov.tw 注册并登入后，于「取得授权码」页面获取。' })}
+                </div>
+                {cwaApiKeyMessage && (
+                  <div className="settings-music-hint" style={{ color: cwaApiKeyMessage.type === 'error' ? '#ff7f7f' : '#7be495' }}>
+                    {cwaApiKeyMessage.text}
+                  </div>
+                )}
               </div>
-
             </div>
           )}
         </div>
