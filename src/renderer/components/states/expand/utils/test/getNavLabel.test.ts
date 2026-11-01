@@ -68,6 +68,12 @@ describe('getNavLabel', () => {
       expect(t).toHaveBeenCalledWith('expanded.nav.agentUsage', { defaultValue: 'Agent用量' })
     })
 
+    it('should call t with key "expanded.nav.calendar" and defaultValue "日历"', () => {
+      const t = createMockT()
+      getNavLabel('calendar', t)
+      expect(t).toHaveBeenCalledWith('expanded.nav.calendar', { defaultValue: '日历' })
+    })
+
     it('should call t with key "expanded.nav.maxExpand" and defaultValue "最大展开"', () => {
       const t = createMockT()
       getNavLabel('maxExpand', t)

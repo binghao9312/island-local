@@ -668,7 +668,8 @@
       "song": "准备歌曲信息与播放控制。",
       "tools": "准备实用工具与快捷入口。",
       "performanceMonitor": "准备系统性能与硬件状态面板。",
-      "agentUsage": "准备 Agent 用量面板。"
+      "agentUsage": "准备 Agent 用量面板。",
+      "calendar": "准备日历与日程视图。"
     },
     "nav": {
       "hover": "返回",
@@ -677,10 +678,14 @@
       "tools": "工具",
       "performanceMonitor": "性能监控",
       "agentUsage": "Agent用量",
+      "calendar": "日历",
       "maxExpand": "最大展开",
       "switchToPage": "切换到{{label}}页面",
       "previousPage": "上一页",
       "nextPage": "下一页"
+    },
+    "calendar": {
+      "noEvents": "暂无日程安排"
     },
     "agentUsage": {
       "title": "Agent 用量",
@@ -2908,7 +2913,8 @@
           "song": "歌曲",
           "tools": "工具",
           "performanceMonitor": "性能监控",
-          "agentUsage": "Agent用量"
+          "agentUsage": "Agent用量",
+          "calendar": "日历"
         }
       },
       "maxExpandLayout": {

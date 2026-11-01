@@ -668,7 +668,8 @@
       "song": "曲の情報と再生コントロールを準備しています。",
       "tools": "ツールとショートカットを準備しています。",
       "performanceMonitor": "システムパフォーマンスとハードウェアの状態パネルを準備しています。",
-      "agentUsage": "Agent の使用量パネルを準備しています。"
+      "agentUsage": "Agent の使用量パネルを準備しています。",
+      "calendar": "カレンダーと予定を表示する準備をしています。"
     },
     "nav": {
       "hover": "戻る",
@@ -677,10 +678,14 @@
       "tools": "ツール",
       "performanceMonitor": "パフォーマンスモニター",
       "agentUsage": "Agent 使用量",
+      "calendar": "カレンダー",
       "maxExpand": "最大まで展開",
       "switchToPage": "{{label}} ページに切り替え",
       "previousPage": "前のページ",
       "nextPage": "次のページ"
+    },
+    "calendar": {
+      "noEvents": "予定はありません"
     },
     "agentUsage": {
       "title": "Agent 使用量",
@@ -2908,7 +2913,8 @@
           "song": "音楽",
           "tools": "ツール",
           "performanceMonitor": "パフォーマンスモニター",
-          "agentUsage": "Agent 使用量"
+          "agentUsage": "Agent 使用量",
+          "calendar": "カレンダー"
         }
       },
       "maxExpandLayout": {

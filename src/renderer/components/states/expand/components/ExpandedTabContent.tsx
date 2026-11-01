@@ -25,6 +25,7 @@
  */
 
 import { AgentUsageTab } from '../pages/AgentUsageTab';
+import { CalendarTab } from '../pages/CalendarTab';
 import { OverviewTab } from '../pages/OverviewTab';
 import { PerformanceMonitorTab } from '../pages/PerformanceMonitorTab';
 import { SongTab } from '../pages/SongTab';
@@ -49,6 +50,7 @@ export function ExpandedTabContent({ expandTab, slideDir, tabAnimation }: Expand
         {expandTab === 'tools' && <ToolsTab />}
         {expandTab === 'performanceMonitor' && <PerformanceMonitorTab />}
         {expandTab === 'agentUsage' && <AgentUsageTab />}
+        {expandTab === 'calendar' && <CalendarTab />}
       </div>
     </div>
   );

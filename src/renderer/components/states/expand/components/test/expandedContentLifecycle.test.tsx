@@ -180,7 +180,7 @@ describe('展开组件真实配置、状态与启动生命周期', () => {
     resolveMode('integrated');
     await commit();
     store.setState({
-      expandTab: 'agentUsage'
+      expandTab: 'calendar'
     });
     view();
     context.active = false;

@@ -93,6 +93,7 @@ describe('normalizeExpandNavLayoutConfig', () => {
       { id: 'overview', visible: true },
       { id: 'performanceMonitor', visible: true },
       { id: 'agentUsage', visible: true },
+      { id: 'calendar', visible: true },
     ];
     const result = mod.normalizeExpandNavLayoutConfig(input);
     expect(result.map((i) => i.id)).toEqual([
@@ -101,6 +102,7 @@ describe('normalizeExpandNavLayoutConfig', () => {
       'overview',
       'performanceMonitor',
       'agentUsage',
+      'calendar',
     ]);
   });
 

@@ -668,7 +668,8 @@
       "song": "Preparing song information and playback controls.",
       "tools": "Preparing tools and shortcuts.",
       "performanceMonitor": "Preparing system performance and hardware status panels.",
-      "agentUsage": "Preparing the Agent usage panel."
+      "agentUsage": "Preparing the Agent usage panel.",
+      "calendar": "Preparing calendar and schedule view."
     },
     "nav": {
       "hover": "Back",
@@ -677,10 +678,14 @@
       "tools": "Tools",
       "performanceMonitor": "Performance Monitor",
       "agentUsage": "Agent Usage",
+      "calendar": "Calendar",
       "maxExpand": "Max Expand",
       "switchToPage": "Switch to {{label}} page",
       "previousPage": "Previous page",
       "nextPage": "Next page"
+    },
+    "calendar": {
+      "noEvents": "No events scheduled"
     },
     "agentUsage": {
       "title": "Agent Usage",
@@ -2908,7 +2913,8 @@
           "song": "Music",
           "tools": "Tools",
           "performanceMonitor": "Performance Monitor",
-          "agentUsage": "Agent Usage"
+          "agentUsage": "Agent Usage",
+          "calendar": "Calendar"
         }
       },
       "maxExpandLayout": {

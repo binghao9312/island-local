@@ -208,7 +208,7 @@ export interface ExpandNavItem {
 
 export type ExpandNavLayoutConfig = ExpandNavItem[];
 
-export const EXPAND_CONFIGURABLE_TABS: string[] = ['song', 'overview', 'tools', 'performanceMonitor', 'agentUsage'];
+export const EXPAND_CONFIGURABLE_TABS: string[] = ['song', 'overview', 'tools', 'performanceMonitor', 'agentUsage', 'calendar'];
 
 export const EXPAND_ALWAYS_VISIBLE_TABS: Set<string> = new Set<string>(['overview']);
 
@@ -218,6 +218,7 @@ export const EXPAND_TAB_LABELS: Record<string, string> = {
   tools: '工具',
   performanceMonitor: '性能监控',
   agentUsage: 'Agent用量',
+  calendar: '日历',
 };
 
 export const DEFAULT_EXPAND_NAV_LAYOUT: ExpandNavLayoutConfig = EXPAND_CONFIGURABLE_TABS.map((id) => ({ id, visible: true }));

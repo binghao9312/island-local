@@ -41,5 +41,6 @@ export const NAV_DOT_DEFAULT_LABELS: Record<NavDotId, string> = {
   tools: '工具',
   performanceMonitor: '性能监控',
   agentUsage: 'Agent用量',
+  calendar: '日历',
   maxExpand: '最大展开',
 };

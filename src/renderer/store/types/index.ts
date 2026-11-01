@@ -43,7 +43,7 @@ export type IslandShapeMode = 'notch' | 'pill';
 export type HoverTab = 'time' | 'lyrics' | 'weather' | 'expand';
 
 /** Expanded 状态下的子标签页类型 */
-export type ExpandTab = 'hover' | 'overview' | 'song' | 'tools' | 'performanceMonitor' | 'agentUsage';
+export type ExpandTab = 'hover' | 'overview' | 'song' | 'tools' | 'performanceMonitor' | 'agentUsage' | 'calendar';
 
 /** CLI 活动提供方 */
 export type CliProvider = 'claude' | 'codex';

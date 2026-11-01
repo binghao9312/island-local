@@ -1,0 +1,278 @@
+/*
+ * eIsland - A sleek, Apple Dynamic Island inspired floating widget for Windows, built with Electron.
+ * https://github.com/JNTMTMTM/eIsland
+ *
+ * Copyright (C) 2026 JNTMTMTM
+ * Copyright (C) 2026 pyisland.com
+ *
+ * Original author: JNTMTMTM[](https://github.com/JNTMTMTM)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/**
+ * @file expanded-calendar-compact.css
+ * @description 展开面板紧凑日历样式
+ */
+
+.expanded-calendar-compact {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+  padding: 4px 16px 8px;
+  gap: 20px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+/** 左侧大日期 Hero 区 */
+.compact-calendar-hero {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.compact-calendar-hero-day {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-island-text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1.5px;
+}
+
+.compact-calendar-hero-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.compact-calendar-hero-weekday {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-island-text);
+  line-height: 1.2;
+}
+
+.compact-calendar-hero-month {
+  font-size: 11px;
+  color: var(--color-island-text);
+  opacity: 0.65;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.compact-calendar-month-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.compact-calendar-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: none;
+  background: rgba(var(--color-text-rgb), 0.08);
+  color: var(--color-island-text);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease;
+}
+
+.compact-calendar-nav-btn:hover {
+  background: rgba(var(--color-text-rgb), 0.16);
+}
+
+/** 分割线 */
+.compact-calendar-divider {
+  width: 1px;
+  height: 80px;
+  background: rgba(var(--color-text-rgb), 0.12);
+  flex-shrink: 0;
+}
+
+/** 中间月历网格区 */
+.compact-calendar-grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 182px;
+}
+
+.compact-calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 26px);
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.compact-calendar-weekday-header {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-island-text);
+  opacity: 0.5;
+}
+
+.compact-calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 26px);
+  grid-template-rows: repeat(6, 15px);
+  row-gap: 1px;
+}
+
+.compact-calendar-day-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 15px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--color-island-text);
+  font-size: 10px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.12s ease;
+}
+
+.compact-calendar-day-cell:hover {
+  background: rgba(var(--color-text-rgb), 0.12);
+}
+
+.compact-calendar-day-cell.is-outside-month {
+  opacity: 0.25;
+}
+
+/** 今日带圆圈标记 */
+.compact-calendar-day-cell.is-today {
+  box-shadow: inset 0 0 0 1px rgba(var(--color-text-rgb), 0.5);
+  font-weight: 700;
+}
+
+/** 选中日期高亮 */
+.compact-calendar-day-cell.is-selected {
+  background: rgba(var(--color-text-rgb), 0.22);
+  font-weight: 700;
+}
+
+/** 有事件时的指示红点/彩点 */
+.compact-calendar-event-dot {
+  position: absolute;
+  bottom: 1px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--color-primary, #3b82f6);
+}
+
+/** 右侧日程列表区 */
+.compact-calendar-events-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  height: 96px;
+  justify-content: flex-start;
+}
+
+.compact-calendar-events-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-island-text);
+  opacity: 0.7;
+  margin-bottom: 4px;
+  white-space: nowrap;
+}
+
+.compact-calendar-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  max-height: 76px;
+  padding-right: 4px;
+}
+
+.compact-calendar-events-list::-webkit-scrollbar {
+  width: 3px;
+}
+
+.compact-calendar-events-list::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-text-rgb), 0.2);
+  border-radius: 3px;
+}
+
+.compact-calendar-event-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(var(--color-text-rgb), 0.06);
+  font-size: 11px;
+  color: var(--color-island-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.compact-calendar-event-type-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--color-primary, #3b82f6);
+}
+
+.compact-calendar-event-type-dot.holiday {
+  background: #ef4444;
+}
+
+.compact-calendar-event-type-dot.countdown {
+  background: #f59e0b;
+}
+
+.compact-calendar-event-type-dot.todo {
+  background: #10b981;
+}
+
+.compact-calendar-event-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.compact-calendar-no-events {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  font-size: 12px;
+  color: var(--color-island-text);
+  opacity: 0.45;
+}
