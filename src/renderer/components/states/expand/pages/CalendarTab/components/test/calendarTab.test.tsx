@@ -214,21 +214,22 @@ describe('CalendarTab in expanded view', () => {
     });
   });
 
-  it('renders 6 weeks for May 2026 with leading and trailing empty cells and marks today / selected / events', () => {
+  it('folds May 2026 into 5 weeks with the 31st in the first row and marks today / selected / events', () => {
     mockCalendar.selectedDate = new Date(2026, 4, 15);
     mockCalendar.selectedDay = 15;
     mockCalendar.today = new Date(2026, 4, 15);
     const tree = render(CalendarTab);
 
     const grid = nodes(tree, '.compact-calendar-days-grid')[0];
-    expect(grid.props['data-rows']).toBe(6);
+    expect(grid.props['data-rows']).toBe(5);
 
     const allCells = nodes(tree, '.compact-calendar-day-cell');
-    expect(allCells).toHaveLength(42);
+    expect(allCells).toHaveLength(35);
+    // May 1 is Friday; the 31st would start a 6th row, so it moves to the first row's Sunday cell
+    expect(text(allCells[0])).toBe('31');
 
     const emptyCells = nodes(tree, '.is-empty');
-    // May 1 is Friday -> 5 leading empty cells (Sun-Thu); May has 31 days -> 42 - (5 + 31) = 6 trailing empty cells
-    expect(emptyCells).toHaveLength(11);
+    expect(emptyCells).toHaveLength(4);
     emptyCells.forEach((cell) => {
       expect(cell.type).toBe('div');
       expect(text(cell)).toBe('');

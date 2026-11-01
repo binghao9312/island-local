@@ -34,13 +34,11 @@ import {
   getCalendarTimelineEvents,
   getCalendarEventsInYears,
 } from '../../../../maxExpand/components/calendar/utils/calendarTimelineUtils';
-import {
-  getCalendarWeeks,
-  shiftCalendarMonth,
-} from '../../../../maxExpand/components/calendar/utils/calendarUtils';
+import { shiftCalendarMonth } from '../../../../maxExpand/components/calendar/utils/calendarUtils';
 import { getCalendarDateKey } from '../../../../maxExpand/components/calendar/utils/calendarHolidayUtils';
 import { useGoogleCalendar } from '../hooks/useGoogleCalendar';
 import { GoogleEventForm } from './GoogleEventForm';
+import { getCompactCalendarWeeks } from '../utils/compactCalendarWeeks';
 import {
   createEventFormValues,
   getGoogleCalendarWindow,
@@ -156,10 +154,7 @@ export function CalendarTab(): ReactElement {
     [yearEvents, selectedKey],
   );
 
-  const weeks = useMemo(() => {
-    const allWeeks = getCalendarWeeks(selectedDate);
-    return allWeeks.filter((week) => week.some((date) => date.getMonth() === month));
-  }, [selectedDate, month]);
+  const weeks = useMemo(() => getCompactCalendarWeeks(selectedDate), [selectedDate]);
 
   // 本地化星期与月份文案
   const weekdayName = useMemo(() => {
