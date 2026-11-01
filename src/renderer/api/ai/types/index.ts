@@ -33,6 +33,3 @@ export type { FetchAgentPromptRequest } from './FetchAgentPromptRequest';
 export type { FetchAgentPromptResponse } from './FetchAgentPromptResponse';
 export type { CustomDirectAgentRequest } from './CustomDirectAgentRequest';
 export type { OllamaLocalAgentRequest } from './OllamaLocalAgentRequest';
-export type { RealtimeSttEvent, RealtimeSttEventType } from './RealtimeSttEvent';
-export type { RealtimeSttSession } from './RealtimeSttSession';
-export type { StartRealtimeSttRequest } from './StartRealtimeSttRequest';

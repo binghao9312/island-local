@@ -82,7 +82,6 @@ export function useDynamicIslandCoordinator(options: UseDynamicIslandCoordinator
     setLyrics,
     setLyricsTranslation,
     setHoverTab,
-    setAgentVoiceInput,
     timerData,
     setTimerData,
     setNotification,
@@ -235,8 +234,6 @@ export function useDynamicIslandCoordinator(options: UseDynamicIslandCoordinator
     translationLyrics,
     setLyrics,
     setLyricsTranslation,
-    setAgentVoiceInput,
-    setIdle,
   });
 
   useIslandEscapeNavigation({

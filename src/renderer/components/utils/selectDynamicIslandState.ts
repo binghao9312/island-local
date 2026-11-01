@@ -43,7 +43,6 @@ export default function selectDynamicIslandState(store: IIslandStore) {
     setLyrics: store.setLyrics,
     setLyricsTranslation: store.setLyricsTranslation,
     setHoverTab: store.setHoverTab,
-    setAgentVoiceInput: store.setAgentVoiceInput,
     setTimerData: store.setTimerData,
     setNotification: store.setNotification,
     handleNowPlayingUpdate: store.handleNowPlayingUpdate,

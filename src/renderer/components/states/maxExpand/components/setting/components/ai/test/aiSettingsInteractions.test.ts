@@ -20,7 +20,7 @@
 
 /**
  * @file aiSettingsInteractions.test.ts
- * @description AI 设置实际模型请求、头像文件回调、等待状态和 Orb 预览边界回归。
+ * @description AI 设置实际模型请求、头像文件回调、等待状态和公开页名边界回归。
  * @author 鸡哥
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -36,9 +36,6 @@ const local = vi.hoisted(() => ({
 vi.mock('../../../../../../../../api/ai/ollamaLocalAgent', () => ({
   getOllamaModels: local.models,
   detectOllamaBaseUrl: local.detect
-}));
-vi.mock('../../../../../../../components/DynamicIslandAgentInputBall', () => ({
-  LiquidOrbCanvas: () => null
 }));
 vi.mock('react', async (original) => ({
   ...(await original<typeof import('react')>()),
@@ -133,16 +130,13 @@ beforeEach(() => {
       workspaces: [],
       r1pxcAvatar: '',
       ollamaModel: 'qwen:8b',
-      ollamaBaseUrl: ' http://localhost:11434 ',
-      sttOrbEnabled: false,
-      orbColorA: '',
-      orbColorB: ''
+      ollamaBaseUrl: ' http://localhost:11434 '
     },
     setAiConfig: setConfig,
     onAddWorkspace: vi.fn(),
     onRemoveWorkspace: vi.fn(),
     SettingsFieldComponent: () => createElement('input'),
-    aiSettingsPages: ['general', 'r1pxc', 'ollama', 'orb-style'],
+    aiSettingsPages: ['general', 'r1pxc', 'ollama'],
     aiSettingsPageLabels: {},
     setAiSettingsPage: vi.fn(),
     isProUser: true
@@ -469,34 +463,7 @@ describe('头像实际文件和拖放事件', () => {
     expect(select).toHaveBeenCalledTimes(exists ? 3 : 0);
   });
 });
-describe('Orb样式与公开页名边界', () => {
-  it.each(['onReady', 'onError'])('预览%s后移除加载提示', (callback) => {
-    props.aiSettingsPage = 'orb-style';
-    expect(textContent(render())).toContain('settings.ai.orbColorTitle');
-    expect(elements(render()).some((node) => elementProps(node).className === 'settings-orb-preview-loading')).toBe(true);
-    invoke(findElement(render(), (node) => 'uniformOverrides' in elementProps(node)), callback);
-    expect(elements(render()).some((node) => elementProps(node).className === 'settings-orb-preview-loading')).toBe(false);
-  });
-  it('两种颜色输入和重置分别写入对应配置，空颜色使用默认', () => {
-    props.aiSettingsPage = 'orb-style';
-    const colors = elements(render()).filter((node) => node.type === 'input' && elementProps(node).type === 'color');
-    expect(colors.map((node) => elementProps(node).value)).toEqual(['#d86bff', '#f4ff69']);
-    elements(render()).filter((node) => node.type === 'input' && ['text', 'color'].includes(String(elementProps(node).type))).forEach((node) => {
-      invoke(node, 'onChange', {
-        target: {
-          value: '#112233'
-        }
-      });
-    });
-    expect(props.aiConfig.orbColorA).toBe('#112233');
-    expect(props.aiConfig.orbColorB).toBe('#112233');
-    const resets = elements(render()).filter((node) => node.type === 'button' && elementProps(node).title === 'settings.ai.orbColorReset');
-    resets.forEach((node) => {
-      invoke(node, 'onClick');
-    });
-    expect(props.aiConfig.orbColorA).toBe('');
-    expect(props.aiConfig.orbColorB).toBe('');
-  });
+describe('公开页名边界', () => {
   it('损坏公开页名不渲染设置内容，导航开关仍可展开收起', () => {
     props.aiSettingsPage = 'unknown' as Props['aiSettingsPage'];
     expect(elements(render()).some((node) => elementProps(node).className === 'settings-cards')).toBe(false);

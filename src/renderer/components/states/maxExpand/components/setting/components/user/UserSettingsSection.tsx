@@ -25,18 +25,14 @@
  */
 
 import { useShallow } from 'zustand/react/shallow';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ChangeEvent, PointerEvent as ReactPointerEvent, ReactElement } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ChangeEvent, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   closeUserPaymentOrder,
-  deleteImageTranslationHistory,
-  deleteOcrHistory,
   fetchUserPaymentOrders,
   fetchProMonthPricing,
   fetchAgentBalance,
-  fetchImageTranslationHistory,
-  fetchOcrHistory,
   fetchOAuthBindings,
   fetchUserProfile,
   logoutUser,
@@ -47,9 +43,7 @@ import {
   updateUserPassword,
   updateUserProfile,
   uploadUserAvatar,
-  type ImageTranslationHistoryItem,
   type OAuthBindingItem,
-  type OcrHistoryItem,
   type UserPaymentOrderData,
   PAYMENT_ORDERS_DEFAULT_PAGE_SIZE,
 } from '../../../../../../../api/user/userAccountApi';
@@ -82,26 +76,11 @@ import '../../../../../../../styles/settings/modules/cli.css';
 import '../../../../../../../styles/questionnaire/questionnaire.css';
 
 type FeedbackType = 'success' | 'error' | 'info';
-type UserProfilePage = 'info' | 'edit' | 'password' | 'pro' | 'recharge' | 'orders' | 'account' | 'oauth' | 'image-translation' | 'ocr-history' | 'questionnaire';
+type UserProfilePage = 'info' | 'edit' | 'password' | 'pro' | 'recharge' | 'orders' | 'account' | 'oauth' | 'questionnaire';
 
 interface Feedback {
   type: FeedbackType;
   text: string;
-}
-
-interface ImageTranslationPreview {
-  taskId: string;
-  url: string;
-  alt: string;
-}
-
-interface ImageTranslationPreviewDrag {
-  pointerId: number;
-  startX: number;
-  startY: number;
-  originX: number;
-  originY: number;
-  moved: boolean;
 }
 
 type ProfileFeedbackScope = 'profile' | 'password' | 'account';
@@ -111,38 +90,7 @@ interface UserSettingsSectionProps {
 }
 
 const GENDER_VALUES: UserAccountGender[] = ['male', 'female', 'custom', 'undisclosed'];
-const USER_PROFILE_PAGES: UserProfilePage[] = ['info', 'edit', 'password', 'pro', 'recharge', 'orders', 'account', 'oauth', 'image-translation', 'ocr-history', 'questionnaire'];
-const IMAGE_TRANSLATION_PREVIEW_MIN_SCALE = 0.5;
-const IMAGE_TRANSLATION_PREVIEW_MAX_SCALE = 4;
-
-const clampImageTranslationPreviewScale = (value: number): number => {
-  return Math.min(IMAGE_TRANSLATION_PREVIEW_MAX_SCALE, Math.max(IMAGE_TRANSLATION_PREVIEW_MIN_SCALE, value));
-};
-
-const buildImageTranslationDownloadName = (taskId: string, kind: 'source' | 'result', imageUrl: string): string => {
-  let extension = '.jpg';
-  try {
-    const matchedExtension = new URL(imageUrl).pathname.match(/\.(jpe?g|png|webp)$/i)?.[0];
-    if (matchedExtension) extension = matchedExtension.toLowerCase();
-  } catch {
-    // 使用默认扩展名。
-  }
-  return `image-translation-${taskId.slice(0, 8)}-${kind}${extension}`;
-};
-const IMAGE_TRANSLATION_HISTORY_PAGE_SIZE = 5;
-const OCR_HISTORY_PAGE_SIZE = 5;
-
-const buildOcrDownloadName = (id: number, imageUrl: string): string => {
-  let extension = '.jpg';
-  try {
-    const matchedExtension = new URL(imageUrl).pathname.match(/\.(jpe?g|png|webp)$/i)?.[0];
-    if (matchedExtension) extension = matchedExtension.toLowerCase();
-  } catch {
-    // 使用默认扩展名。
-  }
-  return `ocr-${id}-source${extension}`;
-};
-
+const USER_PROFILE_PAGES: UserProfilePage[] = ['info', 'edit', 'password', 'pro', 'recharge', 'orders', 'account', 'oauth', 'questionnaire'];
 const getGenderIcon = (gender: UserAccountGender | null | undefined): string => {
   if (gender === 'male') return SvgIcon.BOY;
   if (gender === 'female') return SvgIcon.GIRL;
@@ -266,31 +214,6 @@ export function UserSettingsSection({ initialProfilePage = 'info' }: UserSetting
   const [oauthUnbindingId, setOauthUnbindingId] = useState<number | null>(null);
   const [oauthFeedback, setOauthFeedback] = useState<{ bindingId: number; feedback: Feedback } | null>(null);
 
-  const [imageTranslationHistory, setImageTranslationHistory] = useState<ImageTranslationHistoryItem[]>([]);
-  const [imageTranslationHistoryPage, setImageTranslationHistoryPage] = useState(1);
-  const [imageTranslationHistoryTotal, setImageTranslationHistoryTotal] = useState(0);
-  const [imageTranslationHistoryTotalPages, setImageTranslationHistoryTotalPages] = useState(0);
-  const [loadingImageTranslationHistory, setLoadingImageTranslationHistory] = useState(false);
-  const [imageTranslationHistoryError, setImageTranslationHistoryError] = useState('');
-  const [imageTranslationPreview, setImageTranslationPreview] = useState<ImageTranslationPreview | null>(null);
-  const [imageTranslationPreviewScale, setImageTranslationPreviewScale] = useState(1);
-  const [imageTranslationPreviewOffset, setImageTranslationPreviewOffset] = useState({ x: 0, y: 0 });
-  const [imageTranslationPreviewDragging, setImageTranslationPreviewDragging] = useState(false);
-  const [imageTranslationDownloadingKey, setImageTranslationDownloadingKey] = useState('');
-  const [imageTranslationRemovingTaskId, setImageTranslationRemovingTaskId] = useState('');
-  const [imageTranslationActionFeedback, setImageTranslationActionFeedback] = useState<{ taskId: string; feedback: Feedback } | null>(null);
-
-  const [ocrHistory, setOcrHistory] = useState<OcrHistoryItem[]>([]);
-  const [ocrHistoryPage, setOcrHistoryPage] = useState(1);
-  const [ocrHistoryTotal, setOcrHistoryTotal] = useState(0);
-  const [ocrHistoryTotalPages, setOcrHistoryTotalPages] = useState(0);
-  const [loadingOcrHistory, setLoadingOcrHistory] = useState(false);
-  const [ocrHistoryError, setOcrHistoryError] = useState('');
-  const [ocrHistoryDownloadingId, setOcrHistoryDownloadingId] = useState<number | null>(null);
-  const [ocrHistoryCopyingId, setOcrHistoryCopyingId] = useState<number | null>(null);
-  const [ocrHistoryRemovingId, setOcrHistoryRemovingId] = useState<number | null>(null);
-  const [ocrHistoryActionFeedback, setOcrHistoryActionFeedback] = useState<{ id: number; feedback: Feedback } | null>(null);
-
   const [questionnaireHistory, setQuestionnaireHistory] = useState<QuestionnaireHistoryItem[]>([]);
   const [loadingQuestionnaireHistory, setLoadingQuestionnaireHistory] = useState(false);
   const [questionnaireHistoryError, setQuestionnaireHistoryError] = useState('');
@@ -321,130 +244,14 @@ export function UserSettingsSection({ initialProfilePage = 'info' }: UserSetting
                   ? '关于账户'
                   : userProfilePage === 'oauth'
                     ? '第三方应用绑定'
-                    : userProfilePage === 'image-translation'
-                      ? '图片翻译'
-                      : userProfilePage === 'ocr-history'
-                        ? 'OCR记录'
-                        : '问卷记录',
+                    : '问卷记录',
   });
 
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
-  const imageTranslationPreviewRef = useRef<HTMLButtonElement | null>(null);
-  const imageTranslationPreviewDragRef = useRef<ImageTranslationPreviewDrag | null>(null);
-  const imageTranslationPreviewScaleRef = useRef(imageTranslationPreviewScale);
-
-  const getImageTranslationStatusLabel = useMemo(() => {
-    return (status: string): string => {
-      const normalized = String(status || '').toUpperCase();
-      if (normalized === 'SUCCEEDED') return t('settings.user.imageTranslation.status.succeeded', { defaultValue: '已完成' });
-      if (normalized === 'FAILED') return t('settings.user.imageTranslation.status.failed', { defaultValue: '失败' });
-      if (normalized === 'PROCESSING') return t('settings.user.imageTranslation.status.processing', { defaultValue: '翻译中' });
-      if (normalized === 'QUEUED') return t('settings.user.imageTranslation.status.queued', { defaultValue: '排队中' });
-      return status || t('settings.user.imageTranslation.status.unknown', { defaultValue: '未知' });
-    };
-  }, [t]);
 
   useEffect(() => {
     setUserProfilePage(initialProfilePage);
   }, [initialProfilePage]);
-
-  useEffect(() => {
-    setImageTranslationPreviewScale(1);
-    setImageTranslationPreviewOffset({ x: 0, y: 0 });
-    setImageTranslationPreviewDragging(false);
-    imageTranslationPreviewDragRef.current = null;
-  }, [imageTranslationPreview]);
-
-  useEffect(() => {
-    imageTranslationPreviewScaleRef.current = imageTranslationPreviewScale;
-  }, [imageTranslationPreviewScale]);
-
-  useEffect(() => {
-    if (!imageTranslationPreview) return;
-    const previewElement = imageTranslationPreviewRef.current;
-    if (!previewElement) return;
-
-    const handleWheel = (event: WheelEvent): void => {
-      event.preventDefault();
-      event.stopPropagation();
-      const zoomFactor = Math.exp(-event.deltaY * 0.0015);
-      const nextScale = clampImageTranslationPreviewScale(
-        Number((imageTranslationPreviewScaleRef.current * zoomFactor).toFixed(3)),
-      );
-      const maxX = Math.max(0, previewElement.clientWidth * (nextScale - 1) / 2);
-      const maxY = Math.max(0, previewElement.clientHeight * (nextScale - 1) / 2);
-      setImageTranslationPreviewScale(nextScale);
-      setImageTranslationPreviewOffset((current) => ({
-        x: Math.min(maxX, Math.max(-maxX, current.x)),
-        y: Math.min(maxY, Math.max(-maxY, current.y)),
-      }));
-    };
-
-    previewElement.addEventListener('wheel', handleWheel, { passive: false });
-    return () => previewElement.removeEventListener('wheel', handleWheel);
-  }, [imageTranslationPreview]);
-
-  const handleImageTranslationPreviewPointerDown = useCallback((event: ReactPointerEvent<HTMLButtonElement>): void => {
-    if (event.button !== 0) return;
-    event.preventDefault();
-    event.stopPropagation();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    imageTranslationPreviewDragRef.current = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      originX: imageTranslationPreviewOffset.x,
-      originY: imageTranslationPreviewOffset.y,
-      moved: false,
-    };
-    setImageTranslationPreviewDragging(true);
-  }, [imageTranslationPreviewOffset]);
-
-  const handleImageTranslationPreviewPointerMove = useCallback((event: ReactPointerEvent<HTMLButtonElement>): void => {
-    const drag = imageTranslationPreviewDragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    event.preventDefault();
-    event.stopPropagation();
-    const deltaX = event.clientX - drag.startX;
-    const deltaY = event.clientY - drag.startY;
-    if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
-      drag.moved = true;
-    }
-    const maxX = Math.max(0, event.currentTarget.clientWidth * (imageTranslationPreviewScale - 1) / 2);
-    const maxY = Math.max(0, event.currentTarget.clientHeight * (imageTranslationPreviewScale - 1) / 2);
-    setImageTranslationPreviewOffset({
-      x: Math.min(maxX, Math.max(-maxX, drag.originX + deltaX)),
-      y: Math.min(maxY, Math.max(-maxY, drag.originY + deltaY)),
-    });
-  }, [imageTranslationPreviewScale]);
-
-  const handleImageTranslationPreviewPointerUp = useCallback((event: ReactPointerEvent<HTMLButtonElement>): void => {
-    const drag = imageTranslationPreviewDragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    event.preventDefault();
-    event.stopPropagation();
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    setImageTranslationPreviewDragging(false);
-  }, []);
-
-  const handleImageTranslationPreviewPointerCancel = useCallback((event: ReactPointerEvent<HTMLButtonElement>): void => {
-    if (imageTranslationPreviewDragRef.current?.pointerId !== event.pointerId) return;
-    imageTranslationPreviewDragRef.current = null;
-    setImageTranslationPreviewDragging(false);
-  }, []);
-
-  const handleImageTranslationPreviewClick = useCallback((event: ReactPointerEvent<HTMLButtonElement>): void => {
-    const drag = imageTranslationPreviewDragRef.current;
-    imageTranslationPreviewDragRef.current = null;
-    if (drag?.moved) {
-      event.preventDefault();
-      event.stopPropagation();
-      return;
-    }
-    setImageTranslationPreview(null);
-  }, []);
 
   const resetToLoggedOut = useCallback((): void => {
     clearLocalAccount();
@@ -740,63 +547,6 @@ export function UserSettingsSection({ initialProfilePage = 'info' }: UserSetting
     }
   }, [loadRemoteProfile, resetToLoggedOut, t, token]);
 
-  const loadImageTranslationHistory = useCallback(async (page: number): Promise<void> => {
-    if (!token) {
-      setImageTranslationHistory([]);
-      setImageTranslationHistoryPage(1);
-      setImageTranslationHistoryTotal(0);
-      setImageTranslationHistoryTotalPages(0);
-      setLoadingImageTranslationHistory(false);
-      setImageTranslationHistoryError('');
-      return;
-    }
-    setLoadingImageTranslationHistory(true);
-    setImageTranslationHistoryError('');
-    setImageTranslationPreview(null);
-    const result = await fetchImageTranslationHistory(token, page, IMAGE_TRANSLATION_HISTORY_PAGE_SIZE);
-    setLoadingImageTranslationHistory(false);
-    if (!result.ok || !result.data || !Array.isArray(result.data.items)) {
-      if (result.code === 401 || result.code === 4011) {
-        resetToLoggedOut();
-        return;
-      }
-      setImageTranslationHistoryError(result.message || t('settings.user.imageTranslation.loadFailed', { defaultValue: '加载图片翻译记录失败' }));
-      return;
-    }
-    setImageTranslationHistory(result.data.items);
-    setImageTranslationHistoryPage(result.data.page);
-    setImageTranslationHistoryTotal(result.data.total);
-    setImageTranslationHistoryTotalPages(result.data.totalPages);
-  }, [resetToLoggedOut, t, token]);
-
-  const loadOcrHistory = useCallback(async (page: number): Promise<void> => {
-    if (!token) {
-      setOcrHistory([]);
-      setOcrHistoryPage(1);
-      setOcrHistoryTotal(0);
-      setOcrHistoryTotalPages(0);
-      setLoadingOcrHistory(false);
-      setOcrHistoryError('');
-      return;
-    }
-    setLoadingOcrHistory(true);
-    setOcrHistoryError('');
-    const result = await fetchOcrHistory(token, page, OCR_HISTORY_PAGE_SIZE);
-    setLoadingOcrHistory(false);
-    if (!result.ok || !result.data || !Array.isArray(result.data.items)) {
-      if (result.code === 401 || result.code === 4011) {
-        resetToLoggedOut();
-        return;
-      }
-      setOcrHistoryError(result.message || t('settings.user.ocrHistory.loadFailed', { defaultValue: '加载 OCR 历史记录失败' }));
-      return;
-    }
-    setOcrHistory(result.data.items);
-    setOcrHistoryPage(result.data.page);
-    setOcrHistoryTotal(result.data.total);
-    setOcrHistoryTotalPages(result.data.totalPages);
-  }, [resetToLoggedOut, t, token]);
-
   const loadQuestionnaireHistory = useCallback(async (): Promise<void> => {
     if (!token) {
       setQuestionnaireHistory([]);
@@ -857,182 +607,12 @@ export function UserSettingsSection({ initialProfilePage = 'info' }: UserSetting
     });
   }, [questionnaireErasingResultId, questionnaireReminder.reload, resetToLoggedOut, t, token]);
 
-  const handleDownloadOcrImage = useCallback(async (item: OcrHistoryItem): Promise<void> => {
-    if (!item.sourceUrl || ocrHistoryDownloadingId !== null || ocrHistoryCopyingId !== null || ocrHistoryRemovingId !== null) return;
-    setOcrHistoryDownloadingId(item.id);
-    setOcrHistoryActionFeedback(null);
-    try {
-      const savePath = await window.api.downloadPickSavePath(buildOcrDownloadName(item.id, item.sourceUrl));
-      if (!savePath) return;
-      const result = await window.api.downloadStart({ url: item.sourceUrl, savePath, threads: 4 });
-      setOcrHistoryActionFeedback({
-        id: item.id,
-        feedback: result.ok
-          ? { type: 'success', text: t('settings.user.ocrHistory.actions.downloadStarted', { defaultValue: '已开始下载' }) }
-          : { type: 'error', text: result.message || t('settings.user.ocrHistory.actions.downloadFailed', { defaultValue: '下载失败' }) },
-      });
-    } catch {
-      setOcrHistoryActionFeedback({
-        id: item.id,
-        feedback: { type: 'error', text: t('settings.user.ocrHistory.actions.downloadFailed', { defaultValue: '下载失败' }) },
-      });
-    } finally {
-      setOcrHistoryDownloadingId(null);
-    }
-  }, [ocrHistoryCopyingId, ocrHistoryDownloadingId, ocrHistoryRemovingId, t]);
-
-  const handleCopyOcrText = useCallback(async (item: OcrHistoryItem): Promise<void> => {
-    if (!item.recognizedText || ocrHistoryDownloadingId !== null || ocrHistoryCopyingId !== null || ocrHistoryRemovingId !== null) return;
-    setOcrHistoryCopyingId(item.id);
-    setOcrHistoryActionFeedback(null);
-    try {
-      await navigator.clipboard.writeText(item.recognizedText);
-      setOcrHistoryActionFeedback({
-        id: item.id,
-        feedback: { type: 'success', text: t('settings.user.ocrHistory.actions.copySuccess', { defaultValue: '文本已复制' }) },
-      });
-    } catch {
-      setOcrHistoryActionFeedback({
-        id: item.id,
-        feedback: { type: 'error', text: t('settings.user.ocrHistory.actions.copyFailed', { defaultValue: '复制文本失败' }) },
-      });
-    } finally {
-      setOcrHistoryCopyingId(null);
-    }
-  }, [ocrHistoryCopyingId, ocrHistoryDownloadingId, ocrHistoryRemovingId, t]);
-
-  const handleRemoveOcrHistory = useCallback(async (item: OcrHistoryItem): Promise<void> => {
-    if (!token || ocrHistoryDownloadingId !== null || ocrHistoryCopyingId !== null || ocrHistoryRemovingId !== null) return;
-    setOcrHistoryRemovingId(item.id);
-    setOcrHistoryActionFeedback(null);
-    const result = await deleteOcrHistory(token, item.id);
-    setOcrHistoryRemovingId(null);
-    if (!result.ok) {
-      if (result.code === 401 || result.code === 4011) {
-        resetToLoggedOut();
-        return;
-      }
-      setOcrHistoryActionFeedback({
-        id: item.id,
-        feedback: { type: 'error', text: result.message || t('settings.user.ocrHistory.actions.removeFailed', { defaultValue: '抹掉记录失败' }) },
-      });
-      return;
-    }
-    if (ocrHistory.length === 1 && ocrHistoryPage > 1) {
-      setOcrHistoryPage((current) => Math.max(1, current - 1));
-      return;
-    }
-    await loadOcrHistory(ocrHistoryPage);
-  }, [
-    loadOcrHistory,
-    ocrHistory.length,
-    ocrHistoryCopyingId,
-    ocrHistoryDownloadingId,
-    ocrHistoryPage,
-    ocrHistoryRemovingId,
-    resetToLoggedOut,
-    t,
-    token,
-  ]);
-
-  const handleDownloadImageTranslationImage = useCallback(async (
-    task: ImageTranslationHistoryItem,
-    kind: 'source' | 'result',
-    imageUrl: string | null,
-  ): Promise<void> => {
-    if (!imageUrl || imageTranslationDownloadingKey) return;
-    const actionKey = `${task.taskId}:${kind}`;
-    setImageTranslationDownloadingKey(actionKey);
-    setImageTranslationActionFeedback(null);
-    try {
-      const savePath = await window.api.downloadPickSavePath(
-        buildImageTranslationDownloadName(task.taskId, kind, imageUrl),
-      );
-      if (!savePath) return;
-      const result = await window.api.downloadStart({ url: imageUrl, savePath, threads: 4 });
-      setImageTranslationActionFeedback({
-        taskId: task.taskId,
-        feedback: result.ok
-          ? { type: 'success', text: t('settings.user.imageTranslation.actions.downloadStarted', { defaultValue: '已开始下载' }) }
-          : { type: 'error', text: result.message || t('settings.user.imageTranslation.actions.downloadFailed', { defaultValue: '下载失败' }) },
-      });
-    } catch {
-      setImageTranslationActionFeedback({
-        taskId: task.taskId,
-        feedback: { type: 'error', text: t('settings.user.imageTranslation.actions.downloadFailed', { defaultValue: '下载失败' }) },
-      });
-    } finally {
-      setImageTranslationDownloadingKey('');
-    }
-  }, [imageTranslationDownloadingKey, t]);
-
-  const handleRemoveImageTranslation = useCallback(async (
-    task: ImageTranslationHistoryItem,
-  ): Promise<void> => {
-    if (!token || imageTranslationRemovingTaskId || imageTranslationDownloadingKey) return;
-    setImageTranslationRemovingTaskId(task.taskId);
-    setImageTranslationActionFeedback(null);
-    const result = await deleteImageTranslationHistory(token, task.taskId);
-    setImageTranslationRemovingTaskId('');
-    if (!result.ok) {
-      if (result.code === 401 || result.code === 4011) {
-        resetToLoggedOut();
-        return;
-      }
-      setImageTranslationActionFeedback({
-        taskId: task.taskId,
-        feedback: {
-          type: 'error',
-          text: result.message || t('settings.user.imageTranslation.actions.removeFailed', { defaultValue: '抹掉图片失败' }),
-        },
-      });
-      return;
-    }
-
-    setImageTranslationPreview((current) => current?.taskId === task.taskId ? null : current);
-    setImageTranslationActionFeedback({
-      taskId: task.taskId,
-      feedback: {
-        type: 'success',
-        text: t('settings.user.imageTranslation.actions.removeSuccess', { defaultValue: '图片及翻译记录已抹掉' }),
-      },
-    });
-    if (imageTranslationHistory.length === 1 && imageTranslationHistoryPage > 1) {
-      setImageTranslationHistoryPage((current) => Math.max(1, current - 1));
-      return;
-    }
-    await loadImageTranslationHistory(imageTranslationHistoryPage);
-  }, [
-    imageTranslationDownloadingKey,
-    imageTranslationHistory.length,
-    imageTranslationHistoryPage,
-    imageTranslationRemovingTaskId,
-    loadImageTranslationHistory,
-    resetToLoggedOut,
-    t,
-    token,
-  ]);
-
   useEffect(() => {
     if (userProfilePage !== 'orders' || !token) {
       return;
     }
     void loadUserOrders(ordersPage);
   }, [loadUserOrders, ordersPage, token, userProfilePage]);
-
-  useEffect(() => {
-    if (userProfilePage !== 'image-translation' || !token) {
-      return;
-    }
-    void loadImageTranslationHistory(imageTranslationHistoryPage);
-  }, [imageTranslationHistoryPage, loadImageTranslationHistory, token, userProfilePage]);
-
-  useEffect(() => {
-    if (userProfilePage !== 'ocr-history' || !token) {
-      return;
-    }
-    void loadOcrHistory(ocrHistoryPage);
-  }, [loadOcrHistory, ocrHistoryPage, token, userProfilePage]);
 
   useEffect(() => {
     if (userProfilePage !== 'questionnaire' || !token) {
@@ -1605,8 +1185,6 @@ export function UserSettingsSection({ initialProfilePage = 'info' }: UserSetting
       { id: 'orders', label: t('settings.user.pages.orders', { defaultValue: '我的订单' }) },
       { id: 'account', label: t('settings.user.pages.account', { defaultValue: '关于账户' }) },
       { id: 'oauth', label: t('settings.user.pages.oauth', { defaultValue: '第三方应用绑定' }) },
-      { id: 'image-translation', label: t('settings.user.pages.image-translation', { defaultValue: '图片翻译' }) },
-      { id: 'ocr-history', label: t('settings.user.pages.ocr-history', { defaultValue: 'OCR记录' }) },
       { id: 'questionnaire', label: t('settings.user.pages.questionnaire', { defaultValue: '问卷记录' }) },
     ];
     const profilePageLabels = Object.fromEntries(
@@ -1759,16 +1337,6 @@ export function UserSettingsSection({ initialProfilePage = 'info' }: UserSetting
               <span className="settings-index-card-title">{t('settings.user.pages.oauth', { defaultValue: '第三方应用绑定' })}</span>
               <span className="settings-index-card-desc">{t('settings.user.infoNav.oauthDesc', { defaultValue: '查看已绑定的第三方登录账号' })}</span>
               <img className="settings-index-card-layout-icon" src={SvgIcon.LINK} alt="" aria-hidden="true" />
-            </button>
-            <button type="button" className="settings-index-card" onClick={() => setUserProfilePage('ocr-history')}>
-              <span className="settings-index-card-title">{t('settings.user.pages.ocr-history', { defaultValue: 'OCR记录' })}</span>
-              <span className="settings-index-card-desc">{t('settings.user.infoNav.ocrDesc', { defaultValue: '查看历史 OCR 文字识别记录' })}</span>
-              <img className="settings-index-card-layout-icon" src={SvgIcon.OCR} alt="" aria-hidden="true" />
-            </button>
-            <button type="button" className="settings-index-card" onClick={() => setUserProfilePage('image-translation')}>
-              <span className="settings-index-card-title">{t('settings.user.pages.image-translation', { defaultValue: '图片翻译' })}</span>
-              <span className="settings-index-card-desc">{t('settings.user.infoNav.imageTranslationDesc', { defaultValue: '查看历史图片翻译记录' })}</span>
-              <img className="settings-index-card-layout-icon" src={SvgIcon.LANGUAGE} alt="" aria-hidden="true" />
             </button>
             <button type="button" className="settings-index-card" onClick={() => setUserProfilePage('questionnaire')}>
               <span className="settings-index-card-title">{t('settings.user.pages.questionnaire', { defaultValue: '问卷记录' })}</span>
@@ -2303,365 +1871,6 @@ export function UserSettingsSection({ initialProfilePage = 'info' }: UserSetting
       </div>
     );
 
-    const renderImageTranslationPage = (): ReactElement => (
-      <div className="settings-user-page-panel settings-user-image-translation-panel">
-        <div className="settings-user-card settings-user-image-translation-head-card">
-          <div className="settings-user-image-translation-head">
-            <div>
-              <div className="settings-user-form-title">{t('settings.user.pages.image-translation', { defaultValue: '图片翻译' })}</div>
-              <div className="settings-user-card-title-hint">
-                {t('settings.user.imageTranslation.subtitle', { defaultValue: '查看原始图片与翻译后的结果图片' })}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {loadingImageTranslationHistory && imageTranslationHistory.length === 0 ? (
-          <UserRecordSkeletonList label={t('settings.user.imageTranslation.loading', { defaultValue: '加载图片翻译记录中…' })} rows={0} media />
-        ) : null}
-
-        {imageTranslationHistoryError ? (
-          <div className="settings-user-feedback settings-user-feedback--error">
-            {imageTranslationHistoryError}
-          </div>
-        ) : null}
-
-        {!loadingImageTranslationHistory && !imageTranslationHistoryError && imageTranslationHistory.length === 0 ? (
-          <div className="settings-user-card settings-user-image-translation-state">
-            {t('settings.user.imageTranslation.empty', { defaultValue: '暂无图片翻译记录' })}
-          </div>
-        ) : null}
-
-        <div className="settings-user-image-translation-list">
-          {imageTranslationHistory.map((task) => {
-            const normalizedStatus = String(task.status || '').toUpperCase();
-            const canRemove = normalizedStatus === 'SUCCEEDED' || normalizedStatus === 'FAILED';
-            const statusClass = normalizedStatus.toLowerCase().replace(/[^a-z0-9-]/g, '') || 'unknown';
-            const sourceLanguage = task.sourceLanguage || 'auto';
-            const targetLanguage = task.targetLanguage || 'zh';
-            const resultUrl = typeof task.resultUrl === 'string' ? task.resultUrl.trim() : '';
-            return (
-              <article key={task.taskId} className="settings-user-card settings-user-image-translation-item">
-                {imageTranslationPreview?.taskId === task.taskId ? (
-                  <button
-                    ref={imageTranslationPreviewRef}
-                    type="button"
-                    className={`settings-user-image-translation-preview${imageTranslationPreviewDragging ? ' is-dragging' : ''}`}
-                    aria-label={t('settings.user.imageTranslation.previewLabel', { defaultValue: '图片预览' })}
-                    onPointerDown={handleImageTranslationPreviewPointerDown}
-                    onPointerMove={handleImageTranslationPreviewPointerMove}
-                    onPointerUp={handleImageTranslationPreviewPointerUp}
-                    onPointerCancel={handleImageTranslationPreviewPointerCancel}
-                    onClick={handleImageTranslationPreviewClick}
-                  >
-                    <img
-                      src={imageTranslationPreview.url}
-                      alt={imageTranslationPreview.alt}
-                      draggable={false}
-                      style={{
-                        transform: `translate3d(${imageTranslationPreviewOffset.x}px, ${imageTranslationPreviewOffset.y}px, 0) scale(${imageTranslationPreviewScale})`,
-                      }}
-                    />
-                  </button>
-                ) : (
-                  <>
-                    <div className="settings-user-image-translation-item-head">
-                      <div className="settings-user-image-translation-meta">
-                        <span className="settings-user-image-translation-language-route">
-                          <span className="settings-user-image-translation-language">
-                            {sourceLanguage.trim().toLowerCase() === 'auto' ? (
-                              <img
-                                className="is-auto"
-                                src={SvgIcon.AI}
-                                alt=""
-                                aria-hidden="true"
-                                draggable={false}
-                              />
-                            ) : null}
-                            <span>{sourceLanguage}</span>
-                          </span>
-                          <span>{t('settings.user.imageTranslation.languageConnector', { defaultValue: '到' })}</span>
-                          <span className="settings-user-image-translation-language">
-                            {targetLanguage.trim().toLowerCase() === 'auto' ? (
-                              <img
-                                className="is-auto"
-                                src={SvgIcon.AI}
-                                alt=""
-                                aria-hidden="true"
-                                draggable={false}
-                              />
-                            ) : null}
-                            <span>{targetLanguage}</span>
-                          </span>
-                        </span>
-                        <span>{formatDateTime(task.createdAt)}</span>
-                      </div>
-                      <span className={`settings-user-image-translation-status settings-user-image-translation-status--${statusClass}`}>
-                        {getImageTranslationStatusLabel(task.status)}
-                      </span>
-                    </div>
-
-                    <div className="settings-user-image-translation-images">
-                      <figure className="settings-user-image-translation-image-card">
-                        <figcaption>{t('settings.user.imageTranslation.sourceImage', { defaultValue: '翻译前' })}</figcaption>
-                        <button
-                          type="button"
-                          className="settings-user-image-translation-image-wrap"
-                          onClick={() => setImageTranslationPreview({
-                            taskId: task.taskId,
-                            url: task.sourceUrl,
-                            alt: t('settings.user.imageTranslation.sourceImageAlt', { defaultValue: '翻译前图片' }),
-                          })}
-                        >
-                          <img
-                            src={task.sourceUrl}
-                            alt={t('settings.user.imageTranslation.sourceImageAlt', { defaultValue: '翻译前图片' })}
-                            loading="lazy"
-                            draggable={false}
-                          />
-                        </button>
-                      </figure>
-
-                      <figure className="settings-user-image-translation-image-card">
-                        <figcaption>{t('settings.user.imageTranslation.resultImage', { defaultValue: '翻译后' })}</figcaption>
-                        {resultUrl ? (
-                          <button
-                            type="button"
-                            className="settings-user-image-translation-image-wrap"
-                            onClick={() => setImageTranslationPreview({
-                              taskId: task.taskId,
-                              url: resultUrl,
-                              alt: t('settings.user.imageTranslation.resultImageAlt', { defaultValue: '翻译后图片' }),
-                            })}
-                          >
-                            <img
-                              src={resultUrl}
-                              alt={t('settings.user.imageTranslation.resultImageAlt', { defaultValue: '翻译后图片' })}
-                              loading="lazy"
-                              draggable={false}
-                            />
-                          </button>
-                        ) : (
-                          <div className="settings-user-image-translation-image-wrap">
-                            <span className="settings-user-image-translation-image-placeholder">
-                              {normalizedStatus === 'FAILED'
-                                ? t('settings.user.imageTranslation.resultUnavailable', { defaultValue: '无可用结果图片' })
-                                : t('settings.user.imageTranslation.resultPending', { defaultValue: '等待翻译结果' })}
-                            </span>
-                          </div>
-                        )}
-                      </figure>
-                    </div>
-
-                    <div className="settings-user-image-translation-actions">
-                      <button
-                        type="button"
-                        className="settings-hotkey-btn"
-                        disabled={Boolean(imageTranslationDownloadingKey) || Boolean(imageTranslationRemovingTaskId)}
-                        onClick={() => void handleDownloadImageTranslationImage(task, 'source', task.sourceUrl)}
-                      >
-                        {imageTranslationDownloadingKey === `${task.taskId}:source`
-                          ? t('settings.user.imageTranslation.actions.downloading', { defaultValue: '下载中…' })
-                          : t('settings.user.imageTranslation.actions.downloadSource', { defaultValue: '下载原始截图' })}
-                      </button>
-                      <button
-                        type="button"
-                        className="settings-hotkey-btn"
-                        disabled={!resultUrl || Boolean(imageTranslationDownloadingKey) || Boolean(imageTranslationRemovingTaskId)}
-                        onClick={() => void handleDownloadImageTranslationImage(task, 'result', resultUrl)}
-                      >
-                        {imageTranslationDownloadingKey === `${task.taskId}:result`
-                          ? t('settings.user.imageTranslation.actions.downloading', { defaultValue: '下载中…' })
-                          : t('settings.user.imageTranslation.actions.downloadResult', { defaultValue: '下载翻译截图' })}
-                      </button>
-                      <button
-                        type="button"
-                        className="settings-hotkey-btn settings-user-image-translation-remove"
-                        disabled={!canRemove || Boolean(imageTranslationRemovingTaskId) || Boolean(imageTranslationDownloadingKey)}
-                        onClick={() => void handleRemoveImageTranslation(task)}
-                      >
-                        {imageTranslationRemovingTaskId === task.taskId
-                          ? t('settings.user.imageTranslation.actions.removing', { defaultValue: '抹掉中…' })
-                          : t('settings.user.imageTranslation.actions.remove', { defaultValue: '抹掉此记录' })}
-                      </button>
-                    </div>
-
-                    {imageTranslationActionFeedback?.taskId === task.taskId
-                      ? renderFeedback(imageTranslationActionFeedback.feedback)
-                      : null}
-
-                    {task.errorMessage ? (
-                      <div className="settings-user-image-translation-error">{task.errorMessage}</div>
-                    ) : null}
-                  </>
-                )}
-              </article>
-            );
-          })}
-        </div>
-
-        {imageTranslationHistoryTotalPages > 0 ? (
-          <nav className="settings-plugin-market-pagination settings-user-image-translation-pagination" aria-label={t('settings.user.imageTranslation.pagination.label', { defaultValue: '图片翻译历史分页' })}>
-            <button
-              type="button"
-              className="settings-hotkey-btn"
-              disabled={loadingImageTranslationHistory || imageTranslationHistoryPage <= 1}
-              onClick={() => setImageTranslationHistoryPage((current) => Math.max(1, current - 1))}
-            >
-              {t('settings.user.imageTranslation.pagination.previous', { defaultValue: '上一页' })}
-            </button>
-            <span className="settings-plugin-market-pagination-text settings-user-image-translation-pagination-summary">
-              {t('settings.user.imageTranslation.pagination.summary', {
-                defaultValue: '第 {{page}} / {{totalPages}} 页，共 {{total}} 条',
-                page: imageTranslationHistoryPage,
-                totalPages: imageTranslationHistoryTotalPages,
-                total: imageTranslationHistoryTotal,
-              })}
-            </span>
-            <button
-              type="button"
-              className="settings-hotkey-btn"
-              disabled={loadingImageTranslationHistory || imageTranslationHistoryPage >= imageTranslationHistoryTotalPages}
-              onClick={() => setImageTranslationHistoryPage((current) => Math.min(imageTranslationHistoryTotalPages, current + 1))}
-            >
-              {t('settings.user.imageTranslation.pagination.next', { defaultValue: '下一页' })}
-            </button>
-          </nav>
-        ) : null}
-      </div>
-    );
-
-    const renderOcrHistoryPage = (): ReactElement => (
-      <div className="settings-user-page-panel settings-user-image-translation-panel settings-user-ocr-history-panel">
-        <div className="settings-user-card settings-user-image-translation-head-card settings-user-ocr-history-head-card">
-          <div className="settings-user-image-translation-head settings-user-ocr-history-head">
-            <div>
-              <div className="settings-user-form-title">{t('settings.user.pages.ocr-history', { defaultValue: 'OCR记录' })}</div>
-              <div className="settings-user-card-title-hint">
-                {t('settings.user.ocrHistory.subtitle', { defaultValue: '查看原始图片与 OCR 识别文本' })}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {loadingOcrHistory && ocrHistory.length === 0 ? (
-          <UserRecordSkeletonList label={t('settings.user.ocrHistory.loading', { defaultValue: '加载 OCR 历史记录中…' })} rows={0} media />
-        ) : null}
-
-        {ocrHistoryError ? (
-          <div className="settings-user-feedback settings-user-feedback--error">
-            {ocrHistoryError}
-          </div>
-        ) : null}
-
-        {!loadingOcrHistory && !ocrHistoryError && ocrHistory.length === 0 ? (
-          <div className="settings-user-card settings-user-image-translation-state">
-            {t('settings.user.ocrHistory.empty', { defaultValue: '暂无 OCR 历史记录' })}
-          </div>
-        ) : null}
-
-        <div className="settings-user-image-translation-list">
-          {ocrHistory.map((item) => (
-            <article key={item.id} className="settings-user-card settings-user-image-translation-item">
-              <div className="settings-user-image-translation-item-head">
-                <div className="settings-user-image-translation-meta">
-                  <span>{t('settings.user.ocrHistory.record', { defaultValue: 'OCR #{{id}}', id: item.id })}</span>
-                  <span>{formatDateTime(item.createdAt)}</span>
-                </div>
-              </div>
-
-              <div className="settings-user-image-translation-images settings-user-ocr-history-content">
-                <figure className="settings-user-image-translation-image-card">
-                  <figcaption>{t('settings.user.ocrHistory.sourceImage', { defaultValue: '原始图片' })}</figcaption>
-                  <div className="settings-user-image-translation-image-wrap">
-                    <img
-                      src={item.sourceUrl}
-                      alt={t('settings.user.ocrHistory.sourceImageAlt', { defaultValue: 'OCR 原始图片' })}
-                      loading="lazy"
-                      draggable={false}
-                    />
-                  </div>
-                </figure>
-
-                <figure className="settings-user-image-translation-image-card">
-                  <figcaption>{t('settings.user.ocrHistory.recognizedText', { defaultValue: '识别文本' })}</figcaption>
-                  <pre className="settings-user-ocr-history-text">
-                    {item.recognizedText || t('settings.user.ocrHistory.emptyText', { defaultValue: '未识别到文本' })}
-                  </pre>
-                </figure>
-              </div>
-
-              <div className="settings-user-image-translation-actions settings-user-ocr-history-actions">
-                <button
-                  type="button"
-                  className="settings-hotkey-btn"
-                  disabled={ocrHistoryDownloadingId !== null || ocrHistoryCopyingId !== null || ocrHistoryRemovingId !== null}
-                  onClick={() => void handleDownloadOcrImage(item)}
-                >
-                  {ocrHistoryDownloadingId === item.id
-                    ? t('settings.user.ocrHistory.actions.downloading', { defaultValue: '下载中…' })
-                    : t('settings.user.ocrHistory.actions.downloadSource', { defaultValue: '下载原图' })}
-                </button>
-                <button
-                  type="button"
-                  className="settings-hotkey-btn"
-                  disabled={!item.recognizedText || ocrHistoryDownloadingId !== null || ocrHistoryCopyingId !== null || ocrHistoryRemovingId !== null}
-                  onClick={() => void handleCopyOcrText(item)}
-                >
-                  {ocrHistoryCopyingId === item.id
-                    ? t('settings.user.ocrHistory.actions.copying', { defaultValue: '复制中…' })
-                    : t('settings.user.ocrHistory.actions.copyText', { defaultValue: '复制所有文本' })}
-                </button>
-                <button
-                  type="button"
-                  className="settings-hotkey-btn settings-user-image-translation-remove"
-                  disabled={ocrHistoryDownloadingId !== null || ocrHistoryCopyingId !== null || ocrHistoryRemovingId !== null}
-                  onClick={() => void handleRemoveOcrHistory(item)}
-                >
-                  {ocrHistoryRemovingId === item.id
-                    ? t('settings.user.ocrHistory.actions.removing', { defaultValue: '抹掉中…' })
-                    : t('settings.user.ocrHistory.actions.remove', { defaultValue: '抹掉此记录' })}
-                </button>
-              </div>
-
-              {ocrHistoryActionFeedback?.id === item.id
-                ? renderFeedback(ocrHistoryActionFeedback.feedback)
-                : null}
-            </article>
-          ))}
-        </div>
-
-        {ocrHistoryTotalPages > 0 ? (
-          <nav className="settings-plugin-market-pagination settings-user-image-translation-pagination" aria-label={t('settings.user.ocrHistory.pagination.label', { defaultValue: 'OCR 历史分页' })}>
-            <button
-              type="button"
-              className="settings-hotkey-btn"
-              disabled={loadingOcrHistory || ocrHistoryPage <= 1}
-              onClick={() => setOcrHistoryPage((current) => Math.max(1, current - 1))}
-            >
-              {t('settings.user.ocrHistory.pagination.previous', { defaultValue: '上一页' })}
-            </button>
-            <span className="settings-plugin-market-pagination-text settings-user-image-translation-pagination-summary">
-              {t('settings.user.ocrHistory.pagination.summary', {
-                defaultValue: '第 {{page}} / {{totalPages}} 页，共 {{total}} 条',
-                page: ocrHistoryPage,
-                totalPages: ocrHistoryTotalPages,
-                total: ocrHistoryTotal,
-              })}
-            </span>
-            <button
-              type="button"
-              className="settings-hotkey-btn"
-              disabled={loadingOcrHistory || ocrHistoryPage >= ocrHistoryTotalPages}
-              onClick={() => setOcrHistoryPage((current) => Math.min(ocrHistoryTotalPages, current + 1))}
-            >
-              {t('settings.user.ocrHistory.pagination.next', { defaultValue: '下一页' })}
-            </button>
-          </nav>
-        ) : null}
-      </div>
-    );
-
     /** 渲染当前用户的问卷提交记录与只读答案。 */
     const renderQuestionnairePage = (): ReactElement => (
       <div className="settings-user-page-panel settings-user-questionnaire-panel">
@@ -2889,8 +2098,6 @@ export function UserSettingsSection({ initialProfilePage = 'info' }: UserSetting
           {userProfilePage === 'orders' && renderOrdersPage()}
           {userProfilePage === 'account' && renderAccountPage()}
           {userProfilePage === 'oauth' && renderOAuthPage()}
-          {userProfilePage === 'image-translation' && renderImageTranslationPage()}
-          {userProfilePage === 'ocr-history' && renderOcrHistoryPage()}
           {userProfilePage === 'questionnaire' && renderQuestionnairePage()}
         </div>
 

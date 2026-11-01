@@ -85,7 +85,6 @@ interface SettingsConfigurationEffectsOptions {
   setOpenClipboardHistoryHotkey: ReturnType<typeof useSettingsShortcuts>['setOpenClipboardHistoryHotkey'];
   setTogglePassthroughHotkey: ReturnType<typeof useSettingsShortcuts>['setTogglePassthroughHotkey'];
   setToggleUiLockHotkey: ReturnType<typeof useSettingsShortcuts>['setToggleUiLockHotkey'];
-  setAgentVoiceInputHotkey: ReturnType<typeof useSettingsShortcuts>['setAgentVoiceInputHotkey'];
   setToggleShapeModeHotkey: ReturnType<typeof useSettingsShortcuts>['setToggleShapeModeHotkey'];
   setAboutVersion: ReturnType<typeof useSettingsNavigation>['setAboutVersion'];
   setUpdateSource: ReturnType<typeof useUpdateSettingsState>['setUpdateSource'];
@@ -136,7 +135,6 @@ export function useSettingsConfigurationEffects(options: SettingsConfigurationEf
     setOpenClipboardHistoryHotkey,
     setTogglePassthroughHotkey,
     setToggleUiLockHotkey,
-    setAgentVoiceInputHotkey,
     setToggleShapeModeHotkey,
     setAboutVersion,
     setUpdateSource,
@@ -335,10 +333,6 @@ export function useSettingsConfigurationEffects(options: SettingsConfigurationEf
     window.api.toggleUiLockHotkeyGet().then((key) => {
       if (cancelled) return;
       setToggleUiLockHotkey(key || '');
-    }).catch(() => { });
-    window.api.agentVoiceInputHotkeyGet().then((key) => {
-      if (cancelled) return;
-      setAgentVoiceInputHotkey(key || '');
     }).catch(() => { });
     window.api.toggleShapeModeHotkeyGet().then((key) => {
       if (cancelled) return;

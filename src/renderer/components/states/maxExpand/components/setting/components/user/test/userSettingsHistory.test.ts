@@ -20,14 +20,14 @@
 
 /**
  * @file userSettingsHistory.test.ts
- * @description 订单、OCR与图片翻译历史、OAuth解绑和问卷历史真实异步操作回归。
+ * @description 订单、OAuth解绑和问卷历史真实异步操作回归。
  * @author 鸡哥
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { elementProps, elements, findElement, textContent } from '../../../../../../../test/elementHarness';
 import { runEffects } from '../../app/components/test/themeHookHarness';
-import { bootUser, cleanupUser, clickUser, mocks, navigateUser, renderUser, settleUser, setupUser, skeletonLabels, transport } from './userSettingsFixture';
+import { bootUser, cleanupUser, clickUser, mocks, renderUser, settleUser, setupUser, skeletonLabels, transport } from './userSettingsFixture';
 const order = {
   outTradeNo: 'order-1',
   productCode: 'PRO_MONTH',
@@ -40,27 +40,6 @@ const order = {
   createdAt: '2026-01-01T00:00:00',
   paidAt: '',
   expireAt: ''
-};
-const image = {
-  id: 1,
-  taskId: 'abcdef12345',
-  username: 'reader',
-  mode: 'image',
-  status: 'SUCCEEDED',
-  sourceLanguage: 'auto',
-  targetLanguage: 'zh',
-  sourceUrl: 'https://host/source.PNG',
-  resultUrl: 'https://host/result.webp',
-  createdAt: '2026-01-01T00:00:00',
-  errorMessage: ''
-};
-const ocr = {
-  id: 1,
-  username: 'reader',
-  sourceUrl: 'https://host/source.JPEG',
-  recognizedText: 'recognized text',
-  providerRequestId: null,
-  createdAt: '2026-01-01T00:00:00'
 };
 const questionnaire = {
   resultId: 1,
@@ -89,18 +68,6 @@ const histories = [{
   item: order,
   prefix: 'orders',
   error: 'settings.user.orders.feedback.loadFailed'
-}, {
-  page: 'image-translation',
-  api: 'fetchImageTranslationHistory',
-  item: image,
-  prefix: 'imageTranslation',
-  error: 'settings.user.imageTranslation.loadFailed'
-}, {
-  page: 'ocr-history',
-  api: 'fetchOcrHistory',
-  item: ocr,
-  prefix: 'ocrHistory',
-  error: 'settings.user.ocrHistory.loadFailed'
 }] as const;
 beforeEach(setupUser);
 afterEach(cleanupUser);
@@ -259,177 +226,6 @@ describe('订单显示、继续支付与关闭', () => {
     await bootUser('orders');
     await clickUser('settings.user.orders.actions.closeOrder');
     expect(elementProps(findElement(renderUser(), (node) => node.type === 'button' && textContent(node) === 'settings.user.orders.pagination.previous')).disabled).toBe(true);
-  });
-});
-describe('OCR和图片翻译下载/复制/抹除', () => {
-  it.each(['ocr-history', 'image-translation'] as const)('%s下载成功、取消、缺省后缀及各失败', async (page) => {
-    const isOcr = page === 'ocr-history';
-    const api = isOcr ? 'fetchOcrHistory' : 'fetchImageTranslationHistory';
-    const base = isOcr ? ocr : image;
-    const prefix = isOcr ? 'ocrHistory' : 'imageTranslation';
-    mocks.api[api].mockResolvedValue({
-      ok: true,
-      data: {
-        items: [base],
-        page: 1,
-        total: 1,
-        totalPages: 1
-      }
-    });
-    await bootUser(page);
-    await clickUser(`settings.user.${prefix}.actions.downloadSource`);
-    expect(transport.downloadPickSavePath).toHaveBeenCalledWith(isOcr ? 'ocr-1-source.jpeg' : 'image-translation-abcdef12-source.png');
-    expect(transport.downloadStart).toHaveBeenCalledWith({
-      url: base.sourceUrl,
-      savePath: 'C:/download/image.jpg',
-      threads: 4
-    });
-    expect(textContent(renderUser())).toContain(`settings.user.${prefix}.actions.downloadStarted`);
-    transport.downloadPickSavePath.mockResolvedValue(null);
-    transport.downloadStart.mockClear();
-    await clickUser(`settings.user.${prefix}.actions.downloadSource`);
-    expect(transport.downloadStart).not.toHaveBeenCalled();
-    transport.downloadPickSavePath.mockResolvedValue('C:/download/image.jpg');
-    transport.downloadStart.mockResolvedValue({
-      ok: false
-    });
-    await clickUser(`settings.user.${prefix}.actions.downloadSource`);
-    expect(textContent(renderUser())).toContain(`settings.user.${prefix}.actions.downloadFailed`);
-    transport.downloadStart.mockResolvedValue({
-      ok: false,
-      message: 'backend failure'
-    });
-    await clickUser(`settings.user.${prefix}.actions.downloadSource`);
-    expect(textContent(renderUser())).toContain('backend failure');
-    transport.downloadPickSavePath.mockRejectedValue(new Error('dialog'));
-    await clickUser(`settings.user.${prefix}.actions.downloadSource`);
-    expect(textContent(renderUser())).toContain(`settings.user.${prefix}.actions.downloadFailed`);
-  });
-  it.each(['https://host/no-extension', 'invalid-url', 'https://host/source.WEBP'])('OCR下载名称%s', async (sourceUrlValue) => {
-    mocks.api.fetchOcrHistory.mockResolvedValue({
-      ok: true,
-      data: {
-        items: [{
-          ...ocr,
-          sourceUrl: sourceUrlValue
-        }],
-        page: 1,
-        total: 1,
-        totalPages: 1
-      }
-    });
-    await bootUser('ocr-history');
-    await clickUser('settings.user.ocrHistory.actions.downloadSource');
-    expect(transport.downloadPickSavePath).toHaveBeenCalledWith(sourceUrlValue.endsWith('WEBP') ? 'ocr-1-source.webp' : 'ocr-1-source.jpg');
-  });
-  it.each(['https://host/no-extension', 'invalid-url', 'https://host/source.JPG'])('翻译结果下载名称%s', async (resultUrlValue) => {
-    mocks.api.fetchImageTranslationHistory.mockResolvedValue({
-      ok: true,
-      data: {
-        items: [{
-          ...image,
-          resultUrl: resultUrlValue
-        }],
-        page: 1,
-        total: 1,
-        totalPages: 1
-      }
-    });
-    await bootUser('image-translation');
-    await clickUser('settings.user.imageTranslation.actions.downloadResult');
-    expect(transport.downloadPickSavePath).toHaveBeenCalledWith(resultUrlValue.endsWith('JPG') ? 'image-translation-abcdef12-result.jpg' : 'image-translation-abcdef12-result.jpg');
-  });
-  it('OCR复制成功、失败、无文本/源图时拒绝动作', async () => {
-    mocks.api.fetchOcrHistory.mockResolvedValue({
-      ok: true,
-      data: {
-        items: [ocr],
-        page: 1,
-        total: 1,
-        totalPages: 1
-      }
-    });
-    await bootUser('ocr-history');
-    await clickUser('settings.user.ocrHistory.actions.copyText');
-    expect(transport.copy).toHaveBeenCalledWith(ocr.recognizedText);
-    expect(textContent(renderUser())).toContain('settings.user.ocrHistory.actions.copySuccess');
-    transport.copy.mockRejectedValue(new Error('denied'));
-    await clickUser('settings.user.ocrHistory.actions.copyText');
-    expect(textContent(renderUser())).toContain('settings.user.ocrHistory.actions.copyFailed');
-    mocks.api.fetchOcrHistory.mockResolvedValue({
-      ok: true,
-      data: {
-        items: [{
-          ...ocr,
-          recognizedText: '',
-          sourceUrl: ''
-        }],
-        page: 1,
-        total: 1,
-        totalPages: 1
-      }
-    });
-    await navigateUser('info');
-    await navigateUser('ocr-history');
-    transport.copy.mockClear();
-    transport.downloadPickSavePath.mockClear();
-    await clickUser('settings.user.ocrHistory.actions.copyText');
-    await clickUser('settings.user.ocrHistory.actions.downloadSource');
-    expect(transport.copy).not.toHaveBeenCalled();
-    expect(transport.downloadPickSavePath).not.toHaveBeenCalled();
-    expect(textContent(renderUser())).toContain('settings.user.ocrHistory.emptyText');
-  });
-  describe.each([{
-    page: 'ocr-history',
-    api: 'fetchOcrHistory',
-    remove: 'deleteOcrHistory',
-    item: ocr,
-    prefix: 'ocrHistory'
-  }, {
-    page: 'image-translation',
-    api: 'fetchImageTranslationHistory',
-    remove: 'deleteImageTranslationHistory',
-    item: image,
-    prefix: 'imageTranslation'
-  }] as const)('$page抹除', ({
-    page: page,
-    api: api,
-    remove: remove,
-    item: item,
-    prefix: prefix
-  }) => {
-    it.each([401, 4011, 500, 200])('抹除响应%s', async (code) => {
-      mocks.api[api].mockResolvedValue({
-        ok: true,
-        data: {
-          items: [item],
-          page: 1,
-          total: 1,
-          totalPages: 1
-        }
-      });
-      await bootUser(page);
-      mocks.api[remove].mockResolvedValue({
-        code,
-        ok: code === 200
-      });
-      await clickUser(`settings.user.${prefix}.actions.remove`);
-      if (code !== 200) expect(textContent(renderUser())).toContain(code === 500 ? `settings.user.${prefix}.actions.removeFailed` : 'settings.user.auth.gotoLogin');else expect(mocks.api[api]).toHaveBeenCalledTimes(2);
-    });
-    it('抹除末页唯一记录后减页', async () => {
-      mocks.api[api].mockResolvedValue({
-        ok: true,
-        data: {
-          items: [item],
-          page: 2,
-          total: 6,
-          totalPages: 2
-        }
-      });
-      await bootUser(page);
-      await clickUser(`settings.user.${prefix}.actions.remove`);
-      expect(elementProps(findElement(renderUser(), (node) => node.type === 'button' && textContent(node) === `settings.user.${prefix}.pagination.previous`)).disabled).toBe(true);
-    });
   });
 });
 describe('第三方绑定和问卷记录', () => {

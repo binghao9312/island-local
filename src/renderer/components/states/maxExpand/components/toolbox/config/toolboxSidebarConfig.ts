@@ -30,7 +30,6 @@ export const TOOLBOX_SIDEBAR_ITEMS: ToolboxSidebarItem[] = [
   { key: 'index', labelKey: 'maxExpand.toolbox.sidebar.index' },
   { key: 'download', labelKey: 'maxExpand.toolbox.sidebar.download' },
   { key: 'software', labelKey: 'maxExpand.toolbox.sidebar.software' },
-  { key: 'translate', labelKey: 'maxExpand.toolbox.sidebar.translate' },
   { key: 'fileService', labelKey: 'maxExpand.toolbox.sidebar.fileService' },
   { key: 'encodingService', labelKey: 'maxExpand.toolbox.sidebar.encodingService' },
   { key: 'networkService', labelKey: 'maxExpand.toolbox.sidebar.networkService' },

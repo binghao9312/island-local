@@ -34,8 +34,6 @@ const { handleMock } = vi.hoisted(() => ({
   handleMock: vi.fn(),
 }));
 
-const { searchMock } = vi.hoisted(() => ({ searchMock: vi.fn() }));
-vi.mock('../../../services/agentWebSearchService', () => ({ default: searchMock }));
 
 const {
   pingOllamaMock,
@@ -77,7 +75,6 @@ describe('agent ipc handlers', () => {
   beforeEach(() => {
     handleHandlers.clear();
     handleMock.mockReset();
-    searchMock.mockReset();
     pingOllamaMock.mockReset();
     listOllamaModelsMock.mockReset();
     detectOllamaBaseUrlMock.mockReset();
@@ -89,12 +86,11 @@ describe('agent ipc handlers', () => {
     });
   });
 
-  it.each(['ollama', 'customDirect'])('routes %s web.search through the authenticated bridge without leaking the login token to the model', async (provider) => {
+  it.each(['ollama', 'customDirect'])('forwards %s tool calls to the local executor without leaking the login token to the model', async (provider) => {
     const localTool = vi.fn().mockResolvedValue({ success: true, result: {}, error: '', durationMs: 0 });
     registerOllamaIpcHandlers({ executeAgentLocalTool: localTool });
     const orchestrate = provider === 'ollama' ? orchestrateOllamaChatMock : orchestrateCustomDirectChatMock;
     orchestrate.mockResolvedValue(undefined);
-    searchMock.mockResolvedValue({ success: true, result: { provider: 'searxng' }, error: '', durationMs: 1 });
     const sender = { isDestroyed: () => false, send: vi.fn(), once: vi.fn(), removeListener: vi.fn() };
     handleHandlers.get(`${provider}:chat:start`)?.({ sender }, 'search-session', {
       token: 'login-token', model: 'fixture', systemPrompt: 'system', userMessage: 'search',
@@ -105,12 +101,6 @@ describe('agent ipc handlers', () => {
       { executeLocalTool: (request: AgentLocalToolRequest) => Promise<AgentLocalToolResult> },
     ][];
     expect(modelRequest).not.toHaveProperty('token');
-    await expect(callbacks.executeLocalTool({ tool: 'web.search', arguments: { query: 'test' } }))
-      .resolves.toMatchObject({ success: true, result: { provider: 'searxng' } });
-    expect(searchMock).toHaveBeenCalledWith('login-token', { query: 'test' }, modelRequest.signal);
-    await callbacks.executeLocalTool({ tool: ' Web.Search ', arguments: { query: 'variant' } });
-    expect(searchMock).toHaveBeenLastCalledWith('login-token', { query: 'variant' }, modelRequest.signal);
-    expect(localTool).not.toHaveBeenCalled();
     await callbacks.executeLocalTool({ tool: 'sys.info', arguments: {} });
     expect(localTool).toHaveBeenCalledWith({ tool: 'sys.info', arguments: {} });
   });

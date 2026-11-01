@@ -27,7 +27,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createElement } from 'react';
 import { AiSettingsSection } from '../AiSettingsSection';
-import { elementProps, elements, findElement, invoke, resetState, rewindState, textContent } from '../../../../../../../test/elementHarness';
+import { elementProps, findElement, invoke, resetState, textContent } from '../../../../../../../test/elementHarness';
 import type { ComponentProps } from 'react';
 /**
  * 构造隔离设置状态和可观察回调的完整配置。
@@ -37,13 +37,13 @@ function makeProps(): ComponentProps<typeof AiSettingsSection> {
   return {
     currentAiSettingsPageLabel: '',
     aiSettingsPage: 'general',
-    aiConfig: { apiKey: '', endpoint: '', model: '', customApiModel: '', workspaces: [], r1pxcAvatar: '', ollamaModel: '', ollamaBaseUrl: '', sttOrbEnabled: false, orbColorA: '', orbColorB: '' },
+    aiConfig: { apiKey: '', endpoint: '', model: '', customApiModel: '', workspaces: [], r1pxcAvatar: '', ollamaModel: '', ollamaBaseUrl: '' },
     setAiConfig: vi.fn(),
     onAddWorkspace: vi.fn(),
     onRemoveWorkspace: vi.fn(),
     SettingsFieldComponent: vi.fn(() => createElement('input')),
     aiSettingsPages: [],
-    aiSettingsPageLabels: { general: 'General', r1pxc: 'Avatar', ollama: 'Local', 'orb-style': 'Orb' },
+    aiSettingsPageLabels: { general: 'General', r1pxc: 'Avatar', ollama: 'Local' },
     setAiSettingsPage: vi.fn(),
     isProUser: false,
   };
@@ -53,7 +53,6 @@ vi.mock('react', async (importOriginal) => ({
   ...(await import('../../../../../../../test/elementHarness')).hookMocks,
 }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { resolvedLanguage: 'en-US', language: 'en-US', changeLanguage: vi.fn(() => Promise.resolve()) } }) }));
-vi.mock('../../../../../../../components/DynamicIslandAgentInputBall', () => ({ LiquidOrbCanvas: vi.fn() }));
 beforeEach(() => {
   vi.clearAllMocks();
   resetState();
@@ -72,21 +71,11 @@ describe('AiSettingsSection', () => {
     invoke(findElement(tree, (n) => elementProps(n).className === 'settings-ai-workspace-remove-btn'), 'onClick');
     expect(props.onRemoveWorkspace).toHaveBeenCalledWith(0);
   });
-  it('clears existing avatar and resets orb color with preview completion', () => {
+  it('clears existing avatar', () => {
     const props = { ...makeProps(), aiSettingsPage: 'r1pxc' as const, aiConfig: { ...makeProps().aiConfig, r1pxcAvatar: 'data:image/png;base64,test' } };
     const avatar = AiSettingsSection(props);
     invoke(findElement(avatar, (n) => n.type === 'button' && textContent(n) === 'settings.ai.r1pxcAvatarClear'), 'onClick');
     expect(props.setAiConfig).toHaveBeenCalledWith({ r1pxcAvatar: '' });
-    resetState();
-    const orbProps = { ...props, aiSettingsPage: 'orb-style' as const, aiConfig: { ...props.aiConfig, orbColorA: '#123456' } };
-    const orb = AiSettingsSection(orbProps);
-    invoke(findElement(orb, (n) => n.type === 'input' && elementProps(n).type === 'checkbox'), 'onChange', { target: { checked: true } });
-    expect(props.setAiConfig).toHaveBeenCalledWith({ sttOrbEnabled: true });
-    invoke(findElement(orb, (n) => elementProps(n).title === 'settings.ai.orbColorReset'), 'onClick');
-    expect(props.setAiConfig).toHaveBeenCalledWith({ orbColorA: '' });
-    invoke(findElement(orb, (n) => 'onReady' in elementProps(n)), 'onReady');
-    rewindState();
-    expect(elements(AiSettingsSection(orbProps)).some((n) => elementProps(n).className === 'settings-orb-preview-loading')).toBe(false);
   });
   it('renders local model fields independently from cloud credentials', () => {
     const props = { ...makeProps(), aiSettingsPage: 'ollama' as const };

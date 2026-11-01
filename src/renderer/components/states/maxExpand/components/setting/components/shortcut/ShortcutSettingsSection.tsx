@@ -118,14 +118,6 @@ interface ShortcutSettingsSectionProps {
   setToggleUiLockHotkeyError: (value: string) => void;
   handleToggleUiLockHotkeyKeyDown: (event: ReactKeyboardEvent<HTMLInputElement>) => void;
   setToggleUiLockHotkey: (value: string) => void;
-  agentVoiceInputHotkeyInputRef: RefObject<HTMLInputElement | null>;
-  agentVoiceInputHotkeyRecording: boolean;
-  agentVoiceInputHotkeyError: string;
-  agentVoiceInputHotkey: string;
-  setAgentVoiceInputHotkeyRecording: (value: boolean) => void;
-  setAgentVoiceInputHotkeyError: (value: string) => void;
-  handleAgentVoiceInputHotkeyKeyDown: (event: ReactKeyboardEvent<HTMLInputElement>) => void;
-  setAgentVoiceInputHotkey: (value: string) => void;
   toggleShapeModeHotkeyInputRef: RefObject<HTMLInputElement | null>;
   toggleShapeModeHotkeyRecording: boolean;
   toggleShapeModeHotkeyError: string;
@@ -243,14 +235,6 @@ export function ShortcutSettingsSection(props: ShortcutSettingsSectionProps): Re
     handleToggleUiLockHotkeyKeyDown,
     setToggleUiLockHotkey,
 
-    agentVoiceInputHotkeyInputRef,
-    agentVoiceInputHotkeyRecording,
-    agentVoiceInputHotkeyError,
-    agentVoiceInputHotkey,
-    setAgentVoiceInputHotkeyRecording,
-    setAgentVoiceInputHotkeyError,
-    handleAgentVoiceInputHotkeyKeyDown,
-    setAgentVoiceInputHotkey,
     toggleShapeModeHotkeyInputRef,
     toggleShapeModeHotkeyRecording,
     toggleShapeModeHotkeyError,
@@ -261,12 +245,11 @@ export function ShortcutSettingsSection(props: ShortcutSettingsSectionProps): Re
     setToggleShapeModeHotkey,
   } = props;
 
-  type ShortcutSettingsPageKey = 'window' | 'display' | 'agent' | 'capture' | 'clipboard' | 'media';
-  const pages: ShortcutSettingsPageKey[] = ['window', 'display', 'agent', 'capture', 'clipboard', 'media'];
+  type ShortcutSettingsPageKey = 'window' | 'display' | 'capture' | 'clipboard' | 'media';
+  const pages: ShortcutSettingsPageKey[] = ['window', 'display', 'capture', 'clipboard', 'media'];
   const pageLabels: Record<ShortcutSettingsPageKey, string> = {
     window: t('settings.shortcut.pages.window', { defaultValue: '窗口控制' }),
     display: t('settings.shortcut.pages.display', { defaultValue: '显示模式' }),
-    agent: t('settings.shortcut.pages.agent', { defaultValue: 'AI' }),
     capture: t('settings.shortcut.pages.capture', { defaultValue: '截图' }),
     clipboard: t('settings.shortcut.pages.clipboard', { defaultValue: '剪贴板' }),
     media: t('settings.shortcut.pages.media', { defaultValue: '媒体控制' }),
@@ -563,43 +546,6 @@ export function ShortcutSettingsSection(props: ShortcutSettingsSectionProps): Re
                 {toggleShapeModeHotkeyError && <div className="settings-hotkey-error">{toggleShapeModeHotkeyError}</div>}
               </div>
 
-            </div>
-          )}
-
-          {shortcutPage === 'agent' && (
-            <div className="settings-cards">
-              <div className="settings-card">
-                <div className="settings-card-header">
-                  <div className="settings-card-title">{t('settings.shortcut.window.agentVoiceInput.title', { defaultValue: 'Agent 语音输入快捷键' })}</div>
-                  <div className="settings-card-subtitle">{t('settings.shortcut.window.agentVoiceInput.hint', { defaultValue: '长按此快捷键将触发 Agent 语音输入，释放后自动关闭' })}</div>
-                </div>
-                <div className="settings-hotkey-row">
-                  <input
-                    ref={agentVoiceInputHotkeyInputRef}
-                    className={`settings-hotkey-input ${agentVoiceInputHotkeyRecording ? 'recording' : ''}${agentVoiceInputHotkeyError ? ' error' : ''}`}
-                    type="text"
-                    readOnly
-                    value={agentVoiceInputHotkeyRecording ? recordingValue : (agentVoiceInputHotkey || notSetValue)}
-                    onFocus={() => { setAgentVoiceInputHotkeyRecording(true); setAgentVoiceInputHotkeyError(''); window.api.hotkeySuspend().catch(() => {}); }}
-                    onBlur={() => { setAgentVoiceInputHotkeyRecording(false); window.api.hotkeyResume().catch(() => {}); }}
-                    onKeyDown={handleAgentVoiceInputHotkeyKeyDown}
-                  />
-                  <button className="settings-hotkey-btn" type="button" onClick={() => { setAgentVoiceInputHotkeyRecording(true); agentVoiceInputHotkeyInputRef.current?.focus(); }}>{agentVoiceInputHotkeyRecording ? recordingBtn : editBtn}</button>
-                  {agentVoiceInputHotkey && (
-                    <button className="settings-hotkey-btn" type="button" onClick={() => {
-                      window.api.agentVoiceInputHotkeySet('').then((ok) => {
-                        if (ok) {
-                          setAgentVoiceInputHotkey('');
-                          setAgentVoiceInputHotkeyError('');
-                          setAgentVoiceInputHotkeyRecording(false);
-                          agentVoiceInputHotkeyInputRef.current?.blur();
-                        }
-                      }).catch(() => {});
-                    }}>{clearBtn}</button>
-                  )}
-                </div>
-                {agentVoiceInputHotkeyError && <div className="settings-hotkey-error">{agentVoiceInputHotkeyError}</div>}
-              </div>
             </div>
           )}
 

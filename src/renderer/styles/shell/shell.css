@@ -82,7 +82,6 @@
 
 .island-shell.shape-pill.notification,
 .island-shell.shape-pill.agent,
-.island-shell.shape-pill.stt,
 .island-shell.shape-pill.cli {
   --shell-pill-radius: 44px;
 
@@ -125,8 +124,7 @@
   height: 416px;
 }
 
-.island-shell.shape-pill.lyrics,
-.island-shell.shape-pill.agentVoiceInput {
+.island-shell.shape-pill.lyrics {
   --shell-pill-radius: 21px;
 
   height: 52px;
@@ -242,8 +240,7 @@
 
 /** idle → notification：弹性横向膨胀 + 纵向伸展 */
 .island-shell.spring-animation.notification.morphing.from-idle,
-.island-shell.spring-animation.agent.morphing.from-idle,
-.island-shell.spring-animation.stt.morphing.from-idle {
+.island-shell.spring-animation.agent.morphing.from-idle {
   animation: shellExpandToNotification var(--shell-morph-duration) cubic-bezier(0.25, 1, 0.45, 1);
 }
 
@@ -257,8 +254,7 @@
 
 /** hover → notification：小幅纵向伸展 */
 .island-shell.spring-animation.notification.morphing.from-hover,
-.island-shell.spring-animation.agent.morphing.from-hover,
-.island-shell.spring-animation.stt.morphing.from-hover {
+.island-shell.spring-animation.agent.morphing.from-hover {
   animation: shellExpandNotifFromHover var(--shell-morph-duration) cubic-bezier(0.25, 1, 0.45, 1);
 }
 
@@ -271,8 +267,7 @@
 
 /** notification → hover：收缩并轻微回弹 */
 .island-shell.spring-animation.hover.morphing.from-notification,
-.island-shell.spring-animation.hover.morphing.from-agent,
-.island-shell.spring-animation.hover.morphing.from-stt {
+.island-shell.spring-animation.hover.morphing.from-agent {
   animation: shellCrossfade var(--shell-morph-duration) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -283,14 +278,13 @@
 }
 
 /** hover → idle：柔和收拢 */
-.island-shell.spring-animation.morphing.from-hover:where(.idle, .minimal, .lyrics, [class~="lyricsTranslation"], [class~="agentVoiceInput"]) {
+.island-shell.spring-animation.morphing.from-hover:where(.idle, .minimal, .lyrics, [class~="lyricsTranslation"]) {
   animation: shellShrinkToIdle var(--shell-morph-duration) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /** notification → idle：横向收拢 */
-.island-shell.spring-animation.morphing.from-notification:where(.idle, .minimal, .lyrics, [class~="lyricsTranslation"], [class~="agentVoiceInput"]),
-.island-shell.spring-animation.morphing.from-agent:where(.idle, .minimal, .lyrics, [class~="lyricsTranslation"], [class~="agentVoiceInput"]),
-.island-shell.spring-animation.morphing.from-stt:where(.idle, .minimal, .lyrics, [class~="lyricsTranslation"], [class~="agentVoiceInput"]) {
+.island-shell.spring-animation.morphing.from-notification:where(.idle, .minimal, .lyrics, [class~="lyricsTranslation"]),
+.island-shell.spring-animation.morphing.from-agent:where(.idle, .minimal, .lyrics, [class~="lyricsTranslation"]) {
   animation: shellShrinkFromNotification var(--shell-morph-duration) cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -453,7 +447,6 @@
 
 .island-shell.notification,
 .island-shell.agent,
-.island-shell.stt,
 .island-shell.cli {
   width: 500px;
   height: 88px;
@@ -469,13 +462,6 @@
 .island-shell.lyricsTranslation {
   width: 500px;
   height: 60px;
-  background: var(--color-island-bg);
-  border-radius: 0 0 22px 22px;
-}
-
-.island-shell.agentVoiceInput {
-  width: 500px;
-  height: 42px;
   background: var(--color-island-bg);
   border-radius: 0 0 22px 22px;
 }

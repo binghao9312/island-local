@@ -656,7 +656,6 @@
       "overview": "准备总览与快捷操作。",
       "song": "准备歌曲信息与播放控制。",
       "tools": "准备实用工具与快捷入口。",
-      "translation": "准备翻译输入与结果面板。",
       "performanceMonitor": "准备系统性能与硬件状态面板。",
       "agentUsage": "准备 Agent 用量面板。"
     },
@@ -665,7 +664,6 @@
       "overview": "总览",
       "song": "歌曲",
       "tools": "工具",
-      "translation": "翻译",
       "performanceMonitor": "性能监控",
       "agentUsage": "Agent用量",
       "maxExpand": "最大展开",
@@ -733,14 +731,6 @@
     },
     "settingsTab": {
       "label": "设置"
-    },
-    "translation": {
-      "title": "快速翻译",
-      "sourceLabel": "源语言",
-      "targetLabel": "目标语言",
-      "inputTitle": "原文",
-      "outputTitle": "译文",
-      "languageAria": "翻译语言选择"
     }
   },
   "toolsTab": {
@@ -1416,28 +1406,11 @@
       "symbolFormat": "请输入带市场前缀的股票代码，例如 SH600519、SZ000651、HK00700 或 USMSFT。"
     }
   },
-  "stt": {
-    "label": "识别结果",
-    "asrQuickAdd": "ASR快速添加",
-    "actions": {
-      "sendToAgent": "发送给Agent",
-      "added": "已添加",
-      "addToMemo": "添加到备忘录",
-      "addTodo": "添加待办",
-      "copied": "已复制",
-      "copy": "复制",
-      "ignore": "忽略"
-    }
-  },
   "agent": {
     "actions": {
       "denyAuth": "不授权",
       "allowAuth": "授权",
       "close": "关闭"
-    },
-    "liquidOrb": {
-      "ariaLabel": "动态液态玻璃球",
-      "loadingLabel": "正在加载液态玻璃球预览"
     }
   },
   "cli": {
@@ -1636,7 +1609,6 @@
         "index": "快速导航",
         "download": "多线程下载",
         "software": "常用软件",
-        "translate": "文本翻译",
         "fileService": "文件服务",
         "encodingService": "编码服务",
         "networkService": "网络服务",
@@ -1673,10 +1645,6 @@
         "software": {
           "label": "常用软件",
           "desc": "快速访问常用软件下载入口与反馈通道。"
-        },
-        "translate": {
-          "label": "文本翻译",
-          "desc": "输入文本并在多语言间进行翻译。"
         },
         "fileService-hash": {
           "label": "文件哈希校验",
@@ -1774,30 +1742,6 @@
           "removeSuccess": "已删除下载记录",
           "removeFailed": "删除下载记录失败",
           "openFolderFailed": "打开文件所在位置失败"
-        }
-      },
-      "translate": {
-        "title": "文本翻译",
-        "subtitle": "由腾讯云提供机器翻译服务",
-        "inputPlaceholder": "输入要翻译的文本…",
-        "outputPlaceholder": "翻译结果将显示在此处",
-        "translateBtn": "翻译",
-        "translating": "翻译中…",
-        "swap": "交换语言",
-        "clear": "清空",
-        "copy": "复制",
-        "loginRequired": "请先登录后再使用翻译服务",
-        "error": "翻译失败，请稍后重试",
-        "lang": {
-          "auto": "自动检测",
-          "zh": "中文",
-          "en": "英语",
-          "ja": "日语",
-          "ko": "韩语",
-          "fr": "法语",
-          "de": "德语",
-          "es": "西班牙语",
-          "ru": "俄语"
         }
       },
       "fileService": {
@@ -2791,7 +2735,6 @@
       "general": "通用配置",
       "r1pxc": "r1pxc Agent",
       "ollama": "Ollama 本地",
-      "orb-style": "Orb 样式",
       "shortcut": "快捷键",
       "user": "用户中心",
       "update": "更新设置",
@@ -2871,8 +2814,7 @@
     "aiPages": {
       "general": "通用配置",
       "r1pxc": "r1pxc Agent",
-      "ollama": "Ollama 本地",
-      "orb-style": "Orb 样式"
+      "ollama": "Ollama 本地"
     },
     "musicPages": {
       "whitelist": "白名单",
@@ -2964,13 +2906,7 @@
         "engineTitle": "截图引擎",
         "engineHint": "选择截图使用的引擎。插件模式支持多显示器截图，JS 模式兼容性更好。",
         "enginePlugin": "插件模式",
-        "engineJs": "JS 模式",
-        "ocrEngineTitle": "OCR 识别方案",
-        "ocrEngineHint": "本地 OCR 使用 Tesseract.js 在设备上识别，不上传图片；服务端 OCR 使用云端识别和计费。",
-        "ocrEngineLocal": "本地 OCR",
-        "ocrEngineServer": "服务端 OCR",
-        "translateTitle": "截图翻译语言",
-        "translateHint": "配置截图翻译的源语言和目标语言。"
+        "engineJs": "JS 模式"
       },
       "notifications": {
         "configChanged": {
@@ -3061,7 +2997,6 @@
           "overview": "总览",
           "song": "歌曲",
           "tools": "工具",
-          "translation": "翻译",
           "performanceMonitor": "性能监控",
           "agentUsage": "Agent用量"
         }
@@ -3655,7 +3590,6 @@
       "pages": {
         "window": "窗口控制",
         "display": "显示模式",
-        "agent": "AI Agent",
         "capture": "截图",
         "clipboard": "剪贴板",
         "media": "媒体控制"
@@ -3699,10 +3633,6 @@
         "toggleUiLock": {
           "title": "切换 UI 状态锁定快捷键",
           "hint": "按下后锁定当前 UI 状态，锁定期间不会因鼠标进入/移出或自动逻辑切换状态，再次按下解锁"
-        },
-        "agentVoiceInput": {
-          "title": "Agent 语音输入快捷键",
-          "hint": "长按此快捷键将触发 Agent 语音输入，释放后自动关闭"
         },
         "toggleShapeMode": {
           "title": "切换形态模式快捷键",
@@ -4011,15 +3941,6 @@
       "r1pxcAvatarClear": "清除头像",
       "r1pxcAvatarFileTypeError": "请选择图片文件（png/jpg/webp 等）",
       "r1pxcAvatarReadError": "头像读取失败，请换一张图片重试",
-      "sttOrbTitle": "STT 界面 Orb",
-      "sttOrbHint": "控制语音输入界面是否显示液态 Orb 动画，关闭后将使用简约指示点代替",
-      "sttOrbToggle": "在 STT 界面启用 Agent Orb",
-      "orbColorTitle": "Orb 颜色自定义",
-      "orbColorHint": "自定义液态 Orb 的主色调，留空则使用默认颜色",
-      "orbColorA": "主色 A",
-      "orbColorB": "主色 B",
-      "orbColorPlaceholder": "留空使用默认，如 #d86bff",
-      "orbColorReset": "重置为默认",
       "pagination": "AI 设置分页"
     },
     "about": {
@@ -4205,8 +4126,6 @@
         "ordersDesc": "查看订单状态、继续支付或主动关闭待支付订单",
         "logoutDesc": "退出当前账号或注销",
         "oauthDesc": "查看已绑定的第三方登录账号",
-        "ocrDesc": "查看历史 OCR 文字识别记录",
-        "imageTranslationDesc": "查看历史图片翻译记录",
         "questionnaireDesc": "查看历史问卷填写记录"
       },
       "pages": {
@@ -4218,8 +4137,6 @@
         "orders": "我的订单",
         "account": "关于账户",
         "oauth": "第三方应用绑定",
-        "image-translation": "图片翻译",
-        "ocr-history": "OCR记录",
         "questionnaire": "问卷记录",
         "switchTo": "切换到{{label}}"
       },
@@ -4244,44 +4161,6 @@
           "unbindFailed": "解除绑定失败"
         }
       },
-      "imageTranslation": {
-        "subtitle": "查看原始图片与翻译后的结果图片",
-        "loading": "加载图片翻译记录中…",
-        "loadFailed": "加载图片翻译记录失败",
-        "empty": "暂无图片翻译记录",
-        "languageConnector": "到",
-        "sourceImage": "翻译前",
-        "sourceImageAlt": "翻译前图片",
-        "resultImage": "翻译后",
-        "resultImageAlt": "翻译后图片",
-        "resultPending": "等待翻译结果",
-        "resultUnavailable": "无可用结果图片",
-        "previewLabel": "图片预览",
-        "actions": {
-          "downloadSource": "下载原始截图",
-          "downloadResult": "下载翻译截图",
-          "downloading": "下载中…",
-          "downloadStarted": "已开始下载",
-          "downloadFailed": "下载失败",
-          "remove": "抹掉此记录",
-          "removing": "抹掉中…",
-          "removeSuccess": "图片及翻译记录已抹掉",
-          "removeFailed": "抹掉图片失败"
-        },
-        "pagination": {
-          "label": "图片翻译历史分页",
-          "previous": "上一页",
-          "next": "下一页",
-          "summary": "第 {{page}} / {{totalPages}} 页，共 {{total}} 条"
-        },
-        "status": {
-          "queued": "排队中",
-          "processing": "翻译中",
-          "succeeded": "已完成",
-          "failed": "失败",
-          "unknown": "未知"
-        }
-      },
       "questionnaire": {
         "subtitle": "查看历史问卷填写记录",
         "loading": "加载问卷记录中…",
@@ -4299,36 +4178,6 @@
         "erasing": "删除中…",
         "eraseSuccess": "问卷提交记录已删除，可重新提交但不会再次获得奖励",
         "eraseFailed": "删除问卷提交记录失败"
-      },
-      "ocrHistory": {
-        "subtitle": "查看原始图片与 OCR 识别文本",
-        "loading": "加载 OCR 历史记录中…",
-        "loadFailed": "加载 OCR 历史记录失败",
-        "empty": "暂无 OCR 历史记录",
-        "record": "OCR #{{id}}",
-        "sourceImage": "原始图片",
-        "sourceImageAlt": "OCR 原始图片",
-        "recognizedText": "识别文本",
-        "emptyText": "未识别到文本",
-        "actions": {
-          "downloadSource": "下载原图",
-          "downloading": "下载中…",
-          "downloadStarted": "已开始下载",
-          "downloadFailed": "下载失败",
-          "copyText": "复制所有文本",
-          "copying": "复制中…",
-          "copySuccess": "文本已复制",
-          "copyFailed": "复制文本失败",
-          "remove": "抹掉此记录",
-          "removing": "抹掉中…",
-          "removeFailed": "抹掉记录失败"
-        },
-        "pagination": {
-          "label": "OCR 历史分页",
-          "previous": "上一页",
-          "next": "下一页",
-          "summary": "第 {{page}} / {{totalPages}} 页，共 {{total}} 条"
-        }
       },
       "recharge": {
         "title": "余额充值",

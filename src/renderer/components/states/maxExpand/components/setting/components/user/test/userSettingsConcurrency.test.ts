@@ -26,29 +26,13 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { elementProps, elements, findElement, invoke, textContent } from '../../../../../../../test/elementHarness';
-import { bootUser, cleanupUser, clickUser, fillInputs, mocks, navigateUser, profile, renderUser, settleUser, setupUser, skeletonLabels, transport } from './userSettingsFixture';
+import { bootUser, cleanupUser, clickUser, fillInputs, mocks, navigateUser, profile, renderUser, settleUser, setupUser, skeletonLabels } from './userSettingsFixture';
 const order = {
   outTradeNo: 'order-1',
   productCode: 'PRO_MONTH',
   amountFen: 1500,
   status: 'PAYING',
   payUrl: 'https://pay'
-};
-const image = {
-  id: 1,
-  taskId: 'task-1',
-  status: 'SUCCEEDED',
-  sourceLanguage: 'auto',
-  targetLanguage: 'zh',
-  sourceUrl: 'https://host/source.png',
-  resultUrl: 'https://host/result.webp',
-  createdAt: ''
-};
-const ocr = {
-  id: 1,
-  sourceUrl: 'https://host/source.jpg',
-  recognizedText: 'Text',
-  createdAt: ''
 };
 const question = {
   resultId: 1,
@@ -245,97 +229,6 @@ describe('异步并发和guard', () => {
     expect(textContent(renderUser())).toContain('settings.user.orders.actions.closing');
     invoke(button('settings.user.orders.actions.closing'), 'onClick');
     expect(mocks.api.closeUserPaymentOrder).toHaveBeenCalledOnce();
-    pending.resolve({
-      ok: true
-    });
-    await settleUser();
-  });
-  it.each(['download', 'copy', 'remove'] as const)('OCR操作%s期间互斥所有记录操作', async (mode) => {
-    mocks.api.fetchOcrHistory.mockResolvedValue({
-      ok: true,
-      data: {
-        items: [ocr],
-        page: 1,
-        total: 1,
-        totalPages: 1
-      }
-    });
-    await bootUser('ocr-history');
-    const pending = deferred();
-    if (mode === 'download') transport.downloadPickSavePath.mockReturnValue(pending.promise as Promise<string | null>);
-    if (mode === 'copy') transport.copy.mockReturnValue(pending.promise as Promise<void>);
-    if (mode === 'remove') mocks.api.deleteOcrHistory.mockReturnValue(pending.promise);
-    const key = {
-      download: 'downloadSource',
-      copy: 'copyText',
-      remove: 'remove'
-    }[mode];
-    invoke(button(`settings.user.ocrHistory.actions.${key}`), 'onClick');
-    expect(textContent(renderUser())).toContain(`settings.user.ocrHistory.actions.${{
-      download: 'downloading',
-      copy: 'copying',
-      remove: 'removing'
-    }[mode]}`);
-    elements(renderUser()).filter((node) => node.type === 'button' && elementProps(node).disabled === true && String(elementProps(node).className).includes('settings-hotkey-btn')).forEach((node) => {
-      invoke(node, 'onClick');
-    });
-    expect(transport.downloadPickSavePath).toHaveBeenCalledTimes(mode === 'download' ? 1 : 0);
-    expect(transport.copy).toHaveBeenCalledTimes(mode === 'copy' ? 1 : 0);
-    expect(mocks.api.deleteOcrHistory).toHaveBeenCalledTimes(mode === 'remove' ? 1 : 0);
-    pending.resolve(mode === 'remove' ? {
-      ok: true
-    } : null);
-    await settleUser();
-  });
-  it('翻译下载期间阻止重复下载和抹除，空结果不下载', async () => {
-    mocks.api.fetchImageTranslationHistory.mockResolvedValue({
-      ok: true,
-      data: {
-        items: [image, {
-          ...image,
-          taskId: 'empty',
-          sourceUrl: '',
-          resultUrl: null
-        }],
-        page: 1,
-        total: 2,
-        totalPages: 1
-      }
-    });
-    await bootUser('image-translation');
-    const empty = findElement(renderUser(), (node) => node.type === 'article' && node.key === 'empty');
-    elements(empty).filter((node) => node.type === 'button' && textContent(node).includes('settings.user.imageTranslation.actions.download')).forEach((node) => {
-      invoke(node, 'onClick');
-    });
-    expect(transport.downloadPickSavePath).not.toHaveBeenCalled();
-    const pending = deferred();
-    transport.downloadPickSavePath.mockReturnValue(pending.promise as Promise<string | null>);
-    invoke(button('settings.user.imageTranslation.actions.downloadSource'), 'onClick');
-    invoke(button('settings.user.imageTranslation.actions.downloading'), 'onClick');
-    invoke(button('settings.user.imageTranslation.actions.remove'), 'onClick');
-    expect(transport.downloadPickSavePath).toHaveBeenCalledOnce();
-    expect(mocks.api.deleteImageTranslationHistory).not.toHaveBeenCalled();
-    pending.resolve(null);
-    await settleUser();
-  });
-  it('翻译抹除期间阻止重复抹除并渲染禁用按钮', async () => {
-    mocks.api.fetchImageTranslationHistory.mockResolvedValue({
-      ok: true,
-      data: {
-        items: [image],
-        page: 1,
-        total: 1,
-        totalPages: 1
-      }
-    });
-    await bootUser('image-translation');
-    const pending = deferred();
-    mocks.api.deleteImageTranslationHistory.mockReturnValue(pending.promise);
-    invoke(button('settings.user.imageTranslation.actions.remove'), 'onClick');
-    expect(textContent(renderUser())).toContain('settings.user.imageTranslation.actions.removing');
-    invoke(button('settings.user.imageTranslation.actions.removing'), 'onClick');
-    expect(mocks.api.deleteImageTranslationHistory).toHaveBeenCalledOnce();
-    expect(elementProps(button('settings.user.imageTranslation.actions.downloadSource')).disabled).toBe(true);
     pending.resolve({
       ok: true
     });

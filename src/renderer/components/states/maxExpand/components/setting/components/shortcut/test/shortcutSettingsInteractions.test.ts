@@ -160,17 +160,6 @@ const bindings = [{
   setError: 'setToggleUiLockHotkeyError',
   api: 'toggleUiLockHotkeySet'
 }, {
-  handler: 'handleAgentVoiceInputHotkeyKeyDown',
-  page: 'agent',
-  value: 'agentVoiceInputHotkey',
-  setValue: 'setAgentVoiceInputHotkey',
-  recording: 'agentVoiceInputHotkeyRecording',
-  error: 'agentVoiceInputHotkeyError',
-  ref: 'agentVoiceInputHotkeyInputRef',
-  setRecording: 'setAgentVoiceInputHotkeyRecording',
-  setError: 'setAgentVoiceInputHotkeyError',
-  api: 'agentVoiceInputHotkeySet'
-}, {
   handler: 'handleToggleShapeModeHotkeyKeyDown',
   page: 'display',
   value: 'toggleShapeModeHotkey',

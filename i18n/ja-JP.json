@@ -656,7 +656,6 @@
       "overview": "概要とクイック操作を準備しています。",
       "song": "曲の情報と再生コントロールを準備しています。",
       "tools": "ツールとショートカットを準備しています。",
-      "translation": "翻訳の入力欄と結果パネルを準備しています。",
       "performanceMonitor": "システムパフォーマンスとハードウェアの状態パネルを準備しています。",
       "agentUsage": "Agent の使用量パネルを準備しています。"
     },
@@ -665,7 +664,6 @@
       "overview": "概要",
       "song": "音楽",
       "tools": "ツール",
-      "translation": "翻訳",
       "performanceMonitor": "パフォーマンスモニター",
       "agentUsage": "Agent 使用量",
       "maxExpand": "最大まで展開",
@@ -733,14 +731,6 @@
     },
     "settingsTab": {
       "label": "設定"
-    },
-    "translation": {
-      "title": "クイック翻訳",
-      "sourceLabel": "翻訳元",
-      "targetLabel": "翻訳先",
-      "inputTitle": "原文",
-      "outputTitle": "翻訳結果",
-      "languageAria": "翻訳言語の選択"
     }
   },
   "toolsTab": {
@@ -1416,28 +1406,11 @@
       "symbolFormat": "SH600519、SZ000651、HK00700、USMSFTなど、市場の接頭辞を含む銘柄コードを入力してください。"
     }
   },
-  "stt": {
-    "label": "認識結果",
-    "asrQuickAdd": "ASRクイック追加",
-    "actions": {
-      "sendToAgent": "エージェントに送信",
-      "added": "追加しました",
-      "addToMemo": "メモに追加",
-      "addTodo": "タスクを追加",
-      "copied": "コピーしました",
-      "copy": "コピー",
-      "ignore": "無視"
-    }
-  },
   "agent": {
     "actions": {
       "denyAuth": "拒否",
       "allowAuth": "許可",
       "close": "閉じる"
-    },
-    "liquidOrb": {
-      "ariaLabel": "動くリキッドガラスの球体",
-      "loadingLabel": "リキッドガラスの球体のプレビューを読み込み中"
     }
   },
   "cli": {
@@ -1636,7 +1609,6 @@
         "index": "ナビゲーション",
         "download": "マルチスレッドダウンロード",
         "software": "ソフトウェア",
-        "translate": "翻訳",
         "fileService": "ファイルツール",
         "encodingService": "エンコードツール",
         "networkService": "ネットワークツール",
@@ -1673,10 +1645,6 @@
         "software": {
           "label": "ソフトウェア",
           "desc": "よく使うソフトウェアのダウンロード先やフィードバック窓口にすばやくアクセスできます。"
-        },
-        "translate": {
-          "label": "テキスト翻訳",
-          "desc": "複数の言語間でテキストを翻訳します。"
         },
         "fileService-hash": {
           "label": "ファイルのハッシュ検証",
@@ -1774,30 +1742,6 @@
           "removeSuccess": "ダウンロードタスクを削除しました",
           "removeFailed": "ダウンロードタスクを削除できませんでした",
           "openFolderFailed": "ファイルの保存先を開けませんでした"
-        }
-      },
-      "translate": {
-        "title": "テキスト翻訳",
-        "subtitle": "Tencent Cloud による機械翻訳",
-        "inputPlaceholder": "翻訳するテキストを入力...",
-        "outputPlaceholder": "ここに翻訳結果が表示されます",
-        "translateBtn": "翻訳",
-        "translating": "翻訳中...",
-        "swap": "言語を入れ替え",
-        "clear": "クリア",
-        "copy": "コピー",
-        "loginRequired": "翻訳を利用するにはログインしてください",
-        "error": "翻訳できませんでした。しばらくしてから再試行してください",
-        "lang": {
-          "auto": "自動検出",
-          "zh": "中国語",
-          "en": "英語",
-          "ja": "日本語",
-          "ko": "韓国語",
-          "fr": "フランス語",
-          "de": "ドイツ語",
-          "es": "スペイン語",
-          "ru": "ロシア語"
         }
       },
       "fileService": {
@@ -2791,7 +2735,6 @@
       "general": "一般",
       "r1pxc": "r1pxc Agent",
       "ollama": "Ollama ローカル",
-      "orb-style": "Orb スタイル",
       "shortcut": "ショートカット",
       "user": "アカウント",
       "update": "更新",
@@ -2871,8 +2814,7 @@
     "aiPages": {
       "general": "一般",
       "r1pxc": "r1pxc Agent",
-      "ollama": "Ollama ローカル",
-      "orb-style": "Orb スタイル"
+      "ollama": "Ollama ローカル"
     },
     "musicPages": {
       "whitelist": "許可リスト",
@@ -2964,13 +2906,7 @@
         "engineTitle": "スクリーンショットエンジン",
         "engineHint": "スクリーンショット用のエンジンを選択します。プラグインモードは複数のディスプレイの撮影に対応し、JS モードは互換性に優れています。",
         "enginePlugin": "プラグインモード",
-        "engineJs": "JS モード",
-        "ocrEngineTitle": "OCR エンジン",
-        "ocrEngineHint": "ローカル OCR は Tesseract.js を使ってデバイス上で認識し、画像をアップロードしません。サーバー OCR はクラウドで認識し、料金が発生します。",
-        "ocrEngineLocal": "ローカル OCR",
-        "ocrEngineServer": "サーバー OCR",
-        "translateTitle": "スクリーンショットの翻訳言語",
-        "translateHint": "スクリーンショットの翻訳元と翻訳先の言語を設定します。"
+        "engineJs": "JS モード"
       },
       "notifications": {
         "configChanged": {
@@ -3061,7 +2997,6 @@
           "overview": "概要",
           "song": "音楽",
           "tools": "ツール",
-          "translation": "翻訳",
           "performanceMonitor": "パフォーマンスモニター",
           "agentUsage": "Agent 使用量"
         }
@@ -3655,7 +3590,6 @@
       "pages": {
         "window": "ウィンドウ操作",
         "display": "表示モード",
-        "agent": "AIエージェント",
         "capture": "スクリーンショット",
         "clipboard": "クリップボード",
         "media": "メディア操作"
@@ -3699,10 +3633,6 @@
         "toggleUiLock": {
           "title": "UI 状態のロック切り替えショートカット",
           "hint": "押すと現在の UI 状態をロックします。ロック中はマウスの出入りや自動処理で状態が変わりません。もう一度押すと解除します"
-        },
-        "agentVoiceInput": {
-          "title": "Agent の音声入力ショートカット",
-          "hint": "長押しすると Agent の音声入力を開始し、離すと自動で閉じます"
         },
         "toggleShapeMode": {
           "title": "形状モードの切り替えショートカット",
@@ -4011,15 +3941,6 @@
       "r1pxcAvatarClear": "アバターを削除",
       "r1pxcAvatarFileTypeError": "画像ファイル（png/jpg/webpなど）を選択してください",
       "r1pxcAvatarReadError": "アバターを読み込めませんでした。別の画像をお試しください",
-      "sttOrbTitle": "STT画面のOrb",
-      "sttOrbHint": "音声入力画面の液体風Orbアニメーションを切り替えます。オフにするとシンプルな点のインジケーターを表示します",
-      "sttOrbToggle": "STT画面でAgent Orbを有効にする",
-      "orbColorTitle": "Orbの色をカスタマイズ",
-      "orbColorHint": "液体風Orbのメインカラーを設定します。空欄の場合は既定の色を使用します",
-      "orbColorA": "カラーA",
-      "orbColorB": "カラーB",
-      "orbColorPlaceholder": "空欄で既定の色を使用、例: #d86bff",
-      "orbColorReset": "既定に戻す",
       "pagination": "AI設定のページ切り替え"
     },
     "about": {
@@ -4205,8 +4126,6 @@
         "ordersDesc": "注文状況の確認、支払いの続行、未払い注文のキャンセルができます",
         "logoutDesc": "ログアウトまたはアカウントを削除します",
         "oauthDesc": "連携済みの外部ログインアカウントを確認します",
-        "ocrDesc": "過去のOCR文字認識履歴を確認します",
-        "imageTranslationDesc": "過去の画像翻訳履歴を確認します",
         "questionnaireDesc": "過去のアンケート回答履歴を確認します"
       },
       "pages": {
@@ -4218,8 +4137,6 @@
         "orders": "注文履歴",
         "account": "アカウント",
         "oauth": "外部アプリ連携",
-        "image-translation": "画像翻訳",
-        "ocr-history": "OCR履歴",
         "questionnaire": "アンケート履歴",
         "switchTo": "{{label}}に切り替え"
       },
@@ -4244,44 +4161,6 @@
           "unbindFailed": "連携の解除に失敗しました"
         }
       },
-      "imageTranslation": {
-        "subtitle": "元の画像と翻訳後の画像を並べて確認できます",
-        "loading": "画像翻訳履歴を読み込み中…",
-        "loadFailed": "画像翻訳履歴の読み込みに失敗しました",
-        "empty": "画像翻訳履歴はありません",
-        "languageConnector": "→",
-        "sourceImage": "翻訳前",
-        "sourceImageAlt": "翻訳前の元画像",
-        "resultImage": "翻訳後",
-        "resultImageAlt": "翻訳結果の画像",
-        "resultPending": "翻訳結果を待機中",
-        "resultUnavailable": "結果画像はありません",
-        "previewLabel": "画像プレビュー",
-        "actions": {
-          "downloadSource": "元画像をダウンロード",
-          "downloadResult": "翻訳画像をダウンロード",
-          "downloading": "ダウンロード中…",
-          "downloadStarted": "ダウンロードを開始しました",
-          "downloadFailed": "ダウンロードに失敗しました",
-          "remove": "履歴を削除",
-          "removing": "削除中…",
-          "removeSuccess": "画像と翻訳履歴を削除しました",
-          "removeFailed": "画像の削除に失敗しました"
-        },
-        "pagination": {
-          "label": "画像翻訳履歴のページ切り替え",
-          "previous": "前へ",
-          "next": "次へ",
-          "summary": "{{page}} / {{totalPages}} ページ、全{{total}}件"
-        },
-        "status": {
-          "queued": "順番待ち",
-          "processing": "翻訳中",
-          "succeeded": "完了",
-          "failed": "失敗",
-          "unknown": "不明"
-        }
-      },
       "questionnaire": {
         "subtitle": "アンケートの回答履歴を確認します",
         "loading": "アンケート履歴を読み込み中…",
@@ -4299,36 +4178,6 @@
         "erasing": "削除中…",
         "eraseSuccess": "アンケートの回答を削除しました。再回答できますが、特典は再付与されません",
         "eraseFailed": "アンケートの回答を削除できませんでした"
-      },
-      "ocrHistory": {
-        "subtitle": "元の画像とOCRで認識したテキストを並べて確認できます",
-        "loading": "OCR履歴を読み込み中…",
-        "loadFailed": "OCR履歴の読み込みに失敗しました",
-        "empty": "OCR履歴はありません",
-        "record": "OCR #{{id}}",
-        "sourceImage": "元画像",
-        "sourceImageAlt": "OCRの元画像",
-        "recognizedText": "認識されたテキスト",
-        "emptyText": "テキストは認識されませんでした",
-        "actions": {
-          "downloadSource": "元画像をダウンロード",
-          "downloading": "ダウンロード中…",
-          "downloadStarted": "ダウンロードを開始しました",
-          "downloadFailed": "ダウンロードに失敗しました",
-          "copyText": "すべてのテキストをコピー",
-          "copying": "コピー中…",
-          "copySuccess": "テキストをコピーしました",
-          "copyFailed": "テキストのコピーに失敗しました",
-          "remove": "履歴を削除",
-          "removing": "削除中…",
-          "removeFailed": "履歴の削除に失敗しました"
-        },
-        "pagination": {
-          "label": "OCR履歴のページ切り替え",
-          "previous": "前へ",
-          "next": "次へ",
-          "summary": "{{page}} / {{totalPages}} ページ、全{{total}}件"
-        }
       },
       "recharge": {
         "title": "残高をチャージ",

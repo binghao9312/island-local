@@ -55,7 +55,7 @@ describe('UserSettingsSection', () => {
     invoke(findElement(tree, (n) => n.type === 'button' && textContent(n) === 'settings.user.auth.gotoRegister'), 'onClick');
     expect(store.setRegister).toHaveBeenCalledOnce();
   });
-  it.each(['info', 'edit', 'password', 'pro', 'recharge', 'orders', 'account', 'oauth', 'image-translation', 'ocr-history', 'questionnaire'] as const)('renders authenticated %s page without starting network effects', (initialProfilePage) => {
+  it.each(['info', 'edit', 'password', 'pro', 'recharge', 'orders', 'account', 'oauth', 'questionnaire'] as const)('renders authenticated %s page without starting network effects', (initialProfilePage) => {
     session.token = 'opaque';
     session.profile = { username: 'reader', nickname: 'Reader', email: 'reader@example.com', gender: 'undisclosed', balance: 0, isPro: false };
     const tree = UserSettingsSection({ initialProfilePage });

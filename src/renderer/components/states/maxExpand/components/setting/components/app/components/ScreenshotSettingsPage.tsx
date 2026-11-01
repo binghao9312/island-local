@@ -24,94 +24,9 @@
  * @author 鸡哥
  */
 
-import { useEffect, useRef, useState, type ReactElement } from 'react';
+import { useEffect, useState, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SvgIcon, ServiceIcon } from '../../../../../../../../utils/SvgIcon';
-import { TRANSLATE_LANGUAGES, TRANSLATE_TARGET_LANGUAGES } from '../../../../tools/config/translateToolConfig';
-import {
-  SCREENSHOT_TRANSLATE_SOURCE_LANG_STORE_KEY,
-  SCREENSHOT_TRANSLATE_TARGET_LANG_STORE_KEY,
-  SCREENSHOT_ENGINE_STORE_KEY,
-  SCREENSHOT_OCR_ENGINE_STORE_KEY,
-} from '../../../config/settingsTabConfig';
-
-/** 翻译语言选项 */
-interface LangOption {
-  readonly code: string;
-  readonly labelKey: string;
-}
-
-/**
- * 翻译语言下拉选择器
- * @param options - 可选语言列表
- * @param value - 当前选中的语言代码
- * @param onChange - 语言变更回调
- */
-function TranslateLangDropdown({
-  options,
-  value,
-  onChange,
-}: {
-  options: readonly LangOption[];
-  value: string;
-  onChange: (code: string) => void;
-}): ReactElement {
-  const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent): void => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    if (open) document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [open]);
-
-  const selected = options.find((o) => o.code === value);
-
-  return (
-    <div className="translate-lang-dropdown" ref={wrapperRef}>
-      <button
-        type="button"
-        className="translate-lang-dropdown-trigger"
-        onClick={() => setOpen((prev) => !prev)}
-      >
-        {value === 'auto' && (
-          <img className="translate-lang-ai-icon" src={SvgIcon.AI} alt="" draggable={false} />
-        )}
-        <span className="translate-lang-dropdown-label">
-          {selected ? t(selected.labelKey) : value}
-        </span>
-        <span className="translate-lang-dropdown-arrow">▾</span>
-      </button>
-      {open && (
-        <div className="translate-lang-dropdown-menu">
-          {options.map((lang) => {
-            return (
-              <button
-                key={lang.code}
-                type="button"
-                className={`translate-lang-dropdown-item ${lang.code === value ? 'active' : ''}`}
-                onClick={() => {
-                  onChange(lang.code);
-                  setOpen(false);
-                }}
-              >
-                {lang.code === 'auto' && (
-                  <img className="translate-lang-ai-icon" src={SvgIcon.AI} alt="" draggable={false} />
-                )}
-                <span>{t(lang.labelKey)}</span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
+import { SCREENSHOT_ENGINE_STORE_KEY } from '../../../config/settingsTabConfig';
 
 /**
  * 渲染截图设置页面
@@ -119,52 +34,22 @@ function TranslateLangDropdown({
  */
 export function ScreenshotSettingsPage(): ReactElement {
   const { t } = useTranslation();
-  const [sourceLang, setSourceLang] = useState('auto');
-  const [targetLang, setTargetLang] = useState('en');
   const [screenshotEngine, setScreenshotEngine] = useState<'plugin' | 'js'>('plugin');
-  const [ocrEngine, setOcrEngine] = useState<'local' | 'server'>('server');
 
   useEffect(() => {
     let cancelled = false;
-    window.api.storeRead(SCREENSHOT_TRANSLATE_SOURCE_LANG_STORE_KEY).then((value) => {
-      if (cancelled || typeof value !== 'string') return;
-      setSourceLang(value);
-    }).catch(() => {});
-    window.api.storeRead(SCREENSHOT_TRANSLATE_TARGET_LANG_STORE_KEY).then((value) => {
-      if (cancelled || typeof value !== 'string') return;
-      setTargetLang(value);
-    }).catch(() => {});
     window.api.storeRead(SCREENSHOT_ENGINE_STORE_KEY).then((value) => {
       if (cancelled) return;
       setScreenshotEngine(value === 'js' ? 'js' : 'plugin');
-    }).catch(() => {});
-    window.api.storeRead(SCREENSHOT_OCR_ENGINE_STORE_KEY).then((value) => {
-      if (cancelled) return;
-      setOcrEngine(value === 'local' ? 'local' : 'server');
     }).catch(() => {});
     return () => {
       cancelled = true;
     };
   }, []);
 
-  const handleSourceLangChange = (code: string): void => {
-    setSourceLang(code);
-    void window.api.storeWrite(SCREENSHOT_TRANSLATE_SOURCE_LANG_STORE_KEY, code);
-  };
-
-  const handleTargetLangChange = (code: string): void => {
-    setTargetLang(code);
-    void window.api.storeWrite(SCREENSHOT_TRANSLATE_TARGET_LANG_STORE_KEY, code);
-  };
-
   const handleScreenshotEngineChange = (engine: 'plugin' | 'js'): void => {
     setScreenshotEngine(engine);
     void window.api.storeWrite(SCREENSHOT_ENGINE_STORE_KEY, engine);
-  };
-
-  const handleOcrEngineChange = (engine: 'local' | 'server'): void => {
-    setOcrEngine(engine);
-    void window.api.storeWrite(SCREENSHOT_OCR_ENGINE_STORE_KEY, engine);
   };
 
   return (
@@ -198,77 +83,6 @@ export function ScreenshotSettingsPage(): ReactElement {
               />
               {t('settings.app.screenshotSettings.engineJs', { defaultValue: 'JS 模式' })}
             </label>
-          </div>
-        </div>
-        <div className="settings-card">
-          <div className="settings-card-header">
-            <div className="settings-card-title">
-              {t('settings.app.screenshotSettings.ocrEngineTitle')}
-            </div>
-            <div className="settings-card-subtitle">
-              {t('settings.app.screenshotSettings.ocrEngineHint')}
-            </div>
-          </div>
-          <div className="settings-card-inline-row">
-            <label className="settings-card-check">
-              <input
-                type="radio"
-                name="screenshot-ocr-engine"
-                checked={ocrEngine === 'local'}
-                onChange={() => { handleOcrEngineChange('local'); }}
-              />
-              {t('settings.app.screenshotSettings.ocrEngineLocal')}
-            </label>
-            <label className="settings-card-check" style={{ whiteSpace: 'nowrap' }}>
-              <input
-                type="radio"
-                name="screenshot-ocr-engine"
-                checked={ocrEngine === 'server'}
-                onChange={() => { handleOcrEngineChange('server'); }}
-              />
-              <img className="settings-inline-icon" src={ServiceIcon.ALIBABACLOUD} alt="" />
-              <img className="settings-inline-icon" src={SvgIcon.PRO} alt="" />
-              {t('settings.app.screenshotSettings.ocrEngineServer')}
-            </label>
-          </div>
-        </div>
-        <div className="settings-card">
-          <div className="settings-card-header">
-            <div className="settings-card-title">
-              {t('settings.app.screenshotSettings.translateTitle', { defaultValue: '截图翻译语言' })}
-            </div>
-            <div className="settings-card-subtitle">
-              {t('settings.app.screenshotSettings.translateHint', { defaultValue: '配置截图翻译的源语言和目标语言。' })}
-            </div>
-          </div>
-          <div className="settings-card-body">
-            <div className="translate-lang-row">
-              <TranslateLangDropdown
-                options={TRANSLATE_LANGUAGES}
-                value={sourceLang}
-                onChange={handleSourceLangChange}
-              />
-              <button
-                className="translate-swap-btn"
-                type="button"
-                onClick={() => {
-                  if (sourceLang === 'auto') return;
-                  const nextSource = targetLang;
-                  const nextTarget = sourceLang;
-                  handleSourceLangChange(nextSource);
-                  handleTargetLangChange(nextTarget);
-                }}
-                disabled={sourceLang === 'auto'}
-                title={t('maxExpand.toolbox.translate.swap')}
-              >
-                <img className="translate-swap-icon" src={SvgIcon.SWITCHING} alt="" draggable={false} />
-              </button>
-              <TranslateLangDropdown
-                options={TRANSLATE_TARGET_LANGUAGES}
-                value={targetLang}
-                onChange={handleTargetLangChange}
-              />
-            </div>
           </div>
         </div>
       </div>

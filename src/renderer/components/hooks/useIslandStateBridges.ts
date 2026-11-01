@@ -40,12 +40,10 @@ interface UseIslandStateBridgesOptions {
   translationLyrics: TranslationLyricsResult | null;
   setLyrics: () => void;
   setLyricsTranslation: () => void;
-  setAgentVoiceInput: () => void;
-  setIdle: (force?: boolean) => void;
 }
 
 /**
- * @description 处理语音输入状态与歌词状态桥接。
+ * @description 处理歌词状态桥接。
  * @param options - 状态桥接配置。
  */
 export function useIslandStateBridges(options: UseIslandStateBridgesOptions): void {
@@ -58,8 +56,6 @@ export function useIslandStateBridges(options: UseIslandStateBridgesOptions): vo
     translationLyrics,
     setLyrics,
     setLyricsTranslation,
-    setAgentVoiceInput,
-    setIdle,
   } = options;
 
   // 桥接只关心是否需要切换歌词页面，不应让每个进度 tick 重渲染整岛。
@@ -85,21 +81,6 @@ export function useIslandStateBridges(options: UseIslandStateBridgesOptions): vo
     window.addEventListener('island:setting-changed', onLocal);
     return () => { unsub(); window.removeEventListener('island:setting-changed', onLocal); };
   }, []);
-
-  useEffect(() => {
-    const unsub = window.api?.onAgentVoiceInputState?.((active: boolean) => {
-      const currentState = state;
-      if (active) {
-        if (currentState === 'expanded' || currentState === 'maxExpand') return;
-        setAgentVoiceInput();
-      } else {
-        if (currentState === 'agentVoiceInput') {
-          setIdle(true);
-        }
-      }
-    });
-    return () => { unsub?.(); };
-  }, [state, setAgentVoiceInput, setIdle]);
 
   useEffect(() => {
     if (!lyricsEnabled) return;

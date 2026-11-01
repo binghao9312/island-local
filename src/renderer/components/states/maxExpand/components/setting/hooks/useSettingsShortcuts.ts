@@ -110,12 +110,6 @@ export function useSettingsShortcuts(options: SettingsShortcutsOptions) {
   const [toggleUiLockHotkeyError, setToggleUiLockHotkeyError] = useState<string>('');
   const toggleUiLockHotkeyInputRef = useRef<HTMLInputElement>(null);
 
-  /** Agent 语音输入快捷键相关状态 */
-  const [agentVoiceInputHotkey, setAgentVoiceInputHotkey] = useState<string>('');
-  const [agentVoiceInputHotkeyRecording, setAgentVoiceInputHotkeyRecording] = useState(false);
-  const [agentVoiceInputHotkeyError, setAgentVoiceInputHotkeyError] = useState<string>('');
-  const agentVoiceInputHotkeyInputRef = useRef<HTMLInputElement>(null);
-
   /** 切换形态模式快捷键相关状态 */
   const [toggleShapeModeHotkey, setToggleShapeModeHotkey] = useState<string>('');
   const [toggleShapeModeHotkeyRecording, setToggleShapeModeHotkeyRecording] = useState(false);
@@ -133,7 +127,6 @@ export function useSettingsShortcuts(options: SettingsShortcutsOptions) {
     { key: 'open-clipboard-history', value: openClipboardHistoryHotkey },
     { key: 'toggle-passthrough', value: togglePassthroughHotkey },
     { key: 'toggle-ui-lock', value: toggleUiLockHotkey },
-    { key: 'agent-voice-input', value: agentVoiceInputHotkey },
     { key: 'toggle-shape-mode', value: toggleShapeModeHotkey },
   ];
 
@@ -395,32 +388,6 @@ export function useSettingsShortcuts(options: SettingsShortcutsOptions) {
     });
   };
 
-  const handleAgentVoiceInputHotkeyKeyDown = (e: KeyboardEvent): void => {
-    e.preventDefault();
-    e.stopPropagation();
-    setAgentVoiceInputHotkeyError('');
-    const acc = keyEventToAccelerator(e);
-    if (!acc) return;
-    if (isDuplicateHotkey(acc, 'agent-voice-input', hotkeyBindings)) {
-      setAgentVoiceInputHotkeyError(t('settings.hotkey.duplicateHotkey', { defaultValue: '重复快捷键' }));
-      setAgentVoiceInputHotkeyRecording(false);
-      agentVoiceInputHotkeyInputRef.current?.blur();
-      return;
-    }
-
-    window.api.agentVoiceInputHotkeySet(acc).then((ok) => {
-      if (ok) {
-        setAgentVoiceInputHotkey(acc);
-        setAgentVoiceInputHotkeyRecording(false);
-        agentVoiceInputHotkeyInputRef.current?.blur();
-      } else {
-        setAgentVoiceInputHotkeyError(t('settings.hotkey.registerFailedRetry', { defaultValue: '快捷键注册失败，请尝试其他组合' }));
-      }
-    }).catch(() => {
-      setAgentVoiceInputHotkeyError(t('settings.hotkey.registerFailed', { defaultValue: '快捷键注册失败' }));
-    });
-  };
-
   /**
    * 切换形态模式快捷键录入键盘事件处理
    * @param e - React 键盘事件
@@ -581,13 +548,6 @@ export function useSettingsShortcuts(options: SettingsShortcutsOptions) {
     toggleUiLockHotkeyError,
     setToggleUiLockHotkeyError,
     toggleUiLockHotkeyInputRef,
-    agentVoiceInputHotkey,
-    setAgentVoiceInputHotkey,
-    agentVoiceInputHotkeyRecording,
-    setAgentVoiceInputHotkeyRecording,
-    agentVoiceInputHotkeyError,
-    setAgentVoiceInputHotkeyError,
-    agentVoiceInputHotkeyInputRef,
     toggleShapeModeHotkey,
     setToggleShapeModeHotkey,
     toggleShapeModeHotkeyRecording,
@@ -604,7 +564,6 @@ export function useSettingsShortcuts(options: SettingsShortcutsOptions) {
     handleOpenClipboardHistoryHotkeyKeyDown,
     handleTogglePassthroughHotkeyKeyDown,
     handleToggleUiLockHotkeyKeyDown,
-    handleAgentVoiceInputHotkeyKeyDown,
     handleToggleShapeModeHotkeyKeyDown,
     handleNextSongHotkeyKeyDown,
     handlePlayPauseSongHotkeyKeyDown,

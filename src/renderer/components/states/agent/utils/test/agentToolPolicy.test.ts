@@ -25,32 +25,12 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { isClientLocalToolName as isChatClientLocalToolName } from '../../../maxExpand/components/agent/utils/chatHelpers';
 import { isClientLocalToolName, isHighRiskLocalToolName } from '../agentToolPolicy';
 
 // ---------------------------------------------------------------------------
 // isClientLocalToolName
 // ---------------------------------------------------------------------------
 describe('isClientLocalToolName', () => {
-  it.each(['web.search', 'WEB.SEARCH', '  web.search  '])('both Agent interfaces route %s to the server', (tool) => {
-    expect(isClientLocalToolName(tool)).toBe(false);
-    expect(isChatClientLocalToolName(tool)).toBe(false);
-  });
-  describe('exact name match', () => {
-    it('routes web.search to the server', () => {
-      expect(isClientLocalToolName('web.search')).toBe(false);
-    });
-
-    it('is case-insensitive for exact name', () => {
-      expect(isClientLocalToolName('WEB.SEARCH')).toBe(false);
-      expect(isClientLocalToolName('Web.Search')).toBe(false);
-    });
-
-    it('trims whitespace before matching exact name', () => {
-      expect(isClientLocalToolName('  web.search  ')).toBe(false);
-    });
-  });
-
   describe('prefix match', () => {
     const prefixTools = [
       'file.read',

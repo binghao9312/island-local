@@ -39,7 +39,6 @@ import { registerCodexStatusIpcHandlers } from './ipc/agent/codexStatusIpc';
 import { registerAgentUsageIpcHandlers } from './ipc/agent/agentUsageIpc';
 import { registerClipboardIpcHandlers } from './ipc/settings/clipboard';
 import { registerCaptureIpcHandlers } from './ipc/window/capture';
-import { disposeLocalOcrWorker } from './services/captureLocalOcrService';
 import { registerScreenshotHotkeyIpcHandlers } from './ipc/system/screenshotHotkey';
 import { registerAppIpcHandlers } from './ipc/app/app';
 import { registerSystemIpcHandlers } from './ipc/system/system';
@@ -97,7 +96,6 @@ import {
   LYRICS_WIDTH, LYRICS_HEIGHT, LYRICS_TRANSLATION_HEIGHT,
   EXPANDED_FULL_WIDTH, EXPANDED_FULL_HEIGHT,
   SETTINGS_WIDTH, SETTINGS_HEIGHT,
-  PILL_EXPANDED_FULL_HEIGHT, PILL_SETTINGS_HEIGHT,
   SMTC_UNSUBSCRIBE_NEVER, DEFAULT_SMTC_UNSUBSCRIBE_MS,
   SMTC_RUNTIME_CLEANUP_INTERVAL_MS,
   DEFAULT_WHITELIST, DEFAULT_HIDE_PROCESS_LIST,
@@ -122,14 +120,13 @@ import {
   OPEN_CLIPBOARD_HISTORY_HOTKEY_STORE_KEY,
   TOGGLE_PASSTHROUGH_HOTKEY_STORE_KEY,
   TOGGLE_UI_LOCK_HOTKEY_STORE_KEY,
-  AGENT_VOICE_INPUT_HOTKEY_STORE_KEY,
   TOGGLE_SHAPE_MODE_HOTKEY_STORE_KEY,
   readIslandShapeModeConfig, writeIslandShapeModeConfig,
   sanitizeIslandPositionOffset, sanitizeIslandDisplaySelection, sanitizeSmtcUnsubscribeMs,
   readHotkeyConfig, readQuitHotkeyConfig, readScreenshotHotkeyConfig,
   readNextSongHotkeyConfig, readPlayPauseSongHotkeyConfig, readResetPositionHotkeyConfig,
   readToggleTrayHotkeyConfig, readShowSettingsWindowHotkeyConfig, readOpenClipboardHistoryHotkeyConfig, readTogglePassthroughHotkeyConfig, readToggleUiLockHotkeyConfig,
-  readAgentVoiceInputHotkeyConfig, readToggleShapeModeHotkeyConfig,
+  readToggleShapeModeHotkeyConfig,
   readWhitelistConfig, readLyricsSourceConfig, readSmtcUnsubscribeMsConfig,
   readHideProcessListConfig, readAutoHideFullscreenWindowsConfig, readIslandPositionOffsetConfig, readIslandDisplaySelectionConfig,
   writeIslandPositionOffsetConfig, writeIslandDisplaySelectionConfig,
@@ -157,7 +154,6 @@ if (!gotTheLock) {
 }
 
 let mainWindow: BrowserWindow | null = null;
-let agentVoiceInputWindow: BrowserWindow | null = null;
 let cliGlowWindow: BrowserWindow | null = null;
 let cachedFullscreenDetector: { isAnyFullscreenWindow: () => boolean } | null | undefined;
 
@@ -174,19 +170,6 @@ function detectAnyFullscreenWindow(): boolean {
   return cachedFullscreenDetector?.isAnyFullscreenWindow() === true;
 }
 
-function isIslandInExpandedOrMaxExpandState(): boolean {
-  if (!mainWindow || mainWindow.isDestroyed()) return false;
-  const bounds = mainWindow.getBounds();
-  const scale = mainWindow.webContents.getZoomFactor();
-  const pill = readIslandShapeModeConfig() === 'pill';
-  // 原生窗口保留透明宽度；缩放后的可见宽度可以小于 backing window。
-  const inExpanded = bounds.width >= Math.round(EXPANDED_FULL_WIDTH * scale)
-    && bounds.height === Math.round((pill ? PILL_EXPANDED_FULL_HEIGHT : EXPANDED_FULL_HEIGHT) * scale);
-  const inMaxExpand = bounds.width >= Math.round(SETTINGS_WIDTH * scale)
-    && bounds.height === Math.round((pill ? PILL_SETTINGS_HEIGHT : SETTINGS_HEIGHT) * scale);
-  return inExpanded || inMaxExpand;
-}
-
 /** 统一恢复主窗口层级，避免非置顶背景反而盖住主窗口。 */
 function raiseIslandAboveBackground(): void {
   if (!mainWindow || mainWindow.isDestroyed()) return;
@@ -196,112 +179,16 @@ function raiseIslandAboveBackground(): void {
 /** 托盘切换置顶时，将已显示的背景窗口同步到相同层级；无背景时不调整主窗口层级。 */
 function syncIslandBackgroundLayers(): void {
   let hasVisibleBackground = false;
-  [agentVoiceInputWindow, cliGlowWindow].forEach((background) => {
-    if (background && !background.isDestroyed() && background.isVisible()) {
-      background.setAlwaysOnTop(isIslandAlwaysOnTop(), 'screen-saver');
-      hasVisibleBackground = true;
-    }
-  });
+  if (cliGlowWindow && !cliGlowWindow.isDestroyed() && cliGlowWindow.isVisible()) {
+    cliGlowWindow.setAlwaysOnTop(isIslandAlwaysOnTop(), 'screen-saver');
+    hasVisibleBackground = true;
+  }
   if (hasVisibleBackground) raiseIslandAboveBackground();
 }
 
 /**
- * 创建全屏透明 Agent 语音输入窗口
- * @description 加载 DynamicIslandAibackground/index.html，显示 Agent 语音输入背景光效
- */
-function showAgentVoiceInputWindow(): void {
-  if (isIslandInExpandedOrMaxExpandState()) {
-    return;
-  }
-
-  if (agentVoiceInputWindow && !agentVoiceInputWindow.isDestroyed()) {
-    agentVoiceInputWindow.setAlwaysOnTop(isIslandAlwaysOnTop(), 'screen-saver');
-    agentVoiceInputWindow.show();
-    raiseIslandAboveBackground();
-    return;
-  }
-
-  const { screen } = require('electron');
-  const targetDisplay = mainWindow && !mainWindow.isDestroyed()
-    ? screen.getDisplayMatching(mainWindow.getBounds())
-    : screen.getPrimaryDisplay();
-  const { width, height } = targetDisplay.bounds;
-
-  agentVoiceInputWindow = new BrowserWindow({
-    x: targetDisplay.bounds.x,
-    y: targetDisplay.bounds.y,
-    width,
-    height,
-    fullscreen: true,
-    transparent: true,
-    frame: false,
-    alwaysOnTop: true,
-    skipTaskbar: true,
-    resizable: false,
-    focusable: false,
-    hasShadow: false,
-    show: false,
-    title: '',
-    type: 'toolbar',
-    webPreferences: {
-      contextIsolation: true,
-      nodeIntegration: false,
-    },
-  });
-
-  agentVoiceInputWindow.setIgnoreMouseEvents(true);
-  agentVoiceInputWindow.setAlwaysOnTop(isIslandAlwaysOnTop(), 'screen-saver');
-  agentVoiceInputWindow.removeMenu();
-
-  if (app.isPackaged) {
-    agentVoiceInputWindow.loadFile(join(__dirname, '../renderer/html/DynamicIslandAibackground/index.html'));
-  } else {
-    agentVoiceInputWindow.loadFile(join(__dirname, '../../src/renderer/html/DynamicIslandAibackground/index.html'));
-  }
-
-  const voiceWindow = agentVoiceInputWindow;
-  voiceWindow.once('ready-to-show', () => {
-    if (agentVoiceInputWindow === voiceWindow && !voiceWindow.isDestroyed()) {
-      voiceWindow.setAlwaysOnTop(isIslandAlwaysOnTop(), 'screen-saver');
-      voiceWindow.show();
-      raiseIslandAboveBackground();
-    }
-  });
-
-  voiceWindow.on('closed', () => {
-    // 淡出期间可能已创建下一扇窗口，旧窗口关闭不能丢失新窗口的引用。
-    if (agentVoiceInputWindow === voiceWindow) agentVoiceInputWindow = null;
-  });
-
-  // 主窗口与背景采用相同置顶层级，再将主窗口移到背景上方。
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    raiseIslandAboveBackground();
-    mainWindow.webContents.send('agent-voice-input:state', true);
-  }
-}
-
-/**
- * 关闭 Agent 语音输入窗口（先播放淡出动画再关闭）
- */
-function hideAgentVoiceInputWindow(): void {
-  if (agentVoiceInputWindow && !agentVoiceInputWindow.isDestroyed()) {
-    const win = agentVoiceInputWindow;
-    win.webContents.executeJavaScript('startFadeOut()').catch(() => {});
-    setTimeout(() => {
-      if (win && !win.isDestroyed()) {
-        win.close();
-      }
-    }, 450);
-    agentVoiceInputWindow = null;
-  }
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('agent-voice-input:state', false);
-  }
-}
-
-/**
  * 显示 CLI 检测全屏边缘光效窗口
- * @description 独立于 Agent 语音输入窗口，加载 DynamicIslandAibackground/index.html，常驻直到用户响应弹窗后关闭
+ * @description 加载 DynamicIslandAibackground/index.html，常驻直到用户响应弹窗后关闭
  */
 function showCliGlowWindow(): void {
   if (cliGlowWindow && !cliGlowWindow.isDestroyed()) {
@@ -500,7 +387,6 @@ const hotkeyService = createHotkeyService({
   readOpenClipboardHistoryHotkeyConfig,
   readTogglePassthroughHotkeyConfig,
   readToggleUiLockHotkeyConfig,
-  readAgentVoiceInputHotkeyConfig,
   readToggleShapeModeHotkeyConfig,
   onScreenshotHotkey: () => {
     captureWindowService.startRegionScreenshot().catch((err) => {
@@ -541,12 +427,6 @@ const hotkeyService = createHotkeyService({
   },
   onToggleUiLockHotkey: () => {
     broadcastSettingChange(-1, 'shortcut:toggle-ui-lock', Date.now());
-  },
-  onAgentVoiceInputHotkeyHold: () => {
-    showAgentVoiceInputWindow();
-  },
-  onAgentVoiceInputHotkeyRelease: () => {
-    hideAgentVoiceInputWindow();
   },
   onToggleShapeModeHotkey: () => {
     const current = readIslandShapeModeConfig();
@@ -737,7 +617,6 @@ function registerIpcHandlers(): void {
     openClipboardHistoryHotkeyStoreKey: OPEN_CLIPBOARD_HISTORY_HOTKEY_STORE_KEY,
     togglePassthroughHotkeyStoreKey: TOGGLE_PASSTHROUGH_HOTKEY_STORE_KEY,
     toggleUiLockHotkeyStoreKey: TOGGLE_UI_LOCK_HOTKEY_STORE_KEY,
-    agentVoiceInputHotkeyStoreKey: AGENT_VOICE_INPUT_HOTKEY_STORE_KEY,
     toggleShapeModeHotkeyStoreKey: TOGGLE_SHAPE_MODE_HOTKEY_STORE_KEY,
     getCurrentHideHotkey: hotkeyService.getCurrentHideHotkey,
     getCurrentQuitHotkey: hotkeyService.getCurrentQuitHotkey,
@@ -750,7 +629,6 @@ function registerIpcHandlers(): void {
     getCurrentOpenClipboardHistoryHotkey: hotkeyService.getCurrentOpenClipboardHistoryHotkey,
     getCurrentTogglePassthroughHotkey: hotkeyService.getCurrentTogglePassthroughHotkey,
     getCurrentToggleUiLockHotkey: hotkeyService.getCurrentToggleUiLockHotkey,
-    getCurrentAgentVoiceInputHotkey: hotkeyService.getCurrentAgentVoiceInputHotkey,
     getCurrentToggleShapeModeHotkey: hotkeyService.getCurrentToggleShapeModeHotkey,
     readHideHotkeyConfig: readHotkeyConfig,
     readQuitHotkeyConfig,
@@ -763,7 +641,6 @@ function registerIpcHandlers(): void {
     readOpenClipboardHistoryHotkeyConfig,
     readTogglePassthroughHotkeyConfig,
     readToggleUiLockHotkeyConfig,
-    readAgentVoiceInputHotkeyConfig,
     readToggleShapeModeHotkeyConfig,
     registerHideHotkey: hotkeyService.registerHideHotkey,
     registerQuitHotkey: hotkeyService.registerQuitHotkey,
@@ -775,7 +652,6 @@ function registerIpcHandlers(): void {
     registerOpenClipboardHistoryHotkey: hotkeyService.registerOpenClipboardHistoryHotkey,
     registerTogglePassthroughHotkey: hotkeyService.registerTogglePassthroughHotkey,
     registerToggleUiLockHotkey: hotkeyService.registerToggleUiLockHotkey,
-    registerAgentVoiceInputHotkey: hotkeyService.registerAgentVoiceInputHotkey,
     registerToggleShapeModeHotkey: hotkeyService.registerToggleShapeModeHotkey,
     suspendIslandHotkeys: hotkeyService.suspendIslandHotkeys,
     resumeIslandHotkeys: hotkeyService.resumeIslandHotkeys,
@@ -797,9 +673,8 @@ function registerIpcHandlers(): void {
       const currentShowSettings = hotkeyService.getCurrentShowSettingsWindowHotkey() || readShowSettingsWindowHotkeyConfig();
       const currentOpenClipboardHistory = hotkeyService.getCurrentOpenClipboardHistoryHotkey() || readOpenClipboardHistoryHotkeyConfig();
       const currentToggleUiLock = hotkeyService.getCurrentToggleUiLockHotkey() || readToggleUiLockHotkeyConfig();
-      const currentAgentVoiceInput = hotkeyService.getCurrentAgentVoiceInputHotkey() || readAgentVoiceInputHotkeyConfig();
       const currentToggleShapeMode = hotkeyService.getCurrentToggleShapeModeHotkey() || readToggleShapeModeHotkeyConfig();
-      return [currentHide, currentQuit, currentNextSong, currentPlayPauseSong, currentResetPos, currentToggleTray, currentShowSettings, currentOpenClipboardHistory, currentToggleUiLock, currentAgentVoiceInput, currentToggleShapeMode];
+      return [currentHide, currentQuit, currentNextSong, currentPlayPauseSong, currentResetPos, currentToggleTray, currentShowSettings, currentOpenClipboardHistory, currentToggleUiLock, currentToggleShapeMode];
     },
     registerScreenshotHotkey: hotkeyService.registerScreenshotHotkey,
   });
@@ -901,7 +776,6 @@ registerAppLifecycleHandlers({
     codexStatusService.stop();
     stopClipboardUrlWatcher();
     smtcService.cleanupWorker();
-    void disposeLocalOcrWorker();
     destroyTray();
     globalShortcut.unregisterAll();
   },
@@ -1075,10 +949,6 @@ app.whenReady().then(() => {
   // 读取持久化切换 UI 状态锁定快捷键并注册
   const savedToggleUiLockHotkey = readToggleUiLockHotkeyConfig();
   if (savedToggleUiLockHotkey) hotkeyService.registerToggleUiLockHotkey(savedToggleUiLockHotkey);
-
-  // 读取持久化 Agent 语音输入快捷键并注册
-  const savedAgentVoiceInputHotkey = readAgentVoiceInputHotkeyConfig();
-  if (savedAgentVoiceInputHotkey) hotkeyService.registerAgentVoiceInputHotkey(savedAgentVoiceInputHotkey);
 
   // 读取持久化切换形态模式快捷键并注册
   const savedToggleShapeModeHotkey = readToggleShapeModeHotkeyConfig();

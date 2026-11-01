@@ -26,11 +26,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { byClass, elements, invoke, text } from '../../../../../test/tree';
 import { createHookReactMock, flushHookEffects, renderHook, resetHook, settleHook, unmountHook } from '../../../../../../hooks/test/startupHookHarness';
-import type { ReactElement, RefObject } from 'react';
 let FileService: typeof import('../FileServiceToolSection').FileServiceToolSection;
 let NetworkService: typeof import('../NetworkServiceToolSection').NetworkServiceToolSection;
 let SoftwareService: typeof import('../SoftwareToolSection').SoftwareToolSection;
-let TranslateService: typeof import('../TranslateToolSection').TranslateToolSection;
 const leaves = {
   pick: vi.fn<() => Promise<string | null>>(),
   compute: vi.fn<(file: string, algorithm: string) => Promise<{
@@ -94,9 +92,6 @@ beforeEach(async () => {
   ({
     SoftwareToolSection: SoftwareService
   } = await import('../SoftwareToolSection'));
-  ({
-    TranslateToolSection: TranslateService
-  } = await import('../TranslateToolSection'));
 });
 afterEach(() => {
   unmountHook();
@@ -158,44 +153,5 @@ describe('tool service native failure boundaries', () => {
     expect(leaves.fetch).toHaveBeenCalledOnce();
     expect(leaves.write).toHaveBeenCalledWith('settings-open-tab', 'about-feedback');
     expect(onFeedbackNavigate).toHaveBeenCalledOnce();
-  });
-  it('real translate source dropdown commits initial closed state and actual inside/outside clicks', () => {
-    const contains = vi.fn<(target: Node) => boolean>().mockReturnValue(true);
-    /** 保留真实父组件与语言菜单的同一 Hook 提交顺序。
-     * @returns 来源语言菜单元素树
-     */
-    function runDropdown() {
-      return renderHook(() => {
-        const parent = TranslateService();
-        const child = elements(parent).find((n) => Array.isArray(n.props.options))!;
-        const component = child.type as (props: Record<string, unknown>) => ReactElement;
-        return component(child.props);
-      });
-    }
-    let tree = runDropdown();
-    (byClass(tree, 'translate-lang-dropdown').props.ref as RefObject<unknown>).current = {
-      contains
-    };
-    flushHookEffects();
-    invoke(byClass(tree, 'translate-lang-dropdown-trigger'), 'onClick');
-    tree = runDropdown();
-    flushHookEffects();
-    documentLeaf.dispatchEvent(new Event('mousedown'));
-    expect(contains).toHaveBeenCalledOnce();
-    expect(text(runDropdown())).toContain('translate.lang.zh');
-    invoke(elements(runDropdown()).filter((n) => String(n.props.className).includes('translate-lang-dropdown-item'))[1], 'onClick');
-    tree = runDropdown();
-    flushHookEffects();
-    expect(byClass(tree, 'translate-lang-dropdown-label').props.children).toBe('maxExpand.toolbox.translate.lang.zh');
-    expect(elements(tree).filter((n) => n.type === 'img')).toHaveLength(0);
-    invoke(byClass(tree, 'translate-lang-dropdown-trigger'), 'onClick');
-    runDropdown();
-    flushHookEffects();
-    contains.mockReturnValue(false);
-    documentLeaf.dispatchEvent(new Event('mousedown'));
-    expect(elements(runDropdown()).some((n) => n.props.className === 'translate-lang-dropdown-menu')).toBe(false);
-    unmountHook();
-    documentLeaf.dispatchEvent(new Event('mousedown'));
-    expect(contains).toHaveBeenCalledTimes(2);
   });
 });

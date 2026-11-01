@@ -33,8 +33,8 @@ import { ExpandedContent } from '../ExpandedContent';
 const mocks = vi.hoisted(() => ({
   active: true, animation: true, app: false, loaded: true, startup: 'integrated', tab: 'overview',
   maxTab: 'todo', expand: vi.fn(), hover: vi.fn(), max: vi.fn(), selectMax: vi.fn(), launcher: vi.fn(),
-  preload: vi.fn(), wheel: vi.fn(), pages: Array.from({ length: 6 }, () => () => null),
-  nav: [{ id: 'overview', visible: true }, { id: 'song', visible: true }, { id: 'tools', visible: true }, { id: 'translation', visible: true }, { id: 'performanceMonitor', visible: true }, { id: 'agentUsage', visible: true }],
+  preload: vi.fn(), wheel: vi.fn(), pages: Array.from({ length: 5 }, () => () => null),
+  nav: [{ id: 'overview', visible: true }, { id: 'song', visible: true }, { id: 'tools', visible: true }, { id: 'performanceMonitor', visible: true }, { id: 'agentUsage', visible: true }],
   maxNav: [{ id: 'todo', visible: true }, { id: 'album', visible: true }],
 }));
 vi.mock('../../../../../store/slices', () => ({ default: (selector: (state: object) => unknown) => selector({
@@ -55,9 +55,8 @@ vi.mock('../../../maxExpand/config/shellConstants', () => ({
 vi.mock('../../pages/OverviewTab', () => ({ OverviewTab: mocks.pages[0] }));
 vi.mock('../../pages/SongTab', () => ({ SongTab: mocks.pages[1] }));
 vi.mock('../../pages/ToolsTab', () => ({ ToolsTab: mocks.pages[2] }));
-vi.mock('../../pages/TranslationTab', () => ({ TranslationTab: mocks.pages[3] }));
-vi.mock('../../pages/PerformanceMonitorTab', () => ({ PerformanceMonitorTab: mocks.pages[4] }));
-vi.mock('../../pages/AgentUsageTab', () => ({ AgentUsageTab: mocks.pages[5] }));
+vi.mock('../../pages/PerformanceMonitorTab', () => ({ PerformanceMonitorTab: mocks.pages[3] }));
+vi.mock('../../pages/AgentUsageTab', () => ({ AgentUsageTab: mocks.pages[4] }));
 
 /** 展开内容区与导航点子组件，保留页面组件边界，使断言覆盖面板的真实输出。
  * @param tree - 元素树
@@ -84,16 +83,16 @@ describe('ExpandedContent', () => {
   beforeEach(() => {
     mocks.active = true; mocks.animation = true; mocks.app = false; mocks.loaded = true;
     mocks.startup = 'integrated'; mocks.tab = 'overview'; mocks.maxTab = 'todo';
-    mocks.nav = ['overview', 'song', 'tools', 'translation', 'performanceMonitor', 'agentUsage'].map((id) => ({ id, visible: true }));
+    mocks.nav = ['overview', 'song', 'tools', 'performanceMonitor', 'agentUsage'].map((id) => ({ id, visible: true }));
     mocks.maxNav = [{ id: 'todo', visible: true }, { id: 'album', visible: true }];
   });
   afterEach(() => { vi.unstubAllGlobals(); });
 
-  it.each(['overview', 'song', 'tools', 'translation', 'performanceMonitor', 'agentUsage'] as const)('渲染 %s 实际页面选择与导航激活', (tab) => {
+  it.each(['overview', 'song', 'tools', 'performanceMonitor', 'agentUsage'] as const)('渲染 %s 实际页面选择与导航激活', (tab) => {
     mocks.tab = tab;
     const tree = view();
-    expect(nodes(tree, mocks.pages[['overview', 'song', 'tools', 'translation', 'performanceMonitor', 'agentUsage'].indexOf(tab)])).toHaveLength(1);
-    expect(nodes(tree, '.expand-nav-dot')).toHaveLength(8);
+    expect(nodes(tree, mocks.pages[['overview', 'song', 'tools', 'performanceMonitor', 'agentUsage'].indexOf(tab)])).toHaveLength(1);
+    expect(nodes(tree, '.expand-nav-dot')).toHaveLength(7);
     const selected = nodes(tree, '.expand-nav-dot').find((node) => String(node.props.className).includes('active'));
     expect(selected?.props.title).toContain(tab);
   });
@@ -134,18 +133,18 @@ describe('ExpandedContent', () => {
 
   it('应用模式打开启动器，未加载或独立模式无可见应用隐藏最大展开入口', async () => {
     mocks.app = true;
-    fire(view(), '.expand-nav-dot', 'onClick', 7);
+    fire(view(), '.expand-nav-dot', 'onClick', 6);
     expect(mocks.launcher).toHaveBeenCalledOnce();
     mocks.app = false; mocks.loaded = false;
-    expect(nodes(view(), '.expand-nav-dot')).toHaveLength(7);
+    expect(nodes(view(), '.expand-nav-dot')).toHaveLength(6);
     mocks.loaded = true; mocks.startup = 'standalone'; mocks.maxNav = [];
     flushEffects(); await Promise.resolve();
-    expect(nodes(view(), '.expand-nav-dot')).toHaveLength(7);
+    expect(nodes(view(), '.expand-nav-dot')).toHaveLength(6);
   });
 
   it('集成模式无可见应用时回到设置；隐藏展开页通过effect纠正', async () => {
     mocks.maxNav = []; mocks.maxTab = 'calendar';
-    fire(view(), '.expand-nav-dot', 'onClick', 7);
+    fire(view(), '.expand-nav-dot', 'onClick', 6);
     expect(mocks.selectMax).toHaveBeenCalledWith('settings');
     mocks.nav = [{ id: 'overview', visible: false }, { id: 'song', visible: true }];
     const tree = view();

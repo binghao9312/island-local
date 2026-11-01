@@ -325,14 +325,6 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
     setToggleUiLockHotkeyError,
     handleToggleUiLockHotkeyKeyDown,
     setToggleUiLockHotkey,
-    agentVoiceInputHotkeyInputRef,
-    agentVoiceInputHotkeyRecording,
-    agentVoiceInputHotkeyError,
-    agentVoiceInputHotkey,
-    setAgentVoiceInputHotkeyRecording,
-    setAgentVoiceInputHotkeyError,
-    handleAgentVoiceInputHotkeyKeyDown,
-    setAgentVoiceInputHotkey,
     toggleShapeModeHotkeyInputRef,
     toggleShapeModeHotkeyRecording,
     toggleShapeModeHotkeyError,
@@ -820,14 +812,6 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
               setToggleUiLockHotkeyError={setToggleUiLockHotkeyError}
               handleToggleUiLockHotkeyKeyDown={handleToggleUiLockHotkeyKeyDown}
               setToggleUiLockHotkey={setToggleUiLockHotkey}
-              agentVoiceInputHotkeyInputRef={agentVoiceInputHotkeyInputRef}
-              agentVoiceInputHotkeyRecording={agentVoiceInputHotkeyRecording}
-              agentVoiceInputHotkeyError={agentVoiceInputHotkeyError}
-              agentVoiceInputHotkey={agentVoiceInputHotkey}
-              setAgentVoiceInputHotkeyRecording={setAgentVoiceInputHotkeyRecording}
-              setAgentVoiceInputHotkeyError={setAgentVoiceInputHotkeyError}
-              handleAgentVoiceInputHotkeyKeyDown={handleAgentVoiceInputHotkeyKeyDown}
-              setAgentVoiceInputHotkey={setAgentVoiceInputHotkey}
               toggleShapeModeHotkeyInputRef={toggleShapeModeHotkeyInputRef}
               toggleShapeModeHotkeyRecording={toggleShapeModeHotkeyRecording}
               toggleShapeModeHotkeyError={toggleShapeModeHotkeyError}

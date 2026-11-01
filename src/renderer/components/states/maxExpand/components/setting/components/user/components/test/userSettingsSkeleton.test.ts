@@ -58,8 +58,8 @@ describe('UserProfileSkeleton', () => {
 });
 
 describe('UserRecordSkeletonList', () => {
-  it.each([[3, false], [1, false], [0, true]])('renders three hidden cards with %i detail rows and media=%s', (rows, media) => {
-    const tree = UserRecordSkeletonList({ rows, media, label: 'loading' });
+  it.each([[3], [1], [0]])('renders three hidden cards with %i detail rows', (rows) => {
+    const tree = UserRecordSkeletonList({ rows, label: 'loading' });
     expect(elementProps(tree)).toMatchObject({ role: 'status', 'aria-busy': 'true', 'aria-label': 'loading' });
     const cards = withClass(tree, 'settings-user-card');
     expect(cards).toHaveLength(3);
@@ -68,7 +68,6 @@ describe('UserRecordSkeletonList', () => {
       expect(elementProps(card)['aria-hidden']).toBe('true');
       expect(withClass(card, 'settings-user-skeleton-rows')).toHaveLength(rows > 0 ? 1 : 0);
       expect(withClass(card, 'settings-user-skeleton-row')).toHaveLength(rows);
-      expect(withClass(card, 'settings-user-image-translation-image-wrap')).toHaveLength(media ? 2 : 0);
     });
   });
 });

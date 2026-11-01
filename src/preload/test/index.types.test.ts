@@ -177,9 +177,6 @@ interface ExpectedApi {
   toggleUiLockHotkeySet: (accelerator: string) => Promise<boolean>;
   toggleShapeModeHotkeyGet: () => Promise<string>;
   toggleShapeModeHotkeySet: (accelerator: string) => Promise<boolean>;
-  agentVoiceInputHotkeyGet: () => Promise<string>;
-  agentVoiceInputHotkeySet: (accelerator: string) => Promise<boolean>;
-  onAgentVoiceInputState: (callback: (active: boolean) => void) => () => void;
   cliGlowShow: () => Promise<boolean>;
   cliGlowHide: () => Promise<boolean>;
   onPassthroughLockChanged: (callback: (locked: boolean) => void) => () => void;

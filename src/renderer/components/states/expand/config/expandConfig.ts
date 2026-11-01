@@ -39,7 +39,6 @@ export const NAV_DOT_DEFAULT_LABELS: Record<NavDotId, string> = {
   overview: '总览',
   song: '歌曲',
   tools: '工具',
-  translation: '翻译',
   performanceMonitor: '性能监控',
   agentUsage: 'Agent用量',
   maxExpand: '最大展开',

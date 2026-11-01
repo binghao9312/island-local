@@ -202,14 +202,14 @@ describe('壳层真实状态动作和形变时序', () => {
     commit(input); unmountHooks(); pending.resolve(false); await settleBackground();
     expect(renderWithHooks(() => useDynamicIslandShell(input)).showGlow).toBe('playing');
   });
-  it.each(['idle', 'lyrics', 'lyricsTranslation', 'agentVoiceInput'] as const)('pill点击%s进入真实hover，歌词状态选择歌词页', async (state) => {
+  it.each(['idle', 'lyrics', 'lyricsTranslation'] as const)('pill点击%s进入真实hover，歌词状态选择歌词页', async (state) => {
     useIslandStore.setState({ state }); const input = options({ state, forceClickToHover: true });
     const shell = await mount(input); shell.handleIslandClick();
     expect(useIslandStore.getState().state).toBe('hover'); expect(input.isHoveringRef.current).toBe(true);
     expect(useIslandStore.getState().hoverTab).toBe(state === 'lyrics' || state === 'lyricsTranslation' ? 'lyrics' : 'time');
     expect(native.expandWindow).toHaveBeenCalledOnce();
   });
-  it.each(['idle', 'lyrics', 'lyricsTranslation', 'agentVoiceInput', 'login'] as const)('未启用click-to-hover的%s点击保持状态', async (state) => {
+  it.each(['idle', 'lyrics', 'lyricsTranslation', 'login'] as const)('未启用click-to-hover的%s点击保持状态', async (state) => {
     useIslandStore.setState({ state }); (await mount(options({ state }))).handleIslandClick();
     expect(useIslandStore.getState().state).toBe(state); expect(native.expandWindow).not.toHaveBeenCalled();
   });

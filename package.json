@@ -130,7 +130,6 @@
     "remark-gfm": "^4.0.1",
     "stock-api": "^2.7.5",
     "systeminformation": "^5.33.16",
-    "tesseract.js": "^7.0.0",
     "uapi-sdk-typescript": "^0.1.18",
     "zustand": "^5.0.16"
   },
@@ -182,7 +181,6 @@
     "ffmpeg-static": true,
     "get-windows": true,
     "koffi@2.16.2": true,
-    "tesseract.js@7.0.0": true,
     "unrs-resolver@1.12.2": true,
     "@alicloud/openapi-core@1.0.8": true,
     "file:../../plugins/windows/eisland-windows-brightness-helper": true,

@@ -46,23 +46,4 @@ describe('toolbox response boundaries', () => {
     const { fetchToolboxSoftwareList } = await import('../toolboxSoftwareApi');
     expect(await fetchToolboxSoftwareList()).toEqual([]);
   });
-  it.each([
-    { response: undefined, message: 'HTTP unknown' },
-    { response: { ok: false, status: 503 }, message: 'HTTP 503' },
-    { response: { ok: true, body: 'invalid json' }, message: '网络请求失败' },
-    { response: { ok: true, body: 'null' }, message: '翻译失败' },
-    { response: { ok: true, body: '{"code":400}' }, message: '翻译失败' },
-    { response: { ok: true, body: '{"code":200,"data":null}' }, message: '翻译失败' },
-    { response: { ok: true, body: '{"code":400,"message":""}' }, message: '' },
-  ])('normalizes translation failure $message', async ({ response, message }) => {
-    net.mockResolvedValueOnce(response);
-    const { fetchTranslate } = await import('../toolboxTranslateApi');
-    expect(await fetchTranslate('token', '中 & text', 'auto', 'en')).toEqual({ message, success: false });
-    expect(net).toHaveBeenCalledExactlyOnceWith('https://server.pyisland.com/api/v1/toolbox/translate', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer token' }, body: '{"text":"中 & text","source":"auto","target":"en"}', timeoutMs: 15000 });
-  });
-  it('contains translation bridge rejection', async () => {
-    net.mockRejectedValueOnce(new Error('offline'));
-    const { fetchTranslate } = await import('../toolboxTranslateApi');
-    expect(await fetchTranslate('token', 'hello', 'auto', 'en')).toEqual({ success: false, message: '网络请求失败' });
-  });
 });

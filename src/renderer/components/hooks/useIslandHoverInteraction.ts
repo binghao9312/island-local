@@ -139,7 +139,7 @@ export function useIslandHoverInteraction(options: UseIslandHoverInteractionOpti
         return;
       }
 
-      if (state === 'notification' || state === 'agent' || state === 'stt' || state === 'cli' || state === 'agentVoiceInput' || state === 'guide' || state === 'login' || state === 'register' || state === 'resetPassword' || state === 'payment' || state === 'questionnaire' || state === 'musicProvidersLogin') {
+      if (state === 'notification' || state === 'agent' || state === 'cli' || state === 'guide' || state === 'login' || state === 'register' || state === 'resetPassword' || state === 'payment' || state === 'questionnaire' || state === 'musicProvidersLogin') {
         if (inWindow) {
           setMousePassthrough(false);
         }
@@ -154,8 +154,8 @@ export function useIslandHoverInteraction(options: UseIslandHoverInteractionOpti
         }
 
         if (!isHoveringRef.current && enterTimerRef.current === null) {
-          /** pill 模式下 idle/lyrics/lyricsTranslation/agentVoiceInput 均需点击才展开 */
-          const clickToHoverStates = state === 'idle' || state === 'lyrics' || state === 'lyricsTranslation' || (state as string) === 'agentVoiceInput';
+          /** pill 模式下 idle/lyrics/lyricsTranslation 均需点击才展开 */
+          const clickToHoverStates = state === 'idle' || state === 'lyrics' || state === 'lyricsTranslation';
           if (clickToHoverStates && (forceClickToHover || idleClickExpandRef.current)) {
             if (config.mousePassthrough) {
               setMousePassthrough(false);
@@ -182,7 +182,7 @@ export function useIslandHoverInteraction(options: UseIslandHoverInteractionOpti
           enterTimerRef.current = null;
         }
 
-        if ((state === 'idle' || state === 'lyrics' || state === 'lyricsTranslation' || (state as string) === 'agentVoiceInput') && (forceClickToHover || idleClickExpandRef.current) && !isHoveringRef.current) {
+        if ((state === 'idle' || state === 'lyrics' || state === 'lyricsTranslation') && (forceClickToHover || idleClickExpandRef.current) && !isHoveringRef.current) {
           setMousePassthrough(true);
         }
 

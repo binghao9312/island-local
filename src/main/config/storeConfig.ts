@@ -164,9 +164,6 @@ export const DEFAULT_TOGGLE_UI_LOCK_HOTKEY = '';
 /** 默认切换形态模式快捷键 */
 export const DEFAULT_TOGGLE_SHAPE_MODE_HOTKEY = 'Alt+E';
 
-/** 默认 Agent 语音输入快捷键（长按触发） */
-export const DEFAULT_AGENT_VOICE_INPUT_HOTKEY = 'Alt+P';
-
 // ===== Store 键名 =====
 
 /** 汽水音乐请求模式 */
@@ -300,9 +297,6 @@ export const TOGGLE_UI_LOCK_HOTKEY_STORE_KEY = 'toggle-ui-lock-hotkey';
 
 /** 切换形态模式快捷键存储键名 */
 export const TOGGLE_SHAPE_MODE_HOTKEY_STORE_KEY = 'toggle-shape-mode-hotkey';
-
-/** Agent 语音输入快捷键存储键名 */
-export const AGENT_VOICE_INPUT_HOTKEY_STORE_KEY = 'agent-voice-input-hotkey';
 
 /** Agent 启动通知开关存储键名 */
 export const AGENT_NOTIFICATION_ENABLED_STORE_KEY = 'agent-notification-enabled';
@@ -481,15 +475,6 @@ export function readTogglePassthroughHotkeyConfig(): string {
 export function readToggleUiLockHotkeyConfig(): string {
   const data = readJsonFile(TOGGLE_UI_LOCK_HOTKEY_STORE_KEY);
   return typeof data === 'string' ? data : DEFAULT_TOGGLE_UI_LOCK_HOTKEY;
-}
-
-/**
- * 读取 Agent 语音输入快捷键配置
- * @returns 快捷键字符串
- */
-export function readAgentVoiceInputHotkeyConfig(): string {
-  const data = readJsonFile(AGENT_VOICE_INPUT_HOTKEY_STORE_KEY);
-  return typeof data === 'string' ? data : DEFAULT_AGENT_VOICE_INPUT_HOTKEY;
 }
 
 /**

@@ -34,7 +34,6 @@ import { FileServiceToolSection } from '../../../tools/components/FileServiceToo
 import { FormatFactoryToolSection } from '../../../tools/components/FormatFactoryToolSection';
 import { NetworkServiceToolSection } from '../../../tools/components/NetworkServiceToolSection';
 import { SoftwareToolSection } from '../../../tools/components/SoftwareToolSection';
-import { TranslateToolSection } from '../../../tools/components/TranslateToolSection';
 import { DEFAULT_TOOLBOX_NAV_ORDER, TOOLBOX_NAV_CARDS } from '../../../tools/config/commonToolboxConfig';
 import { fire } from '../../../tools/components/test/toolTestEvents';
 import { expandToolboxTree } from './toolboxTestTree';
@@ -48,9 +47,8 @@ const mocks = vi.hoisted(() => ({
 vi.mock('zustand/react/shallow', () => ({ useShallow: (selector: unknown) => selector }));
 vi.mock('../../../../../../../store/slices', () => ({ default: () => ({ setMaxExpandTab: mocks.settings }) }));
 vi.mock('../../../../../../../api/tools/toolboxSoftwareApi', () => ({ fetchToolboxSoftwareList: vi.fn() }));
-vi.mock('../../../tools/hooks/useTranslateTool', () => ({ useTranslateTool: vi.fn() }));
 
-const sections = [DownloadToolSection, SoftwareToolSection, TranslateToolSection, FileServiceToolSection,
+const sections = [DownloadToolSection, SoftwareToolSection, FileServiceToolSection,
   EncodingServiceToolSection, NetworkServiceToolSection, FileCompressionToolSection, FormatFactoryToolSection];
 
 /**
@@ -70,7 +68,7 @@ describe('ToolboxTab', () => {
   afterEach(() => { vi.unstubAllGlobals(); });
 
   it('首页呈现全部导航，侧栏选择真实工具组件并可返回首页', () => {
-    expect(nodes(renderToolbox(), '.settings-index-card')).toHaveLength(12);
+    expect(nodes(renderToolbox(), '.settings-index-card')).toHaveLength(11);
     sections.forEach((section, index) => {
       fire(renderToolbox(), '.max-expand-settings-sidebar-item', 'onClick', index + 1);
       const tree = renderToolbox();
@@ -78,13 +76,13 @@ describe('ToolboxTab', () => {
       expect(nodes(tree, '.toolbox-panel-title')).toHaveLength(1);
     });
     fire(renderToolbox(), '.max-expand-settings-sidebar-item', 'onClick', 0);
-    expect(nodes(renderToolbox(), '.settings-index-card')).toHaveLength(12);
+    expect(nodes(renderToolbox(), '.settings-index-card')).toHaveLength(11);
   });
 
   it.each(TOOLBOX_NAV_CARDS.map((card, index) => ({ index, ...card })))('首页入口 $id转发工具及对应子页', (card) => {
     fire(renderToolbox(), '.settings-index-card', 'onClick', card.index);
     const tree = renderToolbox();
-    const section = sections[['download', 'software', 'translate', 'fileService', 'encodingService', 'networkService', 'fileCompression', 'formatFactory'].indexOf(card.sidebar)];
+    const section = sections[['download', 'software', 'fileService', 'encodingService', 'networkService', 'fileCompression', 'formatFactory'].indexOf(card.sidebar)];
     expect(nodes(tree, section)).toHaveLength(1);
     if (card.downloadPage) expect(value(tree, section, 'downloadPage')).toBe(card.downloadPage);
     if (card.fileCompressionPage) expect(value(tree, section, 'fileCompressionPage')).toBe(card.fileCompressionPage);
@@ -93,8 +91,8 @@ describe('ToolboxTab', () => {
 
   it.each([
     { index: 1, component: DownloadToolSection, setter: 'setDownloadPage', prop: 'downloadPage', page: 'history' },
-    { index: 7, component: FileCompressionToolSection, setter: 'setFileCompressionPage', prop: 'fileCompressionPage', page: 'history' },
-    { index: 8, component: FormatFactoryToolSection, setter: 'setFormatFactoryPage', prop: 'formatFactoryPage', page: 'video' },
+    { index: 6, component: FileCompressionToolSection, setter: 'setFileCompressionPage', prop: 'fileCompressionPage', page: 'history' },
+    { index: 7, component: FormatFactoryToolSection, setter: 'setFormatFactoryPage', prop: 'formatFactoryPage', page: 'video' },
   ])('侧栏 $index传递子页变更并更新标题', ({ index, component, setter, prop, page }) => {
     fire(renderToolbox(), '.max-expand-settings-sidebar-item', 'onClick', index);
     trigger(renderToolbox(), component, setter, page);
@@ -123,10 +121,10 @@ describe('ToolboxTab', () => {
     expect(text(renderToolbox())).toContain('emptyAddable');
     fire(renderToolbox(), '.settings-index-card-remove', 'onClick', 0);
     const tree = renderToolbox();
-    expect(nodes(tree, '.settings-index-card')).toHaveLength(11);
+    expect(nodes(tree, '.settings-index-card')).toHaveLength(10);
     expect(nodes(tree, '.settings-nav-add-item')).toHaveLength(1);
     fire(tree, '.settings-nav-add-item', 'onClick');
-    expect(nodes(renderToolbox(), '.settings-index-card')).toHaveLength(12);
+    expect(nodes(renderToolbox(), '.settings-index-card')).toHaveLength(11);
     mocks.save.mockRejectedValue(new Error('storage offline'));
     fire(renderToolbox(), '.settings-nav-edit-btn', 'onClick', 1);
     await vi.waitFor(() => { expect(mocks.save).toHaveBeenCalled(); });
@@ -134,7 +132,7 @@ describe('ToolboxTab', () => {
       visibleOrder: [...DEFAULT_TOOLBOX_NAV_ORDER.slice(1), DEFAULT_TOOLBOX_NAV_ORDER[0]], hiddenOrder: [],
     });
     expect(text(renderToolbox())).toContain('saveError');
-    expect(nodes(renderToolbox(), '.settings-index-card-remove')).toHaveLength(12);
+    expect(nodes(renderToolbox(), '.settings-index-card-remove')).toHaveLength(11);
     fire(renderToolbox(), '.settings-nav-edit-btn', 'onClick', 0);
     expect(nodes(renderToolbox(), '.settings-index-card').map((node) => node.key)).toEqual(DEFAULT_TOOLBOX_NAV_ORDER.map((id) => `.$${  id}`));
   });
@@ -164,7 +162,7 @@ describe('ToolboxTab', () => {
     await renderToolbox(); flushEffects();
     await vi.waitFor(() => { expect(mocks.read).toHaveBeenCalledTimes(3); });
     const tree = renderToolbox();
-    expect(nodes(tree, '.settings-index-card')).toHaveLength(12);
+    expect(nodes(tree, '.settings-index-card')).toHaveLength(11);
     expect(text(nodes(tree, '.settings-index-card')[0])).toContain('nav.software.label');
     fire(tree, '.settings-nav-edit-btn', 'onClick', 1);
     expect(nodes(renderToolbox(), '.settings-nav-add-item')).toHaveLength(0);

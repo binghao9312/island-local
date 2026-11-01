@@ -172,16 +172,6 @@ const transitions: {
   resize: 'expandWindowSettings',
   passthrough: 'disable'
 }, {
-  state: 'agentVoiceInput',
-  invoke: (slice) => slice.setAgentVoiceInput(),
-  resize: 'expandWindowLyrics',
-  passthrough: 'enable'
-}, {
-  state: 'stt',
-  invoke: (slice) => slice.setStt('Speech'),
-  resize: 'expandWindowNotification',
-  passthrough: 'disable'
-}, {
   state: 'agent',
   invoke: (slice) => slice.setAgent('Prompt'),
   resize: 'expandWindowNotification',
@@ -254,10 +244,6 @@ const authReturns: {
   method: 'expandWindowLyrics',
   passthrough: 'enable'
 }, {
-  state: 'agentVoiceInput',
-  method: 'expandWindowLyrics',
-  passthrough: 'enable'
-}, {
   state: 'lyricsTranslation',
   method: 'expandWindowLyricsTranslation',
   passthrough: 'enable'
@@ -267,10 +253,6 @@ const authReturns: {
   passthrough: 'disable'
 }, {
   state: 'agent',
-  method: 'expandWindowNotification',
-  passthrough: 'disable'
-}, {
-  state: 'stt',
   method: 'expandWindowNotification',
   passthrough: 'disable'
 }, {
@@ -443,20 +425,10 @@ describe('Island slice window transitions and lock contract', () => {
     });
     expect(sound).toHaveBeenCalledOnce();
   });
-  it('handles STT and agent optional prompts using the preceding speech text', () => {
+  it('sets the agent prompt from its argument and falls back to empty without one', () => {
     const island = store();
-    island.getState().setStt();
-    expect(island.getState().sttText).toBe('');
-    island.getState().setStt('speech');
-    island.getState().setAgent();
-    expect(island.getState().agentPrompt).toBe('speech');
     island.getState().setAgent('direct');
     expect(island.getState().agentPrompt).toBe('direct');
-  });
-  it('uses the final empty prompt fallback after an external JSON patch supplies null speech', () => {
-    const island = store();
-    const externalPatch: unknown = JSON.parse('{"sttText":null}');
-    Reflect.apply(island.setState, undefined, [externalPatch]);
     island.getState().setAgent();
     expect(island.getState().agentPrompt).toBe('');
     expect(island.getState().state).toBe('agent');

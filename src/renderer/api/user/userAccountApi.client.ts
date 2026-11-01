@@ -121,8 +121,7 @@ function shouldAttachReplayHeaders(path: string, method: InternalRequestInit['me
   if (!auth || auth.trim().length === 0) return false;
   return path.startsWith('/v1/user/')
     || path.startsWith('/v1/surveys/')
-    || path === '/v1/upload/user-avatar'
-    || path.startsWith('/v1/toolbox/image-translations/');
+    || path === '/v1/upload/user-avatar';
 }
 
 /**

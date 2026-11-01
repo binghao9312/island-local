@@ -32,7 +32,7 @@ import type { MusicProviderId } from '../../../shared/musicProviderAuth';
 export type { WeatherApiConfig };
 
 /** 灵动岛 UI 状态枚举 */
-export type IslandState = 'idle' | 'hover' | 'expanded' | 'notification' | 'maxExpand' | 'lyrics' | 'lyricsTranslation' | 'guide' | 'login' | 'register' | 'resetPassword' | 'setPassword' | 'bindOAuth' | 'bindEmail' | 'payment' | 'questionnaire' | 'questionnaire' | 'agentVoiceInput' | 'agent' | 'stt' | 'cli' | 'musicProvidersLogin';
+export type IslandState = 'idle' | 'hover' | 'expanded' | 'notification' | 'maxExpand' | 'lyrics' | 'lyricsTranslation' | 'guide' | 'login' | 'register' | 'resetPassword' | 'setPassword' | 'bindOAuth' | 'bindEmail' | 'payment' | 'questionnaire' | 'questionnaire' | 'agent' | 'cli' | 'musicProvidersLogin';
 
 /** 灵动岛动画速度档位 */
 export type AnimationSpeed = 'slow' | 'medium' | 'fast';
@@ -44,7 +44,7 @@ export type IslandShapeMode = 'notch' | 'pill';
 export type HoverTab = 'time' | 'lyrics' | 'weather' | 'expand';
 
 /** Expanded 状态下的子标签页类型 */
-export type ExpandTab = 'hover' | 'overview' | 'song' | 'tools' | 'translation' | 'performanceMonitor' | 'agentUsage';
+export type ExpandTab = 'hover' | 'overview' | 'song' | 'tools' | 'performanceMonitor' | 'agentUsage';
 
 /** CLI 活动提供方 */
 export type CliProvider = 'claude' | 'codex';
@@ -226,9 +226,6 @@ export interface AiConfig {
   ollamaBaseUrl: string;
   customApiModel: string;
   customApiMode: 'relay' | 'direct';
-  sttOrbEnabled: boolean;
-  orbColorA: string;
-  orbColorB: string;
 }
 
 /** AI 工具调用轨迹 */
@@ -363,7 +360,6 @@ export interface IslandSlice {
   maxExpandLauncherVisible: boolean;
   cliProvider: CliProvider;
   notification: NotificationData;
-  sttText: string;
   agentPrompt: string;
 
   springAnimation: boolean;
@@ -392,8 +388,6 @@ export interface IslandSlice {
 
   setGuide: () => void;
   setQuestionnaire: () => void;
-  setAgentVoiceInput: () => void;
-  setStt: (text?: string) => void;
   setAgent: (prompt?: string) => void;
   setCli: () => void;
   toggleUiStateLock: () => boolean;

@@ -114,7 +114,6 @@ describe('SvgIcon', () => {
     expect(SvgIcon).toHaveProperty('BREAK');
     expect(SvgIcon).toHaveProperty('PROLONGED_SITTING');
     expect(SvgIcon).toHaveProperty('DRINKING_WATER');
-    expect(SvgIcon).toHaveProperty('SWITCHING');
     expect(SvgIcon).toHaveProperty('SOUND');
     expect(SvgIcon).toHaveProperty('NOTIFICATION');
     expect(SvgIcon).toHaveProperty('CHECKED');
@@ -134,7 +133,6 @@ describe('SvgIcon', () => {
     expect(SvgIcon).toHaveProperty('MEMO');
     expect(SvgIcon).toHaveProperty('VIDEO');
     expect(SvgIcon).toHaveProperty('BILIBILI');
-    expect(SvgIcon).toHaveProperty('OCR');
     expect(SvgIcon).toHaveProperty('QUESTIONNAIRE');
     expect(SvgIcon).toHaveProperty('CALENDER');
     expect(SvgIcon).toHaveProperty('COUNTDOWN');
