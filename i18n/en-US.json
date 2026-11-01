@@ -3359,13 +3359,10 @@
       },
       "limit": {
         "title": "Max Records",
-        "hint": "New records are stored using this rolling limit.",
-        "options": {
-          "10": "10 items",
-          "20": "20 items",
-          "30": "30 items",
-          "50": "50 items"
-        }
+        "hint": "The queue keeps only the most recent N items, up to a maximum of 20; the oldest are dropped.",
+        "decrease": "Decrease max records",
+        "increase": "Increase max records",
+        "value": "{{count}} items"
       },
       "exitMaxExpandOnCopy": {
         "title": "Auto Exit After Copy",

@@ -27,15 +27,14 @@
 import { useEffect, useState } from 'react';
 import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DEFAULT_HISTORY_LIMIT, MAX_HISTORY_LIMIT, MIN_HISTORY_LIMIT } from '../../../../clipBoardHistory/config/clipboardHistoryConfig';
+import { clampHistoryLimit } from '../../../../clipBoardHistory/utils/clipboardHistoryUtils';
 
 const CLIPBOARD_HISTORY_STORE_KEY = 'clipboard-history-recent';
 const CLIPBOARD_HISTORY_LOCAL_STORAGE_KEY = 'eIsland_clipboard_history_recent';
 const CLIPBOARD_HISTORY_ENABLED_STORE_KEY = 'clipboard-history-enabled';
 const CLIPBOARD_HISTORY_LIMIT_STORE_KEY = 'clipboard-history-limit';
 const CLIPBOARD_HISTORY_EXIT_MAX_EXPAND_ON_COPY_STORE_KEY = 'clipboard-history-exit-max-expand-on-copy';
-const DEFAULT_HISTORY_LIMIT = 10;
-
-const HISTORY_LIMIT_OPTIONS: number[] = [10, 20, 30, 50];
 
 /**
  * 渲染软件设置中的剪贴板历史设置区块
@@ -59,10 +58,7 @@ export function ClipboardHistorySettingsSection(): ReactElement {
 
     window.api.storeRead(CLIPBOARD_HISTORY_LIMIT_STORE_KEY).then((value) => {
       if (cancelled) return;
-      if (typeof value === 'number' && Number.isFinite(value)) {
-        const safe = Math.max(1, Math.min(50, Math.round(value)));
-        setHistoryLimit(safe);
-      }
+      setHistoryLimit(clampHistoryLimit(value));
     }).catch(() => {});
 
     window.api.storeRead(CLIPBOARD_HISTORY_EXIT_MAX_EXPAND_ON_COPY_STORE_KEY).then((value) => {
@@ -138,19 +134,30 @@ export function ClipboardHistorySettingsSection(): ReactElement {
         <div className="settings-card">
           <div className="settings-card-header">
             <div className="settings-card-title">{t('settings.clipboardHistory.limit.title', { defaultValue: '最大保留条数' })}</div>
-            <div className="settings-card-subtitle">{t('settings.clipboardHistory.limit.hint', { defaultValue: '新记录会在前端按该条数滚动保存。' })}</div>
+            <div className="settings-card-subtitle">{t('settings.clipboardHistory.limit.hint', { defaultValue: '队列仅保留最近的 N 条记录，最多可设置 20 条，超出后最旧的记录会被丢弃。' })}</div>
           </div>
-          <div className="settings-lyrics-source-options">
-            {HISTORY_LIMIT_OPTIONS.map((value) => (
-              <button
-                key={value}
-                className={`settings-lyrics-source-btn ${historyLimit === value ? 'active' : ''}`}
-                type="button"
-                onClick={() => handleChangeLimit(value)}
-              >
-                {t(`settings.clipboardHistory.limit.options.${value}`, { defaultValue: `${value} 条` })}
-              </button>
-            ))}
+          <div className="settings-clipboard-limit-stepper">
+            <button
+              className="settings-lyrics-source-btn"
+              type="button"
+              aria-label={t('settings.clipboardHistory.limit.decrease', { defaultValue: '减少保留条数' })}
+              disabled={historyLimit <= MIN_HISTORY_LIMIT}
+              onClick={() => handleChangeLimit(historyLimit - 1)}
+            >
+              −
+            </button>
+            <span className="settings-clipboard-limit-value" aria-live="polite">
+              {t('settings.clipboardHistory.limit.value', { count: historyLimit, defaultValue: '{{count}} 条' })}
+            </span>
+            <button
+              className="settings-lyrics-source-btn"
+              type="button"
+              aria-label={t('settings.clipboardHistory.limit.increase', { defaultValue: '增加保留条数' })}
+              disabled={historyLimit >= MAX_HISTORY_LIMIT}
+              onClick={() => handleChangeLimit(historyLimit + 1)}
+            >
+              +
+            </button>
           </div>
         </div>
 

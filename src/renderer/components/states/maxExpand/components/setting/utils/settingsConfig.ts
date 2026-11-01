@@ -526,7 +526,7 @@ export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutUpdateEntries
   { label: 'URL 黑名单（按域名）', desc: '命中黑名单域名时：单个链接不弹窗，多链接自动剔除', labelKey: 'settings.app.urlParser.blacklistTitle', descKey: 'settings.app.urlParser.blacklistHint', tab: 'app', appPage: 'url-parser' },
   // ── 软件设置 > 剪贴板历史 ──
   { label: '历史记录开关', desc: '关闭后不再追加新的剪贴板记录，已有记录会保留。', labelKey: 'settings.clipboardHistory.enabled.title', descKey: 'settings.clipboardHistory.enabled.hint', tab: 'app', appPage: 'clipboard-history' },
-  { label: '最大保留条数', desc: '新记录会在前端按该条数滚动保存。', labelKey: 'settings.clipboardHistory.limit.title', descKey: 'settings.clipboardHistory.limit.hint', tab: 'app', appPage: 'clipboard-history' },
+  { label: '最大保留条数', desc: '队列仅保留最近的 N 条记录，最多可设置 20 条，超出后最旧的记录会被丢弃。', labelKey: 'settings.clipboardHistory.limit.title', descKey: 'settings.clipboardHistory.limit.hint', tab: 'app', appPage: 'clipboard-history' },
   { label: '复制后自动退出', desc: '复制历史项后自动退出最大展开；有歌曲时回到歌曲态，无歌曲时回到 idle。', labelKey: 'settings.clipboardHistory.exitMaxExpandOnCopy.title', descKey: 'settings.clipboardHistory.exitMaxExpandOnCopy.hint', tab: 'app', appPage: 'clipboard-history' },
   { label: '数据管理', desc: '可一键清空已保存的剪贴板历史记录。', labelKey: 'settings.clipboardHistory.actions.title', descKey: 'settings.clipboardHistory.actions.hint', tab: 'app', appPage: 'clipboard-history' },
   // ── 软件设置 > 闹钟 ──

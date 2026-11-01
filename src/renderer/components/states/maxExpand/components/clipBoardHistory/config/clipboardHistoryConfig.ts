@@ -34,8 +34,12 @@ export const HISTORY_ENABLED_STORE_KEY = 'clipboard-history-enabled';
 export const HISTORY_LIMIT_STORE_KEY = 'clipboard-history-limit';
 /** 复制后退出最大展开态持久化键 */
 export const EXIT_MAX_EXPAND_ON_COPY_STORE_KEY = 'clipboard-history-exit-max-expand-on-copy';
+/** 历史记录条数上限的最小值 */
+export const MIN_HISTORY_LIMIT = 1;
+/** 历史记录条数上限的最大值 */
+export const MAX_HISTORY_LIMIT = 20;
 /** 默认历史记录条数上限 */
-export const DEFAULT_HISTORY_LIMIT = 10;
+export const DEFAULT_HISTORY_LIMIT = 5;
 /** 剪贴板轮询间隔（ms） */
 export const POLL_INTERVAL_MS = 1000;
 /** 选择模式收起动画时长（ms） */

@@ -25,12 +25,21 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { buildClipboardHistoryExport, downloadTextFile, getClipboardHistoryExportFileName, getPreviewText, isItemInCleanupRange, isLikelyPassword, isLikelyUrl, isRecordableClipboardText, isSameLocalDay, matchesClipboardFilter, normalizeClipboardText, persistHistory, sanitizeHistory } from '../clipboardHistoryUtils';
+import { buildClipboardHistoryExport, clampHistoryLimit, downloadTextFile, getClipboardHistoryExportFileName, getPreviewText, isItemInCleanupRange, isLikelyPassword, isLikelyUrl, isRecordableClipboardText, isSameLocalDay, matchesClipboardFilter, normalizeClipboardText, persistHistory, sanitizeHistory } from '../clipboardHistoryUtils';
 import type { ClipboardCleanupRange, ClipboardHistoryFilter, ClipboardHistoryItem } from '../../types/clipboardHistoryTypes';
 
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
+});
+
+describe('clampHistoryLimit', () => {
+  it.each<[unknown, number]>([
+    [NaN, 5], [Infinity, 5], [-Infinity, 5], [undefined, 5], [null, 5], ['12', 5], [{}, 5],
+    [0, 1], [1, 1], [-3, 1], [1.4, 1], [1.6, 2], [5, 5], [19.6, 20], [20, 20], [21, 20], [50, 20],
+  ])('%o -> %s', (value, expected) => {
+    expect(clampHistoryLimit(value)).toBe(expected);
+  });
 });
 
 describe('clipboard text privacy and filtering', () => {

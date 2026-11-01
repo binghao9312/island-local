@@ -48,8 +48,10 @@ describe('ClipboardHistorySettingsSection', () => {
     const tree = ClipboardHistorySettingsSection();
     invoke(findElement(tree, (node) => elementProps(node).type === 'checkbox'), 'onChange', { target: { checked: false } });
     expect(api.storeWrite).toHaveBeenCalledWith('clipboard-history-enabled', false);
-    invoke(findElement(tree, (node) => node.type === 'button' && textContent(node) === 'settings.clipboardHistory.limit.options.50'), 'onClick');
-    expect(api.storeWrite).toHaveBeenCalledWith('clipboard-history-limit', 50);
+    invoke(findElement(tree, (node) => elementProps(node)['aria-label'] === 'settings.clipboardHistory.limit.increase'), 'onClick');
+    expect(api.storeWrite).toHaveBeenCalledWith('clipboard-history-limit', 6);
+    invoke(findElement(tree, (node) => elementProps(node)['aria-label'] === 'settings.clipboardHistory.limit.decrease'), 'onClick');
+    expect(api.storeWrite).toHaveBeenCalledWith('clipboard-history-limit', 4);
   });
   it('clears both persisted copies and shows completion feedback', async () => {
     const removeItem = vi.fn();

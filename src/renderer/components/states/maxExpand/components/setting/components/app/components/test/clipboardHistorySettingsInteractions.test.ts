@@ -34,7 +34,7 @@ vi.mock('react', async (original) => ({
 }));
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => key
+    t: (key: string, options?: { count?: number }) => options?.count === undefined ? key : `${key}:${options.count}`
   })
 }));
 const api = {
@@ -63,13 +63,15 @@ async function settle(): Promise<void> {
  * 获取当前真实最大条数选项。
  * @returns 实际选中选项文字。
  */
-function active() {
-  return elements(render()).filter((node) => node.type === 'button' && String(elementProps(node).className).endsWith('active')).map((node) => textContent(node));
+function limitText(): string {
+  return textContent(findElement(render(), (node) => String(elementProps(node).className) === 'settings-clipboard-limit-value'));
 }
-/**
- * 点击实际清空历史按钮。
- * @returns 无返回值。
- */
+function stepper(direction: 'decrease' | 'increase') {
+  return findElement(render(), (node) => elementProps(node)['aria-label'] === `settings.clipboardHistory.limit.${direction}`);
+}
+function limitWrites(): unknown[] {
+  return api.storeWrite.mock.calls.filter(([key]) => key === 'clipboard-history-limit').map(([, value]) => value);
+}
 function clear(): void {
   invoke(findElement(render(), (node) => node.type === 'button' && textContent(node) === 'settings.clipboardHistory.actions.clear'), 'onClick');
 }
@@ -98,35 +100,38 @@ describe('真实配置读取与边界', () => {
   });
   it.each([{
     value: 100,
-    selected: '50'
+    shown: 20
+  }, {
+    value: 50,
+    shown: 20
   }, {
     value: -5,
-    selected: ''
+    shown: 1
   }, {
     value: NaN,
-    selected: '10'
+    shown: 5
   }, {
     value: Infinity,
-    selected: '10'
+    shown: 5
   }, {
     value: 19.6,
-    selected: '20'
+    shown: 20
   }])('保存最大条数$value夹紧取整或使用默认', async ({
     value,
-    selected
+    shown
   }) => {
     api.storeRead.mockResolvedValue(value);
     render();
     runEffects();
     await settle();
-    expect(active()).toEqual(selected ? [`settings.clipboardHistory.limit.options.${selected}`] : []);
+    expect(limitText()).toBe(`settings.clipboardHistory.limit.value:${shown}`);
   });
   it('读取拒绝保留默认，卸载后迟到值忽略', async () => {
     api.storeRead.mockRejectedValue(new Error('offline'));
     render();
     runEffects();
     await settle();
-    expect(active()).toEqual(['settings.clipboardHistory.limit.options.10']);
+    expect(limitText()).toBe('settings.clipboardHistory.limit.value:5');
     resetLifecycle();
     let resolve: (value: unknown) => void = () => undefined;
     api.storeRead.mockReturnValue(new Promise((done) => {
@@ -138,11 +143,11 @@ describe('真实配置读取与边界', () => {
     resolve(false);
     await settle();
     expect(elements(render()).filter((node) => node.type === 'input').map((node) => elementProps(node).checked)).toEqual([true, false]);
-    expect(active()).toEqual(['settings.clipboardHistory.limit.options.10']);
+    expect(limitText()).toBe('settings.clipboardHistory.limit.value:5');
   });
 });
 describe('真实设置保存与回滚', () => {
-  it.each([true, false])('写入失败=%s回滚两个开关和最大条数', async (failure) => {
+  it.each([true, false])('写入失败=%s回滚两个开关', async (failure) => {
     if (failure) api.storeWrite.mockRejectedValue(new Error('offline'));
     const tree = render();
     const [enabled, exit] = elements(tree).filter((node) => node.type === 'input');
@@ -156,17 +161,68 @@ describe('真实设置保存与回滚', () => {
         checked: true
       }
     });
-    elements(tree).filter((node) => node.type === 'button' && String(elementProps(node).className).startsWith('settings-lyrics-source-btn')).forEach((node) => {
-      invoke(node, 'onClick');
-    });
-    expect(api.storeWrite).toHaveBeenCalledTimes(6);
+    expect(api.storeWrite).toHaveBeenCalledTimes(2);
     expect(api.storeWrite).toHaveBeenCalledWith('clipboard-history-enabled', false);
     expect(api.storeWrite).toHaveBeenCalledWith('clipboard-history-exit-max-expand-on-copy', true);
-    expect(api.storeWrite.mock.calls.filter(([key]) => key === 'clipboard-history-limit').map(([, value]) => value)).toEqual([10, 20, 30, 50]);
-    expect(active()).toEqual(['settings.clipboardHistory.limit.options.50']);
     await settle();
-    expect(active()).toEqual([`settings.clipboardHistory.limit.options.${failure ? '10' : '50'}`]);
     expect(elements(render()).filter((node) => node.type === 'input').map((node) => elementProps(node).checked)).toEqual(failure ? [true, false] : [false, true]);
+  });
+  it.each([{
+    direction: 'increase' as const,
+    expected: 6
+  }, {
+    direction: 'decrease' as const,
+    expected: 4
+  }])('步进器$direction写入$expected，失败时回滚到5', async ({
+    direction,
+    expected
+  }) => {
+    invoke(stepper(direction), 'onClick');
+    expect(limitWrites()).toEqual([expected]);
+    expect(limitText()).toBe(`settings.clipboardHistory.limit.value:${expected}`);
+    await settle();
+    expect(limitText()).toBe(`settings.clipboardHistory.limit.value:${expected}`);
+    resetLifecycle();
+    api.storeWrite.mockRejectedValue(new Error('offline'));
+    invoke(stepper(direction), 'onClick');
+    expect(limitText()).toBe(`settings.clipboardHistory.limit.value:${expected}`);
+    await settle();
+    expect(limitText()).toBe('settings.clipboardHistory.limit.value:5');
+  });
+  it.each([{
+    stored: 1,
+    disabled: [true, false]
+  }, {
+    stored: 2,
+    disabled: [false, false]
+  }, {
+    stored: 20,
+    disabled: [false, true]
+  }, {
+    stored: 50,
+    disabled: [false, true]
+  }])('保存值$stored时减少/增加按钮禁用状态为$disabled', async ({
+    stored,
+    disabled
+  }) => {
+    api.storeRead.mockResolvedValue(stored);
+    render();
+    runEffects();
+    await settle();
+    expect([elementProps(stepper('decrease')).disabled, elementProps(stepper('increase')).disabled]).toEqual(disabled);
+  });
+  it('在20处增加和在1处减少不会越界', async () => {
+    api.storeRead.mockResolvedValue(20);
+    render();
+    runEffects();
+    await settle();
+    expect(elementProps(stepper('increase')).disabled).toBe(true);
+    for (let value = 19; value >= 1; value--) {
+      invoke(stepper('decrease'), 'onClick');
+    }
+    expect(limitWrites()).toEqual(Array.from({ length: 19 }, (_, index) => 19 - index));
+    expect(limitText()).toBe('settings.clipboardHistory.limit.value:1');
+    expect(elementProps(stepper('decrease')).disabled).toBe(true);
   });
   it.each([{
     failure: false,

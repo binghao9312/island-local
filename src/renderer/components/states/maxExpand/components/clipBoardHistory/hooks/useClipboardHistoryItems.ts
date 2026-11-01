@@ -30,7 +30,7 @@ import { useTranslation } from 'react-i18next';
 import useIslandStore from '../../../../../../store/slices';
 import { DEFAULT_HISTORY_LIMIT, EXIT_MAX_EXPAND_ON_COPY_STORE_KEY, HISTORY_ENABLED_STORE_KEY, HISTORY_LIMIT_STORE_KEY, LOCAL_STORAGE_KEY, POLL_INTERVAL_MS, STORE_KEY } from '../config/clipboardHistoryConfig';
 import type { ClipboardHistoryItem, UseClipboardHistoryItemsReturn } from '../types/clipboardHistoryTypes';
-import { isRecordableClipboardText, normalizeClipboardText, persistHistory, sanitizeHistory } from '../utils/clipboardHistoryUtils';
+import { clampHistoryLimit, isRecordableClipboardText, normalizeClipboardText, persistHistory, sanitizeHistory } from '../utils/clipboardHistoryUtils';
 
 /**
  * 管理剪贴板历史条目的完整生命周期：加载、轮询、持久化、展开/编辑、复制
@@ -71,9 +71,7 @@ export function useClipboardHistoryItems(
     ]).then(([enabledRaw, limitRaw, exitRaw]) => {
       if (cancelled) return;
       const nextEnabled = typeof enabledRaw === 'boolean' ? enabledRaw : true;
-      const nextLimit = typeof limitRaw === 'number' && Number.isFinite(limitRaw)
-        ? Math.max(1, Math.min(50, Math.round(limitRaw)))
-        : DEFAULT_HISTORY_LIMIT;
+      const nextLimit = clampHistoryLimit(limitRaw);
       const nextExitOnCopy = typeof exitRaw === 'boolean' ? exitRaw : false;
       setHistoryEnabled(nextEnabled);
       setHistoryLimit(nextLimit);
