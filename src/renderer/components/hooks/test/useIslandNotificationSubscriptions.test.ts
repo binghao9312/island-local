@@ -99,9 +99,13 @@ describe('useIslandNotificationSubscriptions 实际订阅与通知', () => {
     renderWithHooks(() => useIslandNotificationSubscriptions(input));
     expect(listeners.has('onExternalAgentStarted')).toBe(false);
   });
-  it.each(['onExternalAgentStarted', 'onExternalAgentStopped'])('Agent %s 合并进程名称并产生对应通知', async (event) => {
+  it.each(['onExternalAgentStarted', 'onExternalAgentStopped'])('Agent %s 合并进程名称并改用系统通知，不弹灵动岛', async (event) => {
+    const systemNotification = vi.fn();
+    vi.stubGlobal('Notification', systemNotification);
     await mount(); await emit(event, { agentNames: ['Claude', 'Codex'] });
-    expect(notification).toHaveBeenCalledWith(expect.objectContaining({ agentName: 'Claude、Codex', icon: SvgIcon.CODING, type: event === 'onExternalAgentStarted' ? 'external-agent-active' : 'external-agent-stopped' }));
+    expect(systemNotification).toHaveBeenCalledTimes(1);
+    expect(systemNotification).toHaveBeenCalledWith(expect.any(String), { body: expect.any(String) });
+    expect(notification).not.toHaveBeenCalled();
   });
   it('更新可用读取真实版本接口与更新源，重复事件只通知一次', async () => {
     await mount(); responses.push({ code: 200, data: { version: '2.0', description: ' Release notes ' } });

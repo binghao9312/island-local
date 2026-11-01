@@ -26,7 +26,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MusicSettingsSection } from '../MusicSettingsSection';
-import { elementProps, elements, findElement, invoke, resetState, textContent } from '../../../../../../../test/elementHarness';
+import { elementProps, findElement, invoke, resetState, textContent } from '../../../../../../../test/elementHarness';
 import type { ComponentProps } from 'react';
 const api = vi.hoisted(() => ({ musicWhitelistSet: vi.fn(() => Promise.resolve()), musicLyricsCalibrateDelaySet: vi.fn(() => Promise.resolve()) }));
 /**
@@ -123,7 +123,9 @@ describe('MusicSettingsSection', () => {
     const storage = { getItem: vi.fn(() => 'true'), setItem: vi.fn() };
     vi.stubGlobal('localStorage', storage);
     const tree = MusicSettingsSection({ ...makeProps(), musicSettingsPage: 'lyrics' as const });
-    const toggle = findElement(tree, (n) => n.type === 'input' && elementProps(n).checked === true && n.props.type === 'checkbox');
+    const label = findElement(tree, (n) => n.type === 'label' && textContent(n).includes('settings.music.lyrics.traditionalToggle'));
+    const toggle = findElement(label, (n) => n.type === 'input');
+    expect(elementProps(toggle).checked).toBe(true);
     invoke(toggle, 'onChange', { target: { checked: false } });
     expect(storage.setItem).toHaveBeenCalledWith('island_lyrics_convert_traditional', 'false');
   });
@@ -137,10 +139,9 @@ describe('MusicSettingsSection', () => {
     resetState();
     const storage = { getItem: vi.fn(() => 'true'), setItem: vi.fn() };
     vi.stubGlobal('localStorage', storage);
-    const tree = MusicSettingsSection({ ...makeProps(), musicSettingsPage: 'smtc' as const });
-    const checkboxes = elements(tree).filter((n) => n.type === 'input' && elementProps(n).type === 'checkbox');
-    expect(checkboxes.length).toBe(2);
-    const ringToggle = checkboxes[1];
+    const tree = MusicSettingsSection({ ...makeProps(), musicSettingsPage: 'lyrics' as const });
+    const label = findElement(tree, (n) => n.type === 'label' && textContent(n).includes('settings.music.ring.enabledToggle'));
+    const ringToggle = findElement(label, (n) => n.type === 'input');
     invoke(ringToggle, 'onChange', { target: { checked: false } });
     expect(storage.setItem).toHaveBeenCalledWith('island_song_progress_ring_enabled', 'false');
   });

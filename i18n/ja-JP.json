@@ -926,6 +926,10 @@
     }
   },
   "songTab": {
+    "quick": {
+      "idleLyrics": "アイランド歌詞",
+      "progressRing": "進捗ライン"
+    },
     "meta": {
       "notPlaying": "再生していません"
     },

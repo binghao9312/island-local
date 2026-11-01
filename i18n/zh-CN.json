@@ -926,6 +926,10 @@
     }
   },
   "songTab": {
+    "quick": {
+      "idleLyrics": "岛上歌词",
+      "progressRing": "进度线"
+    },
     "meta": {
       "notPlaying": "未在播放"
     },

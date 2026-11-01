@@ -34,6 +34,7 @@ import { useSongTab } from '../hooks/useSongTab';
 import { formatCountdownRemaining } from '../utils/songUtils';
 import { KaraokeSyllableLine } from './KaraokeSyllableLine';
 import { MarqueeLyricText } from './MarqueeLyricText';
+import { SongQuickToggles } from './SongQuickToggles';
 import { WaveCanvas } from './WaveCanvas';
 import type { CSSProperties, ReactElement } from 'react';
 
@@ -110,6 +111,7 @@ export function SongTab(): ReactElement {
               <img src={SvgIcon.LYRIC} alt={lyricsToggleLabel} className="ov-ctrl-icon ov-ctrl-icon--sm" />
             </button>
           </div>
+          <SongQuickToggles />
         </div>
       </div>
 

@@ -197,7 +197,7 @@ export function saveLyricsConvertToTraditional(enabled: boolean): void {
 }
 
 /**
- * 读取外缘歌曲进度环设置（默认开启）
+ * 读取外缘歌曲进度环设置（默认关闭）
  * @returns 是否开启歌曲外缘进度环
  */
 export function loadSongProgressRingEnabled(): boolean {
@@ -206,7 +206,7 @@ export function loadSongProgressRingEnabled(): boolean {
     if (raw === 'false') return false;
     if (raw === 'true') return true;
   } catch { /* 忽略 */ }
-  return true;
+  return false;
 }
 
 /**

@@ -82,6 +82,7 @@ export function useIslandStateBridges(options: UseIslandStateBridgesOptions): vo
       if (channel === 'music:lyrics-enabled') setLyricsEnabled(value);
       if (channel === 'music:lyrics-translation-enabled') setLyricsTranslationEnabled(value);
       if (channel === 'music:lyrics-idle-display-enabled') setLyricsIdleDisplayEnabled(value);
+      if (channel === 'music:song-progress-ring-enabled') useIslandStore.getState().setSongProgressRingEnabled(value);
     };
     window.addEventListener('island:setting-changed', onLocal);
     return () => { unsub(); window.removeEventListener('island:setting-changed', onLocal); };

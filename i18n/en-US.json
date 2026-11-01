@@ -926,6 +926,10 @@
     }
   },
   "songTab": {
+    "quick": {
+      "idleLyrics": "Island lyrics",
+      "progressRing": "Progress line"
+    },
     "meta": {
       "notPlaying": "Not playing"
     },

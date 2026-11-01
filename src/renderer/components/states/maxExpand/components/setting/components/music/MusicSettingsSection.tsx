@@ -385,6 +385,28 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
 
               <div className="settings-card">
                 <div className="settings-card-header">
+                  <div className="settings-card-title">{t('settings.music.ring.title', { defaultValue: '外缘进度线' })}</div>
+                  <div className="settings-card-subtitle">{t('settings.music.ring.hint', { defaultValue: '播放音乐时在灵动岛外缘显示歌曲进度线，倒计时运行时优先展示倒计时' })}</div>
+                </div>
+                <div className="settings-card-inline-row">
+                  <label className="settings-card-check">
+                    <input
+                      type="checkbox"
+                      checked={songProgressRingEnabled}
+                      onChange={(e) => {
+                        const next = e.target.checked;
+                        setSongProgressRingEnabled(next);
+                        saveSongProgressRingEnabled(next);
+                        window.dispatchEvent?.(new CustomEvent('island:setting-changed', { detail: { channel: 'music:song-progress-ring-enabled', value: next } }));
+                      }}
+                    />
+                    {t('settings.music.ring.enabledToggle', { defaultValue: '在灵动岛外缘显示歌曲进度' })}
+                  </label>
+                </div>
+              </div>
+
+              <div className="settings-card">
+                <div className="settings-card-header">
                   <div className="settings-card-title">{t('settings.music.lyrics.title', { defaultValue: '歌词源' })}</div>
                   <div className="settings-card-subtitle">{t('settings.music.lyrics.hint', { defaultValue: '自动模式根据 SMTC 检测到的播放器进程选择对应源，失败后依次尝试其他源，最后使用 LRCLIB 兜底' })}</div>
                 </div>
@@ -574,28 +596,6 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
                     {musicSmtcConfigMessage.text}
                   </div>
                 )}
-              </div>
-
-              <div className="settings-card">
-                <div className="settings-card-header">
-                  <div className="settings-card-title">{t('settings.music.ring.title', { defaultValue: '外缘进度线' })}</div>
-                  <div className="settings-card-subtitle">{t('settings.music.ring.hint', { defaultValue: '播放音乐时在灵动岛外缘显示歌曲进度线，倒计时运行时优先展示倒计时' })}</div>
-                </div>
-                <div className="settings-card-inline-row">
-                  <label className="settings-card-check">
-                    <input
-                      type="checkbox"
-                      checked={songProgressRingEnabled}
-                      onChange={(e) => {
-                        const next = e.target.checked;
-                        setSongProgressRingEnabled(next);
-                        saveSongProgressRingEnabled(next);
-                        window.dispatchEvent?.(new CustomEvent('island:setting-changed', { detail: { channel: 'music:song-progress-ring-enabled', value: next } }));
-                      }}
-                    />
-                    {t('settings.music.ring.enabledToggle', { defaultValue: '在灵动岛外缘显示歌曲进度' })}
-                  </label>
-                </div>
               </div>
 
             </div>

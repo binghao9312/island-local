@@ -305,8 +305,8 @@ describe('songProgressRingEnabled in storage', () => {
     mockLocalStorage();
   });
 
-  it('defaults to true when no value exists in localStorage', () => {
-    expect(loadSongProgressRingEnabled()).toBe(true);
+  it('defaults to false when no value exists in localStorage', () => {
+    expect(loadSongProgressRingEnabled()).toBe(false);
   });
 
   it('loads and saves boolean preference correctly', () => {

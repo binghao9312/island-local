@@ -90,7 +90,7 @@ export function IslandTimerRing(props: IslandTimerRingProps): JSX.Element {
   const currentPositionMs = propCurrentPositionMs ?? storePositionMs;
   const durationMs = propDurationMs ?? storeDurationMs;
   const dominantColor = propDominantColor ?? storeDominantColor;
-  const songProgressRingEnabled = propSongProgressRingEnabled ?? (storeRingEnabled ?? true);
+  const songProgressRingEnabled = propSongProgressRingEnabled ?? (storeRingEnabled ?? false);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
