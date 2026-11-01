@@ -1406,28 +1406,11 @@
       "symbolFormat": "Enter a symbol with market prefix, such as SH600519, SZ000651, HK00700, or USMSFT."
     }
   },
-  "stt": {
-    "label": "Recognition Result",
-    "asrQuickAdd": "ASR Quick Add",
-    "actions": {
-      "sendToAgent": "Send to Agent",
-      "added": "Added",
-      "addToMemo": "Add to Memo",
-      "addTodo": "Add Todo",
-      "copied": "Copied",
-      "copy": "Copy",
-      "ignore": "Ignore"
-    }
-  },
   "agent": {
     "actions": {
       "denyAuth": "Deny",
       "allowAuth": "Allow",
       "close": "Close"
-    },
-    "liquidOrb": {
-      "ariaLabel": "Dynamic liquid glass orb",
-      "loadingLabel": "Loading liquid glass orb preview"
     }
   },
   "cli": {
@@ -2752,7 +2735,6 @@
       "general": "General",
       "r1pxc": "r1pxc Agent",
       "ollama": "Ollama Local",
-      "orb-style": "Orb Style",
       "shortcut": "Shortcuts",
       "user": "Account",
       "update": "Updates",
@@ -2832,8 +2814,7 @@
     "aiPages": {
       "general": "General",
       "r1pxc": "r1pxc Agent",
-      "ollama": "Ollama Local",
-      "orb-style": "Orb Style"
+      "ollama": "Ollama Local"
     },
     "musicPages": {
       "whitelist": "Whitelist",
@@ -3614,7 +3595,6 @@
       "pages": {
         "window": "Window Control",
         "display": "Display Mode",
-        "agent": "AI Agent",
         "capture": "Capture",
         "clipboard": "Clipboard",
         "media": "Media Control"
@@ -3658,10 +3638,6 @@
         "toggleUiLock": {
           "title": "Toggle UI State Lock Shortcut",
           "hint": "Press to lock the current UI state. While locked, mouse enter/leave or auto logic will not change state. Press again to unlock"
-        },
-        "agentVoiceInput": {
-          "title": "Agent Voice Input Shortcut",
-          "hint": "Hold this shortcut to trigger Agent voice input; it closes automatically on release"
         },
         "toggleShapeMode": {
           "title": "Toggle Shape Mode Shortcut",
@@ -3970,15 +3946,6 @@
       "r1pxcAvatarClear": "Clear Avatar",
       "r1pxcAvatarFileTypeError": "Please choose an image file (png/jpg/webp etc.)",
       "r1pxcAvatarReadError": "Failed to read avatar. Please try another image",
-      "sttOrbTitle": "STT Interface Orb",
-      "sttOrbHint": "Toggle the liquid Orb animation in the voice input interface. When off, minimal indicator dots are shown instead",
-      "sttOrbToggle": "Enable Agent Orb in STT interface",
-      "orbColorTitle": "Orb Color Customization",
-      "orbColorHint": "Customize the main colors of the liquid Orb. Leave empty to use defaults",
-      "orbColorA": "Color A",
-      "orbColorB": "Color B",
-      "orbColorPlaceholder": "Leave empty for default, e.g. #d86bff",
-      "orbColorReset": "Reset to default",
       "pagination": "AI settings pagination"
     },
     "about": {

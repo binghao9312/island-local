@@ -71,7 +71,6 @@ describe('AI slice configuration and hydration', () => {
       contextLimit: 200000,
       skills: [],
       workspaces: [],
-      sttOrbEnabled: true
     });
     vi.stubGlobal('window', undefined);
     storage.values.set(keys.config, '{');
@@ -117,10 +116,7 @@ describe('AI slice configuration and hydration', () => {
       ollamaModel: ' model ',
       ollamaBaseUrl: ' url ',
       customApiModel: ' custom ',
-      customApiMode: 'direct',
-      sttOrbEnabled: false,
-      orbColorA: '#aAbBcC',
-      orbColorB: '#112233'
+      customApiMode: 'direct'
     });
     expect((await store()).getState().aiConfig).toMatchObject({
       deepseekReasoningEffort: effort,
@@ -135,10 +131,7 @@ describe('AI slice configuration and hydration', () => {
       ollamaModel: 'model',
       ollamaBaseUrl: 'url',
       customApiModel: 'custom',
-      customApiMode: 'direct',
-      sttOrbEnabled: false,
-      orbColorA: '#aAbBcC',
-      orbColorB: '#112233'
+      customApiMode: 'direct'
     });
   });
   it('drops unsupported optional config types and receives matching storage events only', async () => {
@@ -148,9 +141,7 @@ describe('AI slice configuration and hydration', () => {
       skills: {},
       ollamaModel: 1,
       ollamaBaseUrl: null,
-      customApiModel: false,
-      orbColorA: 3,
-      orbColorB: 'bad'
+      customApiModel: false
     });
     const api = await store();
     expect(api.getState().aiConfig).toMatchObject({
@@ -159,9 +150,7 @@ describe('AI slice configuration and hydration', () => {
       skills: [],
       ollamaModel: '',
       ollamaBaseUrl: '',
-      customApiModel: '',
-      orbColorA: '',
-      orbColorB: ''
+      customApiModel: ''
     });
     persist(keys.config, {
       apiKey: 'external-key'

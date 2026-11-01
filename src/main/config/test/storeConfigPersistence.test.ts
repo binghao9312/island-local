@@ -44,7 +44,6 @@ const stringReads: ReadCase[] = [
   { name: 'clipboard history hotkey', read: config.readOpenClipboardHistoryHotkeyConfig, key: config.OPEN_CLIPBOARD_HISTORY_HOTKEY_STORE_KEY, fallback: config.DEFAULT_OPEN_CLIPBOARD_HISTORY_HOTKEY, valid: 'Ctrl+C' },
   { name: 'passthrough hotkey', read: config.readTogglePassthroughHotkeyConfig, key: config.TOGGLE_PASSTHROUGH_HOTKEY_STORE_KEY, fallback: config.DEFAULT_TOGGLE_PASSTHROUGH_HOTKEY, valid: 'Ctrl+F' },
   { name: 'UI lock hotkey', read: config.readToggleUiLockHotkeyConfig, key: config.TOGGLE_UI_LOCK_HOTKEY_STORE_KEY, fallback: config.DEFAULT_TOGGLE_UI_LOCK_HOTKEY, valid: 'Ctrl+L' },
-  { name: 'voice input hotkey', read: config.readAgentVoiceInputHotkeyConfig, key: config.AGENT_VOICE_INPUT_HOTKEY_STORE_KEY, fallback: config.DEFAULT_AGENT_VOICE_INPUT_HOTKEY, valid: 'Ctrl+V' },
   { name: 'shape mode hotkey', read: config.readToggleShapeModeHotkeyConfig, key: config.TOGGLE_SHAPE_MODE_HOTKEY_STORE_KEY, fallback: config.DEFAULT_TOGGLE_SHAPE_MODE_HOTKEY, valid: 'Ctrl+M' },
   { name: 'lyrics source', read: config.readLyricsSourceConfig, key: config.LYRICS_SOURCE_STORE_KEY, fallback: 'auto', valid: 'netease' },
   { name: 'splash background', read: config.readSplashBgColorConfig, key: config.SPLASH_BG_COLOR_STORE_KEY, fallback: config.DEFAULT_SPLASH_BG_COLOR, valid: '#123456' },

@@ -1406,28 +1406,11 @@
       "symbolFormat": "SH600519、SZ000651、HK00700、USMSFTなど、市場の接頭辞を含む銘柄コードを入力してください。"
     }
   },
-  "stt": {
-    "label": "認識結果",
-    "asrQuickAdd": "ASRクイック追加",
-    "actions": {
-      "sendToAgent": "エージェントに送信",
-      "added": "追加しました",
-      "addToMemo": "メモに追加",
-      "addTodo": "タスクを追加",
-      "copied": "コピーしました",
-      "copy": "コピー",
-      "ignore": "無視"
-    }
-  },
   "agent": {
     "actions": {
       "denyAuth": "拒否",
       "allowAuth": "許可",
       "close": "閉じる"
-    },
-    "liquidOrb": {
-      "ariaLabel": "動くリキッドガラスの球体",
-      "loadingLabel": "リキッドガラスの球体のプレビューを読み込み中"
     }
   },
   "cli": {
@@ -2752,7 +2735,6 @@
       "general": "一般",
       "r1pxc": "r1pxc Agent",
       "ollama": "Ollama ローカル",
-      "orb-style": "Orb スタイル",
       "shortcut": "ショートカット",
       "user": "アカウント",
       "update": "更新",
@@ -2832,8 +2814,7 @@
     "aiPages": {
       "general": "一般",
       "r1pxc": "r1pxc Agent",
-      "ollama": "Ollama ローカル",
-      "orb-style": "Orb スタイル"
+      "ollama": "Ollama ローカル"
     },
     "musicPages": {
       "whitelist": "許可リスト",
@@ -3614,7 +3595,6 @@
       "pages": {
         "window": "ウィンドウ操作",
         "display": "表示モード",
-        "agent": "AIエージェント",
         "capture": "スクリーンショット",
         "clipboard": "クリップボード",
         "media": "メディア操作"
@@ -3658,10 +3638,6 @@
         "toggleUiLock": {
           "title": "UI 状態のロック切り替えショートカット",
           "hint": "押すと現在の UI 状態をロックします。ロック中はマウスの出入りや自動処理で状態が変わりません。もう一度押すと解除します"
-        },
-        "agentVoiceInput": {
-          "title": "Agent の音声入力ショートカット",
-          "hint": "長押しすると Agent の音声入力を開始し、離すと自動で閉じます"
         },
         "toggleShapeMode": {
           "title": "形状モードの切り替えショートカット",
@@ -3970,15 +3946,6 @@
       "r1pxcAvatarClear": "アバターを削除",
       "r1pxcAvatarFileTypeError": "画像ファイル（png/jpg/webpなど）を選択してください",
       "r1pxcAvatarReadError": "アバターを読み込めませんでした。別の画像をお試しください",
-      "sttOrbTitle": "STT画面のOrb",
-      "sttOrbHint": "音声入力画面の液体風Orbアニメーションを切り替えます。オフにするとシンプルな点のインジケーターを表示します",
-      "sttOrbToggle": "STT画面でAgent Orbを有効にする",
-      "orbColorTitle": "Orbの色をカスタマイズ",
-      "orbColorHint": "液体風Orbのメインカラーを設定します。空欄の場合は既定の色を使用します",
-      "orbColorA": "カラーA",
-      "orbColorB": "カラーB",
-      "orbColorPlaceholder": "空欄で既定の色を使用、例: #d86bff",
-      "orbColorReset": "既定に戻す",
       "pagination": "AI設定のページ切り替え"
     },
     "about": {

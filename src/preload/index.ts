@@ -1014,35 +1014,6 @@ const api = {
   toggleShapeModeHotkeySet: (accelerator: string): Promise<boolean> => {
     return ipcRenderer.invoke('toggle-shape-mode-hotkey:set', accelerator);
   },
-  /**
-   * 获取当前 Agent 语音输入快捷键
-   * @returns 当前快捷键字符串
-   */
-  agentVoiceInputHotkeyGet: (): Promise<string> => {
-    return ipcRenderer.invoke('agent-voice-input-hotkey:get');
-  },
-  /**
-   * 设置 Agent 语音输入快捷键
-   * @param accelerator - Electron accelerator 字符串
-   * @returns 是否注册成功
-   */
-  agentVoiceInputHotkeySet: (accelerator: string): Promise<boolean> => {
-    return ipcRenderer.invoke('agent-voice-input-hotkey:set', accelerator);
-  },
-  /**
-   * 监听 Agent 语音输入状态变化
-   * @param callback - 回调函数，参数为是否激活
-   * @returns 取消监听函数
-   */
-  onAgentVoiceInputState: (callback: (active: boolean) => void): (() => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, active: boolean): void => {
-      callback(active);
-    };
-    ipcRenderer.on('agent-voice-input:state', handler);
-    return () => {
-      ipcRenderer.removeListener('agent-voice-input:state', handler);
-    };
-  },
   /** 显示 CLI 检测全屏边缘光效（常驻直到调用 cliGlowHide） */
   cliGlowShow: (): Promise<boolean> => {
     return ipcRenderer.invoke('cli-glow:show');

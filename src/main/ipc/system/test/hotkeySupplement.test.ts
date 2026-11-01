@@ -35,8 +35,8 @@ const mocks = vi.hoisted(() => ({
 vi.mock('electron', () => ({ ipcMain: { handle: mocks.handle } }));
 vi.mock('fs', () => ({ writeFileSync: mocks.write }));
 const handlers = new Map<string, Handler>();
-const names = ["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough","ToggleUiLock","AgentVoiceInput","ToggleShapeMode"] as const;
-const rows = [["Hide","hotkey",["Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","ToggleUiLock"]],["OpenClipboardHistory","open-clipboard-history-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow"]],["ShowSettingsWindow","show-settings-window-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","OpenClipboardHistory"]],["NextSong","next-song-hotkey",["Hide","Quit","Screenshot","ResetPosition","PlayPauseSong","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["PlayPauseSong","play-pause-song-hotkey",["Hide","Quit","Screenshot","ResetPosition","NextSong","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["ResetPosition","reset-position-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["Quit","quit-hotkey",["Hide","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow"]],["ToggleTray","toggle-tray-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ShowSettingsWindow","OpenClipboardHistory"]],["TogglePassthrough","toggle-passthrough-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["ToggleUiLock","toggle-ui-lock-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough"]],["AgentVoiceInput","agent-voice-input-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough","ToggleUiLock","ToggleShapeMode"]],["ToggleShapeMode","toggle-shape-mode-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough","ToggleUiLock","AgentVoiceInput"]]] as const;
+const names = ["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough","ToggleUiLock","ToggleShapeMode"] as const;
+const rows = [["Hide","hotkey",["Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","ToggleUiLock"]],["OpenClipboardHistory","open-clipboard-history-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow"]],["ShowSettingsWindow","show-settings-window-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","OpenClipboardHistory"]],["NextSong","next-song-hotkey",["Hide","Quit","Screenshot","ResetPosition","PlayPauseSong","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["PlayPauseSong","play-pause-song-hotkey",["Hide","Quit","Screenshot","ResetPosition","NextSong","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["ResetPosition","reset-position-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["Quit","quit-hotkey",["Hide","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow"]],["ToggleTray","toggle-tray-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ShowSettingsWindow","OpenClipboardHistory"]],["TogglePassthrough","toggle-passthrough-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["ToggleUiLock","toggle-ui-lock-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough"]],["ToggleShapeMode","toggle-shape-mode-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough","ToggleUiLock"]]] as const;
 const current = {
   Hide: vi.fn(() => ''),
   Quit: vi.fn(() => ''),
@@ -49,7 +49,6 @@ const current = {
   OpenClipboardHistory: vi.fn(() => ''),
   TogglePassthrough: vi.fn(() => ''),
   ToggleUiLock: vi.fn(() => ''),
-  AgentVoiceInput: vi.fn(() => ''),
   ToggleShapeMode: vi.fn(() => ''),
 };
 const stored = {
@@ -64,7 +63,6 @@ const stored = {
   OpenClipboardHistory: vi.fn(() => ''),
   TogglePassthrough: vi.fn(() => ''),
   ToggleUiLock: vi.fn(() => ''),
-  AgentVoiceInput: vi.fn(() => ''),
   ToggleShapeMode: vi.fn(() => ''),
 };
 const registrations = {
@@ -78,7 +76,6 @@ const registrations = {
   ToggleTray: vi.fn(() => true),
   TogglePassthrough: vi.fn(() => true),
   ToggleUiLock: vi.fn(() => true),
-  AgentVoiceInput: vi.fn(() => true),
   ToggleShapeMode: vi.fn(() => true),
 };
 
@@ -106,8 +103,6 @@ const options = {
   readTogglePassthroughHotkeyConfig: stored.TogglePassthrough,
   getCurrentToggleUiLockHotkey: current.ToggleUiLock,
   readToggleUiLockHotkeyConfig: stored.ToggleUiLock,
-  getCurrentAgentVoiceInputHotkey: current.AgentVoiceInput,
-  readAgentVoiceInputHotkeyConfig: stored.AgentVoiceInput,
   getCurrentToggleShapeModeHotkey: current.ToggleShapeMode,
   readToggleShapeModeHotkeyConfig: stored.ToggleShapeMode,
   hideHotkeyStoreKey: 'Hide',
@@ -130,8 +125,6 @@ const options = {
   registerTogglePassthroughHotkey: registrations.TogglePassthrough,
   toggleUiLockHotkeyStoreKey: 'ToggleUiLock',
   registerToggleUiLockHotkey: registrations.ToggleUiLock,
-  agentVoiceInputHotkeyStoreKey: 'AgentVoiceInput',
-  registerAgentVoiceInputHotkey: registrations.AgentVoiceInput,
   toggleShapeModeHotkeyStoreKey: 'ToggleShapeMode',
   registerToggleShapeModeHotkey: registrations.ToggleShapeMode,
   suspendIslandHotkeys: vi.fn<() => void>(),

@@ -20,7 +20,7 @@
 
 /**
  * @file hotkeyServiceSupplement.test.ts
- * @description 全部快捷键真实服务的注册替换、叶依赖失败、窗口动作、挂起恢复和语音防抖测试。
+ * @description 全部快捷键真实服务的注册替换、叶依赖失败、窗口动作、挂起恢复测试。
  * @author 鸡哥
  */
 
@@ -45,8 +45,8 @@ vi.mock('../../window/islandVisibility', () => ({
   hideIsland: (window: { hide: () => void }) => { window.hide(); },
 }));
 vi.mock('electron', () => ({ app: { quit: mocks.quit }, globalShortcut: { register: mocks.register, unregister: mocks.unregister } }));
-const names = ["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough","ToggleUiLock","AgentVoiceInput","ToggleShapeMode"] as const;
-const rows = [["Hide","registerHideHotkey","getCurrentHideHotkey",0],["Quit","registerQuitHotkey","getCurrentQuitHotkey",1],["Screenshot","registerScreenshotHotkey","getCurrentScreenshotHotkey",2],["NextSong","registerNextSongHotkey","getCurrentNextSongHotkey",3],["PlayPauseSong","registerPlayPauseSongHotkey","getCurrentPlayPauseSongHotkey",4],["ResetPosition","registerResetPositionHotkey","getCurrentResetPositionHotkey",5],["ToggleTray","registerToggleTrayHotkey","getCurrentToggleTrayHotkey",6],["ShowSettingsWindow","registerShowSettingsWindowHotkey","getCurrentShowSettingsWindowHotkey",7],["OpenClipboardHistory","registerOpenClipboardHistoryHotkey","getCurrentOpenClipboardHistoryHotkey",8],["TogglePassthrough","registerTogglePassthroughHotkey","getCurrentTogglePassthroughHotkey",9],["ToggleUiLock","registerToggleUiLockHotkey","getCurrentToggleUiLockHotkey",10],["AgentVoiceInput","registerAgentVoiceInputHotkey","getCurrentAgentVoiceInputHotkey",11],["ToggleShapeMode","registerToggleShapeModeHotkey","getCurrentToggleShapeModeHotkey",12]] as const;
+const names = ["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough","ToggleUiLock","ToggleShapeMode"] as const;
+const rows = [["Hide","registerHideHotkey","getCurrentHideHotkey",0],["Quit","registerQuitHotkey","getCurrentQuitHotkey",1],["Screenshot","registerScreenshotHotkey","getCurrentScreenshotHotkey",2],["NextSong","registerNextSongHotkey","getCurrentNextSongHotkey",3],["PlayPauseSong","registerPlayPauseSongHotkey","getCurrentPlayPauseSongHotkey",4],["ResetPosition","registerResetPositionHotkey","getCurrentResetPositionHotkey",5],["ToggleTray","registerToggleTrayHotkey","getCurrentToggleTrayHotkey",6],["ShowSettingsWindow","registerShowSettingsWindowHotkey","getCurrentShowSettingsWindowHotkey",7],["OpenClipboardHistory","registerOpenClipboardHistoryHotkey","getCurrentOpenClipboardHistoryHotkey",8],["TogglePassthrough","registerTogglePassthroughHotkey","getCurrentTogglePassthroughHotkey",9],["ToggleUiLock","registerToggleUiLockHotkey","getCurrentToggleUiLockHotkey",10],["ToggleShapeMode","registerToggleShapeModeHotkey","getCurrentToggleShapeModeHotkey",11]] as const;
 const callbacks = new Map<string, () => void>();
 const readers = {
   Hide: vi.fn(() => ''),
@@ -60,7 +60,6 @@ const readers = {
   OpenClipboardHistory: vi.fn(() => ''),
   TogglePassthrough: vi.fn(() => ''),
   ToggleUiLock: vi.fn(() => ''),
-  AgentVoiceInput: vi.fn(() => ''),
   ToggleShapeMode: vi.fn(() => ''),
 };
 const options = {
@@ -77,7 +76,6 @@ const options = {
   readOpenClipboardHistoryHotkeyConfig: readers.OpenClipboardHistory,
   readTogglePassthroughHotkeyConfig: readers.TogglePassthrough,
   readToggleUiLockHotkeyConfig: readers.ToggleUiLock,
-  readAgentVoiceInputHotkeyConfig: readers.AgentVoiceInput,
   readToggleShapeModeHotkeyConfig: readers.ToggleShapeMode,
   onScreenshotHotkey: vi.fn<() => void>(),
   onNextSongHotkey: vi.fn<() => void>(),
@@ -89,10 +87,8 @@ const options = {
   onTogglePassthroughHotkey: vi.fn<() => void>(),
   onToggleUiLockHotkey: vi.fn<() => void>(),
   onToggleShapeModeHotkey: vi.fn<() => void>(),
-  onAgentVoiceInputHotkeyHold: vi.fn<() => void>(),
-  onAgentVoiceInputHotkeyRelease: vi.fn<() => void>(),
 } satisfies Parameters<typeof createHotkeyService>[0];
-const actions = [mocks.show, mocks.quit, options.onScreenshotHotkey, options.onNextSongHotkey, options.onPlayPauseSongHotkey, options.onResetPositionHotkey, options.onToggleTrayHotkey, options.onShowSettingsWindowHotkey, options.onOpenClipboardHistoryHotkey, options.onTogglePassthroughHotkey, options.onToggleUiLockHotkey, options.onAgentVoiceInputHotkeyHold, options.onToggleShapeModeHotkey];
+const actions = [mocks.show, mocks.quit, options.onScreenshotHotkey, options.onNextSongHotkey, options.onPlayPauseSongHotkey, options.onResetPositionHotkey, options.onToggleTrayHotkey, options.onShowSettingsWindowHotkey, options.onOpenClipboardHistoryHotkey, options.onTogglePassthroughHotkey, options.onToggleUiLockHotkey, options.onToggleShapeModeHotkey];
 const windowFixture = { isDestroyed: mocks.destroyed, isVisible: mocks.visible, show: mocks.show, hide: mocks.hide, setAlwaysOnTop: mocks.alwaysOnTop };
 
 /**
@@ -219,36 +215,5 @@ describe('shortcut suspend and resume', () => {
     service.resumeIslandHotkeys();
     expect(mocks.register.mock.calls.map(([accelerator]) => accelerator)).toEqual(names.map((name) => `Current-${  name}`));
     names.forEach((name) => { expect(readers[name]).not.toHaveBeenCalled(); });
-  });
-});
-
-describe('agent voice shortcut debounce and release lifecycle', () => {
-  it('ignores held repeats until the exact three-hundred-millisecond boundary', () => {
-    const service = createHotkeyService(options);
-    service.registerAgentVoiceInputHotkey('Voice');
-    press('Voice');
-    expect(options.onAgentVoiceInputHotkeyHold).toHaveBeenCalledOnce();
-    press('Voice');
-    vi.advanceTimersByTime(299);
-    press('Voice');
-    expect(options.onAgentVoiceInputHotkeyRelease).not.toHaveBeenCalled();
-    vi.advanceTimersByTime(1);
-    press('Voice');
-    expect(options.onAgentVoiceInputHotkeyRelease).toHaveBeenCalledOnce();
-    vi.advanceTimersByTime(300);
-    press('Voice');
-    expect(options.onAgentVoiceInputHotkeyHold).toHaveBeenCalledTimes(2);
-  });
-  it('releases an active voice session before clearing or replacing the shortcut', () => {
-    const service = createHotkeyService(options);
-    service.registerAgentVoiceInputHotkey('Voice');
-    press('Voice');
-    expect(service.registerAgentVoiceInputHotkey('')).toBe(true);
-    expect(options.onAgentVoiceInputHotkeyRelease).toHaveBeenCalledOnce();
-    expect(service.getCurrentAgentVoiceInputHotkey()).toBe('');
-    vi.advanceTimersByTime(300);
-    service.registerAgentVoiceInputHotkey('NewVoice');
-    press('NewVoice');
-    expect(options.onAgentVoiceInputHotkeyHold).toHaveBeenCalledTimes(2);
   });
 });

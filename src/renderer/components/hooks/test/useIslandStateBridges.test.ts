@@ -40,16 +40,14 @@ vi.mock('../../../store/isLandStore', async (load) => {
 });
 type Options = Parameters<typeof useIslandStateBridges>[0];
 let settings: ((channel: string, value: unknown) => void) | null;
-let voice: ((active: boolean) => void) | null;
 const enabled = vi.fn(() => Promise.resolve(true)); const translationEnabled = vi.fn(() => Promise.resolve(true));
-const unsubscribeSettings = vi.fn(() => { settings = null; }); const unsubscribeVoice = vi.fn(() => { voice = null; });
+const unsubscribeSettings = vi.fn(() => { settings = null; });
 const ipc = {
   musicLyricsEnabledGet: enabled, musicLyricsTranslationEnabledGet: translationEnabled,
   onSettingsChanged: vi.fn((callback: (channel: string, value: unknown) => void) => { settings = callback; return unsubscribeSettings; }),
-  onAgentVoiceInputState: vi.fn((callback: (active: boolean) => void) => { voice = callback; return unsubscribeVoice; }),
 };
 beforeEach(() => {
-  resetBrowser(); enabled.mockResolvedValue(true); translationEnabled.mockResolvedValue(true); settings = null; voice = null;
+  resetBrowser(); enabled.mockResolvedValue(true); translationEnabled.mockResolvedValue(true); settings = null;
   vi.stubGlobal('window', Object.assign(browser, { api: { ...browser.api, ...ipc } }));
   useIslandStore.setState({ uiStateLocked: false, currentPositionMs: 0 });
 });
@@ -61,7 +59,7 @@ afterEach(() => { unmountHooks(); vi.unstubAllGlobals(); });
  */
 function options(patch: Partial<Options> = {}): Options {
   return { state: 'idle', timerState: 'idle', isPlaying: true, syncedLyrics: [{ time_ms: 0, text: 'Original' }], lyricsLoading: false, translationLyrics: null,
-    setLyrics: vi.fn(), setLyricsTranslation: vi.fn(), setAgentVoiceInput: vi.fn(), setIdle: vi.fn(), ...patch };
+    setLyrics: vi.fn(), setLyricsTranslation: vi.fn(), ...patch };
 }
 /**
  * 更新真实 Zustand 值并运行目标 Hook 的选择器与 effect。
@@ -128,21 +126,11 @@ describe('useIslandStateBridges 实际状态与设置', () => {
     enabled.mockRejectedValueOnce(new Error('offline')); translationEnabled.mockRejectedValueOnce(new Error('offline'));
     const input = options(); await mount(input); expect(input.setLyrics).toHaveBeenCalledOnce();
   });
-  it.each(['idle', 'expanded', 'maxExpand', 'agentVoiceInput'] as const)('语音输入事件使用当前 %s 状态决定进入或退出', async (state) => {
-    const input = options({ state, isPlaying: false }); await mount(input); voice?.(true); voice?.(false);
-    expect(input.setAgentVoiceInput).toHaveBeenCalledTimes(state === 'expanded' || state === 'maxExpand' ? 0 : 1);
-    expect(input.setIdle).toHaveBeenCalledTimes(state === 'agentVoiceInput' ? 1 : 0);
-    if (state === 'agentVoiceInput') expect(input.setIdle).toHaveBeenCalledWith(true);
-  });
-  it('状态改变重订阅语音且卸载移除原生与本地事件监听', async () => {
+  it('卸载移除原生与本地设置事件监听', async () => {
     const input = options({ state: 'hover', isPlaying: false }); await mount(input); commit({ ...input, state: 'idle' });
-    expect(unsubscribeVoice).toHaveBeenCalledOnce(); unmountHooks(); expect(unsubscribeVoice).toHaveBeenCalledTimes(2); expect(unsubscribeSettings).toHaveBeenCalledOnce();
-    expect(settings).toBeNull(); expect(voice).toBeNull();
+    unmountHooks(); expect(unsubscribeSettings).toHaveBeenCalledOnce();
+    expect(settings).toBeNull();
     browser.dispatchEvent(new CustomEvent('island:setting-changed', { detail: { channel: 'music:lyrics-enabled', value: false } }));
     commit(input); expect(input.setLyrics).not.toHaveBeenCalled();
-  });
-  it('可选语音 IPC 缺失时设置订阅仍正常且可清理', async () => {
-    vi.stubGlobal('window', Object.assign(browser, { api: { ...browser.api, onAgentVoiceInputState: undefined } }));
-    const input = options({ state: 'hover' }); await mount(input); expect(voice).toBeNull(); unmountHooks(); expect(unsubscribeSettings).toHaveBeenCalledOnce();
   });
 });

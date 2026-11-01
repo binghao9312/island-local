@@ -69,7 +69,6 @@ export const createIslandSlice: StateCreator<
   maxExpandLauncherVisible: true,
   cliProvider: readCliProvider(),
   notification: emptyNotification,
-  sttText: '',
   agentPrompt: '',
   springAnimation: true,
   animationSpeed: 'medium' as const,
@@ -228,14 +227,14 @@ export const createIslandSlice: StateCreator<
       } else if (target === 'maxExpand' || target === 'guide' || target === 'questionnaire') {
         window.api?.expandWindowSettings(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
         window.api?.disableMousePassthrough();
-      } else if (target === 'lyrics' || target === 'agentVoiceInput' || target === 'lyricsTranslation') {
+      } else if (target === 'lyrics' || target === 'lyricsTranslation') {
         if (target === 'lyricsTranslation') {
           window.api?.expandWindowLyricsTranslation(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
         } else {
           window.api?.expandWindowLyrics(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
         }
         window.api?.enableMousePassthrough();
-      } else if (target === 'notification' || target === 'agent' || target === 'stt' || target === 'cli') {
+      } else if (target === 'notification' || target === 'agent' || target === 'cli') {
         window.api?.expandWindowNotification(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
         window.api?.disableMousePassthrough();
       }
@@ -283,28 +282,12 @@ export const createIslandSlice: StateCreator<
     return { state: 'questionnaire' as const, authReturnState: null };
   }),
 
-  setAgentVoiceInput: () => set((prev) => {
-    if (prev.uiStateLocked && prev.state !== 'agentVoiceInput') return prev;
-    beginIslandWindowTransition(prev.state, 'agentVoiceInput');
-    window.api?.expandWindowLyrics(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
-    window.api?.enableMousePassthrough();
-    return { state: 'agentVoiceInput' as const, authReturnState: null };
-  }),
-
-  setStt: (text?: string) => set((prev) => {
-    if (prev.uiStateLocked && prev.state !== 'stt') return prev;
-    beginIslandWindowTransition(prev.state, 'stt');
-    window.api?.expandWindowNotification(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
-    window.api?.disableMousePassthrough();
-    return { state: 'stt' as const, sttText: text ?? '', authReturnState: null };
-  }),
-
   setAgent: (prompt?: string) => set((prev) => {
     if (prev.uiStateLocked && prev.state !== 'agent') return prev;
     beginIslandWindowTransition(prev.state, 'agent');
     window.api?.expandWindowNotification(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
     window.api?.disableMousePassthrough();
-    return { state: 'agent' as const, agentPrompt: prompt ?? prev.sttText ?? '', authReturnState: null };
+    return { state: 'agent' as const, agentPrompt: prompt ?? '', authReturnState: null };
   }),
 
   setCli: () => set((prev) => {

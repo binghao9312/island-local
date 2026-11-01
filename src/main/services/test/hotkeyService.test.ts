@@ -64,7 +64,6 @@ describe('createHotkeyService', () => {
     readOpenClipboardHistoryHotkeyConfig: () => 'Ctrl+Alt+V',
     readTogglePassthroughHotkeyConfig: () => 'Ctrl+Alt+X',
     readToggleUiLockHotkeyConfig: () => 'Ctrl+Alt+L',
-    readAgentVoiceInputHotkeyConfig: () => 'Ctrl+Alt+A',
     readToggleShapeModeHotkeyConfig: () => 'Ctrl+Alt+S',
     onScreenshotHotkey: vi.fn(),
     onNextSongHotkey: vi.fn(),
@@ -75,8 +74,6 @@ describe('createHotkeyService', () => {
     onOpenClipboardHistoryHotkey: vi.fn(),
     onTogglePassthroughHotkey: vi.fn(),
     onToggleUiLockHotkey: vi.fn(),
-    onAgentVoiceInputHotkeyHold: vi.fn(),
-    onAgentVoiceInputHotkeyRelease: vi.fn(),
     onToggleShapeModeHotkey: vi.fn(),
   };
 

@@ -65,7 +65,6 @@ describe('system hotkey and hide-process ipc handlers', () => {
     const registerOpenClipboardHistoryHotkey = vi.fn(() => true);
     const registerTogglePassthroughHotkey = vi.fn(() => true);
     const registerToggleUiLockHotkey = vi.fn(() => true);
-    const registerAgentVoiceInputHotkey = vi.fn(() => true);
     const registerToggleShapeModeHotkey = vi.fn(() => true);
     const suspendIslandHotkeys = vi.fn();
     const resumeIslandHotkeys = vi.fn();
@@ -83,7 +82,6 @@ describe('system hotkey and hide-process ipc handlers', () => {
         openClipboardHistoryHotkeyStoreKey: 'clipboard',
         togglePassthroughHotkeyStoreKey: 'passthrough',
         toggleUiLockHotkeyStoreKey: 'uilock',
-        agentVoiceInputHotkeyStoreKey: 'agentVoice',
         toggleShapeModeHotkeyStoreKey: 'shapeMode',
         getCurrentHideHotkey: () => 'Ctrl+Alt+H',
         getCurrentQuitHotkey: () => 'Ctrl+Alt+Q',
@@ -96,7 +94,6 @@ describe('system hotkey and hide-process ipc handlers', () => {
         getCurrentOpenClipboardHistoryHotkey: () => 'Ctrl+Alt+C',
         getCurrentTogglePassthroughHotkey: () => 'Ctrl+Alt+M',
         getCurrentToggleUiLockHotkey: () => 'Ctrl+Alt+L',
-        getCurrentAgentVoiceInputHotkey: () => 'Ctrl+Alt+V',
         getCurrentToggleShapeModeHotkey: () => '',
         readToggleShapeModeHotkeyConfig: () => '',
         readHideHotkeyConfig: () => 'Alt+1',
@@ -110,7 +107,6 @@ describe('system hotkey and hide-process ipc handlers', () => {
         readOpenClipboardHistoryHotkeyConfig: () => 'Alt+9',
         readTogglePassthroughHotkeyConfig: () => 'Alt+0',
         readToggleUiLockHotkeyConfig: () => 'Ctrl+Alt+L',
-        readAgentVoiceInputHotkeyConfig: () => 'Ctrl+Alt+V',
         registerHideHotkey,
         registerQuitHotkey,
         registerNextSongHotkey,
@@ -121,7 +117,6 @@ describe('system hotkey and hide-process ipc handlers', () => {
         registerOpenClipboardHistoryHotkey,
         registerTogglePassthroughHotkey,
         registerToggleUiLockHotkey,
-        registerAgentVoiceInputHotkey,
         registerToggleShapeModeHotkey,
         suspendIslandHotkeys,
         resumeIslandHotkeys,
@@ -137,7 +132,6 @@ describe('system hotkey and hide-process ipc handlers', () => {
         registerOpenClipboardHistoryHotkey,
         registerTogglePassthroughHotkey,
         registerToggleUiLockHotkey,
-        registerAgentVoiceInputHotkey,
         registerToggleShapeModeHotkey,
         suspendIslandHotkeys,
         resumeIslandHotkeys,
@@ -172,10 +166,6 @@ describe('system hotkey and hide-process ipc handlers', () => {
     const setUiLock = handlers.get('toggle-ui-lock-hotkey:set');
     expect(setUiLock?.({}, 'Ctrl+Alt+M')).toBe(false);
     expect(refs.registerToggleUiLockHotkey).not.toHaveBeenCalled();
-
-    const setAgentVoice = handlers.get('agent-voice-input-hotkey:set');
-    expect(setAgentVoice?.({}, 'Ctrl+Shift+V')).toBe(true);
-    expect(refs.registerAgentVoiceInputHotkey).toHaveBeenCalledWith('Ctrl+Shift+V');
 
     expect(handlers.get('hotkey:suspend')?.({})).toBe(true);
     expect(handlers.get('hotkey:resume')?.({})).toBe(true);

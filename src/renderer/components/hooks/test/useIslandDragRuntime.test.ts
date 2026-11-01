@@ -71,7 +71,7 @@ function frame(): void {
   const [id, callback] = entry; frames.delete(id); callback(16);
 }
 describe('真实拖动生命周期补充分支', () => {
-  it.each(['idle', 'lyrics', 'lyricsTranslation', 'agentVoiceInput'] as const)('pill状态%s用系统DIP坐标执行移动', async (state) => {
+  it.each(['idle', 'lyrics', 'lyricsTranslation'] as const)('pill状态%s用系统DIP坐标执行移动', async (state) => {
     mount({ state, shapeMode: 'pill', positionLockedRef: { current: false } });
     mouse('mousedown'); position = { x: 100, y: 206 }; mouse('mousemove'); frame(); await settleBackground();
     expect(moveWindowDelta).toHaveBeenCalledExactlyOnceWith(0, 6);

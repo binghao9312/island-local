@@ -528,8 +528,8 @@ describe('Island shape transitions and window animations', () => {
   });
   it.each([
     ['hover', 'expandWindow'], ['notification', 'expandWindowNotification'], ['agent', 'expandWindowNotification'],
-    ['stt', 'expandWindowNotification'], ['cli', 'expandWindowNotification'], ['lyrics', 'expandWindowLyrics'],
-    ['agentVoiceInput', 'expandWindowLyrics'], ['lyricsTranslation', 'expandWindowLyricsTranslation'],
+    ['cli', 'expandWindowNotification'], ['lyrics', 'expandWindowLyrics'],
+    ['lyricsTranslation', 'expandWindowLyricsTranslation'],
     ['expanded', 'expandWindowFull'], ['maxExpand', 'expandWindowSettings'], ['guide', 'expandWindowSettings'],
     ['login', 'expandWindowSettings'], ['register', 'expandWindowSettings'], ['resetPassword', 'expandWindowSettings'],
     ['setPassword', 'expandWindowSettings'], ['bindOAuth', 'expandWindowSettings'], ['bindEmail', 'expandWindowSettings'],

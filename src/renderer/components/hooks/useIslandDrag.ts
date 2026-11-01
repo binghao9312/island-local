@@ -72,7 +72,7 @@ export function useIslandDrag(options: UseIslandDragOptions): UseIslandDragResul
   const hasMovedRef = useRef(false);
 
   /** 允许拖动的状态集合 */
-  const draggable = shapeMode === 'pill' && (state === 'idle' || state === 'lyrics' || state === 'lyricsTranslation' || state === 'agentVoiceInput');
+  const draggable = shapeMode === 'pill' && (state === 'idle' || state === 'lyrics' || state === 'lyricsTranslation');
 
   useEffect(() => {
     if (!draggable) return;

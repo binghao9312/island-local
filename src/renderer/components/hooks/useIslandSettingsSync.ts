@@ -407,9 +407,9 @@ export function useIslandSettingsSync(options: UseIslandSettingsSyncOptions): vo
     const applyWindowForState = (state: string, delayMs = 0): void => {
       if (state === 'hover') {
         window.api?.expandWindow(delayMs);
-      } else if (state === 'notification' || state === 'agent' || state === 'stt' || state === 'cli') {
+      } else if (state === 'notification' || state === 'agent' || state === 'cli') {
         window.api?.expandWindowNotification(delayMs);
-      } else if (state === 'lyrics' || state === 'agentVoiceInput') {
+      } else if (state === 'lyrics') {
         window.api?.expandWindowLyrics(delayMs);
       } else if (state === 'lyricsTranslation') {
         window.api?.expandWindowLyricsTranslation(delayMs);

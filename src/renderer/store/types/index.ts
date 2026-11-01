@@ -32,7 +32,7 @@ import type { MusicProviderId } from '../../../shared/musicProviderAuth';
 export type { WeatherApiConfig };
 
 /** 灵动岛 UI 状态枚举 */
-export type IslandState = 'idle' | 'hover' | 'expanded' | 'notification' | 'maxExpand' | 'lyrics' | 'lyricsTranslation' | 'guide' | 'login' | 'register' | 'resetPassword' | 'setPassword' | 'bindOAuth' | 'bindEmail' | 'payment' | 'questionnaire' | 'questionnaire' | 'agentVoiceInput' | 'agent' | 'stt' | 'cli' | 'musicProvidersLogin';
+export type IslandState = 'idle' | 'hover' | 'expanded' | 'notification' | 'maxExpand' | 'lyrics' | 'lyricsTranslation' | 'guide' | 'login' | 'register' | 'resetPassword' | 'setPassword' | 'bindOAuth' | 'bindEmail' | 'payment' | 'questionnaire' | 'questionnaire' | 'agent' | 'cli' | 'musicProvidersLogin';
 
 /** 灵动岛动画速度档位 */
 export type AnimationSpeed = 'slow' | 'medium' | 'fast';
@@ -226,9 +226,6 @@ export interface AiConfig {
   ollamaBaseUrl: string;
   customApiModel: string;
   customApiMode: 'relay' | 'direct';
-  sttOrbEnabled: boolean;
-  orbColorA: string;
-  orbColorB: string;
 }
 
 /** AI 工具调用轨迹 */
@@ -363,7 +360,6 @@ export interface IslandSlice {
   maxExpandLauncherVisible: boolean;
   cliProvider: CliProvider;
   notification: NotificationData;
-  sttText: string;
   agentPrompt: string;
 
   springAnimation: boolean;
@@ -392,8 +388,6 @@ export interface IslandSlice {
 
   setGuide: () => void;
   setQuestionnaire: () => void;
-  setAgentVoiceInput: () => void;
-  setStt: (text?: string) => void;
   setAgent: (prompt?: string) => void;
   setCli: () => void;
   toggleUiStateLock: () => boolean;

@@ -1406,28 +1406,11 @@
       "symbolFormat": "请输入带市场前缀的股票代码，例如 SH600519、SZ000651、HK00700 或 USMSFT。"
     }
   },
-  "stt": {
-    "label": "识别结果",
-    "asrQuickAdd": "ASR快速添加",
-    "actions": {
-      "sendToAgent": "发送给Agent",
-      "added": "已添加",
-      "addToMemo": "添加到备忘录",
-      "addTodo": "添加待办",
-      "copied": "已复制",
-      "copy": "复制",
-      "ignore": "忽略"
-    }
-  },
   "agent": {
     "actions": {
       "denyAuth": "不授权",
       "allowAuth": "授权",
       "close": "关闭"
-    },
-    "liquidOrb": {
-      "ariaLabel": "动态液态玻璃球",
-      "loadingLabel": "正在加载液态玻璃球预览"
     }
   },
   "cli": {
@@ -2752,7 +2735,6 @@
       "general": "通用配置",
       "r1pxc": "r1pxc Agent",
       "ollama": "Ollama 本地",
-      "orb-style": "Orb 样式",
       "shortcut": "快捷键",
       "user": "用户中心",
       "update": "更新设置",
@@ -2832,8 +2814,7 @@
     "aiPages": {
       "general": "通用配置",
       "r1pxc": "r1pxc Agent",
-      "ollama": "Ollama 本地",
-      "orb-style": "Orb 样式"
+      "ollama": "Ollama 本地"
     },
     "musicPages": {
       "whitelist": "白名单",
@@ -3614,7 +3595,6 @@
       "pages": {
         "window": "窗口控制",
         "display": "显示模式",
-        "agent": "AI Agent",
         "capture": "截图",
         "clipboard": "剪贴板",
         "media": "媒体控制"
@@ -3658,10 +3638,6 @@
         "toggleUiLock": {
           "title": "切换 UI 状态锁定快捷键",
           "hint": "按下后锁定当前 UI 状态，锁定期间不会因鼠标进入/移出或自动逻辑切换状态，再次按下解锁"
-        },
-        "agentVoiceInput": {
-          "title": "Agent 语音输入快捷键",
-          "hint": "长按此快捷键将触发 Agent 语音输入，释放后自动关闭"
         },
         "toggleShapeMode": {
           "title": "切换形态模式快捷键",
@@ -3970,15 +3946,6 @@
       "r1pxcAvatarClear": "清除头像",
       "r1pxcAvatarFileTypeError": "请选择图片文件（png/jpg/webp 等）",
       "r1pxcAvatarReadError": "头像读取失败，请换一张图片重试",
-      "sttOrbTitle": "STT 界面 Orb",
-      "sttOrbHint": "控制语音输入界面是否显示液态 Orb 动画，关闭后将使用简约指示点代替",
-      "sttOrbToggle": "在 STT 界面启用 Agent Orb",
-      "orbColorTitle": "Orb 颜色自定义",
-      "orbColorHint": "自定义液态 Orb 的主色调，留空则使用默认颜色",
-      "orbColorA": "主色 A",
-      "orbColorB": "主色 B",
-      "orbColorPlaceholder": "留空使用默认，如 #d86bff",
-      "orbColorReset": "重置为默认",
       "pagination": "AI 设置分页"
     },
     "about": {

@@ -58,7 +58,7 @@ export type SettingsSidebarTabKey = (typeof SETTINGS_TABS)[number];
 export type AppSettingsPageKey = 'layout-preview' | 'expand-layout' | 'maxexpand-layout' | 'album' | 'hide-process-list' | 'position' | 'theme' | 'language' | 'behavior' | 'animation' | 'url-parser' | 'clipboard-history' | 'alarm' | 'break-reminder' | 'autostart' | 'sound' | 'notification' | 'performance' | 'performance-monitor' | 'screenshot-settings';
 export type WeatherSettingsPageKey = 'location' | 'provider';
 export type MailSettingsPageKey = 'account' | 'imap' | 'preferences';
-export type AiSettingsPageKey = 'general' | 'r1pxc' | 'ollama' | 'orb-style';
+export type AiSettingsPageKey = 'general' | 'r1pxc' | 'ollama';
 export type MusicSettingsPageKey = 'whitelist' | 'lyrics' | 'smtc' | 'providers';
 export type MusicNavCardKey = 'music-whitelist' | 'music-lyrics' | 'music-smtc' | 'music-providers';
 export type NetworkSettingsPageKey = 'timeout' | 'data-center';
@@ -100,7 +100,6 @@ export const SETTINGS_TAB_LABELS: Record<SettingsTabLabelKey, string> = {
   general: '通用配置',
   r1pxc: 'r1pxc Agent',
   ollama: 'Ollama 本地',
-  'orb-style': 'Orb 样式',
   shortcut: '快捷键',
   user: '用户中心',
   update: '更新设置',
@@ -144,7 +143,6 @@ export const SETTINGS_TAB_DESCRIPTIONS: Record<Exclude<SettingsTabLabelKey, 'ind
   general: '模型凭据与工作区配置。',
   r1pxc: 'r1pxc Agent 头像与个性化配置。',
   ollama: '本地 Ollama 模型与连接配置。',
-  'orb-style': 'Agent 液态 Orb 样式配置。',
   shortcut: '隐藏、关闭、截图快捷键',
   user: '登录、资料、注销等账号操作',
   update: '检查与下载软件更新',
@@ -363,12 +361,11 @@ export const MAIL_SETTINGS_PAGE_LABELS: Record<MailSettingsPageKey, string> = {
   imap: 'IMAP',
   preferences: '收信设置',
 };
-export const AI_SETTINGS_PAGES: AiSettingsPageKey[] = ['general', 'r1pxc', 'ollama', 'orb-style'];
+export const AI_SETTINGS_PAGES: AiSettingsPageKey[] = ['general', 'r1pxc', 'ollama'];
 export const AI_SETTINGS_PAGE_LABELS: Record<AiSettingsPageKey, string> = {
   general: '通用配置',
   r1pxc: 'r1pxc Agent',
   ollama: 'Ollama 本地',
-  'orb-style': 'Orb 样式',
 };
 export const NETWORK_SETTINGS_PAGES: NetworkSettingsPageKey[] = ['timeout', 'data-center'];
 export const NETWORK_SETTINGS_PAGE_LABELS: Record<NetworkSettingsPageKey, string> = {
@@ -595,8 +592,6 @@ export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutUpdateEntries
   { label: '切换鼠标穿透快捷键', desc: '按下此快捷键将锁定或解锁鼠标穿透状态，锁定后灵动岛不会拦截鼠标事件', labelKey: 'settings.shortcut.window.togglePassthrough.title', descKey: 'settings.shortcut.window.togglePassthrough.hint', tab: 'shortcut' },
   { label: '切换 UI 状态锁定快捷键', desc: '按下后锁定当前 UI 状态，锁定期间不会因鼠标进入/移出或自动逻辑切换状态，再次按下解锁', labelKey: 'settings.shortcut.window.toggleUiLock.title', descKey: 'settings.shortcut.window.toggleUiLock.hint', tab: 'shortcut' },
   { label: '切换形态模式快捷键', desc: '按下此快捷键将在刘海屏与灵动岛形态之间快速切换', labelKey: 'settings.shortcut.window.toggleShapeMode.title', descKey: 'settings.shortcut.window.toggleShapeMode.hint', tab: 'shortcut' },
-  // ── 快捷键 > AI ──
-  { label: 'Agent 语音输入快捷键', desc: '长按此快捷键将触发 Agent 语音输入，释放后自动关闭', labelKey: 'settings.shortcut.window.agentVoiceInput.title', descKey: 'settings.shortcut.window.agentVoiceInput.hint', tab: 'shortcut' },
   // ── 快捷键 > 截图 ──
   { label: '选区截图快捷键', desc: '按下此快捷键将触发截图选区流程（如 Alt+A、Ctrl+Shift+A）', labelKey: 'settings.shortcut.capture.screenshot.title', descKey: 'settings.shortcut.capture.screenshot.hint', tab: 'shortcut' },
   // ── 快捷键 > 媒体 ──

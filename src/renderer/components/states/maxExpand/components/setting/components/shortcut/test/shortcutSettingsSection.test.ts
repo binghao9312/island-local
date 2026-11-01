@@ -123,14 +123,6 @@ function makeProps(): ComponentProps<typeof ShortcutSettingsSection> {
     setToggleUiLockHotkeyError: vi.fn(),
     handleToggleUiLockHotkeyKeyDown: vi.fn(),
     setToggleUiLockHotkey: vi.fn(),
-    agentVoiceInputHotkeyInputRef: { current: null },
-    agentVoiceInputHotkeyRecording: false,
-    agentVoiceInputHotkeyError: '',
-    agentVoiceInputHotkey: '',
-    setAgentVoiceInputHotkeyRecording: vi.fn(),
-    setAgentVoiceInputHotkeyError: vi.fn(),
-    handleAgentVoiceInputHotkeyKeyDown: vi.fn(),
-    setAgentVoiceInputHotkey: vi.fn(),
     toggleShapeModeHotkeyInputRef: { current: null },
     toggleShapeModeHotkeyRecording: false,
     toggleShapeModeHotkeyError: '',
@@ -182,7 +174,7 @@ describe('ShortcutSettingsSection', () => {
     await Promise.resolve();
     expect(props.setHideHotkey).not.toHaveBeenCalled();
   });
-  it.each(['window', 'display', 'agent', 'capture', 'clipboard', 'media'] as const)('renders capture controls for %s page', (page) => {
+  it.each(['window', 'display', 'capture', 'clipboard', 'media'] as const)('renders capture controls for %s page', (page) => {
     resetState([page, false]);
     const tree = ShortcutSettingsSection(makeProps());
     expect(elements(tree).filter((n) => n.type === 'input').length).toBeGreaterThan(0);
