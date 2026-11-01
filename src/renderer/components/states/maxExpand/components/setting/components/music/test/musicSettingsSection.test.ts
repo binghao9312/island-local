@@ -56,6 +56,8 @@ function makeProps(): ComponentProps<typeof MusicSettingsSection> {
     setLyricsEnabled: vi.fn(),
     lyricsTranslationEnabled: false,
     setLyricsTranslationEnabled: vi.fn(),
+    lyricsIdleDisplayEnabled: false,
+    setLyricsIdleDisplayEnabled: vi.fn(),
     lyricsClock: false,
     setLyricsClock: vi.fn(),
     lyricsCalibrateEnabled: false,

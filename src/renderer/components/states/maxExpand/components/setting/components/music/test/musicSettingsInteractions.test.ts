@@ -46,6 +46,7 @@ const api = {
   musicWhitelistSet: vi.fn<(value: unknown) => Promise<void>>(),
   musicLyricsEnabledSet: vi.fn<(value: unknown) => Promise<void>>(),
   musicLyricsTranslationEnabledSet: vi.fn<(value: unknown) => Promise<void>>(),
+  musicLyricsIdleDisplayEnabledSet: vi.fn<(value: unknown) => Promise<void>>(),
   musicLyricsSourceSet: vi.fn<(value: unknown) => Promise<void>>(),
   musicLyricsKaraokeSet: vi.fn<(value: unknown) => Promise<void>>(),
   musicLyricsClockSet: vi.fn<(value: unknown) => Promise<void>>(),
@@ -81,6 +82,8 @@ function makeProps(): ComponentProps<typeof MusicSettingsSection> {
     setLyricsEnabled: vi.fn(),
     lyricsTranslationEnabled: false,
     setLyricsTranslationEnabled: vi.fn(),
+    lyricsIdleDisplayEnabled: true,
+    setLyricsIdleDisplayEnabled: vi.fn(),
     lyricsClock: false,
     setLyricsClock: vi.fn(),
     lyricsCalibrateEnabled: false,
@@ -214,6 +217,17 @@ describe('播放器真实持久化与输入', () => {
     await settle();
     expect(props.setWhitelist).toHaveBeenCalledWith(['QQMusic.exe', 'new.exe']);
     expect(api.musicWhitelistSet).toHaveBeenCalledWith(['QQMusic.exe', 'new.exe']);
+  });
+});
+describe('收起状态显示歌词开关', () => {
+  it('切换后更新本地状态、持久化并分发设置事件', () => {
+    props.musicSettingsPage = 'lyrics';
+    api.musicLyricsIdleDisplayEnabledSet.mockResolvedValue(undefined);
+    const label = findElement(render(), (node) => node.type === 'label' && textContent(node) === 'settings.music.lyrics.idleDisplayToggle');
+    invoke(findElement(label, (node) => node.type === 'input'), 'onChange', { target: { checked: false } });
+    expect(props.setLyricsIdleDisplayEnabled).toHaveBeenCalledWith(false);
+    expect(api.musicLyricsIdleDisplayEnabledSet).toHaveBeenCalledWith(false);
+    expect(dispatchEvent.mock.calls.at(-1)?.[0].detail).toEqual({ channel: 'music:lyrics-idle-display-enabled', value: false });
   });
 });
 describe('歌词真实事件与边界', () => {

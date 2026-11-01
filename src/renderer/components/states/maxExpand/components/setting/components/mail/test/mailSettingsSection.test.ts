@@ -26,6 +26,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MailSettingsSection } from '../MailSettingsSection';
+import { GmailReminderCard } from '../GmailReminderCard';
 import { elementProps, elements, findElement, invoke, resetState, rewindState, textContent } from '../../../../../../../test/elementHarness';
 import type { ComponentProps } from 'react';
 const account = { id: 'a', label: 'Work', emailAddress: 'name@example.com', imapHost: 'imap.example.com', imapPort: '993', imapSecure: true, authUser: 'name@example.com', authSecret: 'secret' };
@@ -88,6 +89,12 @@ describe('MailSettingsSection', () => {
     const opened = MailSettingsSection(props);
     invoke(findElement(opened, (n) => elementProps(n).className === 'settings-mail-preset-option' && textContent(n).includes('imap.qq.com')), 'onClick');
     expect(props.setMailAccounts).toHaveBeenCalledWith([{ ...account, emailAddress: 'name@qq.com', authUser: 'name@qq.com', imapHost: 'imap.qq.com' }]);
+  });
+  it('places the Gmail reminder card on the preferences page only', () => {
+    const preferences = MailSettingsSection({ ...makeProps(), mailSettingsPage: 'preferences' as const, mailAccounts: [account] });
+    expect(findElement(preferences, (n) => n.type === GmailReminderCard)).toBeTruthy();
+    const accountTree = MailSettingsSection({ ...makeProps(), mailSettingsPage: 'account' as const, mailAccounts: [account] });
+    expect(() => findElement(accountTree, (n) => n.type === GmailReminderCard)).toThrow();
   });
   it.each([{ input: '0', expected: 1 }, { input: '40', expected: 30 }, { input: '3.8', expected: 3 }, { input: 'invalid', expected: 1 }])('clamps fetch limit $input', ({ input, expected }) => {
     const props = { ...makeProps(), mailSettingsPage: 'preferences' as const, mailAccounts: [account] };

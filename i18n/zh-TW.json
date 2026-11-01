@@ -658,7 +658,14 @@
       "snooze5m": "稍後 5m",
       "snooze15m": "稍後 15m",
       "snooze1h": "稍後 1h",
-      "complete": "完成"
+      "complete": "完成",
+      "openMail": "開啟郵件"
+    },
+    "mail": {
+      "title": "收到新郵件",
+      "fromTitle": "{{sender}} 寄來新郵件",
+      "noSubject": "（無主旨）",
+      "moreCount": "另有 {{count}} 封未讀郵件"
     }
   },
   "expanded": {
@@ -2743,6 +2750,20 @@
         "hint": "控制每次取得郵件的數量和其他收信行為。",
         "fetchLimit": "每次取得郵件數",
         "fetchLimitHint": "重新整理收件箱時一次拉取的郵件數量，範圍 1–30"
+      },
+      "gmail": {
+        "title": "Gmail 新郵件提醒",
+        "hint": "透過已登入的 Google Workspace CLI（gws）唯讀檢查未讀郵件，有新郵件時在靈動島提醒。不儲存任何憑證。",
+        "toggle": "啟用新郵件提醒",
+        "checkNow": "立即檢查",
+        "status": {
+          "ok": "已連線 Gmail，新郵件會在靈動島提醒",
+          "disabled": "未開啟",
+          "missing": "未找到 gws 命令列工具，請先安裝 Google Workspace CLI",
+          "notLoggedIn": "未登入 Google Workspace，請先在 gws 中完成登入",
+          "network": "網路異常或請求逾時，將在下次檢查時重試",
+          "error": "檢查失敗，請稍後重試"
+        }
       }
     },
     "mailPages": {
@@ -3462,7 +3483,10 @@
         "calibrateTitle": "歌詞校準",
         "calibrateHint": "歌詞載入後按播放時長延遲校準進度，暫停時停止計時；修改設定對目前歌曲立即生效",
         "calibrateToggle": "啟用歌詞校準",
-        "calibrateDelayLabel": "觸發延遲（秒）"
+        "calibrateDelayLabel": "觸發延遲（秒）",
+        "idleDisplayTitle": "收起時顯示歌詞",
+        "idleDisplayHint": "關閉後收起狀態的靈動島不顯示歌詞行，其他檢視中的歌詞不受影響",
+        "idleDisplayToggle": "在收起的靈動島上顯示歌詞"
       },
       "smtc": {
         "title": "SMTC 自動取消訂閱",

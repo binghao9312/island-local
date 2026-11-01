@@ -153,6 +153,26 @@ export function useIslandNotificationSubscriptions(options: UseIslandNotificatio
   }, [agentNotificationEnabled, language, t, setNotificationRef]);
 
   useEffect(() => {
+    const unsubMail = window.api?.onGmailNewMail?.(({ sender, subject, url, count }) => {
+      const subjectText = subject || t('notification.mail.noSubject', { defaultValue: '（无主题）' });
+      setNotificationRef.current({
+        title: sender
+          ? t('notification.mail.fromTitle', { defaultValue: '{{sender}} 发来新邮件', sender })
+          : t('notification.mail.title', { defaultValue: '收到新邮件' }),
+        body: count > 1
+          ? `${subjectText} · ${t('notification.mail.moreCount', { defaultValue: '另有 {{count}} 封未读邮件', count: count - 1 })}`
+          : subjectText,
+        icon: SvgIcon.MAIL,
+        type: 'mail',
+        mailUrl: url,
+      });
+    });
+    return () => {
+      unsubMail?.();
+    };
+  }, [language, t, setNotificationRef]);
+
+  useEffect(() => {
     const unsubClipboard = window.api?.onClipboardUrlsDetected?.(({ urls, title }) => {
       let suppressInFavorites = true;
       try {

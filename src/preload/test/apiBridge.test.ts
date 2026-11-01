@@ -205,6 +205,12 @@ const TRANSPORT_ROUTES = [
   ['musicLyricsEnabledSet', 'music:lyrics-enabled:set', 1, 'invoke'],
   ['musicLyricsTranslationEnabledGet', 'music:lyrics-translation-enabled:get', 0, 'invoke'],
   ['musicLyricsTranslationEnabledSet', 'music:lyrics-translation-enabled:set', 1, 'invoke'],
+  ['musicLyricsIdleDisplayEnabledGet', 'music:lyrics-idle-display-enabled:get', 0, 'invoke'],
+  ['musicLyricsIdleDisplayEnabledSet', 'music:lyrics-idle-display-enabled:set', 1, 'invoke'],
+  ['gmailRemindersEnabledGet', 'gmail:reminders-enabled:get', 0, 'invoke'],
+  ['gmailRemindersEnabledSet', 'gmail:reminders-enabled:set', 1, 'invoke'],
+  ['gmailCheckNow', 'gmail:check-now', 0, 'invoke'],
+  ['gmailStatusGet', 'gmail:status:get', 0, 'invoke'],
   ['musicLyricsKaraokeGet', 'music:lyrics-karaoke:get', 0, 'invoke'],
   ['musicLyricsKaraokeSet', 'music:lyrics-karaoke:set', 1, 'invoke'],
   ['musicLyricsClockGet', 'music:lyrics-clock:get', 0, 'invoke'],
@@ -318,6 +324,7 @@ const LISTENER_ROUTES = [
   ['onClipboardUrlsDetected', 'clipboard:urls-detected', 1, false],
   ['onExternalAgentStarted', 'external-agent:started', 1, false],
   ['onExternalAgentStopped', 'external-agent:stopped', 1, false],
+  ['onGmailNewMail', 'gmail:new-mail', 1, false],
   ['onClaudeCodeStatusUpdated', 'claude-code:status-updated', 1, false],
   ['onCodexStatusUpdated', 'codex:status-updated', 1, false]
 ] as const satisfies readonly (readonly [string, string, number, boolean])[];

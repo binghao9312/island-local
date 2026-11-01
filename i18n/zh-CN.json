@@ -593,6 +593,12 @@
     }
   },
   "notification": {
+    "mail": {
+      "title": "收到新邮件",
+      "fromTitle": "{{sender}} 发来新邮件",
+      "noSubject": "（无主题）",
+      "moreCount": "另有 {{count}} 封未读邮件"
+    },
     "alarm": {
       "title": "闹钟",
       "body": "{{time}}",
@@ -639,6 +645,7 @@
       "stoppedBody": "{{agentName}} 已停止工作"
     },
     "actions": {
+      "openMail": "打开邮件",
       "gotIt": "知道了",
       "installRestart": "安装并重启",
       "later": "稍后",
@@ -2686,6 +2693,20 @@
       "about": "关于软件"
     },
     "mail": {
+      "gmail": {
+        "title": "Gmail 新邮件提醒",
+        "hint": "通过已登录的 Google Workspace CLI（gws）只读检查未读邮件，有新邮件时在灵动岛提醒。不保存任何凭据。",
+        "toggle": "启用新邮件提醒",
+        "checkNow": "立即检查",
+        "status": {
+          "ok": "已连接 Gmail，新邮件会在灵动岛提醒",
+          "disabled": "未开启",
+          "missing": "未找到 gws 命令行工具，请先安装 Google Workspace CLI",
+          "notLoggedIn": "未登录 Google Workspace，请先在 gws 中完成登录",
+          "network": "网络异常或请求超时，将在下次检查时重试",
+          "error": "检查失败，请稍后重试"
+        }
+      },
       "pagination": "邮箱配置分页",
       "accounts": {
         "unnamed": "未命名账户",
@@ -3439,6 +3460,9 @@
         "translationTitle": "翻译歌词",
         "translationHint": "关闭后不显示翻译歌词，不切换到翻译歌词状态",
         "translationToggle": "显示翻译歌词",
+        "idleDisplayTitle": "收起时显示歌词",
+        "idleDisplayHint": "关闭后收起状态的灵动岛不显示歌词行，其他视图中的歌词不受影响",
+        "idleDisplayToggle": "在收起的灵动岛上显示歌词",
         "title": "歌词源",
         "hint": "自动模式优先使用 lrc.red（按歌曲时长匹配版本），其次根据 SMTC 检测到的播放器进程选择对应源，失败后依次尝试其他源，最后使用 LRCLIB 兜底",
         "displayTitle": "歌词显示",

@@ -253,6 +253,7 @@ describe('media ipc handlers', () => {
       lyricsCalibrateDelayStoreKey: 'lyricsCalibrateDelay',
       lyricsEnabledStoreKey: 'lyricsEnabled',
       lyricsTranslationEnabledStoreKey: 'lyricsTranslationEnabled',
+      lyricsIdleDisplayEnabledStoreKey: 'lyricsIdleDisplayEnabled',
       smtcUnsubscribeStoreKey: 'smtcUnsubscribe',
       defaultLyricsKaraoke: true,
       defaultLyricsClock: false,

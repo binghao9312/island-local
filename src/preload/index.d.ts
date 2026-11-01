@@ -87,6 +87,7 @@ import type {
   GoogleCalendarResult,
   GoogleCalendarStatus,
 } from '../shared/googleCalendarTypes';
+import type { GmailNewMailPayload, GmailReminderStatus } from '../shared/gmailReminderTypes';
 
 declare global {
   interface Window {
@@ -231,6 +232,8 @@ declare global {
       musicLyricsEnabledSet: (enabled: boolean) => Promise<boolean>;
       musicLyricsTranslationEnabledGet: () => Promise<boolean>;
       musicLyricsTranslationEnabledSet: (enabled: boolean) => Promise<boolean>;
+      musicLyricsIdleDisplayEnabledGet: () => Promise<boolean>;
+      musicLyricsIdleDisplayEnabledSet: (enabled: boolean) => Promise<boolean>;
       musicLyricsKaraokeGet: () => Promise<boolean>;
       musicLyricsKaraokeSet: (enabled: boolean) => Promise<boolean>;
       musicLyricsClockGet: () => Promise<boolean>;
@@ -316,6 +319,11 @@ declare global {
       onUpdaterAvailable: (callback: (data: UpdaterAvailableData) => void) => () => void;
       onUpdaterNotAvailable: (callback: (data: UpdaterNotAvailableData) => void) => () => void;
       onUpdaterStartupAutoCheckRequest: (callback: (data: UpdaterStartupAutoCheckRequestData) => void) => () => void;
+      gmailRemindersEnabledGet: () => Promise<boolean>;
+      gmailRemindersEnabledSet: (enabled: boolean) => Promise<boolean>;
+      gmailCheckNow: () => Promise<GmailReminderStatus>;
+      gmailStatusGet: () => Promise<GmailReminderStatus>;
+      onGmailNewMail: (callback: (data: GmailNewMailPayload) => void) => () => void;
       onClipboardUrlsDetected: (callback: (data: ClipboardUrlsDetectedData) => void) => () => void;
       clipboardOpenUrl: (url: string) => Promise<boolean>;
       onExternalAgentStarted: (callback: (data: ExternalAgentData) => void) => () => void;

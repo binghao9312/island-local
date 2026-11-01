@@ -86,6 +86,8 @@ interface MusicSettingsSectionProps {
   setLyricsEnabled: (value: boolean) => void;
   lyricsTranslationEnabled: boolean;
   setLyricsTranslationEnabled: (value: boolean) => void;
+  lyricsIdleDisplayEnabled: boolean;
+  setLyricsIdleDisplayEnabled: (value: boolean) => void;
   lyricsClock: boolean;
   setLyricsClock: (value: boolean) => void;
   lyricsCalibrateEnabled: boolean;
@@ -141,6 +143,8 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
     setLyricsEnabled,
     lyricsTranslationEnabled,
     setLyricsTranslationEnabled,
+    lyricsIdleDisplayEnabled,
+    setLyricsIdleDisplayEnabled,
     lyricsClock,
     setLyricsClock,
     lyricsCalibrateEnabled,
@@ -331,6 +335,27 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
                       }}
                     />
                     {t('settings.music.lyrics.translationToggle', { defaultValue: '显示翻译歌词' })}
+                  </label>
+                </div>
+              </div>
+
+              <div className="settings-card">
+                <div className="settings-card-header">
+                  <div className="settings-card-title">{t('settings.music.lyrics.idleDisplayTitle', { defaultValue: '收起时显示歌词' })}</div>
+                  <div className="settings-card-subtitle">{t('settings.music.lyrics.idleDisplayHint', { defaultValue: '关闭后收起状态的灵动岛不显示歌词行，其他视图中的歌词不受影响' })}</div>
+                </div>
+                <div className="settings-card-inline-row">
+                  <label className="settings-card-check">
+                    <input
+                      type="checkbox"
+                      checked={lyricsIdleDisplayEnabled}
+                      onChange={(e) => {
+                        setLyricsIdleDisplayEnabled(e.target.checked);
+                        window.api.musicLyricsIdleDisplayEnabledSet(e.target.checked).catch(() => {});
+                        window.dispatchEvent(new CustomEvent('island:setting-changed', { detail: { channel: 'music:lyrics-idle-display-enabled', value: e.target.checked } }));
+                      }}
+                    />
+                    {t('settings.music.lyrics.idleDisplayToggle', { defaultValue: '在收起的灵动岛上显示歌词' })}
                   </label>
                 </div>
               </div>

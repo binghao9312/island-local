@@ -58,6 +58,7 @@ export function NotificationContent({
   updateSourceLabel,
   urls,
   breakReminderItemId,
+  mailUrl,
   agentName: _agentName,
 }: NotificationContentProps): ReactElement {
   const { t } = useTranslation();
@@ -408,6 +409,12 @@ export function NotificationContent({
           <div className="notification-decision-actions">
             <button type="button" className="notification-action-btn notification-action-complete" onClick={handleRestartNow}>{t('notification.actions.restartNow', { defaultValue: '立即重启' })}</button>
             <button type="button" className="notification-action-btn notification-action-ignore" onClick={handleRestartLater}>{t('notification.actions.later', { defaultValue: '稍后' })}</button>
+          </div>
+        </div>
+      ) : type === 'mail' && mailUrl ? (
+        <div className="notification-actions notification-actions--right">
+          <div className="notification-decision-actions">
+            <button type="button" className="notification-action-btn notification-action-complete" onClick={() => handleOpenUrl(mailUrl)}>{t('notification.actions.openMail', { defaultValue: '打开邮件' })}</button>
           </div>
         </div>
       ) : type === 'clipboard-url' && urls?.length ? (

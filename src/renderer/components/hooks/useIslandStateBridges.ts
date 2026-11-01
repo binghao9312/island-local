@@ -66,24 +66,31 @@ export function useIslandStateBridges(options: UseIslandStateBridgesOptions): vo
 
   const [lyricsEnabled, setLyricsEnabled] = useState<boolean>(true);
   const [lyricsTranslationEnabled, setLyricsTranslationEnabled] = useState<boolean>(true);
+  const lyricsIdleDisplayEnabled = useIslandStore((store) => store.lyricsIdleDisplayEnabled);
+  const setLyricsIdleDisplayEnabled = useIslandStore((store) => store.setLyricsIdleDisplayEnabled);
   useEffect(() => {
     window.api.musicLyricsEnabledGet().then(setLyricsEnabled).catch(() => {});
     window.api.musicLyricsTranslationEnabledGet().then(setLyricsTranslationEnabled).catch(() => {});
+    window.api.musicLyricsIdleDisplayEnabledGet().then(setLyricsIdleDisplayEnabled).catch(() => {});
     const unsub = window.api.onSettingsChanged((channel, value) => {
       if (channel === 'music:lyrics-enabled') setLyricsEnabled(value as boolean);
       if (channel === 'music:lyrics-translation-enabled') setLyricsTranslationEnabled(value as boolean);
+      if (channel === 'music:lyrics-idle-display-enabled') setLyricsIdleDisplayEnabled(value as boolean);
     });
     const onLocal = (e: Event) => {
       const { channel, value } = (e as CustomEvent).detail;
       if (channel === 'music:lyrics-enabled') setLyricsEnabled(value);
       if (channel === 'music:lyrics-translation-enabled') setLyricsTranslationEnabled(value);
+      if (channel === 'music:lyrics-idle-display-enabled') setLyricsIdleDisplayEnabled(value);
     };
     window.addEventListener('island:setting-changed', onLocal);
     return () => { unsub(); window.removeEventListener('island:setting-changed', onLocal); };
-  }, []);
+  }, [setLyricsIdleDisplayEnabled]);
 
   useEffect(() => {
     if (!lyricsEnabled) return;
+    /** 收起状态歌词关闭时保持 idle，歌词仍由悬停/展开等其他视图使用 */
+    if (!lyricsIdleDisplayEnabled) return;
     if (state !== 'idle') return;
     if (timerState !== 'idle') return;
     if (isPlaying && ((syncedLyrics?.length ?? 0) > 0 || lyricsLoading)) {
@@ -100,7 +107,7 @@ export function useIslandStateBridges(options: UseIslandStateBridgesOptions): vo
         setLyrics();
       }
     }
-  }, [state, timerState, isPlaying, syncedLyrics, lyricsLoading, translationLyrics, lyricsEnabled, lyricsTranslationEnabled, isCurrentTranslationIdentical, setLyrics, setLyricsTranslation]);
+  }, [state, timerState, isPlaying, syncedLyrics, lyricsLoading, translationLyrics, lyricsEnabled, lyricsTranslationEnabled, lyricsIdleDisplayEnabled, isCurrentTranslationIdentical, setLyrics, setLyricsTranslation]);
 
   /** 歌词状态下翻译歌词加载完成 → 升级到 lyricsTranslation（原文与翻译一致时保持 lyrics） */
   useEffect(() => {

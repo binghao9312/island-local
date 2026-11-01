@@ -569,6 +569,7 @@ export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutDisabledEntri
   { label: '账户信息', desc: '邮箱地址用于展示与默认发件人信息。', labelKey: 'settings.mail.account.title', descKey: 'settings.mail.account.hint', tab: 'mail' },
   { label: 'IMAP', desc: '用于收信、同步收件箱和文件夹状态。', labelKey: 'settings.mail.imap.title', descKey: 'settings.mail.imap.hint', tab: 'mail' },
   { label: '收信设置', desc: '控制每次获取邮件的数量和其他收信行为。', labelKey: 'settings.mail.preferences.title', descKey: 'settings.mail.preferences.hint', tab: 'mail' },
+  { label: 'Gmail 新邮件提醒', desc: '通过已登录的 Google Workspace CLI 只读检查未读邮件，有新邮件时在灵动岛提醒', labelKey: 'settings.mail.gmail.title', descKey: 'settings.mail.gmail.hint', tab: 'mail' },
   // ── 天气配置 ──
   { label: '定位来源优先级', desc: '选择天气定位优先使用 IP 自动定位或自定义位置', labelKey: 'settings.weather.locationPriority.title', descKey: 'settings.weather.locationPriority.hint', tab: 'weather' },
   { label: '自定义城市', desc: '仅在"自定义位置优先"生效，可先测试再保存；支持縣市 / 鄉鎮市區名称（台 / 臺 均可）。', labelKey: 'settings.weather.customCityTitle', descKey: 'settings.weather.customCityHint', tab: 'weather' },
@@ -579,6 +580,7 @@ export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutDisabledEntri
   // ── 歌曲设置 > 歌词源 ──
   { label: '歌词功能', desc: '关闭后不再发送歌词相关网络请求，不显示歌词，不切换到歌词状态', labelKey: 'settings.music.lyrics.enabledTitle', descKey: 'settings.music.lyrics.enabledHint', tab: 'music', musicPage: 'lyrics' },
   { label: '翻译歌词', desc: '关闭后不显示翻译歌词，不切换到翻译歌词状态', labelKey: 'settings.music.lyrics.translationTitle', descKey: 'settings.music.lyrics.translationHint', tab: 'music', musicPage: 'lyrics' },
+  { label: '收起时显示歌词', desc: '关闭后收起状态的灵动岛不显示歌词行，其他视图中的歌词不受影响', labelKey: 'settings.music.lyrics.idleDisplayTitle', descKey: 'settings.music.lyrics.idleDisplayHint', tab: 'music', musicPage: 'lyrics' },
   { label: '歌词源', desc: '自动模式根据 SMTC 检测到的播放器进程选择对应源，失败后依次尝试其他源，最后使用 LRCLIB 兜底', labelKey: 'settings.music.lyrics.title', descKey: 'settings.music.lyrics.hint', tab: 'music', musicPage: 'lyrics' },
   { label: '歌词显示', desc: '控制歌词界面的展示效果', labelKey: 'settings.music.lyrics.displayTitle', descKey: 'settings.music.lyrics.displayHint', tab: 'music', musicPage: 'lyrics' },
   { label: '歌词校准', desc: '歌词加载后按播放时长延迟校准进度，暂停时停止计时；修改设置对当前歌曲立即生效', labelKey: 'settings.music.lyrics.calibrateTitle', descKey: 'settings.music.lyrics.calibrateHint', tab: 'music', musicPage: 'lyrics' },

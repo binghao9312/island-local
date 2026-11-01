@@ -593,6 +593,12 @@
     }
   },
   "notification": {
+    "mail": {
+      "title": "新着メール",
+      "fromTitle": "{{sender}} からの新着メール",
+      "noSubject": "（件名なし）",
+      "moreCount": "未読メールがさらに {{count}} 通"
+    },
     "alarm": {
       "title": "アラーム",
       "body": "{{time}}",
@@ -639,6 +645,7 @@
       "stoppedBody": "{{agentName}} が作業を停止しました"
     },
     "actions": {
+      "openMail": "メールを開く",
       "gotIt": "確認",
       "installRestart": "インストールして再起動",
       "later": "後で",
@@ -2686,6 +2693,20 @@
       "about": "このアプリについて"
     },
     "mail": {
+      "gmail": {
+        "title": "Gmail 新着メール通知",
+        "hint": "サインイン済みの Google Workspace CLI（gws）で未読メールを読み取り専用で確認し、新着時にアイランドで通知します。認証情報は保存しません。",
+        "toggle": "新着メール通知を有効にする",
+        "checkNow": "今すぐ確認",
+        "status": {
+          "ok": "Gmail に接続済みです。新着メールはアイランドに表示されます",
+          "disabled": "オフ",
+          "missing": "gws コマンドが見つかりません。Google Workspace CLI をインストールしてください",
+          "notLoggedIn": "Google Workspace にサインインしていません。先に gws でサインインしてください",
+          "network": "ネットワークエラーまたはタイムアウトです。次回の確認で再試行します",
+          "error": "確認に失敗しました。しばらくしてから再試行してください"
+        }
+      },
       "pagination": "メール設定のページ切り替え",
       "accounts": {
         "unnamed": "名前のないアカウント",
@@ -3439,6 +3460,9 @@
         "translationTitle": "歌詞の翻訳",
         "translationHint": "無効にすると、歌詞の翻訳を表示せず、翻訳歌詞状態への切り替えも行いません",
         "translationToggle": "歌詞の翻訳を表示",
+        "idleDisplayTitle": "折りたたみ時にアイランドで歌詞を表示",
+        "idleDisplayHint": "無効にすると、折りたたまれたアイランドには歌詞行を表示せず、他の表示の歌詞は影響を受けません",
+        "idleDisplayToggle": "折りたたみ時に歌詞行を表示",
         "title": "歌詞の取得元",
         "hint": "自動モードではまず lrc.red（曲の長さで版を照合）を試し、次に SMTC で検出したプレーヤーに応じて取得元を選び、取得できない場合は LRCLIB を使用します",
         "displayTitle": "歌詞の表示",
