@@ -107,10 +107,7 @@ describe('useCountdownEdit runtime', () => {
       m: 0,
       s: 0
     });
-    result.handleInputChange('invalid', 'inputHours', 99);
-    expect(store.setTimerData).toHaveBeenCalledWith({
-      inputHours: '00'
-    });
+    expect(result.getFieldValue('inputHours')).toBe('00');
   });
   it('reads full running state and decomposes remaining seconds with real utility', () => {
     store.timerData = {
@@ -131,21 +128,114 @@ describe('useCountdownEdit runtime', () => {
       s: 3
     });
   });
-  it.each([['7', '07'], ['59', '59'], ['60', '09'], ['abc', '09'], ['', '00']] as const)('normalizes input %s to %s at maximum 59', (input, expected) => {
+  it('typing keeps a local draft and does not touch the store until commit', () => {
+    store.timerData = {
+      inputMinutes: '00'
+    };
+    const input = {
+      select: vi.fn()
+    };
+    run().handleFieldFocus('inputMinutes', input);
+    expect(input.select).toHaveBeenCalledOnce();
+    run().handleInputChange('5', 'inputMinutes');
+    expect(run().getFieldValue('inputMinutes')).toBe('5');
+    run().handleInputChange('5a7x', 'inputMinutes');
+    expect(run().getFieldValue('inputMinutes')).toBe('57');
+    run().handleInputChange('123', 'inputMinutes');
+    expect(run().getFieldValue('inputMinutes')).toBe('12');
+    run().handleInputChange('', 'inputMinutes');
+    expect(run().getFieldValue('inputMinutes')).toBe('');
+    expect(run().getFieldValue('inputHours')).toBe('00');
+    expect(store.setTimerData).not.toHaveBeenCalled();
+  });
+  it.each([['7', '07'], ['59', '59'], ['60', '59'], ['99', '59'], ['', '00']] as const)('commits draft %s as %s clamped to maximum 59', (input, expected) => {
     store.timerData = {
       inputSeconds: '09'
     };
-    run().handleInputChange(input, 'inputSeconds', 59);
+    run().handleFieldFocus('inputSeconds', {
+      select: vi.fn()
+    });
+    run().handleInputChange(input, 'inputSeconds');
+    run().handleFieldCommit('inputSeconds', 59);
     expect(store.setTimerData).toHaveBeenCalledExactlyOnceWith({
       inputSeconds: expected
     });
+    expect(run().getFieldValue('inputSeconds')).toBe('09');
   });
-  it('missing stored individual fields default independently', () => {
+  it('clamps hours to 23 and ignores commits for fields without a draft', () => {
+    run().handleFieldCommit('inputHours', 23);
+    expect(store.setTimerData).not.toHaveBeenCalled();
+    run().handleFieldFocus('inputHours', {
+      select: vi.fn()
+    });
+    run().handleInputChange('45', 'inputHours');
+    run().handleFieldCommit('inputMinutes', 59);
+    expect(store.setTimerData).not.toHaveBeenCalled();
+    run().handleFieldCommit('inputHours', 23);
+    expect(store.setTimerData).toHaveBeenCalledExactlyOnceWith({
+      inputHours: '23'
+    });
+  });
+  it('Enter ignores other keys, commits the draft and starts the timer when total is positive', () => {
+    store.timerData = {
+      inputHours: '00',
+      inputMinutes: '01',
+      inputSeconds: '00'
+    };
+    run().handleFieldFocus('inputSeconds', {
+      select: vi.fn()
+    });
+    run().handleInputChange('30', 'inputSeconds');
+    expect(run().handleFieldKeyDown('a', 'inputSeconds', 59)).toBe(false);
+    expect(store.setTimerData).not.toHaveBeenCalled();
+    expect(run().handleFieldKeyDown('Enter', 'inputSeconds', 59)).toBe(true);
+    expect(store.setTimerData).toHaveBeenCalledExactlyOnceWith({
+      inputHours: '00',
+      inputMinutes: '01',
+      inputSeconds: '30',
+      state: 'running',
+      remainingSeconds: 90,
+      totalSeconds: 90
+    });
+    expect(run().getFieldValue('inputSeconds')).toBe('00');
+  });
+  it('Enter with a zero total only commits the field and does not start', () => {
     store.timerData = {};
-    expect(run().inputMinutes).toBe('00');
-    run().handleInputChange('100', 'inputMinutes', 59);
-    expect(store.setTimerData).toHaveBeenCalledWith({
-      inputMinutes: '00'
+    run().handleFieldFocus('inputSeconds', {
+      select: vi.fn()
+    });
+    run().handleInputChange('', 'inputSeconds');
+    run().handleFieldKeyDown('Enter', 'inputSeconds', 59);
+    expect(store.setTimerData).toHaveBeenCalledExactlyOnceWith({
+      inputSeconds: '00'
+    });
+  });
+  it('Enter without a draft for that field uses stored values and clamps drafts above the maximum', () => {
+    store.timerData = {
+      inputMinutes: '02'
+    };
+    run().handleFieldKeyDown('Enter', 'inputHours', 23);
+    expect(store.setTimerData).toHaveBeenLastCalledWith({
+      inputHours: '00',
+      inputMinutes: '02',
+      inputSeconds: '00',
+      state: 'running',
+      remainingSeconds: 120,
+      totalSeconds: 120
+    });
+    store.timerData = undefined;
+    run().handleFieldFocus('inputMinutes', {
+      select: vi.fn()
+    });
+    run().handleInputChange('99', 'inputMinutes');
+    run().handleFieldKeyDown('Enter', 'inputMinutes', 59);
+    expect(store.setTimerData).toHaveBeenLastCalledWith({
+      inputHours: '00',
+      inputMinutes: '59',
+      inputSeconds: '00',
+      state: 'running',
+      remainingSeconds: 3540,
+      totalSeconds: 3540
     });
   });
   it('wheel ignores unrelated descendants without setter or maximum', () => {
@@ -233,7 +323,8 @@ describe('useCountdownEdit runtime', () => {
     run().handleStart();
     expect(store.setTimerData).toHaveBeenCalledExactlyOnceWith({
       state: 'running',
-      remainingSeconds: 3723
+      remainingSeconds: 3723,
+      totalSeconds: 3723
     });
   });
   it('pause, resume and reset preserve their documented state updates', () => {
@@ -255,9 +346,25 @@ describe('useCountdownEdit runtime', () => {
     expect(store.setTimerData).toHaveBeenLastCalledWith({
       state: 'idle',
       remainingSeconds: 0,
+      totalSeconds: 0,
       inputHours: '00',
       inputMinutes: '00',
       inputSeconds: '00'
     });
+  });
+  it('wheel on the focused field replaces its draft so the display follows', () => {
+    store.timerData = {
+      inputSeconds: '10'
+    };
+    const view = attach();
+    run().handleFieldFocus('inputSeconds', {
+      select: vi.fn()
+    });
+    run().handleInputChange('3', 'inputSeconds');
+    view.wheel(-1);
+    expect(store.setTimerData).toHaveBeenLastCalledWith({
+      inputSeconds: '11'
+    });
+    expect(run().getFieldValue('inputSeconds')).toBe('11');
   });
 });

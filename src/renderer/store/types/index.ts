@@ -167,6 +167,8 @@ export type TimerState = 'idle' | 'running' | 'paused';
 export interface TimerData {
   state: TimerState;
   remainingSeconds: number;
+  /** 本次倒计时启动时的总秒数，供灵动岛进度环计算比例；idle 时为 0 */
+  totalSeconds: number;
   inputHours: string;
   inputMinutes: string;
   inputSeconds: string;

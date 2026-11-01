@@ -85,6 +85,10 @@ describe('getDefaultTimerData', () => {
     expect(result.remainingSeconds).toBe(0);
   });
 
+  it('sets totalSeconds to 0', () => {
+    expect(getDefaultTimerData().totalSeconds).toBe(0);
+  });
+
   it('sets input fields to "00"', () => {
     const result = getDefaultTimerData();
     expect(result.inputHours).toBe('00');

@@ -150,6 +150,7 @@ beforeEach(() => {
     timerData: {
       state: 'idle',
       remainingSeconds: 0,
+      totalSeconds: 0,
       inputHours: '',
       inputMinutes: '',
       inputSeconds: ''

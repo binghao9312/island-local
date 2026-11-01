@@ -184,6 +184,39 @@
   border-radius: inherit;
 }
 
+/** 倒计时进度环：沿岛屿外缘走一圈，几何属性走 CSS 以便 calc 内缩并随形态过渡 */
+.island-timer-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+  overflow: visible;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.island-timer-ring-visible {
+  opacity: 1;
+}
+
+.island-timer-ring rect {
+  x: 1.5px;
+  y: 1.5px;
+  width: calc(100% - 3px);
+  height: calc(100% - 3px);
+  rx: calc(var(--shell-pill-radius, 22px) - 1.5px);
+  ry: calc(var(--shell-pill-radius, 22px) - 1.5px);
+  fill: none;
+  stroke: #ffb300;
+  stroke-width: 3px;
+  transition: rx 0.4s ease, ry 0.4s ease;
+}
+
+.island-timer-ring-animated rect {
+  transition: stroke-dashoffset 1s linear, rx 0.4s ease, ry 0.4s ease;
+}
+
 .island-shell.hover {
   width: 500px;
   height: 60px;

@@ -47,6 +47,7 @@ export const createTimerSlice: StateCreator<
       timerData: {
         state: data.state ?? state.timerData.state,
         remainingSeconds: data.remainingSeconds ?? state.timerData.remainingSeconds,
+        totalSeconds: data.totalSeconds ?? state.timerData.totalSeconds,
         inputHours: data.inputHours ?? state.timerData.inputHours,
         inputMinutes: data.inputMinutes ?? state.timerData.inputMinutes,
         inputSeconds: data.inputSeconds ?? state.timerData.inputSeconds,

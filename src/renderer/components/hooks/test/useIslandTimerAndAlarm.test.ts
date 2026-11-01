@@ -91,7 +91,7 @@ beforeEach(() => {
   read.mockReset().mockImplementation((key: string) => Promise.resolve(key === 'alarms' ? [] : true));
   disable.mockReset().mockResolvedValue(true);
   notification.mockReset(); timerUpdate.mockReset();
-  options = { language: 'zh-CN', timerData: { state: 'idle', remainingSeconds: 0, inputHours: '00', inputMinutes: '00', inputSeconds: '00' }, setTimerData: timerUpdate, setNotificationRef: { current: notification }, t: (key) => key };
+  options = { language: 'zh-CN', timerData: { state: 'idle', remainingSeconds: 0, totalSeconds: 0, inputHours: '00', inputMinutes: '00', inputSeconds: '00' }, setTimerData: timerUpdate, setNotificationRef: { current: notification }, t: (key) => key };
   nativeWindow = Object.assign(new EventTarget(), {
     api: { storeRead: read, setAlarmEnabled: disable },
     requestAnimationFrame: (callback: FrameRequestCallback) => { frame = callback; return 1; },
@@ -110,9 +110,9 @@ afterEach(async () => {
 
 describe('countdown scheduling', () => {
   it.each([1, 2])('ticks remaining=%s and sends completion at zero', async (remainingSeconds) => {
-    options.timerData = { remainingSeconds, state: 'running', inputHours: '00', inputMinutes: '00', inputSeconds: '00' };
+    options.timerData = { remainingSeconds, totalSeconds: remainingSeconds, state: 'running', inputHours: '00', inputMinutes: '00', inputSeconds: '00' };
     mount(); await tick();
-    expect(timerUpdate).toHaveBeenCalledWith(remainingSeconds === 1 ? { state: 'idle', remainingSeconds: 0, inputHours: '00', inputMinutes: '00', inputSeconds: '00' } : { remainingSeconds: 1 });
+    expect(timerUpdate).toHaveBeenCalledWith(remainingSeconds === 1 ? { state: 'idle', remainingSeconds: 0, totalSeconds: 0, inputHours: '00', inputMinutes: '00', inputSeconds: '00' } : { remainingSeconds: 1 });
     expect(notification).toHaveBeenCalledTimes(remainingSeconds === 1 ? 1 : 0);
     options.timerData = { ...options.timerData, state: 'paused' };
     mount(); await tick();
@@ -130,7 +130,7 @@ it('contains a timer snapshot whose remaining count disappears before the tick',
   mount();
   options.timerData.remainingSeconds = undefined as unknown as number;
   await tick();
-  expect(timerUpdate).toHaveBeenCalledWith({ state: 'idle', remainingSeconds: 0, inputHours: '00', inputMinutes: '00', inputSeconds: '00' });
+  expect(timerUpdate).toHaveBeenCalledWith({ state: 'idle', remainingSeconds: 0, totalSeconds: 0, inputHours: '00', inputMinutes: '00', inputSeconds: '00' });
   expect(notification).toHaveBeenCalledOnce();
 });
 
@@ -236,7 +236,7 @@ it('recalculates local alarms after timezone changes while retaining the countdo
     vi.setSystemTime(start + 1000); send('runtime:wakeup', originalAlarm[0]);
     expect(notification).not.toHaveBeenCalled();
     vi.setSystemTime(start + 10_000); send('runtime:wakeup', countdown[0]);
-    expect(timerUpdate).toHaveBeenLastCalledWith({ state: 'idle', remainingSeconds: 0, inputHours: '00', inputMinutes: '00', inputSeconds: '00' });
+    expect(timerUpdate).toHaveBeenLastCalledWith({ state: 'idle', remainingSeconds: 0, totalSeconds: 0, inputHours: '00', inputMinutes: '00', inputSeconds: '00' });
     expect(notification).toHaveBeenCalledTimes(1);
     vi.setSystemTime(start + 3_601_000); send('runtime:wakeup', nextAlarm[0]);
     expect(notification).toHaveBeenCalledTimes(2);

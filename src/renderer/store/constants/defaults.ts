@@ -46,6 +46,7 @@ export function getDefaultTimerData(): TimerData {
   return {
     state: 'idle',
     remainingSeconds: 0,
+    totalSeconds: 0,
     inputHours: '00',
     inputMinutes: '00',
     inputSeconds: '00',

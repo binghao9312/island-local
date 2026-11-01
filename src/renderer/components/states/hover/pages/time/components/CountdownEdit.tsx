@@ -24,15 +24,22 @@
  * @author 鸡哥
  */
 
-import { type ReactElement } from 'react';
+import { Fragment, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SvgIcon } from '../../../../../../utils/SvgIcon';
 import { BrightnessControl } from './BrightnessControl';
 import { ToolButtons } from './ToolButtons';
 import { VolumeControl } from './VolumeControl';
-import { useCountdownEdit } from '../hooks/useCountdownEdit';
+import { useCountdownEdit, type TimerInputField } from '../hooks/useCountdownEdit';
 import type { TimePanelMode } from '../types/timeTabTypes';
 import { padZero } from '../utils/timerUtils';
+
+/** 三个输入框的 store 字段与上限 */
+const TIMER_FIELDS: { field: TimerInputField; max: number }[] = [
+  { field: 'inputHours', max: 23 },
+  { field: 'inputMinutes', max: 59 },
+  { field: 'inputSeconds', max: 59 },
+];
 
 interface CountdownEditProps {
   activePanel: TimePanelMode;
@@ -50,14 +57,15 @@ export function CountdownEdit({ activePanel }: CountdownEditProps): ReactElement
   const {
     timerState,
     isEditing,
-    inputHours,
-    inputMinutes,
-    inputSeconds,
     h,
     m,
     s,
     timerInputsRef,
+    getFieldValue,
+    handleFieldFocus,
     handleInputChange,
+    handleFieldCommit,
+    handleFieldKeyDown,
     handleStart,
     handlePause,
     handleResume,
@@ -81,35 +89,24 @@ export function CountdownEdit({ activePanel }: CountdownEditProps): ReactElement
           <div className="timer-main-row">
             {isEditing ? (
               <div className="timer-inputs" ref={timerInputsRef}>
-                <input
-                  type="text"
-                  className="timer-input"
-                  value={inputHours}
-                  onChange={(e) => handleInputChange(e.target.value, 'inputHours', 23)}
-                  data-setter="inputHours"
-                  data-max="23"
-                  maxLength={2}
-                />
-                <span className="timer-sep">:</span>
-                <input
-                  type="text"
-                  className="timer-input"
-                  value={inputMinutes}
-                  onChange={(e) => handleInputChange(e.target.value, 'inputMinutes', 59)}
-                  data-setter="inputMinutes"
-                  data-max="59"
-                  maxLength={2}
-                />
-                <span className="timer-sep">:</span>
-                <input
-                  type="text"
-                  className="timer-input"
-                  value={inputSeconds}
-                  onChange={(e) => handleInputChange(e.target.value, 'inputSeconds', 59)}
-                  data-setter="inputSeconds"
-                  data-max="59"
-                  maxLength={2}
-                />
+                {TIMER_FIELDS.map(({ field, max }, index) => (
+                  <Fragment key={field}>
+                    {index > 0 && <span className="timer-sep">:</span>}
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      className="timer-input"
+                      value={getFieldValue(field)}
+                      onFocus={(e) => handleFieldFocus(field, e.target)}
+                      onChange={(e) => handleInputChange(e.target.value, field)}
+                      onBlur={() => handleFieldCommit(field, max)}
+                      onKeyDown={(e) => { if (handleFieldKeyDown(e.key, field, max)) e.preventDefault(); }}
+                      data-setter={field}
+                      data-max={max}
+                      maxLength={2}
+                    />
+                  </Fragment>
+                ))}
               </div>
             ) : (
               <div className="timer-display">
