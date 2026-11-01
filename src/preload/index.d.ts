@@ -80,6 +80,13 @@ import type {
   AcpStartResult,
 } from './types';
 import type { TrayMenuAction, TrayMenuState } from '../shared/trayMenu';
+import type {
+  GoogleCalendarEvent,
+  GoogleCalendarEventInput,
+  GoogleCalendarRange,
+  GoogleCalendarResult,
+  GoogleCalendarStatus,
+} from '../shared/googleCalendarTypes';
 
 declare global {
   interface Window {
@@ -175,6 +182,12 @@ declare global {
       /** 按需读取单封邮件正文。 */
       mailMessageGet: (config: Record<string, unknown>, uid: string, validity?: string) => Promise<MailInboxResult>;
       mailInboxList: (configOrLimit?: Record<string, unknown> | number, limit?: number) => Promise<MailInboxResult>;
+      /** Google 日历（经主进程调用已登录的 gws CLI） */
+      gcalStatus: () => Promise<GoogleCalendarResult<GoogleCalendarStatus>>;
+      gcalList: (range: GoogleCalendarRange) => Promise<GoogleCalendarResult<GoogleCalendarEvent[]>>;
+      gcalCreate: (input: GoogleCalendarEventInput) => Promise<GoogleCalendarResult<GoogleCalendarEvent>>;
+      gcalUpdate: (id: string, input: GoogleCalendarEventInput) => Promise<GoogleCalendarResult<GoogleCalendarEvent>>;
+      gcalRemove: (id: string) => Promise<GoogleCalendarResult<null>>;
       scheduleWakeup: (id: string, deadline: number | null) => Promise<boolean>;
       storeRead: (key: string, strict?: boolean) => Promise<unknown>;
       storeWrite: (key: string, data: unknown) => Promise<boolean>;

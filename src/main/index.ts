@@ -52,6 +52,7 @@ import { registerWallpaperVideoIpcHandlers } from './ipc/media/wallpaperVideo';
 import { registerFormatFactoryIpcHandlers } from './ipc/app/formatFactory';
 import { registerNetIpcHandlers } from './ipc/app/net';
 import { registerMailIpcHandlers } from './ipc/app/mail';
+import { registerGoogleCalendarIpcHandlers } from './ipc/app/googleCalendar';
 import { handleLocalAssetRequest } from './media/localAssets';
 import { registerReminderWakeups } from './services/reminderWakeups';
 import { registerStoreIpcHandlers } from './ipc/app/store';
@@ -508,6 +509,8 @@ function registerIpcHandlers(): void {
     storeDir,
     mailConfigStoreKey: 'mail-account-config',
   });
+
+  registerGoogleCalendarIpcHandlers();
 
   registerClipboardIpcHandlers({
     storeDir,

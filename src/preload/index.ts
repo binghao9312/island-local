@@ -29,6 +29,13 @@ import { contextBridge, ipcRenderer, webUtils } from 'electron';
 import { electronAPI } from '@electron-toolkit/preload';
 import subscribeSettings from './settingsSubscription';
 import type {
+  GoogleCalendarEvent,
+  GoogleCalendarEventInput,
+  GoogleCalendarRange,
+  GoogleCalendarResult,
+  GoogleCalendarStatus,
+} from '../shared/googleCalendarTypes';
+import type {
   Point,
   Bounds,
   IslandDisplayInfo,
@@ -677,6 +684,12 @@ const api = {
   mailInboxList: (configOrLimit?: Record<string, unknown> | number, limit?: number): Promise<MailInboxResult> => {
     return ipcRenderer.invoke('mail:inbox:list', configOrLimit, limit);
   },
+  /** ===== Google 日历 API（经主进程调用已登录的 gws CLI） ===== */
+  gcalStatus: (): Promise<GoogleCalendarResult<GoogleCalendarStatus>> => ipcRenderer.invoke('gcal:status'),
+  gcalList: (range: GoogleCalendarRange): Promise<GoogleCalendarResult<GoogleCalendarEvent[]>> => ipcRenderer.invoke('gcal:list', range),
+  gcalCreate: (input: GoogleCalendarEventInput): Promise<GoogleCalendarResult<GoogleCalendarEvent>> => ipcRenderer.invoke('gcal:create', input),
+  gcalUpdate: (id: string, input: GoogleCalendarEventInput): Promise<GoogleCalendarResult<GoogleCalendarEvent>> => ipcRenderer.invoke('gcal:update', id, input),
+  gcalRemove: (id: string): Promise<GoogleCalendarResult<null>> => ipcRenderer.invoke('gcal:remove', id),
   /** ===== 文件存储 API ===== */
   /**
    * 从文件读取 JSON 数据
