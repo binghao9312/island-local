@@ -24,7 +24,12 @@
  * @author 鸡哥
  */
 
-import type { AgentUsageRateLimits, AgentUsageRateLimitWindow } from '../../../../../../../preload/types/agentUsage';
+import type {
+  AgentQuotaStatus,
+  AgentUsageProviderId,
+  AgentUsageRateLimits,
+  AgentUsageRateLimitWindow,
+} from '../../../../../../../preload/types/agentUsage';
 import type { Translate } from '../types/agentUsageTypes';
 
 /**
@@ -80,6 +85,22 @@ export function windowLabel(windowMinutes: number | null, t: Translate): string 
  */
 export function findRateLimitWindow(rateLimits: AgentUsageRateLimits | null, windowMinutes: number): AgentUsageRateLimitWindow | null {
   return [rateLimits?.primary, rateLimits?.secondary].find((item) => item?.windowMinutes === windowMinutes) ?? null;
+}
+
+/**
+ * 生成额度缺失时的提示文案，说明没有额度的原因。
+ * @param status - 额度获取状态
+ * @param provider - 来源；Codex 的 noData 指本地日志不含额度，其余来源指接口未返回额度
+ * @param t - 翻译函数
+ * @returns 提示文案
+ */
+export function quotaStatusText(status: AgentQuotaStatus, provider: AgentUsageProviderId, t: Translate): string {
+  if (status === 'notLoggedIn') return t('expanded.agentUsage.quota.notLoggedIn', { defaultValue: '未登录 Claude Code' });
+  if (status === 'loginExpired') return t('expanded.agentUsage.quota.loginExpired', { defaultValue: '登录已过期，请打开 Claude Code 刷新登录' });
+  if (status === 'error') return t('expanded.agentUsage.quota.error', { defaultValue: '额度读取失败' });
+  return provider === 'codex'
+    ? t('expanded.agentUsage.noQuotaInLogs', { defaultValue: '本地日志不含额度信息' })
+    : t('expanded.agentUsage.noQuotaData', { defaultValue: '暂无额度数据' });
 }
 
 /**

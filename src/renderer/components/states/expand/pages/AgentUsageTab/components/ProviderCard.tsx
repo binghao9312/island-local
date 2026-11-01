@@ -25,7 +25,7 @@
  */
 
 import { AGENT_USAGE_PROVIDER_ICONS, TOKEN_BREAKDOWN_KEYS } from '../config/agentUsageConfig';
-import { formatTokens } from '../utils/agentUsageUtils';
+import { formatTokens, quotaStatusText } from '../utils/agentUsageUtils';
 import { QuotaBar } from './QuotaBar';
 import type { ReactElement } from 'react';
 import type { AgentUsageRateLimitWindow } from '../../../../../../../preload/types/agentUsage';
@@ -84,13 +84,7 @@ export function ProviderCard({ provider, now, t }: ProviderCardProps): ReactElem
       <div className="au-card-quota">
         {windows.length > 0
           ? windows.map((quota) => <QuotaBar key={`${quota.windowMinutes}`} quota={quota} now={now} t={t} />)
-          : (
-            <span className="au-card-hint">
-              {provider.provider === 'claude'
-                ? t('expanded.agentUsage.noQuotaInLogs', { defaultValue: '本地日志不含额度信息' })
-                : t('expanded.agentUsage.noQuotaData', { defaultValue: '暂无额度数据' })}
-            </span>
-          )}
+          : <span className="au-card-hint">{quotaStatusText(provider.quotaStatus, provider.provider, t)}</span>}
       </div>
     </div>
   );

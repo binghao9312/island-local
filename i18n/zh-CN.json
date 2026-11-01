@@ -734,6 +734,11 @@
       "resetIn": "{{time}}后重置",
       "resetDone": "已重置",
       "windowMissing": "当前套餐未提供此额度",
+      "quota": {
+        "notLoggedIn": "未登录 Claude Code",
+        "loginExpired": "登录已过期，请打开 Claude Code 刷新登录",
+        "error": "额度读取失败"
+      },
       "window": {
         "fiveHour": "5 小时",
         "weekly": "每周",

@@ -42,7 +42,7 @@ let documentTarget: EventTarget & { hidden: boolean };
 const tokens = (total: number) => ({ total, input: total * 0.1, output: total * 0.2, cacheRead: total * 0.6, cacheWrite: total * 0.1 });
 
 function provider(overrides: Partial<AgentUsageProviderSnapshot>): AgentUsageProviderSnapshot {
-  return { provider: 'claude', available: true, today: tokens(8_332_768), week: tokens(588_081_837), todaySessions: 2, topModel: 'claude-opus-5-5', rateLimits: null, ...overrides };
+  return { provider: 'claude', available: true, today: tokens(8_332_768), week: tokens(588_081_837), todaySessions: 2, topModel: 'claude-opus-5-5', rateLimits: null, quotaStatus: 'notLoggedIn', ...overrides };
 }
 
 function snapshot(providers: AgentUsageProviderSnapshot[]): AgentUsageSnapshot {
@@ -135,7 +135,7 @@ describe('AgentUsageTab', () => {
   it('渲染两张来源卡片：模型、紧凑 token 数、明细与 Claude 无额度提示', async () => {
     leaves.snapshot.mockResolvedValue(snapshot([
       provider({}),
-      provider({ provider: 'codex', topModel: 'gpt-6.1-sol', today: tokens(950), todaySessions: 3 }),
+      provider({ provider: 'codex', topModel: 'gpt-6.1-sol', today: tokens(950), todaySessions: 3, quotaStatus: 'noData' }),
     ]));
     await mount();
     const tree = run();
@@ -150,14 +150,15 @@ describe('AgentUsageTab', () => {
     expect(text(byClass(cards[0], 'au-card-today'))).toBe('8.33M');
     expect(text(byClass(cards[1], 'au-card-today'))).toBe('950');
     expect(elements(cards[0]).filter((node) => node.props.className === 'au-card-breakdown-value').map((node) => text(node))).toEqual(['833K', '1.67M', '5.00M', '833K']);
-    expect(text(cards[0])).toContain('expanded.agentUsage.noQuotaInLogs');
-    expect(text(cards[1])).toContain('expanded.agentUsage.noQuotaData');
+    expect(text(cards[0])).toContain('expanded.agentUsage.quota.notLoggedIn');
+    expect(text(cards[1])).toContain('expanded.agentUsage.noQuotaInLogs');
     expect(text(tree)).toContain('expanded.agentUsage.updatedAt');
   });
 
   it('Codex 额度按窗口展示百分比、套餐与重置状态，高用量切换警示色', async () => {
     leaves.snapshot.mockResolvedValue(snapshot([provider({
       provider: 'codex',
+      quotaStatus: 'ok',
       rateLimits: {
         primary: { usedPercent: 95, windowMinutes: 300, resetsAt: NOW + 3_600_000 },
         secondary: { usedPercent: 40, windowMinutes: 10080, resetsAt: NOW - 1 },

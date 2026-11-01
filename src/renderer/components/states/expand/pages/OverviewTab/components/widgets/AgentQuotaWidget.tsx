@@ -37,6 +37,7 @@ import {
   findRateLimitWindow,
   formatTokens,
   quotaLevel,
+  quotaStatusText,
   resetLabel,
 } from '../../../AgentUsageTab/utils/agentUsageUtils';
 import type { Translate } from '../../../AgentUsageTab/types/agentUsageTypes';
@@ -95,7 +96,7 @@ function QuotaRow({ label, quota, now, t }: { label: string; quota: AgentUsageRa
 function ProviderItem({ provider, now, t }: { provider: AgentUsageProviderSnapshot; now: number; t: Translate }): ReactElement {
   const renderBody = (): ReactElement => {
     if (!provider.available) return <span className="ov-dash-agent-quota-hint">{t('expanded.agentUsage.unavailable')}</span>;
-    if (!provider.rateLimits) return <span className="ov-dash-agent-quota-hint">{t('expanded.agentUsage.noQuotaInLogs')}</span>;
+    if (!provider.rateLimits) return <span className="ov-dash-agent-quota-hint">{quotaStatusText(provider.quotaStatus, provider.provider, t)}</span>;
     return (
       <>
         <QuotaRow label={t('expanded.agentUsage.window.fiveHour')} quota={findRateLimitWindow(provider.rateLimits, FIVE_HOUR_WINDOW_MINUTES)} now={now} t={t} />

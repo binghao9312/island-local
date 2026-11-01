@@ -29,6 +29,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createAgentUsageService, createCodexParseState, parseClaudeUsageLine, parseCodexUsageLine } from '../agentUsageService';
+import type { ClaudeQuotaResult } from '../claudeUsageLimitService';
 
 const NOW = new Date(2026, 9, 30, 12, 0, 0).getTime();
 const iso = (daysAgo: number, hour = 10): string => new Date(2026, 9, 30 - daysAgo, hour, 0, 0).toISOString();
@@ -63,10 +64,11 @@ afterEach(() => {
   rmSync(root, { recursive: true, force: true });
 });
 
-function service(): ReturnType<typeof createAgentUsageService> {
+function service(claudeQuota?: () => Promise<ClaudeQuotaResult>): ReturnType<typeof createAgentUsageService> {
   return createAgentUsageService({
     claudeProjectsPath: join(root, 'claude', 'projects'),
     codexSessionsPath: join(root, 'codex', 'sessions'),
+    claudeQuota,
     now: () => NOW,
   });
 }
@@ -168,6 +170,19 @@ describe('createAgentUsageService', () => {
       today: { total: 15 },
       rateLimits: { primary: { usedPercent: 34 }, planType: 'pro' },
     });
+  });
+
+  it('Claude 额度来自注入的额度服务，未注入时状态为 noData，额度失败不影响 token 汇总', async () => {
+    writeFileSync(join(claudeDir, 'a.jsonl'), `${claudeLine('1', iso(0), { output_tokens: 4 })}\n`);
+    const rateLimits = { primary: { usedPercent: 19, windowMinutes: 300, resetsAt: null }, secondary: null, planType: null, updatedAt: NOW };
+    const [withQuota] = (await service(async () => ({ status: 'ok', rateLimits })).getSnapshot()).providers;
+    expect(withQuota).toMatchObject({ provider: 'claude', rateLimits, quotaStatus: 'ok', today: { total: 4 } });
+
+    const [failed] = (await service(async () => ({ status: 'loginExpired', rateLimits: null })).getSnapshot()).providers;
+    expect(failed).toMatchObject({ rateLimits: null, quotaStatus: 'loginExpired', today: { total: 4 } });
+
+    const [withoutQuota] = (await service().getSnapshot()).providers;
+    expect(withoutQuota).toMatchObject({ rateLimits: null, quotaStatus: 'noData' });
   });
 
   it('文件追加时只解析新增完整行，半行留到下次，截断后重新解析', async () => {

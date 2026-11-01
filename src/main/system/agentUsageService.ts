@@ -29,6 +29,7 @@ import { createReadStream } from 'fs';
 import { readdir, stat } from 'fs/promises';
 import { join } from 'path';
 import type {
+  AgentQuotaStatus,
   AgentUsageProviderId,
   AgentUsageProviderSnapshot,
   AgentUsageRateLimits,
@@ -36,6 +37,7 @@ import type {
   AgentUsageSnapshot,
   AgentUsageTokens,
 } from '../../preload/types/agentUsage';
+import type { ClaudeQuotaResult } from './claudeUsageLimitService';
 
 const WINDOW_DAYS = 7;
 const DAY_MS = 86_400_000;
@@ -80,6 +82,8 @@ interface JsonlFile {
 interface CreateAgentUsageServiceOptions {
   claudeProjectsPath: string;
   codexSessionsPath: string;
+  /** Claude 额度来自用量接口而非本地日志，未提供时 Claude 只展示 token 用量 */
+  claudeQuota?: () => Promise<ClaudeQuotaResult>;
   now?: () => number;
 }
 
@@ -330,6 +334,7 @@ function summarize(
   records: AgentUsageRecord[],
   range: { todayStart: number; weekStart: number },
   rateLimits: AgentUsageRateLimits | null,
+  quotaStatus: AgentQuotaStatus,
 ): AgentUsageProviderSnapshot {
   const seen = new Set<string>();
   const sessions = new Set<string>();
@@ -349,7 +354,7 @@ function summarize(
     (best, current) => (!best || current[1] > best[1] ? current : best),
     null,
   )?.[0] ?? null;
-  return { provider, available, today, week, topModel, rateLimits, todaySessions: sessions.size };
+  return { provider, available, today, week, topModel, rateLimits, quotaStatus, todaySessions: sessions.size };
 }
 
 /**
@@ -404,11 +409,12 @@ export function createAgentUsageService(options: CreateAgentUsageServiceOptions)
     const generatedAt = now();
     const todayStart = startOfLocalDay(generatedAt);
     const range = { todayStart, weekStart: todayStart - (WINDOW_DAYS - 1) * DAY_MS };
-    const [claudeAvailable, codexAvailable, claudeFiles, codexFiles] = await Promise.all([
+    const [claudeAvailable, codexAvailable, claudeFiles, codexFiles, claudeQuota] = await Promise.all([
       directoryExists(options.claudeProjectsPath),
       directoryExists(options.codexSessionsPath),
       loadFiles('claude', options.claudeProjectsPath, range.weekStart),
       loadFiles('codex', options.codexSessionsPath, range.weekStart),
+      options.claudeQuota ? options.claudeQuota() : Promise.resolve<ClaudeQuotaResult>({ status: 'noData', rateLimits: null }),
     ]);
     const rateLimits = codexFiles.reduce<AgentUsageRateLimits | null>((latest, file) => {
       const candidate = file.codex?.rateLimits ?? null;
@@ -418,8 +424,8 @@ export function createAgentUsageService(options: CreateAgentUsageServiceOptions)
     return {
       generatedAt,
       providers: [
-        summarize('claude', claudeAvailable, records(claudeFiles), range, null),
-        summarize('codex', codexAvailable, records(codexFiles), range, rateLimits),
+        summarize('claude', claudeAvailable, records(claudeFiles), range, claudeQuota.rateLimits, claudeQuota.status),
+        summarize('codex', codexAvailable, records(codexFiles), range, rateLimits, rateLimits ? 'ok' : 'noData'),
       ],
     };
   };

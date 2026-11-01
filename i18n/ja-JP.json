@@ -734,6 +734,11 @@
       "resetIn": "{{time}}後にリセット",
       "resetDone": "リセット済み",
       "windowMissing": "このプランでは提供されていません",
+      "quota": {
+        "notLoggedIn": "Claude Code にログインしていません",
+        "loginExpired": "ログインの期限が切れています。Claude Code を開いて再ログインしてください",
+        "error": "上限の取得に失敗しました"
+      },
       "window": {
         "fiveHour": "5 時間",
         "weekly": "毎週",

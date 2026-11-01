@@ -46,7 +46,7 @@ let documentTarget: EventTarget & { hidden: boolean };
 const tokens = (total: number) => ({ total, input: total, output: 0, cacheRead: 0, cacheWrite: 0 });
 
 function provider(overrides: Partial<AgentUsageProviderSnapshot>): AgentUsageProviderSnapshot {
-  return { provider: 'claude', available: true, today: tokens(8_332_768), week: tokens(9_000_000), todaySessions: 1, topModel: null, rateLimits: null, ...overrides };
+  return { provider: 'claude', available: true, today: tokens(8_332_768), week: tokens(9_000_000), todaySessions: 1, topModel: null, rateLimits: null, quotaStatus: 'notLoggedIn', ...overrides };
 }
 
 function snapshot(providers: AgentUsageProviderSnapshot[]): AgentUsageSnapshot {
@@ -119,6 +119,7 @@ describe('AgentQuotaWidget', () => {
       provider({
         provider: 'codex',
         today: tokens(1_200_000),
+        quotaStatus: 'ok',
         rateLimits: {
           primary: { usedPercent: 95, windowMinutes: 300, resetsAt: NOW + 3_600_000 },
           secondary: { usedPercent: 40, windowMinutes: 10080, resetsAt: NOW - 1 },
@@ -132,7 +133,7 @@ describe('AgentQuotaWidget', () => {
     const items = elements(tree).filter((node) => String(node.props.className).startsWith('ov-dash-agent-quota-item '));
     expect(items.map((node) => byClass(node, 'ov-dash-agent-quota-icon').props.src)).toEqual([AgentIcon.CLAUDE, AgentIcon.CODEX]);
     expect(items.map((node) => text(byClass(node, 'ov-dash-agent-quota-today')))).toEqual(['8.33M', '1.20M']);
-    expect(text(items[0])).toContain('expanded.agentUsage.noQuotaInLogs');
+    expect(text(items[0])).toContain('expanded.agentUsage.quota.notLoggedIn');
     const rows = elements(items[1]).filter((node) => node.props.className === 'ov-dash-agent-quota-row');
     expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-window')))).toEqual(['expanded.agentUsage.window.fiveHour', 'expanded.agentUsage.window.weekly']);
     expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-percent')))).toEqual(['95%', '0%']);
@@ -144,6 +145,7 @@ describe('AgentQuotaWidget', () => {
     leaves.snapshot.mockResolvedValue(snapshot([
       provider({
         provider: 'codex',
+        quotaStatus: 'ok',
         rateLimits: {
           primary: { usedPercent: 40, windowMinutes: 10080, resetsAt: NOW + 3_600_000 },
           secondary: { usedPercent: 60, windowMinutes: 300, resetsAt: NOW + 1_800_000 },
@@ -164,6 +166,7 @@ describe('AgentQuotaWidget', () => {
     leaves.snapshot.mockResolvedValue(snapshot([
       provider({
         provider: 'codex',
+        quotaStatus: 'ok',
         rateLimits: { primary: { usedPercent: 1, windowMinutes: 43200, resetsAt: NOW + 3_600_000 }, secondary: null, planType: 'free', updatedAt: NOW },
       }),
     ]));

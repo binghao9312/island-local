@@ -734,6 +734,11 @@
       "resetIn": "Resets in {{time}}",
       "resetDone": "Reset",
       "windowMissing": "Not provided by your plan",
+      "quota": {
+        "notLoggedIn": "Not logged in to Claude Code",
+        "loginExpired": "Login expired, open Claude Code to log in again",
+        "error": "Failed to load quota"
+      },
       "window": {
         "fiveHour": "5h",
         "weekly": "Weekly",

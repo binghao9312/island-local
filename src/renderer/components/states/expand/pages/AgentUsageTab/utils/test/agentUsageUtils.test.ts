@@ -33,6 +33,7 @@ import {
   formatDuration,
   formatTokens,
   quotaLevel,
+  quotaStatusText,
   resetLabel,
   windowLabel,
 } from '../agentUsageUtils';
@@ -46,6 +47,16 @@ describe('agentUsageUtils', () => {
     expect(findRateLimitWindow({ primary: weekly, secondary: fiveHour, planType: null, updatedAt: 1 }, 300)).toBe(fiveHour);
     expect(findRateLimitWindow({ primary: weekly, secondary: null, planType: null, updatedAt: 1 }, 300)).toBeNull();
     expect(findRateLimitWindow(null, 10080)).toBeNull();
+  });
+
+  it('额度缺失提示按状态与来源区分', () => {
+    // 测试用 t 会在翻译键后拼接选项，比较时只取键名部分。
+    const keyOf = (value: string): string => value.split(':')[0];
+    expect(keyOf(quotaStatusText('notLoggedIn', 'claude', t))).toBe('expanded.agentUsage.quota.notLoggedIn');
+    expect(keyOf(quotaStatusText('loginExpired', 'claude', t))).toBe('expanded.agentUsage.quota.loginExpired');
+    expect(keyOf(quotaStatusText('error', 'codex', t))).toBe('expanded.agentUsage.quota.error');
+    expect(keyOf(quotaStatusText('noData', 'codex', t))).toBe('expanded.agentUsage.noQuotaInLogs');
+    expect(keyOf(quotaStatusText('noData', 'claude', t))).toBe('expanded.agentUsage.noQuotaData');
   });
 
   it('来源图标映射到 AgentIcon 枚举', () => {
