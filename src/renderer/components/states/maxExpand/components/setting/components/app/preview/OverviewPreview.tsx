@@ -32,7 +32,6 @@ import { PerformanceMetricGrid, type PerformanceWidgetMetrics } from '../../../.
 import { SvgIcon } from '../../../../../../../../utils/SvgIcon';
 import { DEFAULT_PERFORMANCE_MONITOR_CHART_COLORS } from '../../../../../../../../utils/performanceMonitorColors';
 import { AGENT_USAGE_PROVIDER_ICONS } from '../../../../../../expand/pages/AgentUsageTab/config/agentUsageConfig';
-import { WorldClockFlag } from '../../../../../components/worldClock/components/WorldClockFlag';
 import type { AgentUsageProviderId } from '../../../../../../../../../preload/types/agentUsage';
 
 interface PreviewCountdownItem {
@@ -391,12 +390,10 @@ export function OverviewPreview({ layoutConfig }: { layoutConfig: OverviewLayout
               <div className="ov-dash-world-clock-item">
                 <span className="ov-dash-world-clock-city">{t('overview.worldClock.previewFirstCity')}</span>
                 <span className="ov-dash-world-clock-time">09:41:08</span>
-                <WorldClockFlag countryCode="cn" />
               </div>
               <div className="ov-dash-world-clock-item">
                 <span className="ov-dash-world-clock-city">{t('overview.worldClock.previewSecondCity')}</span>
                 <span className="ov-dash-world-clock-time">21:41:08</span>
-                <WorldClockFlag countryCode="us" />
               </div>
             </div>
           </div>

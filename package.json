@@ -109,7 +109,6 @@
     "dompurify": "^3.4.17",
     "electron-updater": "^6.8.11",
     "fetch-installed-software": "^0.0.7",
-    "flag-icons": "^7.6.0",
     "function-plot": "^1.26.0",
     "get-windows": "^9.3.0",
     "gsap": "^3.15.0",

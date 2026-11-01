@@ -30,7 +30,6 @@ import { getUserTimezone } from '@multisystemsuite/timezone-engine-core';
 import { useOverviewWorldClockConfig } from '../../../../../maxExpand/components/worldClock/hooks/useOverviewWorldClockConfig';
 import type { WorldClockCity, WorldClockTick } from '../../../../../maxExpand/components/worldClock/types/worldClockTypes';
 import { buildAllTicks, getAllTimezoneOptions, getCityLabel } from '../../../../../maxExpand/components/worldClock/utils/worldClockUtils';
-import { WorldClockFlag } from '../../../../../maxExpand/components/worldClock/components/WorldClockFlag';
 
 /** 世界时钟刷新间隔（毫秒）。 */
 const CLOCK_UPDATE_INTERVAL_MS = 1000;
@@ -97,7 +96,6 @@ export function WorldClockWidget({ onOpenWorldClockPage }: WorldClockWidgetProps
           <div key={tick.timezone} className="ov-dash-world-clock-item">
             <span className="ov-dash-world-clock-city">{getCityLabel(tick, t)}</span>
             <span className="ov-dash-world-clock-time">{tick.formattedTime}</span>
-            <WorldClockFlag countryCode={tick.countryCode} />
           </div>
         ))}
       </div>

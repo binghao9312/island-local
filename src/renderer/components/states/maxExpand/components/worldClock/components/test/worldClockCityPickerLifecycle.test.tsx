@@ -81,9 +81,9 @@ beforeEach(() => {
   vi.stubGlobal('window', surface);
   props = {
     visible: true, existingTimezones: ['Asia/Chongqing'], options: [{
-      timezone: 'Asia/Shanghai', label: 'Shanghai', labelKey: 'shanghai', countryCode: 'CN'
+      timezone: 'Asia/Shanghai', label: 'Shanghai', labelKey: 'shanghai'
     }, {
-      timezone: 'Asia/Tokyo', label: 'Tokyo', labelKey: 'tokyo', countryCode: 'JP'
+      timezone: 'Asia/Tokyo', label: 'Tokyo', labelKey: 'tokyo'
     }], onSelect: vi.fn(), onRemove: vi.fn(), onRemoveHover: vi.fn(), onClose: vi.fn()
   };
 });

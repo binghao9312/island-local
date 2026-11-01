@@ -36,7 +36,7 @@ import { DEFAULT_OVERVIEW_WORLD_CLOCK_CONFIG, normalizeOverviewWorldClockConfig 
 import { TIMEZONE_LABELS } from '../../config/timezoneLabels';
 import { WorldClockCard } from '../../components/WorldClockCard';
 import { WorldClockCityPicker } from '../../components/WorldClockCityPicker';
-import { buildAllTicks, buildTick, filterTimezoneOptions, getAllTimezoneOptions, getCanonicalTimezone, getCityLabel, getTimezoneCountryCode, normalizeCities } from '../worldClockUtils';
+import { buildAllTicks, buildTick, filterTimezoneOptions, getAllTimezoneOptions, getCanonicalTimezone, getCityLabel, normalizeCities } from '../worldClockUtils';
 
 const i18n = createInstance();
 const zh: Record<string, unknown> = JSON.parse(readFileSync('i18n/zh-CN.json', 'utf8')) as Record<string, unknown>;
@@ -55,9 +55,6 @@ describe('world clock city catalog', () => {
     expect(options.length).toBeGreaterThan(400);
     options.forEach((option) => expect(() => new Intl.DateTimeFormat('en', { timeZone: option.timezone })).not.toThrow());
     expect(new Set(options.map((option) => `${option.timezone  }:${  option.labelKey}`)).size).toBe(options.length);
-    options.filter((option) => option.timezone !== 'UTC').forEach((option) => {
-      expect(option.countryCode, option.timezone).toMatch(/^[a-z]{2}$/);
-    });
   });
 
   it('resolves all configured translations in both languages without fallback', () => {
@@ -126,9 +123,6 @@ describe('world clock translation and time', () => {
     })));
     expect(markup).toContain('北京');
     expect(markup).toContain('开普敦');
-    expect(markup).toContain('/cn.svg');
-    expect(markup).toContain('/za.svg');
-    expect(markup.match(/loading="lazy"/g)).toHaveLength(options.filter((option) => option.countryCode).length);
     expect(markup.match(/class="world-clock-picker-item"/g)).toHaveLength(options.length);
   });
 
@@ -137,7 +131,6 @@ describe('world clock translation and time', () => {
     await i18n.changeLanguage('en-US');
     const english = renderToStaticMarkup(createElement(I18nextProvider, { i18n }, createElement(WorldClockCard, { tick, onRemove: vi.fn(), onToggleOverview: vi.fn(), overviewSelected: false, overviewSelectionFull: false })));
     expect(english).toContain('Shanghai');
-    expect(english).toContain('/cn.svg');
     await i18n.changeLanguage('zh-CN');
     const chinese = renderToStaticMarkup(createElement(I18nextProvider, { i18n }, createElement(WorldClockCard, { tick, onRemove: vi.fn(), onToggleOverview: vi.fn(), overviewSelected: false, overviewSelectionFull: false })));
     expect(chinese).toContain('上海');
@@ -201,16 +194,6 @@ describe('world clock translation and time', () => {
     expect(tick.timezone).toBe('Asia/Shanghai');
     expect(getCityLabel(tick, i18n.getFixedT('zh-CN'))).toBe('北京');
     expect(getCityLabel(tick, i18n.getFixedT('en-US'))).toBe('Beijing');
-    expect(tick.countryCode).toBe('cn');
-  });
-
-  it('maps IANA aliases and multi-country regions to their correct flags', () => {
-    [
-      ['Asia/Shanghai', 'cn'], ['Asia/Taipei', 'cn'], ['Europe/London', 'gb'], ['America/New_York', 'us'],
-      ['Asia/Calcutta', 'in'], ['Europe/Kiev', 'ua'], ['Pacific/Truk', 'fm'],
-      ['America/Godthab', 'gl'], ['Antarctica/Casey', 'aq'],
-    ].forEach(([timezone, countryCode]) => expect(getTimezoneCountryCode(timezone)).toBe(countryCode));
-    expect(getTimezoneCountryCode('UTC')).toBeUndefined();
   });
 
   it('treats modern and legacy IANA names as the same timezone', () => {
@@ -258,13 +241,12 @@ describe('world clock translation and time', () => {
 });
 
 describe('world clock rendering performance', () => {
-  it('does not mount the city rows or flags while the picker is closed', () => {
+  it('does not mount the city rows while the picker is closed', () => {
     const markup = renderToStaticMarkup(createElement(I18nextProvider, { i18n }, createElement(WorldClockCityPicker, {
       visible: false, existingTimezones: [], options: getAllTimezoneOptions(), onSelect: vi.fn(), onClose: vi.fn(),
       onRemove: vi.fn(), onRemoveHover: vi.fn(),
     })));
     expect(markup).not.toContain('world-clock-picker-item');
-    expect(markup).not.toContain('world-clock-country-flag');
     expect(markup).toContain('world-clock-picker-sidebar');
   });
 

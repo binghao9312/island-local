@@ -680,14 +680,6 @@
   letter-spacing: 0.3px;
   line-height: 1.2;
 }
-.ov-dash-world-clock-item .world-clock-country-flag.no-filter {
-  position: absolute;
-  right: 6px;
-  bottom: 5px;
-  width: 28px;
-  height: 21px;
-  opacity: 0.18;
-}
 .ov-dash-world-clock-empty {
   display: flex;
   flex: 1;

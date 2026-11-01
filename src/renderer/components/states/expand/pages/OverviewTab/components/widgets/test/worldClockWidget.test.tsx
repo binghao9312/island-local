@@ -26,7 +26,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { byClass, find, invoke, text } from '../../../../../../test/tree';
+import { byClass, invoke, text } from '../../../../../../test/tree';
 
 import { WorldClockWidget } from '../WorldClockWidget';
 import type { TreeElement } from '../../../../../../test/tree';
@@ -40,5 +40,5 @@ const model = vi.hoisted(() => ({ config: { timezones: ['Asia/Shanghai'] } }));
 vi.mock('../../../../../../maxExpand/components/worldClock/hooks/useOverviewWorldClockConfig', () => ({ useOverviewWorldClockConfig: () => [model.config] }));
 describe('WorldClockWidget', () => {
   it('renders empty clocks before the first tick and supports keyboard navigation', () => { const open = vi.fn(); const root = ((WorldClockWidget({ onOpenWorldClockPage: open }) as TreeElement)); expect(text(root)).toContain('overview.worldClock.empty'); const title = byClass(root, 'ov-dash-widget-title'); invoke(title, 'onClick'); ['Enter', ' '].forEach((key) => { const preventDefault = vi.fn(); invoke(title, 'onKeyDown', { key, preventDefault }); expect(preventDefault).toHaveBeenCalledOnce(); }); invoke(title, 'onKeyDown', { key: 'Escape', preventDefault: vi.fn() }); expect(open).toHaveBeenCalledTimes(3); });
-  it('renders formatted city clock ticks', () => { slots.values = [[{ timezone: 'Asia/Shanghai', label: 'Shanghai', formattedTime: '12:34:56', countryCode: 'CN' }]]; const root = ((WorldClockWidget({ onOpenWorldClockPage: vi.fn() }) as TreeElement)); expect(text(root)).toContain('12:34:56'); expect(find(root, (node) => node.props.countryCode === 'CN')).toBeDefined(); });
+  it('renders formatted city clock ticks', () => { slots.values = [[{ timezone: 'Asia/Shanghai', label: 'Shanghai', formattedTime: '12:34:56' }]]; const root = ((WorldClockWidget({ onOpenWorldClockPage: vi.fn() }) as TreeElement)); expect(text(root)).toContain('12:34:56'); });
 });

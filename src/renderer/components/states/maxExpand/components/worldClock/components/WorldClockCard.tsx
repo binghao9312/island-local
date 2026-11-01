@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next';
 import { SvgIcon } from '../../../../../../utils/SvgIcon';
 import type { WorldClockCardProps } from '../types/worldClockTypes';
 import { getCityLabel } from '../utils/worldClockUtils';
-import { WorldClockFlag } from './WorldClockFlag';
 
 /**
  * 世界时钟卡片。
@@ -54,7 +53,6 @@ export function WorldClockCard({
   return (
     <div className={`world-clock-card${overviewSelected ? ' world-clock-card--selected' : ''}${removeHighlighted ? ' world-clock-card--remove-highlighted' : ''}`}>
       <div className="world-clock-card-header">
-        <WorldClockFlag countryCode={tick.countryCode} />
         <span className="world-clock-card-label">{getCityLabel(tick, t)}</span>
       </div>
       <div className="world-clock-card-time">{tick.formattedTime}</div>

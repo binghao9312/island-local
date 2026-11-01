@@ -44,7 +44,7 @@ it('非数组数据回退，旧字段不是字符串时采用 UTC 并重建排�
   ]);
 });
 it('原生支持但尚无翻译键的时区保留目录项，搜索没有键的城市采用原名称', () => {
-  expect(getAllTimezoneOptions()).toContainEqual({ timezone: 'Etc/GMT+7', label: 'GMT+7', labelKey: '', countryCode: undefined });
+  expect(getAllTimezoneOptions()).toContainEqual({ timezone: 'Etc/GMT+7', label: 'GMT+7', labelKey: '' });
   const options = [{ timezone: 'UTC', label: 'Custom', labelKey: '' }];
   const translate = ((key: string) => key) as TFunction;
   expect(filterTimezoneOptions(options, 'custom', translate)).toEqual(options);

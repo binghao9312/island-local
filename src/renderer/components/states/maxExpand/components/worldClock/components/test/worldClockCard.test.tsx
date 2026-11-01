@@ -29,7 +29,7 @@ import { render, nodes, value, trigger, text } from '../../../../test/componentH
 import { WorldClockCard as Component } from '../WorldClockCard';
 
 describe('WorldClockCard', () => {
-  const tick = { timezone: 'Asia/Shanghai', label: 'Shanghai', countryCode: 'cn', formattedTime: '08:05:03', formattedDate: '2026-10-06', utcOffset: 'UTC+8', handAngles: { hour: 240, minute: 30, second: 18 } };
+  const tick = { timezone: 'Asia/Shanghai', label: 'Shanghai', formattedTime: '08:05:03', formattedDate: '2026-10-06', utcOffset: 'UTC+8', handAngles: { hour: 240, minute: 30, second: 18 } };
   const props = { tick, onRemove: vi.fn(), onToggleOverview: vi.fn(), overviewSelected: false, overviewSelectionFull: true };
   it('renders time and hand angles and prevents adding beyond overview capacity', () => {
     const tree = render(Component, props);

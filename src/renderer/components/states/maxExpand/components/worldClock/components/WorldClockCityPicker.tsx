@@ -32,7 +32,6 @@ import { filterTimezoneOptions, getCanonicalTimezone, getCityLabel } from '../ut
 import { useDebouncedQuery } from '../hooks/useDebouncedQuery';
 import { usePickerAutoFocus } from '../hooks/usePickerAutoFocus';
 import { useEscToClose } from '../hooks/useEscToClose';
-import { WorldClockFlag } from './WorldClockFlag';
 
 /** 城市时区选择器 — 左侧边栏面板 */
 export const WorldClockCityPicker = memo(function WorldClockCityPicker({
@@ -109,7 +108,6 @@ export const WorldClockCityPicker = memo(function WorldClockCityPicker({
                   order: 0,
                 })}
               >
-                <WorldClockFlag countryCode={opt.countryCode} />
                 <span className="world-clock-picker-item-label">{getCityLabel(opt, t)}</span>
                 <span className="world-clock-picker-item-tz">{opt.timezone}</span>
               </button>

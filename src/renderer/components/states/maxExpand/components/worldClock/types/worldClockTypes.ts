@@ -43,7 +43,6 @@ export interface WorldClockTick {
   timezone: string;
   label: string;
   labelKey?: string;
-  countryCode?: string;
   /** 时钟库的完整日期时间，包含秒与上午/下午 */
   formattedTime: string;
   /** 格式化日期，如 "9/4" 或 "9月4日" */
@@ -65,8 +64,6 @@ export interface TimezoneOption {
   label: string;
   /** i18n 翻译键 */
   labelKey: string;
-  /** ISO 3166-1 alpha-2 国家代码；UTC 等无归属时为空 */
-  countryCode?: string;
 }
 
 /** 持久化存储 key */
@@ -104,11 +101,6 @@ export interface WorldClockCityPickerProps {
   onClose: () => void;
   /** 可选时区列表 */
   options: TimezoneOption[];
-}
-
-/** WorldClockFlag 组件 Props */
-export interface WorldClockFlagProps {
-  countryCode?: string;
 }
 
 // ── Hook 返回类型 ──

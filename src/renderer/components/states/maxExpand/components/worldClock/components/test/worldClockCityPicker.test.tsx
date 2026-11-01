@@ -32,7 +32,7 @@ vi.mock('../../hooks/useDebouncedQuery', () => ({ useDebouncedQuery: () => query
 vi.mock('../../hooks/usePickerAutoFocus', () => ({ usePickerAutoFocus: () => ({ current: null }) }));
 vi.mock('../../hooks/useEscToClose', () => ({ useEscToClose: vi.fn() }));
 describe('WorldClockCityPicker', () => {
-  const option = { timezone: 'Asia/Shanghai', label: 'Shanghai', countryCode: 'cn' };
+  const option = { timezone: 'Asia/Shanghai', label: 'Shanghai' };
   const props = { visible: false, existingTimezones: [], options: [option], onSelect: vi.fn(), onRemove: vi.fn(), onRemoveHover: vi.fn(), onClose: vi.fn() };
   it('does not build the hidden list and shows visible empty results', () => {
     expect(nodes(render(Component, props), '.world-clock-picker-item')).toHaveLength(0);
