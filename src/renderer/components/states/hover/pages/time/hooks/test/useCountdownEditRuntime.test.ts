@@ -292,6 +292,20 @@ describe('useCountdownEdit runtime', () => {
     });
     expect(view.element.addEventListener).toHaveBeenCalledTimes(1);
   });
+  it('binds the wheel listener when the popover mounts the inputs after the hook first ran', () => {
+    // 弹层默认收起：首次 effect 提交时输入容器尚未挂载
+    renderHook(useCountdownEdit, false);
+    flushHookEffects();
+    const element = {
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn()
+    };
+    // 弹层展开：容器挂载，isEditing 未变化，仅 isOpen 变化
+    const { timerInputsRef } = renderHook(useCountdownEdit, true);
+    timerInputsRef.current = element as unknown as HTMLDivElement;
+    flushHookEffects();
+    expect(element.addEventListener).toHaveBeenCalledExactlyOnceWith('wheel', expect.any(Function), { passive: false });
+  });
   it('state transitions replace wheel listener and final unmount removes exact registered callback', () => {
     const view = attach();
     store.timerData = {

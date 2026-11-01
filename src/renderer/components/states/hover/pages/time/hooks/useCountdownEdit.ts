@@ -45,10 +45,12 @@ const NO_DRAFT: TimerDraft = { field: null, value: '' };
  * 可编辑计时器逻辑 Hook
  * @description 管理倒计时状态、输入框草稿与开始/暂停/重置控制。
  * 输入框聚焦期间展示本地草稿（允许输入过程中的任意 0~2 位数字），
- * 失焦或回车时才限制上限、补零并写入 store，避免受控输入被每次补零导致无法键入
+ * 失焦或回车时才限制上限、补零并写入 store，避免受控输入被每次补零导致无法键入。
+ * 输入框容器只在弹层展开后才挂载，滚轮监听需随弹层展开重新绑定，否则永远挂不上
+ * @param isOpen - 倒计时弹层是否展开，默认 true
  * @returns 计时器状态与操作回调
  */
-export function useCountdownEdit(): {
+export function useCountdownEdit(isOpen: boolean = true): {
   timerState: TimerState;
   isEditing: boolean;
   inputHours: string;
@@ -155,7 +157,7 @@ export function useCountdownEdit(): {
     };
     el.addEventListener('wheel', handleWheel, { passive: false });
     return () => el.removeEventListener('wheel', handleWheel);
-  }, [isEditing]);
+  }, [isEditing, isOpen]);
 
   const handleStart = useCallback(() => {
     const total = getTotalSeconds(inputHours, inputMinutes, inputSeconds);

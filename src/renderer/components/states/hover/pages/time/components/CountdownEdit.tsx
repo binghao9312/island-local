@@ -81,7 +81,7 @@ export function CountdownEdit({
     handlePause,
     handleResume,
     handleReset,
-  } = useCountdownEdit();
+  } = useCountdownEdit(isOpen);
 
   const handleToggleCountdown = useCallback((): void => {
     setIsOpen((prev) => !prev);
