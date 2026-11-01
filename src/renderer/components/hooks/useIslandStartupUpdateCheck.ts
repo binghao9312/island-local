@@ -39,6 +39,7 @@ import {
   getRoleFromToken,
 } from '../config/dynamicIslandConfig';
 import { UPDATES_ENABLED } from '../../../shared/updatesConfig';
+import { SERVER_FEATURES_ENABLED } from '../../../shared/serverFeaturesConfig';
 import { STARTUP_UPDATE_CONTINUE_EVENT } from '../states/notification/config/notificationConstants';
 import type { UpdateSourceKey } from '../config/dynamicIslandConfig';
 
@@ -152,7 +153,7 @@ export function useIslandStartupUpdateCheck(options: UseIslandStartupUpdateCheck
           const weatherAlertEnabledValue = await window.api?.storeRead?.(WEATHER_ALERT_ENABLED_STORE_KEY).catch(() => null);
           if (finished) return;
           const weatherAlertEnabled = typeof weatherAlertEnabledValue === 'boolean' ? weatherAlertEnabledValue : true;
-          if (!weatherAlertEnabled || !isProUser || !token) {
+          if (!SERVER_FEATURES_ENABLED || !weatherAlertEnabled || !isProUser || !token) {
             continueStartupUpdateCheck();
             return;
           }

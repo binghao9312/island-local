@@ -25,6 +25,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { StandaloneWindowViewport } from '../StandaloneWindowViewport';
 import { elements, findElement, resetState } from '../../test/elementHarness';
 vi.mock('react', async (importOriginal) => ({

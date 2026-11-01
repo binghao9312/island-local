@@ -45,6 +45,7 @@ import {
   WEATHER_SETTINGS_PAGES,
 } from '../utils/settingsConfig';
 import { UPDATES_ENABLED } from '../../../../../../../shared/updatesConfig';
+import { SERVER_FEATURES_ENABLED } from '../../../../../../../shared/serverFeaturesConfig';
 import { AboutSettingsSection } from './about/AboutSettingsSection';
 import { AiSettingsSection } from './ai/AiSettingsSection';
 import { AppSettingsSection } from './app/AppSettingsSection';
@@ -431,14 +432,16 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
             <span className="sidebar-dot" />
             {getSettingsLabel('app')}
           </button>
-          <button
-            className={`max-expand-settings-sidebar-item ${activeTab === 'pluginMarket' ? 'active' : ''}`}
-            onClick={() => setActiveTab('pluginMarket')}
-            type="button"
-          >
-            <span className="sidebar-dot" />
-            {getSettingsLabel('pluginMarket')}
-          </button>
+          {SERVER_FEATURES_ENABLED && (
+            <button
+              className={`max-expand-settings-sidebar-item ${activeTab === 'pluginMarket' ? 'active' : ''}`}
+              onClick={() => setActiveTab('pluginMarket')}
+              type="button"
+            >
+              <span className="sidebar-dot" />
+              {getSettingsLabel('pluginMarket')}
+            </button>
+          )}
           <button
             className={`max-expand-settings-sidebar-item ${activeTab === 'network' ? 'active' : ''}`}
             onClick={() => setActiveTab('network')}
@@ -487,14 +490,16 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
             <span className="sidebar-dot" />
             {getSettingsLabel('shortcut')}
           </button>
-          <button
-            className={`max-expand-settings-sidebar-item ${activeTab === 'user' ? 'active' : ''}`}
-            onClick={() => setActiveTab('user')}
-            type="button"
-          >
-            <span className="sidebar-dot" />
-            {getSettingsLabel('user')}
-          </button>
+          {SERVER_FEATURES_ENABLED && (
+            <button
+              className={`max-expand-settings-sidebar-item ${activeTab === 'user' ? 'active' : ''}`}
+              onClick={() => setActiveTab('user')}
+              type="button"
+            >
+              <span className="sidebar-dot" />
+              {getSettingsLabel('user')}
+            </button>
+          )}
           {UPDATES_ENABLED && (
             <button
               className={`max-expand-settings-sidebar-item ${activeTab === 'update' ? 'active' : ''}`}
@@ -904,7 +909,7 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
             />
           )}
 
-          {activeTab === 'pluginMarket' && (
+          {SERVER_FEATURES_ENABLED && activeTab === 'pluginMarket' && (
             <div className="max-expand-settings-section">
               <div className="max-expand-settings-title settings-app-title-line">
                 <span>{t('settings.labels.pluginMarket', { defaultValue: '综合市场' })}</span>
@@ -1015,7 +1020,7 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
             </div>
           )}
 
-          {activeTab === 'user' && <UserSettingsSection initialProfilePage={userInitialProfilePage} />}
+          {SERVER_FEATURES_ENABLED && activeTab === 'user' && <UserSettingsSection initialProfilePage={userInitialProfilePage} />}
 
           {activeTab === 'about' && <AboutSettingsSection aboutVersion={aboutVersion} initialPage={aboutInitialPage} />}
         </div>

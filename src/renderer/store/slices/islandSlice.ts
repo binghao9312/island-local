@@ -28,6 +28,7 @@ import { emptyNotification } from '../constants/defaults';
 import { getIslandMorphDuration } from '../constants/islandTransition';
 import { playNotificationSoundOnce } from '../../utils/audio/notificationSound';
 import { beginIslandWindowTransition } from '../../utils/islandWindowTransition';
+import { SERVER_FEATURES_ENABLED } from '../../../shared/serverFeaturesConfig';
 import type { StateCreator } from 'zustand';
 import type { IslandSlice } from '../types';
 
@@ -109,6 +110,7 @@ export const createIslandSlice: StateCreator<
   }),
 
   setLogin: () => set((prev) => {
+    if (!SERVER_FEATURES_ENABLED) return prev;
     if (prev.uiStateLocked && prev.state !== 'login') return prev;
     const standalone = isStandaloneRenderer();
     if (!standalone) {
@@ -123,6 +125,7 @@ export const createIslandSlice: StateCreator<
   }),
 
   setRegister: () => set((prev) => {
+    if (!SERVER_FEATURES_ENABLED) return prev;
     if (prev.uiStateLocked && prev.state !== 'register') return prev;
     const standalone = isStandaloneRenderer();
     if (!standalone) {
@@ -137,6 +140,7 @@ export const createIslandSlice: StateCreator<
   }),
 
   setPayment: (context) => set((prev) => {
+    if (!SERVER_FEATURES_ENABLED) return prev;
     if (prev.uiStateLocked && prev.state !== 'payment') return prev;
     const standalone = isStandaloneRenderer();
     if (!standalone) {
@@ -151,6 +155,7 @@ export const createIslandSlice: StateCreator<
   }),
 
   setSetPassword: (context) => set((prev) => {
+    if (!SERVER_FEATURES_ENABLED) return prev;
     if (prev.uiStateLocked && prev.state !== 'setPassword') return prev;
     const standalone = isStandaloneRenderer();
     if (!standalone) {
@@ -165,6 +170,7 @@ export const createIslandSlice: StateCreator<
   }),
 
   setBindOAuth: (context) => set((prev) => {
+    if (!SERVER_FEATURES_ENABLED) return prev;
     if (prev.uiStateLocked && prev.state !== 'bindOAuth') return prev;
     const standalone = isStandaloneRenderer();
     if (!standalone) {
@@ -179,6 +185,7 @@ export const createIslandSlice: StateCreator<
   }),
 
   setBindEmail: (context) => set((prev) => {
+    if (!SERVER_FEATURES_ENABLED) return prev;
     if (prev.uiStateLocked && prev.state !== 'bindEmail') return prev;
     const standalone = isStandaloneRenderer();
     if (!standalone) {
@@ -275,6 +282,7 @@ export const createIslandSlice: StateCreator<
   }),
 
   setQuestionnaire: () => set((prev) => {
+    if (!SERVER_FEATURES_ENABLED) return prev;
     if (prev.uiStateLocked && prev.state !== 'questionnaire') return prev;
     beginIslandWindowTransition(prev.state, 'questionnaire');
     window.api?.expandWindowSettings(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));

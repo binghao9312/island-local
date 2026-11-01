@@ -25,6 +25,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { clearQuestionnaireLocalState, fetchActiveQuestionnaires, fetchCurrentQuestionnaire, fetchQuestionnaireHistory, isQuestionnaireCompleted, isQuestionnaireReminderDismissed, markQuestionnaireCompleted, dismissQuestionnaireReminder, readQuestionnaireDraft, writeQuestionnaireDraft } from '../questionnaireApi';
 
 const request = vi.hoisted(() => vi.fn());

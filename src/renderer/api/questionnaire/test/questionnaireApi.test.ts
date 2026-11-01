@@ -25,6 +25,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 
 const requestMock = vi.hoisted(() => vi.fn());
 vi.mock('../../user/userAccountApi.client', () => ({ request: requestMock }));

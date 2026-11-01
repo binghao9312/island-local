@@ -230,6 +230,7 @@ afterEach(() => {
 });
 // 这些用例覆盖更新实现本身，需要开启更新总开关。
 vi.mock('../../../../../../../../shared/updatesConfig', () => ({ UPDATES_ENABLED: true }));
+vi.mock('../../../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 describe('真实初始化配置接线', () => {
   it('所有音乐和快捷键读值传入正确状态并规范布局/导航', async () => {
     mount();

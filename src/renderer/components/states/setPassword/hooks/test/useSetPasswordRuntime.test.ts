@@ -24,6 +24,7 @@
  * @author 鸡哥
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { createStore } from 'zustand/vanilla';
 import { createIslandSlice } from '../../../../../store/slices/islandSlice';
 import { deferred, renderHook, resetHook, settleHook, unmountHook } from '../../../../hooks/test/startupHookHarness';

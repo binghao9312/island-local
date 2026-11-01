@@ -25,6 +25,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { createStore } from 'zustand/vanilla';
 import { createIslandSlice } from '../islandSlice';
 import installStorage from './sliceStorageFixture';

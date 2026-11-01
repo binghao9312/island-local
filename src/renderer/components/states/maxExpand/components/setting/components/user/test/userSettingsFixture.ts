@@ -24,6 +24,7 @@
  * @author 鸡哥
  */
 
+vi.mock('../../../../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { vi } from 'vitest';
 import { UserSettingsSection } from '../UserSettingsSection';
 import { UserRecordSkeletonList, UserValueSkeleton } from '../components/userSettingsSkeleton';

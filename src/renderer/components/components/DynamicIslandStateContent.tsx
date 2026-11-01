@@ -25,6 +25,7 @@
  */
 
 import type { JSX } from 'react';
+import { SERVER_FEATURES_ENABLED } from '../../../shared/serverFeaturesConfig';
 import type { NotificationData, WeatherData } from '../../store/types';
 import { IdleClockContent, HoverClockContent } from './IslandClockContent';
 import { NotificationContent } from '../states/notification/NotificationContent';
@@ -115,12 +116,16 @@ export function DynamicIslandStateContent({
   if (state === 'lyrics') return <LyricsContent />;
   if (state === 'lyricsTranslation') return <LyricsTranslationContent />;
   if (state === 'guide') return <GuideContent />;
-  if (state === 'login') return <LoginContent />;
-  if (state === 'register') return <RegisterContent />;
-  if (state === 'resetPassword') return <ResetPasswordContent />;
-  if (state === 'setPassword') return <SetPasswordContent />;
-  if (state === 'bindOAuth') return <BindOAuthContent />;
-  if (state === 'bindEmail') return <BindEmailContent />;
+  if (SERVER_FEATURES_ENABLED) {
+    if (state === 'login') return <LoginContent />;
+    if (state === 'register') return <RegisterContent />;
+    if (state === 'resetPassword') return <ResetPasswordContent />;
+    if (state === 'setPassword') return <SetPasswordContent />;
+    if (state === 'bindOAuth') return <BindOAuthContent />;
+    if (state === 'bindEmail') return <BindEmailContent />;
+    if (state === 'payment') return <PaymentContent />;
+    if (state === 'questionnaire') return <QuestionnaireContent />;
+  }
   if (state === 'musicProvidersLogin') return <MusicProvidersLoginContent />;
   if (state === 'payment') return <PaymentContent />;
   if (state === 'questionnaire') return <QuestionnaireContent />;

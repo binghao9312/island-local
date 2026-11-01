@@ -25,6 +25,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 
 const { netFetchMock, updaterVersionMock } = vi.hoisted(() => {
   const netFetchMock = vi.fn();

@@ -24,6 +24,7 @@
  * @author 鸡哥
  */
 
+import { SERVER_FEATURES_ENABLED } from '../../../shared/serverFeaturesConfig';
 import { fetchUserProfile } from '../../api/user/userAccountApi';
 import {
   USER_ACCOUNT_LOGOUT_MARKER_KEY,
@@ -86,7 +87,7 @@ export async function bootstrapAuthSession(): Promise<string | null> {
  * @returns 刷新完成的 Promise，失败时保留缓存并记录日志。
  */
 export async function refreshAuthSession(token: string | null): Promise<void> {
-  if (!token || readLocalToken() !== token) return;
+  if (!SERVER_FEATURES_ENABLED || !token || readLocalToken() !== token) return;
   try {
     const profileResult = await fetchUserProfile(token);
     // 用户可在请求期间退出或切换账号，旧响应不能覆盖新会话。

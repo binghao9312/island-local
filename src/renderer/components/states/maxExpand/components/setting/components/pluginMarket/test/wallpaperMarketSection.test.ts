@@ -24,6 +24,7 @@
  * @author 鸡哥
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { WallpaperMarketSection } from '../WallpaperMarketSection';
 import { elements, findElement, invoke, resetState, rewindState, textContent } from '../../../../../../../test/elementHarness';
 import type * as UserApi from '../../../../../../../../api/user/userAccountApi';

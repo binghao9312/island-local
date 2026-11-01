@@ -71,6 +71,7 @@ vi.mock('../SettingsPageNavigation', () => ({ SettingsPageNavigation: () => null
 
 // 这些用例覆盖更新实现本身，需要开启更新总开关。
 vi.mock('../../../../../../../../shared/updatesConfig', () => ({ UPDATES_ENABLED: true }));
+vi.mock('../../../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 describe('SettingsTab', () => {
   beforeEach(() => { state.hasLoginSession = true; });
   afterEach(() => { vi.unstubAllGlobals(); });

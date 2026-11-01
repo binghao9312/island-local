@@ -24,6 +24,7 @@
  * @author 鸡哥
  */
 
+import { SERVER_FEATURES_ENABLED } from '../../../shared/serverFeaturesConfig';
 import {
   buildUploadHeaders,
   parsePayload,
@@ -139,6 +140,9 @@ async function uploadUserFeedbackAsset(
   token: string,
   options: UserFeedbackUploadOptions = {},
 ): Promise<string> {
+  if (!SERVER_FEATURES_ENABLED) {
+    throw new Error('disabled');
+  }
   const formData = new FormData();
   formData.append('file', file);
   const headers = await buildUploadHeaders(token);
@@ -191,6 +195,7 @@ async function uploadUserFeedbackAsset(
  * @returns QQ 群邀请链接与二维码地址；未配置或已禁用时返回 null。
  */
 export async function fetchFeedbackQqGroupConfig(): Promise<FeedbackQqGroupConfig | null> {
+  if (!SERVER_FEATURES_ENABLED) return null;
   try {
     const response = await window.api.netFetch(
       `${USER_ACCOUNT_API_BASE}/v1/feedback/qq-group`,

@@ -26,6 +26,7 @@
  */
 
 import type { ReactElement } from 'react';
+import { SERVER_FEATURES_ENABLED } from '../../../../../shared/serverFeaturesConfig';
 import '../styles/tray-menu-skeleton.css';
 
 /** 菜单项骨架分组，与默认（非独立窗口模式）菜单项及分隔线布局一致 */
@@ -38,13 +39,15 @@ const ROW_GROUPS = [['show', 'hide', 'top'], ['log', 'restart'], ['quit']];
 export function TrayMenuSkeleton(): ReactElement {
   return (
     <div className="tray-skeleton" aria-hidden="true">
-      <div className="tray-skeleton-card tray-skeleton-user">
-        <span className="tray-skeleton-block tray-skeleton-avatar" />
-        <span className="tray-skeleton-lines">
-          <span className="tray-skeleton-block tray-skeleton-line" />
-          <span className="tray-skeleton-block tray-skeleton-line tray-skeleton-line-short" />
-        </span>
-      </div>
+      {SERVER_FEATURES_ENABLED && (
+        <div className="tray-skeleton-card tray-skeleton-user">
+          <span className="tray-skeleton-block tray-skeleton-avatar" />
+          <span className="tray-skeleton-lines">
+            <span className="tray-skeleton-block tray-skeleton-line" />
+            <span className="tray-skeleton-block tray-skeleton-line tray-skeleton-line-short" />
+          </span>
+        </div>
+      )}
       <div className="tray-skeleton-card tray-skeleton-music">
         <div className="tray-skeleton-music-main">
           <span className="tray-skeleton-block tray-skeleton-cover" />

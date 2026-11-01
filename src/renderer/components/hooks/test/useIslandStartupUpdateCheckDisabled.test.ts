@@ -25,6 +25,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { flushHookEffects, renderHook, resetHook, settleHook, unmountHook } from './startupHookHarness';
 import type { StartupWeatherAlertPayload } from '../../../api/weather/types/WeatherAlert';
 

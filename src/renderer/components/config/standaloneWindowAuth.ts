@@ -25,17 +25,18 @@
  */
 
 import useIslandStore from '../../store/slices';
+import { SERVER_FEATURES_ENABLED } from '../../../shared/serverFeaturesConfig';
 
 /**
  * @description 根据认证意图切换独立窗口状态。
  * @param intent - 认证意图值（login/register/none）。
  */
 export function applyAuthIntent(intent: unknown): void {
-  if (intent === 'login') {
+  if (SERVER_FEATURES_ENABLED && intent === 'login') {
     useIslandStore.setState({ state: 'login' });
     return;
   }
-  if (intent === 'register') {
+  if (SERVER_FEATURES_ENABLED && intent === 'register') {
     useIslandStore.setState({ state: 'register' });
     return;
   }

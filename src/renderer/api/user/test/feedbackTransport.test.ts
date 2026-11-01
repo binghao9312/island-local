@@ -25,6 +25,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { fetchFeedbackQqGroupConfig, uploadUserFeedbackLog, uploadUserFeedbackScreenshot } from '../userAccountApi.feedback';
 import type { UserFeedbackUploadOptions } from '../userAccountApi.types';
 

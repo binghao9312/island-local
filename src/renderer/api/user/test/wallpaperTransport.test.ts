@@ -25,6 +25,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { applyUserWallpaper, deleteUserWallpaper, getUserWallpaperDetail, listMyUserWallpapers, listUserWallpapers, normalizeWallpaperMarketListData, rateUserWallpaper, reportUserWallpaper, searchUserTags, updateUserWallpaperMetadata, uploadUserWallpaper } from '../userAccountApi.wallpaper';
 import type { UploadWallpaperOptions, UploadWallpaperPayload } from '../userAccountApi.types';
 

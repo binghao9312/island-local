@@ -30,6 +30,7 @@
 
 import { memo, type KeyboardEvent, type ReactElement, type SyntheticEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SERVER_FEATURES_ENABLED } from '../../../../../../../shared/serverFeaturesConfig';
 import { SvgIcon, resolveDevIconByFileName } from '../../../../../../utils/SvgIcon';
 import { normalizeMarkdownCodeFences } from '../utils/chatUtils';
 import { AssistantMarkdown } from './AssistantMarkdown';
@@ -64,14 +65,17 @@ function ChatMessage(props: ChatMessageProps): ReactElement | null {
   } = props;
   const { t } = useTranslation();
   const handleAgentAvatarClick = (): void => navigateToSettingsTab('ai');
-  const handleUserAvatarClick = (): void => navigateToSettingsTab('user-info');
+  const handleUserAvatarClick = (): void => {
+    if (!SERVER_FEATURES_ENABLED) return;
+    navigateToSettingsTab('user-info');
+  };
   const handleAgentAvatarKeyDown = (event: KeyboardEvent<HTMLElement>): void => {
     if (event.key !== 'Enter' && event.key !== ' ') return;
     event.preventDefault();
     handleAgentAvatarClick();
   };
   const handleUserAvatarKeyDown = (event: KeyboardEvent<HTMLElement>): void => {
-    if (event.key !== 'Enter' && event.key !== ' ') return;
+    if (!SERVER_FEATURES_ENABLED || (event.key !== 'Enter' && event.key !== ' ')) return;
     event.preventDefault();
     handleUserAvatarClick();
   };
@@ -191,9 +195,9 @@ function ChatMessage(props: ChatMessageProps): ReactElement | null {
           {msg.content.replace(/^(?:<attachment name="[^"]*">\n[\s\S]*?\n<\/attachment>\n*)+/, '').replace(/^> 引用: [\s\S]*?\n\n/, '').trim()}
         </div>
         {userAvatarUrl ? (
-          <img className="max-expand-chat-user-avatar max-expand-chat-avatar--clickable" src={userAvatarUrl} alt="" role="button" tabIndex={0} onKeyDown={handleUserAvatarKeyDown} onClick={handleUserAvatarClick} />
+          <img className={`max-expand-chat-user-avatar${SERVER_FEATURES_ENABLED ? ' max-expand-chat-avatar--clickable' : ''}`} src={userAvatarUrl} alt="" role={SERVER_FEATURES_ENABLED ? 'button' : undefined} tabIndex={SERVER_FEATURES_ENABLED ? 0 : undefined} onKeyDown={handleUserAvatarKeyDown} onClick={handleUserAvatarClick} />
         ) : (
-          <span className="max-expand-chat-user-avatar max-expand-chat-user-avatar--placeholder max-expand-chat-avatar--clickable" role="button" tabIndex={0} onKeyDown={handleUserAvatarKeyDown} onClick={handleUserAvatarClick} />
+          <span className={`max-expand-chat-user-avatar max-expand-chat-user-avatar--placeholder${SERVER_FEATURES_ENABLED ? ' max-expand-chat-avatar--clickable' : ''}`} role={SERVER_FEATURES_ENABLED ? 'button' : undefined} tabIndex={SERVER_FEATURES_ENABLED ? 0 : undefined} onKeyDown={handleUserAvatarKeyDown} onClick={handleUserAvatarClick} />
         )}
       </div>
     );

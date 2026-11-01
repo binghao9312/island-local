@@ -28,6 +28,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { runInNewContext } from 'node:vm';
 import { describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { elements } from '../../../../test/elementHarness';
 import { TRAY_MENU_ITEMS } from '../../config/trayMenuItems';
 import { TrayMenuSkeleton } from '../TrayMenuSkeleton';

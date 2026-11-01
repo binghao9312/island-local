@@ -24,6 +24,7 @@
  * @author 鸡哥
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { flushHookEffects, renderHook, resetHook, settleHook, unmountHook } from '../../../../states/maxExpand/components/calendar/hooks/test/calendarHookHarness';
 import { useQuestionnaireReminder } from '../useQuestionnaireReminder';
 import type * as QuestionnaireApi from '../../../../../api/questionnaire/questionnaireApi';

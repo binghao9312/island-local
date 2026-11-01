@@ -27,6 +27,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SERVER_FEATURES_ENABLED } from '../../../../../../../../shared/serverFeaturesConfig';
 import avatarImg from '../../../../../../../assets/avatar/T.jpg';
 import publicSecurityRecordIcon from '../../../../../../../../../resources/icon/gabatb.png';
 import {
@@ -81,7 +82,9 @@ interface AboutSettingsSectionProps {
   initialPage?: AboutSettingsPageKey;
 }
 
-const ABOUT_PAGES: AboutSettingsPageKey[] = ['development', 'feedback', 'feedbackHistory'];
+const ABOUT_PAGES: AboutSettingsPageKey[] = SERVER_FEATURES_ENABLED
+  ? ['development', 'feedback', 'feedbackHistory']
+  : ['development'];
 const SETTINGS_ABOUT_FEEDBACK_PREFILL_STORE_KEY = 'settings-about-feedback-prefill';
 const MAX_FEEDBACK_LOG_SIZE = 5 * 1024 * 1024;
 const MAX_FEEDBACK_SCREENSHOT_SIZE = 10 * 1024 * 1024;
@@ -131,7 +134,8 @@ function normalizeFeedbackStatus(value: string | undefined): string {
  */
 export function AboutSettingsSection({ aboutVersion, initialPage = 'development' }: AboutSettingsSectionProps): ReactElement {
   const { t } = useTranslation();
-  const [aboutPage, setAboutPage] = useState<AboutSettingsPageKey>(initialPage);
+  const effectiveInitialPage = SERVER_FEATURES_ENABLED ? initialPage : 'development';
+  const [aboutPage, setAboutPage] = useState<AboutSettingsPageKey>(effectiveInitialPage);
   const [pageNavigationExpanded, setPageNavigationExpanded] = useState(false);
   const [token, setToken] = useState<string | null>(() => readLocalToken());
   const [feedbackType, setFeedbackType] = useState('bug');
@@ -152,8 +156,8 @@ export function AboutSettingsSection({ aboutVersion, initialPage = 'development'
   const [qqGroupConfig, setQqGroupConfig] = useState<FeedbackQqGroupConfig | null>(null);
 
   useEffect(() => {
-    setAboutPage(initialPage);
-  }, [initialPage]);
+    setAboutPage(effectiveInitialPage);
+  }, [effectiveInitialPage]);
 
   const feedbackTypeOptions = useMemo(
     () => [
@@ -419,6 +423,7 @@ export function AboutSettingsSection({ aboutVersion, initialPage = 'development'
   };
 
   useEffect(() => {
+    if (!SERVER_FEATURES_ENABLED) return;
     if (aboutPage === 'feedbackHistory') {
       void loadFeedbackHistory();
       return;
@@ -439,6 +444,7 @@ export function AboutSettingsSection({ aboutVersion, initialPage = 'development'
     if (aboutPage !== 'feedback') {
       return;
     }
+    if (!SERVER_FEATURES_ENABLED) return;
     let cancelled = false;
     void window.api.storeRead(SETTINGS_ABOUT_FEEDBACK_PREFILL_STORE_KEY).then((value) => {
       if (cancelled || !value || typeof value !== 'object') {
@@ -937,26 +943,30 @@ export function AboutSettingsSection({ aboutVersion, initialPage = 'development'
     <div className="max-expand-settings-section settings-about settings-about-paged">
       <div className="max-expand-settings-title settings-app-title-line">
         <span>{t('settings.labels.about', { defaultValue: '关于软件' })}</span>
-        <span className="settings-app-title-sub">- {pageLabels[aboutPage]}</span>
-        <SettingsPageNavigationToggle
-          expanded={pageNavigationExpanded}
-          label={t(pageNavigationExpanded ? 'settings.navigation.collapse' : 'settings.navigation.expand')}
-          onToggle={() => setPageNavigationExpanded((current) => !current)}
-        />
+        {SERVER_FEATURES_ENABLED && <span className="settings-app-title-sub">- {pageLabels[aboutPage]}</span>}
+        {SERVER_FEATURES_ENABLED && (
+          <SettingsPageNavigationToggle
+            expanded={pageNavigationExpanded}
+            label={t(pageNavigationExpanded ? 'settings.navigation.collapse' : 'settings.navigation.expand')}
+            onToggle={() => setPageNavigationExpanded((current) => !current)}
+          />
+        )}
       </div>
       <div className="settings-about-layout">
         <div className="settings-about-main">
           {aboutPage === 'development' && renderDevelopmentPage()}
-          {aboutPage === 'feedback' && renderFeedbackPage()}
-          {aboutPage === 'feedbackHistory' && renderFeedbackHistoryPage()}
+          {SERVER_FEATURES_ENABLED && aboutPage === 'feedback' && renderFeedbackPage()}
+          {SERVER_FEATURES_ENABLED && aboutPage === 'feedbackHistory' && renderFeedbackHistoryPage()}
         </div>
-        <AboutSettingsPageDots
-          aboutPage={aboutPage}
-          expanded={pageNavigationExpanded}
-          aboutPages={ABOUT_PAGES}
-          pageLabels={pageLabels}
-          setAboutPage={setAboutPage}
-        />
+        {SERVER_FEATURES_ENABLED && (
+          <AboutSettingsPageDots
+            aboutPage={aboutPage}
+            expanded={pageNavigationExpanded}
+            aboutPages={ABOUT_PAGES}
+            pageLabels={pageLabels}
+            setAboutPage={setAboutPage}
+          />
+        )}
       </div>
     </div>
   );

@@ -25,6 +25,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { AboutSettingsSection } from '../AboutSettingsSection';
 import { elementProps, findElement, invoke, resetState, textContent } from '../../../../../../../test/elementHarness';
 const api = vi.hoisted(() => ({ clipboardOpenUrl: vi.fn(() => Promise.resolve()) }));
