@@ -179,4 +179,66 @@ describe('CalendarTab in expanded view', () => {
     expect(nodes(tree, '.compact-calendar-google-status')).toHaveLength(0);
     expect(nodes(tree, '.compact-calendar-google-badge')).toHaveLength(0);
   });
+
+  it('renders only 4 weeks for February 2026 starting on Sunday with no outside cells', () => {
+    mockCalendar.selectedDate = new Date(2026, 1, 1);
+    mockCalendar.selectedDay = 1;
+    const tree = render(CalendarTab);
+
+    const grid = nodes(tree, '.compact-calendar-days-grid')[0];
+    expect(grid.props['data-rows']).toBe(4);
+
+    const allCells = nodes(tree, '.compact-calendar-day-cell');
+    expect(allCells).toHaveLength(28);
+
+    const emptyCells = nodes(tree, '.is-empty');
+    expect(emptyCells).toHaveLength(0);
+  });
+
+  it('renders only 5 weeks for November 2026 with trailing empty cells without numbers', () => {
+    mockCalendar.selectedDate = new Date(2026, 10, 1);
+    mockCalendar.selectedDay = 1;
+    const tree = render(CalendarTab);
+
+    const grid = nodes(tree, '.compact-calendar-days-grid')[0];
+    expect(grid.props['data-rows']).toBe(5);
+
+    const allCells = nodes(tree, '.compact-calendar-day-cell');
+    expect(allCells).toHaveLength(35);
+
+    const emptyCells = nodes(tree, '.is-empty');
+    expect(emptyCells).toHaveLength(5);
+    emptyCells.forEach((cell) => {
+      expect(cell.type).toBe('div');
+      expect(text(cell)).toBe('');
+    });
+  });
+
+  it('renders 6 weeks for May 2026 with leading and trailing empty cells and marks today / selected / events', () => {
+    mockCalendar.selectedDate = new Date(2026, 4, 15);
+    mockCalendar.selectedDay = 15;
+    mockCalendar.today = new Date(2026, 4, 15);
+    const tree = render(CalendarTab);
+
+    const grid = nodes(tree, '.compact-calendar-days-grid')[0];
+    expect(grid.props['data-rows']).toBe(6);
+
+    const allCells = nodes(tree, '.compact-calendar-day-cell');
+    expect(allCells).toHaveLength(42);
+
+    const emptyCells = nodes(tree, '.is-empty');
+    // May 1 is Friday -> 5 leading empty cells (Sun-Thu); May has 31 days -> 42 - (5 + 31) = 6 trailing empty cells
+    expect(emptyCells).toHaveLength(11);
+    emptyCells.forEach((cell) => {
+      expect(cell.type).toBe('div');
+      expect(text(cell)).toBe('');
+    });
+
+    const selectedCells = nodes(tree, '.is-selected');
+    expect(selectedCells).toHaveLength(1);
+    expect(text(selectedCells[0])).toBe('15');
+
+    const todayCells = nodes(tree, '.is-today');
+    expect(todayCells).toHaveLength(1);
+  });
 });

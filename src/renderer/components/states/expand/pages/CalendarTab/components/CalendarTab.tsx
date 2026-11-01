@@ -156,7 +156,10 @@ export function CalendarTab(): ReactElement {
     [yearEvents, selectedKey],
   );
 
-  const weeks = useMemo(() => getCalendarWeeks(selectedDate), [selectedDate]);
+  const weeks = useMemo(() => {
+    const allWeeks = getCalendarWeeks(selectedDate);
+    return allWeeks.filter((week) => week.some((date) => date.getMonth() === month));
+  }, [selectedDate, month]);
 
   // 本地化星期与月份文案
   const weekdayName = useMemo(() => {
@@ -219,10 +222,22 @@ export function CalendarTab(): ReactElement {
             );
           })}
         </div>
-        <div className="compact-calendar-days-grid">
+        <div className="compact-calendar-days-grid" data-rows={weeks.length}>
           {weeks.map((week) =>
             week.map((date) => {
               const dateKey = getCalendarDateKey(date);
+              const isCurrentMonth = date.getMonth() === month;
+
+              if (!isCurrentMonth) {
+                return (
+                  <div
+                    key={dateKey}
+                    className="compact-calendar-day-cell is-empty"
+                    aria-hidden="true"
+                  />
+                );
+              }
+
               const isToday =
                 date.getFullYear() === today.getFullYear() &&
                 date.getMonth() === today.getMonth() &&
@@ -231,14 +246,12 @@ export function CalendarTab(): ReactElement {
                 date.getFullYear() === selectedDate.getFullYear() &&
                 date.getMonth() === selectedDate.getMonth() &&
                 date.getDate() === selectedDate.getDate();
-              const isCurrentMonth = date.getMonth() === month;
               const hasEvents = eventDatesSet.has(dateKey);
 
               const classNames = [
                 'compact-calendar-day-cell',
                 isToday ? 'is-today' : '',
                 isSelected ? 'is-selected' : '',
-                !isCurrentMonth ? 'is-outside-month' : '',
               ].filter(Boolean).join(' ');
 
               return (

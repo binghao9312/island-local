@@ -135,8 +135,34 @@
 .compact-calendar-days-grid {
   display: grid;
   grid-template-columns: repeat(7, 26px);
-  grid-template-rows: repeat(6, 15px);
-  row-gap: 1px;
+  row-gap: 3px;
+}
+
+.compact-calendar-days-grid[data-rows="4"] {
+  row-gap: 5px;
+}
+
+.compact-calendar-days-grid[data-rows="4"] .compact-calendar-day-cell {
+  height: 19px;
+  font-size: 11px;
+}
+
+.compact-calendar-days-grid[data-rows="5"] {
+  row-gap: 3px;
+}
+
+.compact-calendar-days-grid[data-rows="5"] .compact-calendar-day-cell {
+  height: 16.5px;
+  font-size: 10.5px;
+}
+
+.compact-calendar-days-grid[data-rows="6"] {
+  row-gap: 2px;
+}
+
+.compact-calendar-days-grid[data-rows="6"] .compact-calendar-day-cell {
+  height: 14.5px;
+  font-size: 10px;
 }
 
 .compact-calendar-day-cell {
@@ -146,12 +172,12 @@
   align-items: center;
   justify-content: center;
   width: 24px;
-  height: 15px;
+  height: 16.5px;
   border-radius: 4px;
   border: none;
   background: transparent;
   color: var(--color-island-text);
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
@@ -161,6 +187,16 @@
 
 .compact-calendar-day-cell:hover {
   background: rgba(var(--color-text-rgb), 0.12);
+}
+
+.compact-calendar-day-cell.is-empty {
+  cursor: default;
+  pointer-events: none;
+  background: transparent;
+}
+
+.compact-calendar-day-cell.is-empty:hover {
+  background: transparent;
 }
 
 .compact-calendar-day-cell.is-outside-month {
