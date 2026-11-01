@@ -329,6 +329,7 @@ export interface MediaSlice {
   syncedLyrics: SyncedLyricLine[] | null;
   translationLyrics: TranslationLyricsResult | null;
   lyricsLoading: boolean;
+  songProgressRingEnabled: boolean;
   updateLrcData: (data: LrcUpdateData | null) => void;
   onMediaChanged: (data: MediaChangedData) => void;
   setPlaybackState: (isPlaying: boolean) => void;
@@ -340,6 +341,7 @@ export interface MediaSlice {
   setSyncedLyrics: (lyrics: SyncedLyricLine[] | null) => void;
   setTranslationLyrics: (translation: TranslationLyricsResult | null) => void;
   setLyricsLoading: (loading: boolean) => void;
+  setSongProgressRingEnabled: (enabled: boolean) => void;
 }
 
 /** 番茄钟 Slice */

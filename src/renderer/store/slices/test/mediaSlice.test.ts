@@ -157,4 +157,13 @@ describe('createMediaSlice', () => {
     expect(after.coverImage).toBeNull();
     expect(after.translationLyrics).toBeNull();
   });
+
+  it('toggles songProgressRingEnabled and updates state', () => {
+    const store = createSliceState(createMediaSlice);
+    expect(store.getState().songProgressRingEnabled).toBe(true);
+    store.getState().setSongProgressRingEnabled(false);
+    expect(store.getState().songProgressRingEnabled).toBe(false);
+    store.getState().setSongProgressRingEnabled(true);
+    expect(store.getState().songProgressRingEnabled).toBe(true);
+  });
 });

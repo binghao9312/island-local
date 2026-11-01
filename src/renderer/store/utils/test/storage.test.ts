@@ -40,6 +40,8 @@ import {
   hydrateWeatherLocationConfigFromStore,
   DEFAULT_NETWORK_TIMEOUT_MS,
   DEFAULT_STATIC_ASSET_NODE_FREE,
+  loadSongProgressRingEnabled,
+  saveSongProgressRingEnabled,
 } from '../storage';
 
 /* ---------- localStorage mock ---------- */
@@ -295,5 +297,25 @@ describe('saveLocationToStorage', () => {
     saveLocationToStorage(loc);
     const written = JSON.parse(store['island_location']);
     expect(written).toEqual(loc);
+  });
+});
+
+describe('songProgressRingEnabled in storage', () => {
+  beforeEach(() => {
+    mockLocalStorage();
+  });
+
+  it('defaults to true when no value exists in localStorage', () => {
+    expect(loadSongProgressRingEnabled()).toBe(true);
+  });
+
+  it('loads and saves boolean preference correctly', () => {
+    saveSongProgressRingEnabled(false);
+    expect(store['island_song_progress_ring_enabled']).toBe('false');
+    expect(loadSongProgressRingEnabled()).toBe(false);
+
+    saveSongProgressRingEnabled(true);
+    expect(store['island_song_progress_ring_enabled']).toBe('true');
+    expect(loadSongProgressRingEnabled()).toBe(true);
   });
 });

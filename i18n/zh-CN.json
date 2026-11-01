@@ -3499,6 +3499,11 @@
         "savedNeverUnsubscribe": "已保存：永不自动取消订阅",
         "savedAutoUnsubscribe": "已保存：{{ms}} ms 自动取消订阅"
       },
+      "ring": {
+        "title": "外缘进度线",
+        "hint": "播放音乐时在灵动岛外缘显示歌曲进度线，倒计时运行时优先展示倒计时",
+        "enabledToggle": "在灵动岛外缘显示歌曲进度"
+      },
       "pagination": "歌曲设置分页"
     },
     "hotkey": {

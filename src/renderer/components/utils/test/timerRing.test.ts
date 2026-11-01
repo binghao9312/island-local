@@ -25,7 +25,14 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { buildTimerRingPath, getRingDashOffset, isTimerRingVisible, resolveRingEndAt } from '../timerRing';
+import {
+  buildTimerRingPath,
+  getRingDashOffset,
+  isSongRingVisible,
+  isTimerRingVisible,
+  resolveRingColor,
+  resolveRingEndAt,
+} from '../timerRing';
 
 describe('timerRing', () => {
   it('仅在运行或暂停且总时长有效时显示', () => {
@@ -58,5 +65,22 @@ describe('timerRing', () => {
     const pill = buildTimerRingPath(500, 60, 30, 'pill');
     expect(pill.endsWith('Z')).toBe(true);
     expect(buildTimerRingPath(0, 0, 10, 'pill')).toBe('');
+  });
+
+  it('歌曲进度环显隐条件判定正确', () => {
+    expect(isSongRingVisible(true, true, 180000)).toBe(true);
+    expect(isSongRingVisible(false, true, 180000)).toBe(false);
+    expect(isSongRingVisible(true, false, 180000)).toBe(false);
+    expect(isSongRingVisible(true, true, 0)).toBe(false);
+    expect(isSongRingVisible(true, true, -100)).toBe(false);
+  });
+
+  it('倒计时与歌曲进度环颜色解析符合优先级与回退规则', () => {
+    expect(resolveRingColor('timer', [255, 0, 0])).toBe('#ffb300');
+    expect(resolveRingColor('timer')).toBe('#ffb300');
+    expect(resolveRingColor('song', [34, 56, 78])).toBe('rgb(34, 56, 78)');
+    expect(resolveRingColor('song', [0, 0, 0])).toBe('rgba(255, 255, 255, 0.7)');
+    expect(resolveRingColor('song', null)).toBe('rgba(255, 255, 255, 0.7)');
+    expect(resolveRingColor('song', undefined)).toBe('rgba(255, 255, 255, 0.7)');
   });
 });

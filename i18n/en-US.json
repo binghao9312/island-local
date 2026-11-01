@@ -3499,6 +3499,11 @@
         "savedNeverUnsubscribe": "Saved: Never auto-unsubscribe",
         "savedAutoUnsubscribe": "Saved: Auto-unsubscribe after {{ms}} ms"
       },
+      "ring": {
+        "title": "Song Progress Ring",
+        "hint": "Show song progress line around the island during playback; countdown takes priority when running",
+        "enabledToggle": "Show song progress around the island"
+      },
       "pagination": "Music settings pagination"
     },
     "hotkey": {

@@ -43,6 +43,40 @@ export function isTimerRingVisible(state: TimerState, totalSeconds: number): boo
 }
 
 /**
+ * 判断歌曲进度环是否应展示。
+ * @param songProgressRingEnabled - 歌曲进度环设置开关
+ * @param isMusicPlaying - 媒体会话是否激活
+ * @param durationMs - 歌曲总时长（毫秒）
+ * @returns 歌曲有效且功能开启时为 true
+ */
+export function isSongRingVisible(
+  songProgressRingEnabled: boolean,
+  isMusicPlaying: boolean,
+  durationMs: number
+): boolean {
+  return Boolean(songProgressRingEnabled && isMusicPlaying && durationMs > 0);
+}
+
+/**
+ * 解析进度环颜色。倒计时优先使用琥珀色（#ffb300）；歌曲进度使用专辑主色，全黑或缺失时回退为 70% 白色。
+ * @param mode - 进度环模式（'timer' 倒计时 | 'song' 歌曲进度）
+ * @param dominantColor - 歌曲专辑主色 RGB 元组
+ * @returns CSS 颜色字符串
+ */
+export function resolveRingColor(
+  mode: 'timer' | 'song',
+  dominantColor?: [number, number, number] | null
+): string {
+  if (mode === 'timer') {
+    return '#ffb300';
+  }
+  if (dominantColor && (dominantColor[0] > 0 || dominantColor[1] > 0 || dominantColor[2] > 0)) {
+    return `rgb(${dominantColor[0]}, ${dominantColor[1]}, ${dominantColor[2]})`;
+  }
+  return 'rgba(255, 255, 255, 0.7)';
+}
+
+/**
  * 计算剩余时长对应的 stroke-dashoffset（pathLength = 100）。
  * @param leftSeconds - 剩余秒数，可为小数
  * @param totalSeconds - 总秒数
