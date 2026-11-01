@@ -72,7 +72,6 @@ import {
   type UserAccountProfile,
 } from '../../../../../../../utils/userAccount';
 import { SvgIcon } from '../../../../../../../utils/SvgIcon';
-import { resolveCountryIcon } from '../../../../../../../utils/SvgIcon/country-icon';
 import { EMAIL_PATTERN } from '../../../../../../../components/config/dynamicIslandPatterns';
 import { LoginHeatmap } from './components/LoginHeatmap';
 import { QuestionnaireBanner, useQuestionnaireReminder } from '../../../../../../components/DynamicIslandQuestionnaireBanner';
@@ -158,14 +157,6 @@ const shouldKeepGenderIconOriginalColor = (gender: UserAccountGender | null | un
 const formatDateTime = (value: string | null | undefined): string => {
   if (!value) return '—';
   return value.replace('T', ' ');
-};
-
-const resolveImageTranslationLanguageIcon = (language: string): { src?: string; isAuto: boolean } => {
-  const normalized = String(language || '').trim().toLowerCase();
-  if (normalized === 'auto') {
-    return { src: SvgIcon.AI, isAuto: true };
-  }
-  return { src: resolveCountryIcon(normalized), isAuto: false };
 };
 
 const normalizeRoleValue = (value: string): string => {
@@ -2349,8 +2340,6 @@ export function UserSettingsSection({ initialProfilePage = 'info' }: UserSetting
             const sourceLanguage = task.sourceLanguage || 'auto';
             const targetLanguage = task.targetLanguage || 'zh';
             const resultUrl = typeof task.resultUrl === 'string' ? task.resultUrl.trim() : '';
-            const sourceLanguageIcon = resolveImageTranslationLanguageIcon(sourceLanguage);
-            const targetLanguageIcon = resolveImageTranslationLanguageIcon(targetLanguage);
             return (
               <article key={task.taskId} className="settings-user-card settings-user-image-translation-item">
                 {imageTranslationPreview?.taskId === task.taskId ? (
@@ -2380,10 +2369,10 @@ export function UserSettingsSection({ initialProfilePage = 'info' }: UserSetting
                       <div className="settings-user-image-translation-meta">
                         <span className="settings-user-image-translation-language-route">
                           <span className="settings-user-image-translation-language">
-                            {sourceLanguageIcon.src ? (
+                            {sourceLanguage.trim().toLowerCase() === 'auto' ? (
                               <img
-                                className={sourceLanguageIcon.isAuto ? 'is-auto' : ''}
-                                src={sourceLanguageIcon.src}
+                                className="is-auto"
+                                src={SvgIcon.AI}
                                 alt=""
                                 aria-hidden="true"
                                 draggable={false}
@@ -2393,10 +2382,10 @@ export function UserSettingsSection({ initialProfilePage = 'info' }: UserSetting
                           </span>
                           <span>{t('settings.user.imageTranslation.languageConnector', { defaultValue: '到' })}</span>
                           <span className="settings-user-image-translation-language">
-                            {targetLanguageIcon.src ? (
+                            {targetLanguage.trim().toLowerCase() === 'auto' ? (
                               <img
-                                className={targetLanguageIcon.isAuto ? 'is-auto' : ''}
-                                src={targetLanguageIcon.src}
+                                className="is-auto"
+                                src={SvgIcon.AI}
                                 alt=""
                                 aria-hidden="true"
                                 draggable={false}

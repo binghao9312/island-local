@@ -190,12 +190,11 @@ describe('真实配置读取和提交', () => {
   });
 });
 describe('父树取得的实际语言下拉', () => {
-  it.each(['auto', 'en', 'unknown'])('实际配置语言%s使用AI/旗帜/未知文字', async (value) => {
+  it.each(['auto', 'en', 'unknown'])('实际配置语言%s仅auto显示AI图标，其余只显示文字', async (value) => {
     const child = await mountSourceDropdown(value);
     const tree = child();
     expect(textContent(tree)).toContain(value === 'unknown' ? 'unknown' : `maxExpand.toolbox.translate.lang.${value}`);
-    expect(elements(tree).filter((node) => elementProps(node).className === 'translate-lang-flag-placeholder')).toHaveLength(value === 'unknown' ? 1 : 0);
-    expect(elements(tree).filter((node) => node.type === 'img')).toHaveLength(value === 'unknown' ? 0 : 1);
+    expect(elements(tree).filter((node) => node.type === 'img')).toHaveLength(value === 'auto' ? 1 : 0);
     invoke(findElement(tree, (node) => node.type === 'button'), 'onClick');
     expect(elements(child()).filter((node) => elementProps(node).className === 'translate-lang-dropdown-menu')).toHaveLength(1);
     const options = elements(child()).filter((node) => String(elementProps(node).className).startsWith('translate-lang-dropdown-item'));

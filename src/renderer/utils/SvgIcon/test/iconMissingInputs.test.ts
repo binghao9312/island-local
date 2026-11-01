@@ -20,18 +20,15 @@
 
 /**
  * @file iconMissingInputs.test.ts
- * @description 国家与开发语言图标解析的缺失输入及文件扩展名边界测试。
+ * @description 开发语言图标解析的缺失输入及文件扩展名边界测试。
  * @author 鸡哥
  */
 
 import { describe, expect, it } from 'vitest';
-import { resolveCountryCode, resolveCountryIcon } from '../country-icon';
 import { resolveDevIconByFileName, resolveDevIconByLanguage, resolveDevIconLanguage } from '../dev-icon';
 
 describe('icon missing runtime inputs', () => {
   it.each([null, undefined])('keeps missing input %s in the existing empty fallback', (input) => {
-    expect(Reflect.apply(resolveCountryCode, undefined, [input])).toBe('');
-    expect(Reflect.apply(resolveCountryIcon, undefined, [input])).toBeUndefined();
     expect(Reflect.apply(resolveDevIconLanguage, undefined, [input])).toBe('plaintext');
     expect(Reflect.apply(resolveDevIconByLanguage, undefined, [input])).toBeUndefined();
     expect(Reflect.apply(resolveDevIconByFileName, undefined, [input])).toBeUndefined();

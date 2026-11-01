@@ -30,7 +30,6 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { AgentIcon } from '../agent-icon';
 import { CalculatorIcon } from '../calculator-icon';
-import { CountryIcon } from '../country-icon';
 import { DevIcon } from '../dev-icon';
 import { SvgIcon } from '../eisland-icon';
 import { PlayerIcon } from '../player-icon';
@@ -44,7 +43,6 @@ const pages = readdirSync(resolve(rendererRoot, 'html')).filter((name) => name.e
 const iconPaths = [
   ...Object.values(AgentIcon),
   ...Object.values(CalculatorIcon),
-  ...Object.values(CountryIcon),
   ...Object.values(DevIcon),
   ...Object.values(SvgIcon),
   ...Object.values(PlayerIcon),

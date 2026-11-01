@@ -24,25 +24,22 @@
  * @author 鸡哥
  */
 
-import { CountryIcon } from '../../../../../utils/SvgIcon/country-icon';
-
 /** 语言选项条目 */
 export interface LanguageOption {
   value: string;
   labelKey: string;
-  icon: string;
   available: boolean;
 }
 
 /** 全部语言选项（含未来待支持语言） */
 export const LANGUAGE_OPTIONS: LanguageOption[] = [
-  { value: 'zh-CN', labelKey: 'guide.language.zhCN', icon: CountryIcon.CHN, available: true },
-  { value: 'en-US', labelKey: 'guide.language.enUS', icon: CountryIcon.USA, available: true },
-  { value: 'zh-TW', labelKey: 'guide.language.zhTW', icon: CountryIcon.CHN, available: true },
-  { value: 'ja-JP', labelKey: 'guide.language.jaJP', icon: CountryIcon.JP, available: true },
-  { value: 'ko-KR', labelKey: 'guide.language.koKR', icon: CountryIcon.KR, available: false },
-  { value: 'fr-FR', labelKey: 'guide.language.frFR', icon: CountryIcon.FR, available: false },
-  { value: 'de-DE', labelKey: 'guide.language.deDE', icon: CountryIcon.DE, available: false },
-  { value: 'es-ES', labelKey: 'guide.language.esES', icon: CountryIcon.ES, available: false },
-  { value: 'ru-RU', labelKey: 'guide.language.ruRU', icon: CountryIcon.RU, available: false },
+  { value: 'zh-CN', labelKey: 'guide.language.zhCN', available: true },
+  { value: 'en-US', labelKey: 'guide.language.enUS', available: true },
+  { value: 'zh-TW', labelKey: 'guide.language.zhTW', available: true },
+  { value: 'ja-JP', labelKey: 'guide.language.jaJP', available: true },
+  { value: 'ko-KR', labelKey: 'guide.language.koKR', available: false },
+  { value: 'fr-FR', labelKey: 'guide.language.frFR', available: false },
+  { value: 'de-DE', labelKey: 'guide.language.deDE', available: false },
+  { value: 'es-ES', labelKey: 'guide.language.esES', available: false },
+  { value: 'ru-RU', labelKey: 'guide.language.ruRU', available: false },
 ];

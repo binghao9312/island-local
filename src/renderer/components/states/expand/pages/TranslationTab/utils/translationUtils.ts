@@ -20,25 +20,12 @@
 
 /**
  * @file translationUtils.ts
- * @description Expanded 翻译页语言图标解析与下拉菜单定位计算。
+ * @description Expanded 翻译页下拉菜单定位计算。
  * @author 鸡哥
  */
 
-import { SvgIcon } from '../../../../../../utils/SvgIcon';
-import { resolveCountryIcon } from '../../../../../../utils/SvgIcon/country-icon';
 import { LANG_MENU_ITEM_HEIGHT, LANG_MENU_MIN_HEIGHT, LANG_MENU_OFFSET, LANG_MENU_PADDING } from '../config/translationConfig';
 import type { CSSProperties } from 'react';
-import type { TranslationLanguageIcon } from '../types/translationTypes';
-
-/**
- * 解析语言图标：优先国旗，自动检测使用 AI 图标。
- * @param code - 语言代码
- * @returns 国旗与最终图标
- */
-export function resolveLanguageIcon(code: string): TranslationLanguageIcon {
-  const flag = resolveCountryIcon(code);
-  return { flag, icon: flag ?? (code === 'auto' ? SvgIcon.AI : undefined) };
-}
 
 /**
  * 计算挂载到 body 的下拉菜单位置，高度不超出翻译页底部。

@@ -109,16 +109,6 @@
   background: rgba(var(--color-text-rgb), 0.065);
 }
 
-.translation-lang-flag {
-  width: 18px;
-  height: 13px;
-  object-fit: cover;
-  border-radius: 2px;
-  flex-shrink: 0;
-  filter: none;
-  opacity: 1;
-}
-
 .translation-lang-ai-icon {
   width: 14px;
   height: 14px;
@@ -129,13 +119,6 @@
 
 [data-theme='light'] .translation-lang-ai-icon {
   filter: brightness(0) invert(0);
-}
-
-.translation-lang-flag-placeholder {
-  display: inline-block;
-  width: 18px;
-  height: 13px;
-  flex-shrink: 0;
 }
 
 .translation-lang-dropdown-label {

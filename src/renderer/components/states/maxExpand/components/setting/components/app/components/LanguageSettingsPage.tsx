@@ -28,7 +28,6 @@ import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AppSettingsSectionProps } from './types';
 import type { AppLanguage } from '../../../../../../../../i18n';
-import { resolveCountryIcon } from '../../../../../../../../utils/SvgIcon/country-icon';
 
 type LanguageSettingsPageProps = Pick<AppSettingsSectionProps, 'appLanguage' | 'applyAppLanguage'>;
 
@@ -55,20 +54,16 @@ export function LanguageSettingsPage({ appLanguage, applyAppLanguage }: Language
               { value: 'en-US', label: t('settings.language.options.en-US', { defaultValue: 'English' }) },
               { value: 'zh-TW', label: t('settings.language.options.zh-TW', { defaultValue: '繁體中文' }) },
               { value: 'ja-JP', label: t('settings.language.options.ja-JP', { defaultValue: '日本語' }) },
-            ] as Array<{ value: AppLanguage; label: string }>).map((opt) => {
-              const iconSrc = resolveCountryIcon(opt.value);
-              return (
-                <button
-                  key={opt.value}
-                  className={`settings-lyrics-source-btn ${appLanguage === opt.value ? 'active' : ''}`}
-                  type="button"
-                  onClick={() => applyAppLanguage(opt.value)}
-                >
-                  {iconSrc && <img className="settings-language-flag-icon no-filter" src={iconSrc} alt="" draggable={false} />}
-                  {opt.label}
-                </button>
-              );
-            })}
+            ] as Array<{ value: AppLanguage; label: string }>).map((opt) => (
+              <button
+                key={opt.value}
+                className={`settings-lyrics-source-btn ${appLanguage === opt.value ? 'active' : ''}`}
+                type="button"
+                onClick={() => applyAppLanguage(opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
           <div className="settings-music-hint">
             {t(`settings.language.current.${appLanguage}`)}

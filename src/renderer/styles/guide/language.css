@@ -64,11 +64,3 @@
   cursor: not-allowed;
   pointer-events: none;
 }
-
-.guide-language-icon {
-  flex-shrink: 0;
-  width: 22px;
-  height: 16px;
-  border-radius: 2px;
-  object-fit: contain;
-}

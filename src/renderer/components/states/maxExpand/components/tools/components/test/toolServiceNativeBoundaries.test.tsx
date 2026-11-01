@@ -187,7 +187,7 @@ describe('tool service native failure boundaries', () => {
     tree = runDropdown();
     flushHookEffects();
     expect(byClass(tree, 'translate-lang-dropdown-label').props.children).toBe('maxExpand.toolbox.translate.lang.zh');
-    expect(byClass(tree, 'translate-lang-flag').props.className).toContain('no-filter');
+    expect(elements(tree).filter((n) => n.type === 'img')).toHaveLength(0);
     invoke(byClass(tree, 'translate-lang-dropdown-trigger'), 'onClick');
     runDropdown();
     flushHookEffects();

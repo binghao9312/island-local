@@ -110,7 +110,7 @@ describe('TranslateToolSection', () => {
     const { type, props } = sourceDropdown(render(TranslateToolSection));
     let tree = render(type, props);
     expect(text(tree)).toContain('unknown-language');
-    expect(nodes(tree, '.translate-lang-flag-placeholder')).toHaveLength(1);
+    expect(nodes(tree, '.translate-lang-ai-icon')).toHaveLength(0);
     fire(tree, '.translate-lang-dropdown-trigger', 'onClick');
     tree = render(type, props);
     const ref = value(tree, '.translate-lang-dropdown', 'ref') as { current: { contains: () => boolean } | null };

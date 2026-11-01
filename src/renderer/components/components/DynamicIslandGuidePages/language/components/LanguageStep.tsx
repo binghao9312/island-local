@@ -53,7 +53,6 @@ export function LanguageStep({ onNext, onSkip }: LanguageStepProps): ReactElemen
             disabled={!opt.available}
             onClick={(): void => { if (opt.available) handleSelect(opt.value as AppLanguage); }}
           >
-            <img className="guide-language-icon" src={opt.icon} alt="" />
             <span>{t(opt.labelKey)}</span>
           </button>
         ))}

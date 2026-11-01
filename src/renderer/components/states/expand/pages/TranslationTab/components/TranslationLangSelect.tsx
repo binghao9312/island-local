@@ -20,14 +20,14 @@
 
 /**
  * @file TranslationLangSelect.tsx
- * @description Expanded 翻译页带国旗图标的语言下拉，菜单通过 portal 挂载到 body。
+ * @description Expanded 翻译页语言下拉，菜单通过 portal 挂载到 body。
  * @author 鸡哥
  */
 
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { SvgIcon } from '../../../../../../utils/SvgIcon';
 import { useTranslationLangSelect } from '../hooks/useTranslationLangSelect';
-import { resolveLanguageIcon } from '../utils/translationUtils';
 import type { ReactElement } from 'react';
 import type { TranslationLangSelectProps } from '../types/translationTypes';
 
@@ -47,7 +47,6 @@ export function TranslationLangSelect({
   const { t } = useTranslation();
   const { open, setOpen, menuStyle, wrapperRef, menuRef } = useTranslationLangSelect(options.length);
   const selected = options.find((option) => option.code === value);
-  const { flag: selectedFlag, icon: selectedIcon } = resolveLanguageIcon(value);
 
   return (
     <div className="translation-lang-dropdown" ref={wrapperRef}>
@@ -58,15 +57,8 @@ export function TranslationLangSelect({
         aria-expanded={open}
         onClick={() => setOpen((prev) => !prev)}
       >
-        {selectedIcon ? (
-          <img
-            className={selectedFlag ? 'translation-lang-flag no-filter' : 'translation-lang-ai-icon'}
-            src={selectedIcon}
-            alt=""
-            draggable={false}
-          />
-        ) : (
-          <span className="translation-lang-flag-placeholder" />
+        {value === 'auto' && (
+          <img className="translation-lang-ai-icon" src={SvgIcon.AI} alt="" draggable={false} />
         )}
         <span className="translation-lang-dropdown-label">
           {selected ? t(selected.labelKey) : value}
@@ -76,7 +68,6 @@ export function TranslationLangSelect({
       {open && createPortal(
         <div className="translation-lang-dropdown-menu" ref={menuRef} style={menuStyle}>
           {options.map((lang) => {
-            const { flag, icon } = resolveLanguageIcon(lang.code);
             return (
               <button
                 key={lang.code}
@@ -87,15 +78,8 @@ export function TranslationLangSelect({
                   setOpen(false);
                 }}
               >
-                {icon ? (
-                  <img
-                    className={flag ? 'translation-lang-flag no-filter' : 'translation-lang-ai-icon'}
-                    src={icon}
-                    alt=""
-                    draggable={false}
-                  />
-                ) : (
-                  <span className="translation-lang-flag-placeholder" />
+                {lang.code === 'auto' && (
+                  <img className="translation-lang-ai-icon" src={SvgIcon.AI} alt="" draggable={false} />
                 )}
                 <span>{t(lang.labelKey)}</span>
               </button>

@@ -93,12 +93,12 @@ describe('TranslationTab', () => {
     expect(dropdown().props.onChange).toBe(state.setSourceLang);
   });
 
-  it('菜单打开、选择语言关闭，未知语言显示原值与占位图标', () => {
+  it('菜单打开、选择语言关闭，未知语言显示原值且不显示图标', () => {
     state.sourceLang = 'unknown';
     const { type, props } = dropdown();
     let tree = render(type, props);
     expect(text(tree)).toContain('unknown');
-    expect(nodes(tree, '.translation-lang-flag-placeholder')).toHaveLength(1);
+    expect(nodes(tree, '.translation-lang-ai-icon')).toHaveLength(0);
     fire(tree, '.translation-lang-dropdown-trigger', 'onClick');
     tree = render(type, props);
     expect(nodes(tree, '.translation-lang-dropdown-item')).toHaveLength(props.options.length);

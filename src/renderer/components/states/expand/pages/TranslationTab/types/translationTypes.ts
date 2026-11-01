@@ -32,12 +32,6 @@ export interface TranslationLanguageOption {
   labelKey: string;
 }
 
-/** 语言对应的图标，flag 为国旗时不应用主题滤镜 */
-export interface TranslationLanguageIcon {
-  flag: string | undefined;
-  icon: string | undefined;
-}
-
 /** TranslationLangSelect 组件入参 */
 export interface TranslationLangSelectProps {
   options: readonly TranslationLanguageOption[];
