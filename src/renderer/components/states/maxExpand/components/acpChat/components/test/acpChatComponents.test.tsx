@@ -28,6 +28,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { nodes, render, text } from '../../../../test/componentHarness';
 import { AcpMessageItem } from '../AcpMessageItem';
+import { AcpMessageList } from '../AcpMessageList';
 import { AcpPermissionPrompt } from '../AcpPermissionPrompt';
 import { AssistantMarkdown } from '../AssistantMarkdown';
 
@@ -96,6 +97,44 @@ describe('AcpMessageItem', () => {
       item: { kind: 'plan', id: 'f', entries: [{ content: 'step one', status: 'completed' }] },
     });
     expect(text(tree)).toContain('step one');
+  });
+});
+
+describe('AcpMessageList thinking bubble', () => {
+  it('renders three animated dots in an agent bubble when busy and waiting for first reply chunk', () => {
+    const tree = render(AcpMessageList, {
+      items: [{ kind: 'user', id: 'u1', text: 'hi', images: [] }],
+      busy: true,
+      emptyContent: null,
+    });
+    const statusBubble = nodes(tree, 'div').find((node) => node.props?.role === 'status');
+    expect(statusBubble).toBeDefined();
+    expect(statusBubble?.props?.className).toContain('max-expand-chat-bubble ai');
+    const dots = nodes(statusBubble, 'span');
+    expect(dots).toHaveLength(3);
+  });
+
+  it('does not render thinking bubble once agent reply has arrived', () => {
+    const tree = render(AcpMessageList, {
+      items: [
+        { kind: 'user', id: 'u1', text: 'hi', images: [] },
+        { kind: 'agent', id: 'a1', text: 'Hello there!', images: [] },
+      ],
+      busy: true,
+      emptyContent: null,
+    });
+    const statusBubble = nodes(tree, 'div').find((node) => node.props?.role === 'status');
+    expect(statusBubble).toBeUndefined();
+  });
+
+  it('does not render thinking bubble when not busy', () => {
+    const tree = render(AcpMessageList, {
+      items: [{ kind: 'user', id: 'u1', text: 'hi', images: [] }],
+      busy: false,
+      emptyContent: null,
+    });
+    const statusBubble = nodes(tree, 'div').find((node) => node.props?.role === 'status');
+    expect(statusBubble).toBeUndefined();
   });
 });
 
