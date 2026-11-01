@@ -356,6 +356,8 @@ export interface IslandSlice {
   uiStateLocked: boolean;
   hoverTab: HoverTab;
   expandTab: ExpandTab;
+  /** 性能监控是否被固定为常驻（仅会话内有效，不持久化）。 */
+  performanceMonitorPinned: boolean;
   maxExpandTab: MaxExpandTab;
   maxExpandAppModeEnabled: boolean;
   /** 应用化模式下显示导航页，保留最后选择的应用供传统模式恢复。 */
@@ -395,6 +397,8 @@ export interface IslandSlice {
   toggleUiStateLock: () => boolean;
   setHoverTab: (tab: HoverTab) => void;
   setExpandTab: (tab: ExpandTab) => void;
+  /** 固定或取消固定性能监控；仅在展开态性能监控页内允许固定。 */
+  setPerformanceMonitorPinned: (pinned: boolean) => void;
   setMaxExpandTab: (tab: MaxExpandTab) => void;
   showMaxExpandLauncher: () => void;
   setCliProvider: (provider: CliProvider) => void;

@@ -108,6 +108,10 @@ export interface UsePerformanceMonitorTabReturn {
   monitoringEnabled: boolean;
   failed: boolean;
   chartColors: PerformanceMonitorChartColors;
+  /** 是否固定为常驻 */
+  pinned: boolean;
+  /** 切换固定状态 */
+  togglePinned: () => void;
   startMonitoring: () => void;
   stopMonitoring: () => void;
   handleHidePage: () => void;

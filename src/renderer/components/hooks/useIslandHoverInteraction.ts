@@ -28,6 +28,7 @@ import { useCallback, useEffect } from 'react';
 import useIslandStore from '../../store/isLandStore';
 import type { IslandState } from './useDynamicIslandShell';
 import { STATE_CONFIGS, isMouseInWindow } from '../config/dynamicIslandConfig';
+import { isPerformanceMonitorPinActive } from '../../store/slices/islandSlice';
 import { isCurrentLyricIdenticalToTranslation } from '../states/lyrics/utils/isCurrentLyricIdenticalToTranslation';
 
 /** 不自动离开悬停状态的面板状态集合 */
@@ -187,7 +188,8 @@ export function useIslandHoverInteraction(options: UseIslandHoverInteractionOpti
         }
 
         if (isHoveringRef.current && leaveTimerRef.current === null) {
-          const shouldLeave = AUTH_STATES.has(state)
+          // 固定性能监控时无视离开开关，保持展开（取消固定后下一轮检查即恢复）。
+          const shouldLeave = AUTH_STATES.has(state) || isPerformanceMonitorPinActive(useIslandStore.getState())
             ? false
             : state === 'expanded' ? expandLeaveIdleRef.current
               : state === 'maxExpand' ? maxExpandLeaveIdleRef.current
@@ -197,6 +199,7 @@ export function useIslandHoverInteraction(options: UseIslandHoverInteractionOpti
             leaveTimerRef.current = setTimeout(() => {
               leaveTimerRef.current = null;
               if (aborted || !isHoveringRef.current) return;
+              if (isPerformanceMonitorPinActive(useIslandStore.getState())) return;
 
               isHoveringRef.current = false;
               const store = useIslandStore.getState();

@@ -103,6 +103,15 @@ describe('useIslandHoverInteraction 真实轮询和状态交互', () => {
     input.expandLeaveIdleRef.current = true; input.maxExpandLeaveIdleRef.current = true; await vi.advanceTimersByTimeAsync(50);
     expect(input.setIdle).toHaveBeenCalledWith(true); expect(input.isHoveringRef.current).toBe(false);
   });
+  it('固定性能监控时 expanded 即使开启离开开关也不收起，取消固定后恢复', async () => {
+    useIslandStore.setState({ state: 'expanded', expandTab: 'performanceMonitor', performanceMonitorPinned: true });
+    const input = options('expanded'); input.expandLeaveIdleRef.current = true; outside(); await mount(input);
+    await vi.advanceTimersByTimeAsync(100);
+    expect(input.setIdle).not.toHaveBeenCalled(); expect(input.leaveTimerRef.current).toBeNull(); expect(input.isHoveringRef.current).toBe(true);
+    useIslandStore.setState({ performanceMonitorPinned: false }); await vi.advanceTimersByTimeAsync(100);
+    expect(input.setIdle).toHaveBeenCalledWith(true); expect(input.isHoveringRef.current).toBe(false);
+    useIslandStore.setState({ state: 'idle', expandTab: 'overview' });
+  });
   it('UI锁定清理进入和离开定时器，随后继续检查', async () => {
     const input = options(); input.enterTimerRef.current = setTimeout(vi.fn(), 10000) as unknown as ReturnType<typeof setTimeout>; input.leaveTimerRef.current = setTimeout(vi.fn(), 10000) as unknown as ReturnType<typeof setTimeout>;
     useIslandStore.setState({ uiStateLocked: true }); await mount(input);

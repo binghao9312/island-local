@@ -59,9 +59,11 @@ let hasStartedMonitoringThisSession = false;
  * @returns 快照、采集状态、图表颜色与操作回调
  */
 export function usePerformanceMonitorTab(): UsePerformanceMonitorTabReturn {
-  const { setMaxExpand, setMaxExpandTab } = useIslandStore(useShallow((store) => ({
+  const { setMaxExpand, setMaxExpandTab, pinned, setPinned } = useIslandStore(useShallow((store) => ({
     setMaxExpand: store.setMaxExpand,
     setMaxExpandTab: store.setMaxExpandTab,
+    pinned: store.performanceMonitorPinned,
+    setPinned: store.setPerformanceMonitorPinned,
   })));
   const [snapshot, setSnapshot] = useState<PerformanceSnapshot | null>(() => cachedPerformanceSnapshot);
   const [monitoringEnabled, setMonitoringEnabled] = useState<boolean>(() => hasStartedMonitoringThisSession);
@@ -70,6 +72,10 @@ export function usePerformanceMonitorTab(): UsePerformanceMonitorTabReturn {
   const [hardwareSelection, setHardwareSelection] = useState<PerformanceMonitorHardwareSelection>(DEFAULT_PERFORMANCE_MONITOR_HARDWARE_SELECTION);
   const snapshotRef = useRef<PerformanceSnapshot | null>(snapshot);
   const cancelMonitoringRef = useRef<(() => void) | null>(null);
+  const pinnedRef = useRef(Boolean(pinned));
+  pinnedRef.current = Boolean(pinned);
+  /** 让轮询 Effect 在固定状态变化时重新评估是否因窗口隐藏而暂停。 */
+  const reconcileVisibilityRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     snapshotRef.current = snapshot;
@@ -116,25 +122,35 @@ export function usePerformanceMonitorTab(): UsePerformanceMonitorTabReturn {
     };
     const handleVisibilityChange = (): void => {
       if (cancelled) return;
-      if (document.hidden) {
+      // 固定为常驻时即使窗口被判定为隐藏也持续采集（游戏栏场景）。
+      if (document.hidden && !pinnedRef.current) {
         stopPolling();
       } else {
         startPolling();
       }
     };
+    let listening = false;
     delayTimer = window.setTimeout(() => {
       if (cancelled) return;
-      if (!document.hidden) startPolling();
+      if (!document.hidden || pinnedRef.current) startPolling();
       document.addEventListener('visibilitychange', handleVisibilityChange);
+      listening = true;
     }, START_FETCH_DELAY_MS);
+    // 首次延迟结束前不介入，避免绕过启动延迟。
+    reconcileVisibilityRef.current = () => { if (listening) handleVisibilityChange(); };
     return () => {
       cancelled = true;
+      reconcileVisibilityRef.current = null;
       if (snapshotRef.current) cachedPerformanceSnapshot = snapshotRef.current;
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       if (delayTimer !== undefined) window.clearTimeout(delayTimer);
       stopPolling();
     };
   }, [hardwareSelection, monitoringEnabled]);
+
+  useEffect(() => {
+    reconcileVisibilityRef.current?.();
+  }, [pinned]);
 
   useEffect(() => {
     let cancelled = false;
@@ -174,6 +190,10 @@ export function usePerformanceMonitorTab(): UsePerformanceMonitorTabReturn {
     setSnapshot(null);
     setFailed(false);
     cachedPerformanceSnapshot = null;
+  };
+
+  const togglePinned = (): void => {
+    setPinned(!pinned);
   };
 
   const hidePerformanceMonitorInExpandLayout = (): void => {
@@ -233,6 +253,8 @@ export function usePerformanceMonitorTab(): UsePerformanceMonitorTabReturn {
     monitoringEnabled,
     failed,
     chartColors,
+    pinned: Boolean(pinned),
+    togglePinned,
     startMonitoring,
     stopMonitoring,
     handleHidePage,
