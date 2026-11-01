@@ -213,7 +213,7 @@ describe('SongTab runtime', () => {
     elements(tree).filter((node) => node.type === 'button').forEach((node) => invoke(node, 'onClick', {
       stopPropagation
     }));
-    expect(stopPropagation).toHaveBeenCalledTimes(3);
+    expect(stopPropagation).toHaveBeenCalledTimes(4);
   });
   it('empty lyrics, lyrics boundaries and running timer render through real binary search and nearby padding', () => {
     leaves.state.syncedLyrics = [];

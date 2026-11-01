@@ -184,6 +184,17 @@
   z-index: 1;
 }
 
+/* 歌词关闭时中栏展示的悬浮音浪，复用悬停歌词页的 SilkyWave */
+.ov-center-wave {
+  width: 100%;
+  height: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 .ov-wave-canvas {
   position: absolute;
   inset: 0;

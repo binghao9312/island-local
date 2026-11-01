@@ -885,7 +885,9 @@
       "prev": "Previous",
       "pause": "Pause",
       "play": "Play",
-      "next": "Next"
+      "next": "Next",
+      "hideLyrics": "Hide lyrics (show sound wave)",
+      "showLyrics": "Show lyrics"
     },
     "lyrics": {
       "all": "All lyrics",

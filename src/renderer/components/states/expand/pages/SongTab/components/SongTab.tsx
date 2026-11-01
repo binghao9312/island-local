@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next';
 import { SvgIcon } from '../../../../../../utils/SvgIcon';
 import { formatTime } from '../../../../../../utils/timeUtils';
 import { abbreviateWeatherDescription } from '../../../../../../utils/weatherText';
+import { SilkyWave } from '../../../../hover/pages/lyric/components/SilkyWave';
 import { useSongTab } from '../hooks/useSongTab';
 import { formatCountdownRemaining } from '../utils/songUtils';
 import { KaraokeSyllableLine } from './KaraokeSyllableLine';
@@ -68,7 +69,11 @@ export function SongTab(): ReactElement {
     handlePlayPause,
     handlePrev,
     handleNext,
+    handleToggleLyrics,
   } = useSongTab();
+  const lyricsToggleLabel = lyricsEnabled
+    ? t('songTab.controls.hideLyrics', { defaultValue: '隐藏歌词（显示音浪）' })
+    : t('songTab.controls.showLyrics', { defaultValue: '显示歌词' });
 
   return (
     <div className="expand-tab-panel ov-panel">
@@ -98,6 +103,9 @@ export function SongTab(): ReactElement {
             <button className="ov-ctrl-btn" onClick={(e) => { e.stopPropagation(); handleNext(); }} disabled={!isMusicPlaying} title={t('songTab.controls.next', { defaultValue: '下一曲' })}>
               <img src={SvgIcon.NEXT_SONG} alt={t('songTab.controls.next', { defaultValue: '下一曲' })} className="ov-ctrl-icon ov-ctrl-icon--sm" />
             </button>
+            <button className="ov-ctrl-btn" onClick={(e) => { e.stopPropagation(); handleToggleLyrics(); }} disabled={!isMusicPlaying} aria-pressed={lyricsEnabled} title={lyricsToggleLabel}>
+              <img src={SvgIcon.LYRIC} alt={lyricsToggleLabel} className="ov-ctrl-icon ov-ctrl-icon--sm" />
+            </button>
           </div>
         </div>
       </div>
@@ -124,7 +132,12 @@ export function SongTab(): ReactElement {
             <div className="ov-onboarding-hint">{t('songTab.onboarding.hint', { defaultValue: '播放任意歌曲即可开始' })}</div>
           </div>
         )}
-        {isIntro && (
+        {!lyricsEnabled && isMusicPlaying && (
+          <div className="ov-center-wave">
+            <SilkyWave color={dominantColor} playing={isPlaying} />
+          </div>
+        )}
+        {lyricsEnabled && isIntro && (
           <div className="ov-lrc-container">
             <img src={SvgIcon.MUSIC} alt="" className="ov-lrc-intro-icon" />
             {syncedLyrics!.slice(0, 2).map((line, i) => (
@@ -134,7 +147,7 @@ export function SongTab(): ReactElement {
             ))}
           </div>
         )}
-        {hasLyrics && !isIntro && (
+        {lyricsEnabled && hasLyrics && !isIntro && (
           <div className="ov-lrc-container">
             {lines.map((line) => (
               <div

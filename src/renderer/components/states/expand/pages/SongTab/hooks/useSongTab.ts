@@ -88,6 +88,14 @@ export function useSongTab(): UseSongTabReturn {
   const handlePrev = () => window.api?.mediaPrev();
   const handleNext = () => window.api?.mediaNext();
 
+  /** 切换歌词开关：持久化并广播，与设置页开关使用同一个标志位 */
+  const handleToggleLyrics = (): void => {
+    const next = !lyricsEnabled;
+    setLyricsEnabled(next);
+    window.api?.musicLyricsEnabledSet?.(next)?.catch(() => {});
+    window.dispatchEvent?.(new CustomEvent('island:setting-changed', { detail: { channel: 'music:lyrics-enabled', value: next } }));
+  };
+
   /** 计时器格式化 */
   const timerRunning = timerData.state === 'running' || timerData.state === 'paused';
   const timerMM = Math.floor(timerData.remainingSeconds / 60).toString().padStart(2, '0');
@@ -136,5 +144,6 @@ export function useSongTab(): UseSongTabReturn {
     handlePlayPause,
     handlePrev,
     handleNext,
+    handleToggleLyrics,
   };
 }

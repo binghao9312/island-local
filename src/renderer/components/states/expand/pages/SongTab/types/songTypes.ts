@@ -101,4 +101,5 @@ export interface UseSongTabReturn {
   handlePlayPause: () => void;
   handlePrev: () => void;
   handleNext: () => void;
+  handleToggleLyrics: () => void;
 }

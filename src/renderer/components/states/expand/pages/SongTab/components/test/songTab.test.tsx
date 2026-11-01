@@ -27,6 +27,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushEffects, nodes, render, text, value } from '../../../../../maxExpand/test/componentHarness';
 import { fire } from '../../../../../maxExpand/components/tools/components/test/toolTestEvents';
+import { SilkyWave } from '../../../../../hover/pages/lyric/components/SilkyWave';
 import { SongTab } from '../SongTab';
 import type { ReactElement } from 'react';
 import type { IIslandStore } from '../../../../../../../store/types';
@@ -125,5 +126,81 @@ describe('SongTab', () => {
     expect(text(nodes(tree, '.ov-countdown'))).toContain(`songTab.countdown.${  key}`);
     expect(text(nodes(tree, '.ov-timer'))).toBe('02:05');
     expect(text(nodes(tree, '.ov-weather-temp'))).toBe('26°');
+  });
+  describe('歌词关闭时的悬浮音浪', () => {
+    const setEnabled = vi.fn<(enabled: boolean) => Promise<boolean>>();
+    const dispatchEvent = vi.fn();
+    const listeners = new Map<string, (event: Event) => void>();
+    /** 以指定的持久化歌词开关启动，并执行 effect 以读取初始值 */
+    async function mount(initial: boolean): Promise<(() => void)[]> {
+      setEnabled.mockResolvedValue(true); dispatchEvent.mockClear(); listeners.clear();
+      Object.assign(mocks.state, { isMusicPlaying: true, isPlaying: true, syncedLyrics: [{ time_ms: 1000, text: 'line' }], currentPositionMs: 1500 });
+      vi.stubGlobal('CustomEvent', class { detail: unknown; constructor(public type: string, init: { detail: unknown }) { this.detail = init.detail; } });
+      vi.stubGlobal('window', { dispatchEvent, addEventListener: (name: string, fn: (event: Event) => void) => { listeners.set(name, fn); }, removeEventListener: vi.fn(),
+        api: { musicLyricsKaraokeGet: mocks.karaoke, musicLyricsEnabledGet: vi.fn().mockResolvedValue(initial), musicLyricsEnabledSet: setEnabled } });
+      render(SongTab);
+      const cleanup = flushEffects(); await Promise.resolve();
+      return cleanup;
+    }
+
+    it('关闭时渲染 SilkyWave 且不渲染歌词或占位，开启时相反', async () => {
+      const off = await mount(false);
+      let tree = render(SongTab);
+      expect(nodes(tree, SilkyWave)).toHaveLength(1);
+      expect(nodes(tree, '.ov-lrc-line')).toHaveLength(0);
+      expect(nodes(tree, '.ov-lrc-intro-icon')).toHaveLength(0);
+      expect(text(tree)).not.toContain('songTab.lyrics');
+      off.forEach((fn) => fn());
+      const on = await mount(true);
+      tree = render(SongTab);
+      expect(nodes(tree, SilkyWave)).toHaveLength(0);
+      expect(nodes(tree, '.ov-lrc-line').length).toBeGreaterThan(0);
+      on.forEach((fn) => fn());
+    });
+
+    it('音浪随播放状态传入播放标志与主题色，暂停时为静止', async () => {
+      const cleanup = await mount(false);
+      expect(nodes(render(SongTab), SilkyWave)[0].props).toMatchObject({ color: [20, 30, 40], playing: true });
+      mocks.state.isPlaying = false;
+      expect(nodes(render(SongTab), SilkyWave)[0].props).toMatchObject({ playing: false });
+      cleanup.forEach((fn) => fn());
+    });
+
+    it('未播放时仍显示引导而不是音浪', async () => {
+      const cleanup = await mount(false);
+      mocks.state.isMusicPlaying = false;
+      const tree = render(SongTab);
+      expect(nodes(tree, SilkyWave)).toHaveLength(0);
+      expect(text(tree)).toContain('songTab.onboarding.title');
+      cleanup.forEach((fn) => fn());
+    });
+
+    it('播放中点击按钮双向立即切换，并持久化和广播同一个标志位', async () => {
+      const cleanup = await mount(true);
+      const event = { stopPropagation: vi.fn() };
+      expect(value(render(SongTab), '.ov-ctrl-btn', 'aria-pressed', 3)).toBe(true);
+      fire(render(SongTab), '.ov-ctrl-btn', 'onClick', 3, event);
+      let tree = render(SongTab);
+      expect(setEnabled).toHaveBeenLastCalledWith(false);
+      expect(dispatchEvent).toHaveBeenLastCalledWith(expect.objectContaining({ detail: { channel: 'music:lyrics-enabled', value: false } }));
+      expect(nodes(tree, SilkyWave)).toHaveLength(1);
+      expect(value(tree, '.ov-ctrl-btn', 'aria-pressed', 3)).toBe(false);
+      fire(tree, '.ov-ctrl-btn', 'onClick', 3, event);
+      tree = render(SongTab);
+      expect(setEnabled).toHaveBeenLastCalledWith(true);
+      expect(nodes(tree, SilkyWave)).toHaveLength(0);
+      expect(nodes(tree, '.ov-lrc-line').length).toBeGreaterThan(0);
+      cleanup.forEach((fn) => fn());
+    });
+
+    it('设置页广播的开关事件同样立即切换音浪', async () => {
+      const cleanup = await mount(true);
+      const notify = (value: boolean): void => { listeners.get('island:setting-changed')?.({ detail: { channel: 'music:lyrics-enabled', value } } as unknown as Event); };
+      notify(false);
+      expect(nodes(render(SongTab), SilkyWave)).toHaveLength(1);
+      notify(true);
+      expect(nodes(render(SongTab), SilkyWave)).toHaveLength(0);
+      cleanup.forEach((fn) => fn());
+    });
   });
 });
