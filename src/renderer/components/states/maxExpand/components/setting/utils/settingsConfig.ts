@@ -27,6 +27,7 @@
 import type { OverviewLayoutConfig } from '../../../../expand/pages/OverviewTab';
 import { SvgIcon } from '../../../../../../utils/SvgIcon';
 import { UPDATES_ENABLED } from '../../../../../../../shared/updatesConfig';
+import { SERVER_FEATURES_ENABLED } from '../../../../../../../shared/serverFeaturesConfig';
 import type { WeatherProvider, WeatherLocationPriority } from '../../../../../../store/utils/storage';
 
 export const LYRICS_SOURCE_OPTIONS = [
@@ -401,17 +402,64 @@ export interface NavCardDef {
 }
 
 /**
- * 更新检测关闭时剔除指向更新设置页的导航卡与搜索项，以及网络配置中的更新源搜索项。
+ * 标准化设置侧栏页签，受功能开关限制。
+ * @description 云端与账户功能关闭时，用户中心与综合市场回退到快速导航；更新检测关闭时，更新设置回退到快速导航。
+ * @param tab - 待校验的页签标识。
+ * @param serverFeaturesEnabled - 是否启用云端与账户功能，默认读取 SERVER_FEATURES_ENABLED。
+ * @param updatesEnabled - 是否启用更新检测，默认读取 UPDATES_ENABLED。
+ * @returns 合法且启用的侧栏页签。
+ */
+export function normalizeSettingsTab(
+  tab: unknown,
+  serverFeaturesEnabled: boolean = SERVER_FEATURES_ENABLED,
+  updatesEnabled: boolean = UPDATES_ENABLED,
+): SettingsSidebarTabKey {
+  if (typeof tab !== 'string') return 'index';
+  if (!serverFeaturesEnabled && (tab === 'user' || tab === 'pluginMarket')) {
+    return 'index';
+  }
+  if (!updatesEnabled && tab === 'update') {
+    return 'index';
+  }
+  if ((SETTINGS_TABS as readonly string[]).includes(tab)) {
+    return tab as SettingsSidebarTabKey;
+  }
+  return 'index';
+}
+
+/**
+ * 剔除未启用功能的导航卡与搜索项：
+ * - 更新检测关闭时剔除指向更新设置页的条目及更新源搜索项；
+ * - 云端与账户功能关闭时剔除用户中心、综合市场及相关动作条目。
  * @param items - 原始条目
  * @returns 过滤后的条目
  */
-function withoutUpdateEntries<T extends { tab: SettingsSidebarTabKey; labelKey?: string }>(items: T[]): T[] {
-  return UPDATES_ENABLED
-    ? items
-    : items.filter((item) => item.tab !== 'update' && !item.labelKey?.startsWith('settings.network.updateSource.'));
+function withoutDisabledEntries<T extends { tab: SettingsSidebarTabKey; labelKey?: string; actionId?: string; id?: string }>(items: T[]): T[] {
+  return items.filter((item) => {
+    if (!UPDATES_ENABLED) {
+      if (item.tab === 'update' || item.labelKey?.startsWith('settings.network.updateSource.')) {
+        return false;
+      }
+    }
+    if (!SERVER_FEATURES_ENABLED) {
+      if (item.tab === 'user' || item.tab === 'pluginMarket') {
+        return false;
+      }
+      if (item.actionId?.startsWith('user-') || item.actionId === 'user-questionnaire') {
+        return false;
+      }
+      if (item.id === 'user' || item.id === 'pluginMarket' || item.id?.startsWith('user-')) {
+        return false;
+      }
+      if (item.labelKey?.startsWith('settings.user.') || item.labelKey?.startsWith('settings.pluginMarket.')) {
+        return false;
+      }
+    }
+    return true;
+  });
 }
 
-export const NAV_CARDS: NavCardDef[] = withoutUpdateEntries<NavCardDef>([
+export const NAV_CARDS: NavCardDef[] = withoutDisabledEntries<NavCardDef>([
   { id: 'user-pro', label: 'PRO功能', desc: '查看 Free 与 Pro 计划权益及当前订阅价格', icon: SvgIcon.PRO, tab: 'user', actionId: 'user-pro' },
   { id: 'user-recharge', label: '余额充值', desc: '为 AI 助手对话余额充值', icon: SvgIcon.RECHARGE, tab: 'user', actionId: 'user-recharge' },
   { id: 'user', label: SETTINGS_TAB_LABELS.user, desc: SETTINGS_TAB_DESCRIPTIONS.user, icon: SETTINGS_TAB_ICONS.user, tab: 'user' },
@@ -465,7 +513,7 @@ export interface SearchableSettingItem {
   actionId?: string;
 }
 
-export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutUpdateEntries<SearchableSettingItem>([
+export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutDisabledEntries<SearchableSettingItem>([
   { label: '闹钟', desc: '在闹钟页面选择最多两个闹钟展示', labelKey: 'settings.app.layout.widgetNames.alarm', descKey: 'overview.alarm.empty', tab: 'app', appPage: 'layout-preview' },
   // ── 软件设置 > 布局预览 ──
   { label: '总览布局预览', desc: '实时显示左右控件组合后的 Expand 态灵动岛样式，切换下方控件可即时预览。', labelKey: 'settings.app.layout.previewTitle', descKey: 'settings.app.layout.previewHint', tab: 'app', appPage: 'layout-preview' },

@@ -19,6 +19,7 @@
  * @author 鸡哥
  */
 
+import { SERVER_FEATURES_ENABLED } from '../../../shared/serverFeaturesConfig';
 import { request } from '../user/userAccountApi.client';
 import type { UserAccountResult } from '../user/userAccountApi.types';
 import type {
@@ -176,6 +177,7 @@ function normalizeQuestionnaireHistory(value: unknown): QuestionnaireHistoryItem
  * @returns 已通过格式校验且按服务端顺序排列的问卷列表。
  */
 export async function fetchActiveQuestionnaires(token?: string | null): Promise<QuestionnaireData[]> {
+  if (!SERVER_FEATURES_ENABLED) return [];
   const authOptions = token ? { auth: token } : undefined;
   const result = authOptions
     ? await request<unknown>('/v1/surveys/active', authOptions)
@@ -203,6 +205,9 @@ export async function fetchCurrentQuestionnaire(token?: string | null): Promise<
  * @returns 统一响应，其中记录已完成问卷定义与答案格式校验。
  */
 export async function fetchQuestionnaireHistory(token: string): Promise<UserAccountResult<QuestionnaireHistoryItem[]>> {
+  if (!SERVER_FEATURES_ENABLED) {
+    return { ok: false, code: -1, message: 'disabled', data: [] };
+  }
   const result = await request<unknown>('/v1/surveys/my/results', { auth: token });
   return {
     ...result,
@@ -222,6 +227,9 @@ export async function deleteQuestionnaireHistory(
   resultId: number,
   surveyId: number,
 ): Promise<UserAccountResult<void>> {
+  if (!SERVER_FEATURES_ENABLED) {
+    return { ok: false, code: -1, message: 'disabled' };
+  }
   const result = await request<void>(`/v1/surveys/my/results/${encodeURIComponent(String(resultId))}`, {
     method: 'DELETE',
     auth: token,
@@ -242,6 +250,9 @@ export async function submitQuestionnaire(
   answers: Record<string, QuestionnaireAnswer>,
   token: string,
 ) {
+  if (!SERVER_FEATURES_ENABLED) {
+    return { ok: false, code: -1, message: 'disabled' };
+  }
   return request<QuestionnaireSubmissionData>(`/v1/surveys/${surveyId}/results`, {
     method: 'POST',
     auth: token,

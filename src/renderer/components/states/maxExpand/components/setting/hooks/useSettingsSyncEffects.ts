@@ -27,6 +27,7 @@
 import { useEffect } from 'react';
 import { ISLAND_POSITION_LOCKED_STORE_KEY } from '../../../../../../../shared/storeKeys';
 import { UPDATES_ENABLED } from '../../../../../../../shared/updatesConfig';
+import { SERVER_FEATURES_ENABLED } from '../../../../../../../shared/serverFeaturesConfig';
 import {
   AUTO_HIDE_FULLSCREEN_WINDOWS_STORE_KEY,
   ISLAND_AUTO_DIM_DELAY_STORE_KEY,
@@ -121,16 +122,32 @@ export function useSettingsSyncEffects(options: SettingsSyncEffectsOptions): voi
         setActiveTab('mail');
       }
       if (value === 'about-feedback') {
-        setActiveTab('about');
-        setAboutInitialPage('feedback');
+        if (SERVER_FEATURES_ENABLED) {
+          setActiveTab('about');
+          setAboutInitialPage('feedback');
+        } else {
+          setActiveTab('about');
+          setAboutInitialPage('development');
+        }
       }
       if (value === 'user-orders') {
-        setActiveTab('user');
-        setUserInitialProfilePage('orders');
+        if (SERVER_FEATURES_ENABLED) {
+          setActiveTab('user');
+          setUserInitialProfilePage('orders');
+        } else {
+          setActiveTab('index');
+        }
       }
       if (value === 'user-info') {
-        setActiveTab('user');
-        setUserInitialProfilePage('info');
+        if (SERVER_FEATURES_ENABLED) {
+          setActiveTab('user');
+          setUserInitialProfilePage('info');
+        } else {
+          setActiveTab('index');
+        }
+      }
+      if (!SERVER_FEATURES_ENABLED && (value === 'user' || value === 'pluginMarket' || value === 'questionnaire' || value === 'user-questionnaire')) {
+        setActiveTab('index');
       }
       if (value === 'ai') {
         setActiveTab('ai');

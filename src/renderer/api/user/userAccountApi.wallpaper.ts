@@ -24,6 +24,7 @@
  * @author 鸡哥
  */
 
+import { SERVER_FEATURES_ENABLED } from '../../../shared/serverFeaturesConfig';
 import {
   buildUploadHeaders,
   parsePayload,
@@ -153,6 +154,9 @@ export async function uploadUserWallpaper(
   payload: UploadWallpaperPayload,
   options: UploadWallpaperOptions = {},
 ): Promise<UserAccountResult<{ id: number }>> {
+  if (!SERVER_FEATURES_ENABLED) {
+    return { ok: false, code: -1, message: 'disabled' };
+  }
   const formData = new FormData();
   formData.append('title', payload.title);
   if (payload.description) formData.append('description', payload.description);

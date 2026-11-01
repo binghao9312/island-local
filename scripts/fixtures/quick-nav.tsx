@@ -237,7 +237,9 @@ async function testSearch(expectOptimized: boolean): Promise<void> {
     [SEARCHABLE_SETTINGS.find((item) => item.musicPage === 'lyrics'), ['music:lyrics', 'tab:music']],
     [SEARCHABLE_SETTINGS.find((item) => item.aiPage === 'ollama'), ['ai:ollama', 'tab:ai']],
     [SEARCHABLE_SETTINGS.find((item) => item.networkPage === 'data-center'), ['network:data-center', 'tab:network']],
-    [SEARCHABLE_SETTINGS.find((item) => item.actionId === 'user-questionnaire'), ['action:user-questionnaire']],
+    ...(SEARCHABLE_SETTINGS.find((item) => item.actionId === 'user-questionnaire')
+      ? [[SEARCHABLE_SETTINGS.find((item) => item.actionId === 'user-questionnaire'), ['action:user-questionnaire']] as [SearchableSettingItem, string[]]]
+      : []),
     [SEARCHABLE_SETTINGS.find((item) => item.tab === 'mail'), ['tab:mail']],
   ];
   await sequence(routes, async ([item, expected]) => {

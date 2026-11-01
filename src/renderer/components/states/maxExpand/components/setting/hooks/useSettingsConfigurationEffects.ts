@@ -27,6 +27,7 @@
 import { useEffect } from 'react';
 import useIslandStore from '../../../../../../store/slices';
 import { UPDATES_ENABLED } from '../../../../../../../shared/updatesConfig';
+import { SERVER_FEATURES_ENABLED } from '../../../../../../../shared/serverFeaturesConfig';
 import { normalizeOverviewLayoutConfig } from '../../../../expand/pages/OverviewTab';
 import {
   CLIPBOARD_URL_SUPPRESS_IN_FAVORITES_KEY,
@@ -383,18 +384,35 @@ export function useSettingsConfigurationEffects(options: SettingsConfigurationEf
         window.api.storeWrite(SETTINGS_OPEN_TAB_STORE_KEY, null).catch(() => { });
       }
       if (intent === 'about-feedback') {
-        setActiveTab('about');
-        setAboutInitialPage('feedback');
+        if (SERVER_FEATURES_ENABLED) {
+          setActiveTab('about');
+          setAboutInitialPage('feedback');
+        } else {
+          setActiveTab('about');
+          setAboutInitialPage('development');
+        }
         window.api.storeWrite(SETTINGS_OPEN_TAB_STORE_KEY, null).catch(() => { });
       }
       if (intent === 'user-orders') {
-        setActiveTab('user');
-        setUserInitialProfilePage('orders');
+        if (SERVER_FEATURES_ENABLED) {
+          setActiveTab('user');
+          setUserInitialProfilePage('orders');
+        } else {
+          setActiveTab('index');
+        }
         window.api.storeWrite(SETTINGS_OPEN_TAB_STORE_KEY, null).catch(() => { });
       }
       if (intent === 'user-info') {
-        setActiveTab('user');
-        setUserInitialProfilePage('info');
+        if (SERVER_FEATURES_ENABLED) {
+          setActiveTab('user');
+          setUserInitialProfilePage('info');
+        } else {
+          setActiveTab('index');
+        }
+        window.api.storeWrite(SETTINGS_OPEN_TAB_STORE_KEY, null).catch(() => { });
+      }
+      if (!SERVER_FEATURES_ENABLED && (intent === ('user' as SettingsOpenTabIntent) || intent === ('pluginMarket' as SettingsOpenTabIntent) || intent === ('questionnaire' as SettingsOpenTabIntent) || intent === ('user-questionnaire' as SettingsOpenTabIntent))) {
+        setActiveTab('index');
         window.api.storeWrite(SETTINGS_OPEN_TAB_STORE_KEY, null).catch(() => { });
       }
       if (intent === 'ai') {

@@ -26,6 +26,7 @@
 
 import type { StateCreator } from 'zustand';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import * as notificationSound from '../../../utils/audio/notificationSound';
 import { createIslandSlice } from '../islandSlice';
 

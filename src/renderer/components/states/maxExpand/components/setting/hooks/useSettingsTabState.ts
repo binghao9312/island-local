@@ -24,17 +24,20 @@
  * @author 鸡哥
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { readLocalToken, subscribeUserAccountSessionChanged } from '../../../../../../utils/userAccount';
 import { SETTINGS_SIDEBAR_DEFAULT_TAB } from '../config/settingsTabConfig';
-import type { SettingsSidebarTabKey } from '../utils/settingsConfig';
+import { normalizeSettingsTab, type SettingsSidebarTabKey } from '../utils/settingsConfig';
 
 /**
  * 管理设置侧栏当前页签；每次进入设置默认停留在「快速导航」页。
  * @returns 当前页签与页签更新函数
  */
 export function useSettingsSidebarTabState() {
-  const [activeTab, setActiveTab] = useState<SettingsSidebarTabKey>(SETTINGS_SIDEBAR_DEFAULT_TAB);
+  const [activeTab, setActiveTabRaw] = useState<SettingsSidebarTabKey>(normalizeSettingsTab(SETTINGS_SIDEBAR_DEFAULT_TAB));
+  const setActiveTab = useCallback((tab: SettingsSidebarTabKey) => {
+    setActiveTabRaw(normalizeSettingsTab(tab));
+  }, []);
 
   return [activeTab, setActiveTab] as const;
 }

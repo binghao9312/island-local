@@ -25,6 +25,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { bootstrapAuthSession, refreshAuthSession, updateSessionToken } from '../index';
 import { USER_ACCOUNT_LOGOUT_MARKER_KEY, USER_ACCOUNT_PROFILE_STORAGE_KEY, USER_ACCOUNT_TOKEN_STORAGE_KEY } from '../../userAccount';
 

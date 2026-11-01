@@ -23,6 +23,7 @@
  * @author 鸡哥
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { byClass, elements, find, invoke, text } from '../../../../../test/tree';
 import { createHookReactMock, flushHookEffects, renderHook, resetHook, settleHook, unmountHook } from '../../../../../../hooks/test/startupHookHarness';
 import { installChatRuntime, roleToken } from '../../hooks/test/chatRuntimeFixture';

@@ -24,6 +24,7 @@
  * @author 鸡哥
  */
 
+import { SERVER_FEATURES_ENABLED } from '../../../../../shared/serverFeaturesConfig';
 import { useCallback, useEffect, useState } from 'react';
 import { readLocalToken } from '../../../../utils/userAccount';
 import {
@@ -42,6 +43,7 @@ export function useQuestionnaireReminder() {
   const [questionnaires, setQuestionnaires] = useState<QuestionnaireData[]>([]);
 
   const reload = useCallback(async (): Promise<void> => {
+    if (!SERVER_FEATURES_ENABLED) return;
     const items = await fetchActiveQuestionnaires(readLocalToken());
     setQuestionnaires(items.filter((item) => (
       !isQuestionnaireCompleted(item.id) && !isQuestionnaireReminderDismissed(item.id)
@@ -50,6 +52,7 @@ export function useQuestionnaireReminder() {
 
   useEffect(() => {
     let active = true;
+    if (!SERVER_FEATURES_ENABLED) return;
     void fetchActiveQuestionnaires(readLocalToken()).then((items) => {
       if (!active) return;
       setQuestionnaires(items.filter((item) => (

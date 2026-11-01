@@ -25,6 +25,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { DynamicIslandStateContent } from '../DynamicIslandStateContent';
 import { elementProps, resetState } from '../../test/elementHarness';
 import type { ComponentProps } from 'react';

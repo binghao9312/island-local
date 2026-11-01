@@ -25,6 +25,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { lifecycleHooks } from '../../../components/test/contentLifecycleHarness';
 import { api, renderWithHooks, resetBrowser, runEffects, settle, storage, unmountHooks } from '../../register/hooks/test/authHookHarness';
 import { byClass, elements, find, invoke, text } from '../../test/tree';

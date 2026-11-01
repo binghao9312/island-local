@@ -25,6 +25,7 @@
  */
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+vi.mock('../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 
 const {
   fetchUserProfileMock,

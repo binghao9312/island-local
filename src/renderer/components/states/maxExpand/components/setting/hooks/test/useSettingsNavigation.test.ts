@@ -24,6 +24,7 @@
  * @author 鸡哥
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { useSettingsNavigation } from '../useSettingsNavigation';
 import { renderWithHooks, resetLifecycle, runEffects, unmountHooks } from './settingsCoverageHarness';
 const session = vi.hoisted(() => ({

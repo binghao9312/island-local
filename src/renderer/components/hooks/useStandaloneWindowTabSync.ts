@@ -25,6 +25,7 @@
  */
 
 import { useEffect } from 'react';
+import { SERVER_FEATURES_ENABLED } from '../../../shared/serverFeaturesConfig';
 import {
   ACTIVE_TAB_STORE_KEY,
   LEGACY_ACTIVE_TAB_STORE_KEY,
@@ -65,8 +66,10 @@ export function useStandaloneWindowTabSync(options: UseStandaloneWindowTabSyncOp
     window.api.storeRead(AUTH_INTENT_STORE_KEY).then((intent) => {
       if (cancelled) return;
       if (intent === 'login' || intent === 'register') {
-        setActiveTab('settings');
-        applyAuthIntent(intent);
+        if (SERVER_FEATURES_ENABLED) {
+          setActiveTab('settings');
+          applyAuthIntent(intent);
+        }
         window.api.storeWrite(AUTH_INTENT_STORE_KEY, null).catch(() => {});
       }
     }).catch(() => {});
@@ -77,8 +80,10 @@ export function useStandaloneWindowTabSync(options: UseStandaloneWindowTabSyncOp
         setActiveTab(value as WindowTab);
       }
       if (channel === `store:${AUTH_INTENT_STORE_KEY}` && (value === 'login' || value === 'register')) {
-        setActiveTab('settings');
-        applyAuthIntent(value);
+        if (SERVER_FEATURES_ENABLED) {
+          setActiveTab('settings');
+          applyAuthIntent(value);
+        }
         window.api.storeWrite(AUTH_INTENT_STORE_KEY, null).catch(() => {});
       }
     });

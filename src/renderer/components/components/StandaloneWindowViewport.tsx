@@ -26,6 +26,7 @@
 
 import { lazy, Suspense, type JSX } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SERVER_FEATURES_ENABLED } from '../../../shared/serverFeaturesConfig';
 import type { WindowTab } from '../config/standaloneWindowConfig';
 
 const TodoTab = lazy(() => import('../states/maxExpand/components/todo/components/TodoTab').then((module) => ({ default: module.TodoTab })));
@@ -70,12 +71,12 @@ export function StandaloneWindowViewport({ activeTab, state }: StandaloneWindowV
         {activeTab === 'memo' && <MemoTab />}
         {activeTab === 'alarm' && <AlarmTab />}
         {activeTab === 'toolbox' && <ToolboxTab />}
-        {activeTab === 'settings' && state === 'login' && <LoginContent />}
-        {activeTab === 'settings' && state === 'register' && <RegisterContent />}
-        {activeTab === 'settings' && state === 'resetPassword' && <ResetPasswordContent />}
-        {activeTab === 'settings' && state === 'payment' && <PaymentContent />}
+        {activeTab === 'settings' && SERVER_FEATURES_ENABLED && state === 'login' && <LoginContent />}
+        {activeTab === 'settings' && SERVER_FEATURES_ENABLED && state === 'register' && <RegisterContent />}
+        {activeTab === 'settings' && SERVER_FEATURES_ENABLED && state === 'resetPassword' && <ResetPasswordContent />}
+        {activeTab === 'settings' && SERVER_FEATURES_ENABLED && state === 'payment' && <PaymentContent />}
         {activeTab === 'settings' && state === 'musicProvidersLogin' && <MusicProvidersLoginContent />}
-        {activeTab === 'settings' && state !== 'login' && state !== 'register' && state !== 'resetPassword' && state !== 'payment' && state !== 'musicProvidersLogin' && <SettingsTab />}
+        {activeTab === 'settings' && (!SERVER_FEATURES_ENABLED || (state !== 'login' && state !== 'register' && state !== 'resetPassword' && state !== 'payment')) && state !== 'musicProvidersLogin' && <SettingsTab />}
       </Suspense>
     </div>
   );

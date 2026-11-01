@@ -25,6 +25,7 @@
  */
 
 import type { TFunction } from 'i18next';
+import { SERVER_FEATURES_ENABLED } from '../../../../../shared/serverFeaturesConfig';
 import { SvgIcon } from '../../../../utils/SvgIcon';
 
 export interface GuidePage {
@@ -268,7 +269,7 @@ export function getGuidePages(t: TFunction, showAuthPrompt: boolean): GuidePage[
       ],
     },
   ];
-  if (!showAuthPrompt) {
+  if (!SERVER_FEATURES_ENABLED || !showAuthPrompt) {
     return pages.filter((page) => page.actionPrompt !== 'auth');
   }
   return pages;

@@ -27,6 +27,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SERVER_FEATURES_ENABLED } from '../../../../../shared/serverFeaturesConfig';
 import { TRAY_MENU_ITEMS } from '../config/trayMenuItems';
 import { useTrayMenuState } from '../hooks/useTrayMenuState';
 import { useTrayNowPlaying } from '../hooks/useTrayNowPlaying';
@@ -78,7 +79,7 @@ export function TrayMenu(): ReactElement {
 
   return (
     <div ref={rootRef} className="tray-menu" role="menu" aria-label={t('tray.menuLabel')}>
-      <TrayUserCard user={user} />
+      {SERVER_FEATURES_ENABLED && <TrayUserCard user={user} />}
       <TrayMusicCard nowPlaying={nowPlaying} loading={loading} openCount={openCount} menuVisible={visible} onTogglePlayback={togglePlayback} onPrevious={playPrevious} onNext={playNext} onSeek={seekTo} />
       <div className="tray-menu-list">
         {visibleItems.map((item) => {

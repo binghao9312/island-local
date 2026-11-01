@@ -25,6 +25,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { deferred, elements, find, flushEffects, render, resetLifecycle, settle, text, trigger, unmount } from '../../about/test/settingsLifecycleHarness';
 import type { ReactElement } from 'react';
 import type * as UserApi from '../../../../../../../../api/user/userAccountApi';

@@ -24,6 +24,7 @@
  * @author 鸡哥
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { useSettingsAppearance } from '../useSettingsAppearance';
 import { renderWithHooks, resetLifecycle } from './settingsCoverageHarness';
 const language = vi.hoisted(() => ({

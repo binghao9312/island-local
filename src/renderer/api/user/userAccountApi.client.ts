@@ -25,6 +25,7 @@
  */
 
 import { buildReplayHeaders as buildSecurityReplayHeaders } from '../../utils/security';
+import { SERVER_FEATURES_ENABLED } from '../../../shared/serverFeaturesConfig';
 import type { UserAccountResult } from './userAccountApi.types';
 import type { InternalRequestInit } from './types/InternalRequestInit';
 
@@ -204,6 +205,9 @@ export async function githubRequest<T>(path: string, init: InternalRequestInit =
 }
 
 async function rawRequest<T>(base: string, path: string, init: InternalRequestInit): Promise<UserAccountResult<T>> {
+  if (!SERVER_FEATURES_ENABLED) {
+    return { ok: false, code: -1, message: 'disabled' };
+  }
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     [APP_NAME_HEADER]: APP_NAME_VALUE,

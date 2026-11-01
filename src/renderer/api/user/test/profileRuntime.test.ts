@@ -25,6 +25,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+vi.mock('../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { updateUserPassword, updateUserProfile, uploadUserAvatar } from '../userAccountApi.profile';
 
 const leaf = vi.hoisted(() => ({ request: vi.fn(), headers: vi.fn(), fetch: vi.fn() }));

@@ -29,6 +29,7 @@ import {
   DEFAULT_TOTP_PERIOD_SECONDS,
   generateTotpFromBase32Seed,
 } from '../../utils/security';
+import { SERVER_FEATURES_ENABLED } from '../../../shared/serverFeaturesConfig';
 import {
   buildUploadHeaders,
   request,
@@ -172,6 +173,9 @@ export function fetchUpdateSourceUrl(token: string, source: string): Promise<Use
  * @returns 上传后的头像 URL。
  */
 export async function uploadUserAvatar(file: File, token: string, captcha: UserCaptchaPayload): Promise<string> {
+  if (!SERVER_FEATURES_ENABLED) {
+    throw new Error('disabled');
+  }
   if (!token || token.trim().length === 0) {
     throw new Error('未登录');
   }

@@ -25,6 +25,7 @@
  */
 
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+vi.mock('../../../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { render as renderComponent, nodes, value, trigger, text } from '../../../../test/componentHarness';
 import { AiChatContent as Component } from '../AiChatTab';
 import expandChatRows from './chatRowsFixture';

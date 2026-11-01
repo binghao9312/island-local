@@ -24,6 +24,7 @@
  * @author 鸡哥
  */
 
+vi.mock('../../../../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_FEATURES_ENABLED: true }));
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { UserSettingsSection } from '../UserSettingsSection';
 import { elementProps, elements, findElement, invoke, resetState, rewindState, textContent } from '../../../../../../../test/elementHarness';
