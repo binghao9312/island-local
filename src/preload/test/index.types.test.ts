@@ -31,6 +31,7 @@ import { describe, expect, expectTypeOf, it } from 'vitest';
 import type {} from '../index.d.ts';
 import type { ElectronAPI } from '@electron-toolkit/preload';
 import type { TrayMenuAction, TrayMenuState } from '../../shared/trayMenu';
+import type { GmailNewMailPayload, GmailReminderStatus } from '../../shared/gmailReminderTypes';
 import type { Point, Bounds, IslandDisplayInfo, SearchLocalFilesOptions, SearchLocalFileResult, SaveTextFilePayload, SaveTextFileResult, ComputeFileHashResult, NowPlayingInfo, MediaCommandResult, SmtcTimestampResult, DetectSourceAppIdResult, ImageCompressionStartPayload, ImageCompressionStartResult, ImageCompressionTask, SaveImageAsResult, ResolveShortcutResult, ExtractVideoTrackOptions, ExtractVideoTrackResult, PickVideoForExtractResult, NetFetchOptions, NetFetchResult, MailInboxResult, NavOrderPayload, SetWallpaperPayload, DownloadStartPayload, DownloadStartResult, DownloadTask, UpdaterCheckResult, UpdaterProgress, UpdaterDownloadedData, UpdaterAvailableData, UpdaterNotAvailableData, UpdaterStartupAutoCheckRequestData, ClipboardUrlsDetectedData, ExternalAgentData, RunningProcessInfo, RunningWindowInfo, PerformanceHardwareSelection, PerformanceSnapshot, ClaudeCodeStatusSnapshot, ClaudeCodeHookMutationResult, CodexStatusSnapshot, CodexMonitorMutationResult, AgentUsageSnapshot } from '../types';
 interface ExpectedApi {
   enableMousePassthrough: () => void;
@@ -177,6 +178,8 @@ interface ExpectedApi {
   musicLyricsEnabledSet: (enabled: boolean) => Promise<boolean>;
   musicLyricsTranslationEnabledGet: () => Promise<boolean>;
   musicLyricsTranslationEnabledSet: (enabled: boolean) => Promise<boolean>;
+  musicLyricsIdleDisplayEnabledGet: () => Promise<boolean>;
+  musicLyricsIdleDisplayEnabledSet: (enabled: boolean) => Promise<boolean>;
   musicLyricsKaraokeGet: () => Promise<boolean>;
   musicLyricsKaraokeSet: (enabled: boolean) => Promise<boolean>;
   musicLyricsClockGet: () => Promise<boolean>;
@@ -266,6 +269,11 @@ interface ExpectedApi {
   onUpdaterAvailable: (callback: (data: UpdaterAvailableData) => void) => () => void;
   onUpdaterNotAvailable: (callback: (data: UpdaterNotAvailableData) => void) => () => void;
   onUpdaterStartupAutoCheckRequest: (callback: (data: UpdaterStartupAutoCheckRequestData) => void) => () => void;
+  gmailRemindersEnabledGet: () => Promise<boolean>;
+  gmailRemindersEnabledSet: (enabled: boolean) => Promise<boolean>;
+  gmailCheckNow: () => Promise<GmailReminderStatus>;
+  gmailStatusGet: () => Promise<GmailReminderStatus>;
+  onGmailNewMail: (callback: (data: GmailNewMailPayload) => void) => () => void;
   onClipboardUrlsDetected: (callback: (data: ClipboardUrlsDetectedData) => void) => () => void;
   clipboardOpenUrl: (url: string) => Promise<boolean>;
   onExternalAgentStarted: (callback: (data: ExternalAgentData) => void) => () => void;

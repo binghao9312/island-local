@@ -58,6 +58,8 @@ import { registerStoreIpcHandlers } from './ipc/app/store';
 import { handleAlbumMediaRequest } from './media/albumMedia';
 import { registerLogIpcHandlers } from './ipc/app/log';
 import { registerMusicIpcHandlers } from './ipc/media/music';
+import { createGmailReminderService } from './google/gmailService';
+import { isGmailRemindersEnabled, registerGmailIpcHandlers } from './ipc/google/gmail';
 import { registerHotkeyIpcHandlers } from './ipc/system/hotkey';
 import { registerIslandIpcHandlers } from './ipc/settings/island';
 import { registerHideProcessIpcHandlers } from './ipc/system/hideProcess';
@@ -105,6 +107,7 @@ import {
   LYRICS_KARAOKE_STORE_KEY, LYRICS_CLOCK_STORE_KEY,
   LYRICS_CALIBRATE_ENABLED_STORE_KEY, LYRICS_CALIBRATE_DELAY_STORE_KEY,
   LYRICS_ENABLED_STORE_KEY, LYRICS_TRANSLATION_ENABLED_STORE_KEY, LYRICS_IDLE_DISPLAY_ENABLED_STORE_KEY,
+  GMAIL_REMINDERS_ENABLED_STORE_KEY,
   SMTC_UNSUBSCRIBE_MS_STORE_KEY, HIDE_PROCESS_LIST_STORE_KEY,
   AUTO_HIDE_FULLSCREEN_WINDOWS_STORE_KEY,
   THEME_MODE_STORE_KEY, ISLAND_OPACITY_STORE_KEY,
@@ -577,6 +580,20 @@ function registerIpcHandlers(): void {
     sanitizeSmtcUnsubscribeMs,
     detectAllSources: smtcService.detectAllSources,
   });
+
+  // ===== Gmail 新邮件提醒 =====
+  const gmailReminderService = createGmailReminderService({
+    sendNewMail: (payload) => {
+      if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('gmail:new-mail', payload);
+    },
+    broadcastStatus: (status) => broadcastSettingChange(-1, 'gmail:status', status),
+  });
+  registerGmailIpcHandlers({
+    storeDir,
+    enabledStoreKey: GMAIL_REMINDERS_ENABLED_STORE_KEY,
+    service: gmailReminderService,
+  });
+  if (!isE2E && isGmailRemindersEnabled(storeDir, GMAIL_REMINDERS_ENABLED_STORE_KEY)) gmailReminderService.start();
 
   // ===== 歌曲设置 IPC =====
 

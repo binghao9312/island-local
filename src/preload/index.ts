@@ -83,6 +83,7 @@ import type {
 } from './types';
 import { TRAY_MENU_CHANNELS } from '../shared/trayMenu';
 import type { TrayMenuAction, TrayMenuState } from '../shared/trayMenu';
+import type { GmailNewMailPayload, GmailReminderStatus } from '../shared/gmailReminderTypes';
 
 /** 自定义 API，供渲染进程调用 */
 const api = {
@@ -1551,6 +1552,50 @@ const api = {
     return () => {
       active = false;
       ipcRenderer.removeListener('updater:startup-auto-check-request', handler);
+    };
+  },
+  /** ===== Gmail 新邮件提醒 API ===== */
+  /**
+   * 获取 Gmail 新邮件提醒开关
+   * @returns 是否启用；未保存过时取决于是否找到 gws
+   */
+  gmailRemindersEnabledGet: (): Promise<boolean> => {
+    return ipcRenderer.invoke('gmail:reminders-enabled:get');
+  },
+  /**
+   * 设置 Gmail 新邮件提醒开关
+   * @param enabled - 是否启用
+   * @returns 是否保存成功
+   */
+  gmailRemindersEnabledSet: (enabled: boolean): Promise<boolean> => {
+    return ipcRenderer.invoke('gmail:reminders-enabled:set', enabled);
+  },
+  /**
+   * 立即检查一次未读邮件
+   * @returns 检查后的状态
+   */
+  gmailCheckNow: (): Promise<GmailReminderStatus> => {
+    return ipcRenderer.invoke('gmail:check-now');
+  },
+  /**
+   * 获取 Gmail 提醒的最近状态
+   * @returns 当前状态
+   */
+  gmailStatusGet: (): Promise<GmailReminderStatus> => {
+    return ipcRenderer.invoke('gmail:status:get');
+  },
+  /**
+   * 监听新邮件提醒
+   * @param callback - 收到新邮件时的回调
+   * @returns 取消监听函数
+   */
+  onGmailNewMail: (callback: (data: GmailNewMailPayload) => void): (() => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: GmailNewMailPayload): void => {
+      callback(data);
+    };
+    ipcRenderer.on('gmail:new-mail', handler);
+    return () => {
+      ipcRenderer.removeListener('gmail:new-mail', handler);
     };
   },
   /** ===== 剪贴板 URL 监听 API ===== */

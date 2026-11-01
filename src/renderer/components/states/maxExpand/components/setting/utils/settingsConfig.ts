@@ -569,6 +569,7 @@ export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutDisabledEntri
   { label: '账户信息', desc: '邮箱地址用于展示与默认发件人信息。', labelKey: 'settings.mail.account.title', descKey: 'settings.mail.account.hint', tab: 'mail' },
   { label: 'IMAP', desc: '用于收信、同步收件箱和文件夹状态。', labelKey: 'settings.mail.imap.title', descKey: 'settings.mail.imap.hint', tab: 'mail' },
   { label: '收信设置', desc: '控制每次获取邮件的数量和其他收信行为。', labelKey: 'settings.mail.preferences.title', descKey: 'settings.mail.preferences.hint', tab: 'mail' },
+  { label: 'Gmail 新邮件提醒', desc: '通过已登录的 Google Workspace CLI 只读检查未读邮件，有新邮件时在灵动岛提醒', labelKey: 'settings.mail.gmail.title', descKey: 'settings.mail.gmail.hint', tab: 'mail' },
   // ── 天气配置 ──
   { label: '定位来源优先级', desc: '选择天气定位优先使用 IP 自动定位或自定义位置', labelKey: 'settings.weather.locationPriority.title', descKey: 'settings.weather.locationPriority.hint', tab: 'weather' },
   { label: '自定义城市', desc: '仅在"自定义位置优先"生效，可先测试再保存；支持縣市 / 鄉鎮市區名称（台 / 臺 均可）。', labelKey: 'settings.weather.customCityTitle', descKey: 'settings.weather.customCityHint', tab: 'weather' },

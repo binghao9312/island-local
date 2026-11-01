@@ -593,6 +593,12 @@
     }
   },
   "notification": {
+    "mail": {
+      "title": "收到新郵件",
+      "fromTitle": "{{sender}} 寄來新郵件",
+      "noSubject": "（無主旨）",
+      "moreCount": "另有 {{count}} 封未讀郵件"
+    },
     "alarm": {
       "title": "鬧鐘",
       "body": "{{time}}",
@@ -639,6 +645,7 @@
       "stoppedBody": "{{agentName}} 已停止工作"
     },
     "actions": {
+      "openMail": "開啟郵件",
       "gotIt": "知道了",
       "installRestart": "安裝並重啟",
       "later": "稍後",
@@ -2663,6 +2670,20 @@
       "about": "關於軟件"
     },
     "mail": {
+      "gmail": {
+        "title": "Gmail 新郵件提醒",
+        "hint": "透過已登入的 Google Workspace CLI（gws）唯讀檢查未讀郵件，有新郵件時在靈動島提醒。不儲存任何憑證。",
+        "toggle": "啟用新郵件提醒",
+        "checkNow": "立即檢查",
+        "status": {
+          "ok": "已連線 Gmail，新郵件會在靈動島提醒",
+          "disabled": "未開啟",
+          "missing": "未找到 gws 命令列工具，請先安裝 Google Workspace CLI",
+          "notLoggedIn": "未登入 Google Workspace，請先在 gws 中完成登入",
+          "network": "網路異常或請求逾時，將在下次檢查時重試",
+          "error": "檢查失敗，請稍後重試"
+        }
+      },
       "pagination": "郵箱配置分頁",
       "accounts": {
         "unnamed": "未命名賬戶",

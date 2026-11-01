@@ -593,6 +593,12 @@
     }
   },
   "notification": {
+    "mail": {
+      "title": "New email",
+      "fromTitle": "New email from {{sender}}",
+      "noSubject": "(No subject)",
+      "moreCount": "{{count}} more unread"
+    },
     "alarm": {
       "title": "Alarm",
       "body": "{{time}}",
@@ -639,6 +645,7 @@
       "stoppedBody": "{{agentName}} stopped working"
     },
     "actions": {
+      "openMail": "Open email",
       "gotIt": "Got it",
       "installRestart": "Install & Restart",
       "later": "Later",
@@ -2663,6 +2670,20 @@
       "about": "About"
     },
     "mail": {
+      "gmail": {
+        "title": "Gmail new-mail reminders",
+        "hint": "Checks unread mail read-only through your signed-in Google Workspace CLI (gws) and reminds you on the island when new mail arrives. No credentials are stored.",
+        "toggle": "Enable new-mail reminders",
+        "checkNow": "Check now",
+        "status": {
+          "ok": "Connected to Gmail. New mail will appear on the island",
+          "disabled": "Off",
+          "missing": "gws command-line tool not found. Install Google Workspace CLI first",
+          "notLoggedIn": "Not signed in to Google Workspace. Sign in with gws first",
+          "network": "Network error or timeout. Will retry on the next check",
+          "error": "Check failed. Try again later"
+        }
+      },
       "pagination": "Mail settings pagination",
       "accounts": {
         "unnamed": "Unnamed Account",

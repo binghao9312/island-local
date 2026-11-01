@@ -102,6 +102,7 @@ export function DynamicIslandStateContent({
         updateSourceLabel={notification.updateSourceLabel}
         urls={notification.urls}
         breakReminderItemId={notification.breakReminderItemId}
+        mailUrl={notification.mailUrl}
         agentName={notification.agentName}
       />
     );

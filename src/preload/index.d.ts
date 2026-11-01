@@ -80,6 +80,7 @@ import type {
   AcpStartResult,
 } from './types';
 import type { TrayMenuAction, TrayMenuState } from '../shared/trayMenu';
+import type { GmailNewMailPayload, GmailReminderStatus } from '../shared/gmailReminderTypes';
 
 declare global {
   interface Window {
@@ -305,6 +306,11 @@ declare global {
       onUpdaterAvailable: (callback: (data: UpdaterAvailableData) => void) => () => void;
       onUpdaterNotAvailable: (callback: (data: UpdaterNotAvailableData) => void) => () => void;
       onUpdaterStartupAutoCheckRequest: (callback: (data: UpdaterStartupAutoCheckRequestData) => void) => () => void;
+      gmailRemindersEnabledGet: () => Promise<boolean>;
+      gmailRemindersEnabledSet: (enabled: boolean) => Promise<boolean>;
+      gmailCheckNow: () => Promise<GmailReminderStatus>;
+      gmailStatusGet: () => Promise<GmailReminderStatus>;
+      onGmailNewMail: (callback: (data: GmailNewMailPayload) => void) => () => void;
       onClipboardUrlsDetected: (callback: (data: ClipboardUrlsDetectedData) => void) => () => void;
       clipboardOpenUrl: (url: string) => Promise<boolean>;
       onExternalAgentStarted: (callback: (data: ExternalAgentData) => void) => () => void;

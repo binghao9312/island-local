@@ -193,6 +193,9 @@ export const LYRICS_TRANSLATION_ENABLED_STORE_KEY = 'lyrics-translation-enabled'
 /** 收起状态（idle）显示歌词开关存储键名 */
 export const LYRICS_IDLE_DISPLAY_ENABLED_STORE_KEY = 'lyrics-idle-display-enabled';
 
+/** Gmail 新邮件提醒开关存储键名 */
+export const GMAIL_REMINDERS_ENABLED_STORE_KEY = 'gmail-reminders-enabled';
+
 /** SMTC 取消订阅时间存储键名 */
 export const SMTC_UNSUBSCRIBE_MS_STORE_KEY = 'music-smtc-unsubscribe-ms';
 

@@ -181,7 +181,7 @@ export interface NotificationData {
   body: string;
   icon?: string;
   /** 通知类型：默认通知 / 播放源切换请求 / 有新版本 / 更新下载中 / 更新就绪 / 启动天气预警 / 剪贴板URL / 重启确认 / 外部Agent启动 / 外部Agent关闭 / 检测到 Claude Code 流事件 */
-  type?: 'default' | 'source-switch' | 'update-available' | 'update-downloading' | 'update-ready' | 'clipboard-url' | 'restart-required' | 'external-agent-active' | 'external-agent-stopped' | 'cli-session-detected';
+  type?: 'default' | 'source-switch' | 'update-available' | 'update-downloading' | 'update-ready' | 'clipboard-url' | 'restart-required' | 'external-agent-active' | 'external-agent-stopped' | 'cli-session-detected' | 'mail';
   /** 检测到 CLI session 时应切换到的提供方 */
   cliProvider?: CliProvider;
   /** 外部 Agent 名称（仅 external-agent-active / external-agent-stopped 类型） */
@@ -196,6 +196,8 @@ export interface NotificationData {
   urls?: string[];
   /** 休息提醒条目 ID（仅默认通知中由休息提醒触发时使用） */
   breakReminderItemId?: string;
+  /** 新邮件打开链接（仅 mail 类型） */
+  mailUrl?: string;
 }
 
 // ============= Slice Interfaces =============
