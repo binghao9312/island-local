@@ -77,4 +77,15 @@ describe('createTimerSlice', () => {
     expect(after.timerData.inputHours).toBe('00');
     expect(after.timerData.inputSeconds).toBe('00');
   });
+
+  it('stores totalSeconds on start and clears it on reset', () => {
+    const store = createSliceState(createTimerSlice);
+
+    store.getState().setTimerData({ state: 'running', remainingSeconds: 90, totalSeconds: 90 });
+    store.getState().setTimerData({ remainingSeconds: 89 });
+    expect(store.getState().timerData.totalSeconds).toBe(90);
+
+    store.getState().setTimerData({ state: 'idle', remainingSeconds: 0, totalSeconds: 0 });
+    expect(store.getState().timerData.totalSeconds).toBe(0);
+  });
 });

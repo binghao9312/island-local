@@ -107,7 +107,7 @@ export function useIslandTimerAndAlarm(options: UseIslandTimerAndAlarmOptions): 
       work.published = next;
       if (next === 0) {
         clear();
-        setTimerData({ state: 'idle', remainingSeconds: 0, inputHours: '00', inputMinutes: '00', inputSeconds: '00' });
+        setTimerData({ state: 'idle', remainingSeconds: 0, totalSeconds: 0, inputHours: '00', inputMinutes: '00', inputSeconds: '00' });
         setNotificationRef.current({
           title: t('notification.timer.title', { defaultValue: '计时器' }),
           body: t('notification.timer.finished', { defaultValue: '倒计时已结束' }),

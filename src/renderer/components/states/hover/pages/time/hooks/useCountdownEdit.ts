@@ -25,14 +25,27 @@
  */
 
 import { useShallow } from 'zustand/react/shallow';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import useIslandStore from '../../../../../../store/slices';
 import type { TimerState } from '../types/timeTabTypes';
-import { padZero, getTimeParts } from '../utils/timerUtils';
+import { padZero, getTimeParts, sanitizeTimeDigits, clampTimeField, getTotalSeconds } from '../utils/timerUtils';
+
+/** 时/分/秒输入框对应的 store 字段名 */
+export type TimerInputField = 'inputHours' | 'inputMinutes' | 'inputSeconds';
+
+/** 当前获得焦点的输入框及其未提交草稿，field 为 null 表示无草稿 */
+interface TimerDraft {
+  field: TimerInputField | null;
+  value: string;
+}
+
+const NO_DRAFT: TimerDraft = { field: null, value: '' };
 
 /**
  * 可编辑计时器逻辑 Hook
- * @description 管理倒计时状态、输入框交互和开始/暂停/重置控制
+ * @description 管理倒计时状态、输入框草稿与开始/暂停/重置控制。
+ * 输入框聚焦期间展示本地草稿（允许输入过程中的任意 0~2 位数字），
+ * 失焦或回车时才限制上限、补零并写入 store，避免受控输入被每次补零导致无法键入
  * @returns 计时器状态与操作回调
  */
 export function useCountdownEdit(): {
@@ -45,7 +58,11 @@ export function useCountdownEdit(): {
   m: number;
   s: number;
   timerInputsRef: React.RefObject<HTMLDivElement | null>;
-  handleInputChange: (value: string, setter: 'inputHours' | 'inputMinutes' | 'inputSeconds', max: number) => void;
+  getFieldValue: (field: TimerInputField) => string;
+  handleFieldFocus: (field: TimerInputField, input: { select: () => void }) => void;
+  handleInputChange: (value: string, field: TimerInputField) => void;
+  handleFieldCommit: (field: TimerInputField, max: number) => void;
+  handleFieldKeyDown: (key: string, field: TimerInputField, max: number) => boolean;
   handleStart: () => void;
   handlePause: () => void;
   handleResume: () => void;
@@ -62,18 +79,9 @@ export function useCountdownEdit(): {
   const inputMinutes: string = timerData?.inputMinutes ?? '00';
   const inputSeconds: string = timerData?.inputSeconds ?? '00';
 
-  const handleInputChange = useCallback((
-    value: string,
-    setter: 'inputHours' | 'inputMinutes' | 'inputSeconds',
-    max: number
-  ) => {
-    const num = parseInt(value, 10);
-    const newValue = (!isNaN(num) && num <= max)
-      ? value.padStart(2, '0')
-      : (value === '' ? '00' : timerData?.[setter] ?? '00');
-
-    setTimerData({ [setter]: newValue });
-  }, [timerData, setTimerData]);
+  const [draft, setDraft] = useState<TimerDraft>(NO_DRAFT);
+  const draftRef = useRef(draft);
+  draftRef.current = draft;
 
   const timerDataRef = useRef(timerData);
   timerDataRef.current = timerData;
@@ -82,12 +90,55 @@ export function useCountdownEdit(): {
   const timerInputsRef = useRef<HTMLDivElement>(null);
   const isEditing = timerState === 'idle';
 
+  const getFieldValue = useCallback((field: TimerInputField): string => (
+    draft.field === field ? draft.value : (timerData?.[field] ?? '00')
+  ), [draft, timerData]);
+
+  const handleFieldFocus = useCallback((field: TimerInputField, input: { select: () => void }) => {
+    setDraft({ field, value: timerDataRef.current?.[field] ?? '00' });
+    input.select();
+  }, []);
+
+  const handleInputChange = useCallback((value: string, field: TimerInputField) => {
+    setDraft({ field, value: sanitizeTimeDigits(value) });
+  }, []);
+
+  const handleFieldCommit = useCallback((field: TimerInputField, max: number) => {
+    const current = draftRef.current;
+    if (current.field !== field) return;
+    setDraft(NO_DRAFT);
+    setTimerDataRef.current({ [field]: clampTimeField(current.value, max) });
+  }, []);
+
+  /**
+   * 处理输入框按键，回车提交草稿并在总时长大于 0 时启动倒计时
+   * @returns 是否消费了该按键（调用方据此 preventDefault）
+   */
+  const handleFieldKeyDown = useCallback((key: string, field: TimerInputField, max: number): boolean => {
+    if (key !== 'Enter') return false;
+    const current = draftRef.current;
+    const data = timerDataRef.current;
+    const committed = current.field === field ? clampTimeField(current.value, max) : (data?.[field] ?? '00');
+    const values = {
+      inputHours: data?.inputHours ?? '00',
+      inputMinutes: data?.inputMinutes ?? '00',
+      inputSeconds: data?.inputSeconds ?? '00',
+      [field]: committed,
+    };
+    const total = getTotalSeconds(values.inputHours, values.inputMinutes, values.inputSeconds);
+    setDraft(NO_DRAFT);
+    setTimerDataRef.current(total > 0
+      ? { ...values, state: 'running', remainingSeconds: total, totalSeconds: total }
+      : { [field]: committed });
+    return true;
+  }, []);
+
   useEffect(() => {
     const el = timerInputsRef.current;
     if (!el) return;
     const handleWheel = (e: WheelEvent): void => {
       const target = e.target as HTMLElement;
-      const setter = target.getAttribute('data-setter') as 'inputHours' | 'inputMinutes' | 'inputSeconds' | null;
+      const setter = target.getAttribute('data-setter') as TimerInputField | null;
       const maxStr = target.getAttribute('data-max');
       if (!setter || !maxStr) return;
       e.preventDefault();
@@ -98,6 +149,8 @@ export function useCountdownEdit(): {
       let next = current + delta;
       if (next < 0) next = max;
       if (next > max) next = 0;
+      // 聚焦字段的草稿优先于 store 显示，滚轮改动需同步进草稿，否则界面看起来没变化
+      setDraft((previous) => (previous.field === setter ? { field: setter, value: padZero(next) } : previous));
       setTimerDataRef.current({ [setter]: padZero(next) });
     };
     el.addEventListener('wheel', handleWheel, { passive: false });
@@ -105,15 +158,14 @@ export function useCountdownEdit(): {
   }, [isEditing]);
 
   const handleStart = useCallback(() => {
-    const h = parseInt(inputHours, 10) || 0;
-    const m = parseInt(inputMinutes, 10) || 0;
-    const s = parseInt(inputSeconds, 10) || 0;
-    const total = h * 3600 + m * 60 + s;
+    const total = getTotalSeconds(inputHours, inputMinutes, inputSeconds);
 
     if (total > 0) {
+      setDraft(NO_DRAFT);
       setTimerData({
         state: 'running',
         remainingSeconds: total,
+        totalSeconds: total,
       });
     }
   }, [inputHours, inputMinutes, inputSeconds, setTimerData]);
@@ -129,9 +181,11 @@ export function useCountdownEdit(): {
   }, [remainingSeconds, setTimerData]);
 
   const handleReset = useCallback(() => {
+    setDraft(NO_DRAFT);
     setTimerData({
       state: 'idle',
       remainingSeconds: 0,
+      totalSeconds: 0,
       inputHours: '00',
       inputMinutes: '00',
       inputSeconds: '00',
@@ -150,7 +204,11 @@ export function useCountdownEdit(): {
     m,
     s,
     timerInputsRef,
+    getFieldValue,
+    handleFieldFocus,
     handleInputChange,
+    handleFieldCommit,
+    handleFieldKeyDown,
     handleStart,
     handlePause,
     handleResume,

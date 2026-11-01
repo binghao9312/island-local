@@ -43,7 +43,7 @@ describe('SongTab', () => {
     vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-06T12:00:00Z'));
     mocks.state = { isMusicPlaying: false, isPlaying: false, mediaInfo: { title: '', artist: '', album: '', duration_ms: 0 },
       syncedLyrics: null, lyricsLoading: false, coverImage: null, dominantColor: [20, 30, 40], weather: null,
-      countdown: { enabled: false, label: '', targetDate: '' }, timerData: { state: 'idle', remainingSeconds: 0, inputHours: '', inputMinutes: '', inputSeconds: '' }, currentPositionMs: 0 };
+      countdown: { enabled: false, label: '', targetDate: '' }, timerData: { state: 'idle', remainingSeconds: 0, totalSeconds: 0, inputHours: '', inputMinutes: '', inputSeconds: '' }, currentPositionMs: 0 };
     mocks.karaoke.mockResolvedValue(false);
     vi.stubGlobal('window', { api: { mediaPrev: mocks.prev, mediaNext: mocks.next, mediaPlayPause: mocks.play, musicLyricsKaraokeGet: mocks.karaoke } });
   });

@@ -91,7 +91,7 @@ beforeEach(() => {
   useIslandStore.setState({ state: 'idle', uiStateLocked: false, shapeMode: 'notch', animationSpeed: 'medium', springAnimation: true,
     isMusicPlaying: false, isPlaying: false, coverImage: null, dominantColor: [0, 0, 0], syncedLyrics: null, lyricsLoading: false,
     translationLyrics: null, currentPositionMs: 0, notification: { title: '', body: '' },
-    timerData: { state: 'idle', remainingSeconds: 0, inputHours: '00', inputMinutes: '00', inputSeconds: '00' },
+    timerData: { state: 'idle', remainingSeconds: 0, totalSeconds: 0, inputHours: '00', inputMinutes: '00', inputSeconds: '00' },
     maxExpandAppModeEnabled: false, maxExpandLauncherVisible: false, maxExpandTab: 'todo', hoverTab: 'time' });
 });
 afterEach(() => { unmountHooks(); completeIslandWindowTransition(getIslandWindowTransitionId()); vi.useRealTimers(); vi.unstubAllGlobals(); });
