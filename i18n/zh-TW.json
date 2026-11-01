@@ -667,7 +667,9 @@
       "performanceMonitor": "性能監控",
       "agentUsage": "Agent用量",
       "maxExpand": "最大展開",
-      "switchToPage": "切換到{{label}}頁面"
+      "switchToPage": "切換到{{label}}頁面",
+      "previousPage": "上一頁",
+      "nextPage": "下一頁"
     },
     "agentUsage": {
       "title": "Agent 用量",

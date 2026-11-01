@@ -23,40 +23,52 @@
  * @description Hover 导航点（标签页切换指示器）样式
  */
 
-/** Hover 导航点容器 — 竖向排列于最左侧 */
+/** Hover 导航点容器 — 竖向排列于最左侧（60px 高度内容纳 4 个 14px 点击区） */
 .hover-nav-dots {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 0 10px;
+  gap: 0;
+  padding: 0 8px;
   margin-right: auto;
   height: 100%;
   flex-shrink: 0;
 }
 
-/** 单个导航点 */
+/** 单个导航点 — 透明 14px 点击区，可见圆点由 ::before 绘制 */
 .hover-nav-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: rgba(var(--color-text-rgb), 0.25);
+  position: relative;
+  width: 22px;
+  height: 14px;
+  background: transparent;
   border: none;
   padding: 0;
   cursor: pointer;
+}
+
+.hover-nav-dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 4px;
+  background: rgba(var(--color-text-rgb), 0.28);
+  transform: translate(-50%, -50%);
   transition: background 0.25s ease,
-              transform 0.25s cubic-bezier(0.25, 1, 0.5, 1),
+              height 0.25s cubic-bezier(0.25, 1, 0.5, 1),
               box-shadow 0.25s ease;
 }
 
-.hover-nav-dot:hover {
-  background: rgba(var(--color-text-rgb), 0.5);
-  transform: scale(1.3);
+.hover-nav-dot:hover::before {
+  background: rgba(var(--color-text-rgb), 0.55);
 }
 
-.hover-nav-dot.active {
+/** 当前页 — 拉长为胶囊 */
+.hover-nav-dot.active::before {
+  height: 12px;
   background: var(--color-island-text);
-  transform: scale(1.2);
   box-shadow: 0 0 6px rgba(var(--color-text-rgb), 0.5);
 }

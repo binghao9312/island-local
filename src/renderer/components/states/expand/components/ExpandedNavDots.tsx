@@ -39,8 +39,19 @@ import type { ExpandedNavDotsProps } from '../types/expandTypes';
  */
 export function ExpandedNavDots({ navDots, expandTab, onNavDotClick }: ExpandedNavDotsProps): ReactElement {
   const { t } = useTranslation();
+  const index = navDots.indexOf(expandTab);
+  const prevTab = index > 0 ? navDots[index - 1] : undefined;
+  const nextTab = index >= 0 && index < navDots.length - 1 ? navDots[index + 1] : undefined;
   return (
     <div className="expand-nav-dots" onClick={(e) => e.stopPropagation()}>
+      <button
+        className="expand-nav-arrow"
+        disabled={prevTab === undefined}
+        onClick={() => prevTab !== undefined && onNavDotClick(prevTab)}
+        aria-label={t('expanded.nav.previousPage', { defaultValue: 'Previous page' })}
+      >
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6.5 1.5 3 5l3.5 3.5" /></svg>
+      </button>
       {navDots.map((tab) => (
         <button
           key={tab}
@@ -50,6 +61,14 @@ export function ExpandedNavDots({ navDots, expandTab, onNavDotClick }: ExpandedN
           aria-label={t('expanded.nav.switchToPage', { defaultValue: '切换到{{label}}页面', label: getNavLabel(tab, t) })}
         />
       ))}
+      <button
+        className="expand-nav-arrow"
+        disabled={nextTab === undefined}
+        onClick={() => nextTab !== undefined && onNavDotClick(nextTab)}
+        aria-label={t('expanded.nav.nextPage', { defaultValue: 'Next page' })}
+      >
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M3.5 1.5 7 5 3.5 8.5" /></svg>
+      </button>
     </div>
   );
 }

@@ -667,7 +667,9 @@
       "performanceMonitor": "パフォーマンスモニター",
       "agentUsage": "Agent 使用量",
       "maxExpand": "最大まで展開",
-      "switchToPage": "{{label}} ページに切り替え"
+      "switchToPage": "{{label}} ページに切り替え",
+      "previousPage": "前のページ",
+      "nextPage": "次のページ"
     },
     "agentUsage": {
       "title": "Agent 使用量",

@@ -667,7 +667,9 @@
       "performanceMonitor": "Performance Monitor",
       "agentUsage": "Agent Usage",
       "maxExpand": "Max Expand",
-      "switchToPage": "Switch to {{label}} page"
+      "switchToPage": "Switch to {{label}} page",
+      "previousPage": "Previous page",
+      "nextPage": "Next page"
     },
     "agentUsage": {
       "title": "Agent Usage",

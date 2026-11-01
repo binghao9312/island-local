@@ -84,40 +84,76 @@
   height: 100%;
 }
 
-/** Expanded 底部导航点容器 — 水平居中 */
+/** Expanded 底部导航点容器 — 水平居中，左右带切换箭头 */
 .expand-nav-dots {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 4px 0;
+  gap: 0;
+  padding: 0;
   flex-shrink: 0;
 }
 
-/** Expanded 单个导航点 */
+/** Expanded 单个导航点 — 透明点击区，可见圆点由 ::before 绘制 */
 .expand-nav-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: rgba(var(--color-text-rgb), 0.25);
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background: transparent;
   border: none;
   padding: 0;
   cursor: pointer;
+}
+
+.expand-nav-dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 4px;
+  background: rgba(var(--color-text-rgb), 0.28);
+  transform: translate(-50%, -50%);
   transition: background 0.25s ease,
-              transform 0.25s cubic-bezier(0.25, 1, 0.5, 1),
+              width 0.25s cubic-bezier(0.25, 1, 0.5, 1),
               box-shadow 0.25s ease;
 }
 
-.expand-nav-dot:hover {
-  background: rgba(var(--color-text-rgb), 0.5);
-  transform: scale(1.25);
+.expand-nav-dot:hover::before {
+  background: rgba(var(--color-text-rgb), 0.55);
 }
 
-.expand-nav-dot.active {
+/** 当前页 — 拉长为胶囊 */
+.expand-nav-dot.active::before {
+  width: 16px;
   background: var(--color-island-text);
-  transform: scale(1.2);
   box-shadow: 0 0 6px rgba(var(--color-text-rgb), 0.5);
+}
+
+/** Expanded 导航箭头 — 默认半透明，悬停提亮，到头禁用 */
+.expand-nav-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: rgba(var(--color-text-rgb), 0.45);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.expand-nav-arrow:hover:not(:disabled) {
+  color: var(--color-island-text);
+}
+
+.expand-nav-arrow:disabled {
+  opacity: 0.2;
+  cursor: default;
 }
 
 /** Expanded 分隔线 */
