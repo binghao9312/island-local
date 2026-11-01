@@ -79,7 +79,7 @@ beforeEach(async () => {
   config = await import('../components/setting/utils/settingsConfig');
   store = (await import('../../../../store/slices')).default;
   shell = await import('../MaxExpandContentShell');
-  store.setState({ state: 'maxExpand', maxExpandTab: 'todo', maxExpandLauncherVisible: false });
+  store.setState({ state: 'maxExpand', maxExpandTab: 'aiChat', maxExpandLauncherVisible: false });
 });
 afterEach(() => { unmountHook(); vi.unstubAllGlobals(); });
 
@@ -122,14 +122,14 @@ it('holds the requested tab until both real configuration reads finish and cance
   const pending = deferred<unknown>(); reads.set(config.MAXEXPAND_APP_MODE_ENABLED_STORE_KEY, pending.promise);
   const loading = draw(); expect(renderContent).not.toHaveBeenCalled();
   expect(nodes(loading).find((node) => node.props.className === 'settings-nav-dots')?.props.style).toEqual({ visibility: 'hidden' });
-  key(); expect(store.getState().maxExpandTab).toBe('todo'); unmountHook(); pending.resolve(false); await settleHook();
+  key(); expect(store.getState().maxExpandTab).toBe('aiChat'); unmountHook(); pending.resolve(false); await settleHook();
   expect(renderContent).not.toHaveBeenCalled();
 });
 
 it('executes forward/backward wheel and keyboard navigation, native exclusions and cleanup', async () => {
   await ready({ deferContent: false });
-  const forward = key(); expect(forward.defaultPrevented).toBe(true); expect(store.getState().maxExpandTab).not.toBe('todo'); draw();
-  key({ shiftKey: true }); expect(store.getState().maxExpandTab).toBe('todo'); draw();
+  const forward = key(); expect(forward.defaultPrevented).toBe(true); expect(store.getState().maxExpandTab).not.toBe('aiChat'); draw();
+  key({ shiftKey: true }); expect(store.getState().maxExpandTab).toBe('aiChat'); draw();
   ['Enter', 'Tab'].forEach((value) => { const event = key({ key: value, repeat: value === 'Tab' }); expect(event.defaultPrevented).toBe(false); });
   const prevented = new Event('keydown', { cancelable: true }); Object.defineProperty(prevented, 'key', { value: 'Tab' }); prevented.preventDefault(); nativeWindow.dispatchEvent(prevented);
   ['INPUT','TEXTAREA','SELECT','DIV'].forEach((tag) => { const target = new NativeElement(); target.tagName = tag; target.isContentEditable = tag === 'DIV'; expect(key({},target).defaultPrevented).toBe(false); });
@@ -150,7 +150,7 @@ it('uses real navigation callbacks, slide direction, animation broadcasts and ex
 
 it('keeps inactive content unchanged and replaces a hidden active tab after real normalized layout broadcast', async () => {
   context.active = false; await ready(); const hidden = config.MAXEXPAND_CONFIGURABLE_TABS.map((id) => ({ id, visible: false }));
-  settings.emit('changed',`store:${config.MAXEXPAND_NAV_LAYOUT_STORE_KEY}`,hidden); draw(); expect(store.getState().maxExpandTab).toBe('todo');
+  settings.emit('changed',`store:${config.MAXEXPAND_NAV_LAYOUT_STORE_KEY}`,hidden); draw(); expect(store.getState().maxExpandTab).toBe('aiChat');
   context.active = true; draw(); expect(store.getState().maxExpandTab).toBe('settings');
 });
 
@@ -159,7 +159,7 @@ it('renders real app navigation and exposes real launcher/select/expanded action
   const navigation = nodes(element).find((node) => typeof node.props.onBackToLauncher === 'function')!;
   expect(navigation.props.launcherVisible).toBe(false); (navigation.props.onBackToLauncher as () => void)(); element = draw({ deferContent:false }); expect(element.props.className).toContain('max-expand-app-mode-launcher');
   const launcher = nodes(element).find((node) => typeof node.props.onSelectApp === 'function')!;
-  (launcher.props.onSelectApp as (id: string) => void)('calculator'); expect(store.getState().maxExpandTab).toBe('calculator'); expect(store.getState().maxExpandLauncherVisible).toBe(false);
+  (launcher.props.onSelectApp as (id: string) => void)('aiChat'); expect(store.getState().maxExpandTab).toBe('aiChat'); expect(store.getState().maxExpandLauncherVisible).toBe(false);
   (launcher.props.onBackToExpanded as () => void)(); expect(store.getState().state).toBe('expanded');
 });
 
@@ -167,12 +167,12 @@ it('collapses a standalone shell with all configured applications hidden', async
   reads.set('standalone-window-mode','standalone');
   reads.set(config.MAXEXPAND_NAV_LAYOUT_STORE_KEY,config.MAXEXPAND_CONFIGURABLE_TABS.map((id) => ({ id, visible:false })));
   vi.resetModules(); resetHook(); store = (await import('../../../../store/slices')).default; shell = await import('../MaxExpandContentShell');
-  store.setState({ state:'maxExpand', maxExpandTab:'todo' });
+  store.setState({ state:'maxExpand', maxExpandTab:'aiChat' });
   const element = await ready({ deferContent:false });
   expect(store.getState().state).toBe('expanded');
   expect(nodes(element).filter((node) => node.type === 'button' && String(node.props.className).includes('settings-nav-dot'))).toHaveLength(1);
   expect(key().defaultPrevented).toBe(false);
-  expect(store.getState().maxExpandTab).toBe('todo');
+  expect(store.getState().maxExpandTab).toBe('aiChat');
 });
 
 it('resolves a pending standalone startup configuration after the shell mounts', async () => {

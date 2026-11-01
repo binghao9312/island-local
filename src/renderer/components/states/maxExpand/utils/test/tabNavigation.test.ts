@@ -28,15 +28,15 @@ import { describe, expect, it } from 'vitest';
 import type { NavDotId } from '../../config/shellConstants';
 import { getAdjacentNavDotId } from '../tabNavigation';
 
-const NAV_DOTS: NavDotId[] = ['expanded', 'todo', 'album', 'settings'];
+const NAV_DOTS: NavDotId[] = ['expanded', 'aiChat', 'settings'];
 
 describe('getAdjacentNavDotId', () => {
   it('returns the next nav dot when direction is forward', () => {
-    expect(getAdjacentNavDotId(NAV_DOTS, 'todo', 1)).toBe('album');
+    expect(getAdjacentNavDotId(NAV_DOTS, 'aiChat', 1)).toBe('settings');
   });
 
   it('returns the previous nav dot when direction is backward', () => {
-    expect(getAdjacentNavDotId(NAV_DOTS, 'todo', -1)).toBe('expanded');
+    expect(getAdjacentNavDotId(NAV_DOTS, 'aiChat', -1)).toBe('expanded');
   });
 
   it('wraps around at both ends', () => {
@@ -45,11 +45,11 @@ describe('getAdjacentNavDotId', () => {
   });
 
   it('falls back to the edge item when current nav dot is missing', () => {
-    expect(getAdjacentNavDotId(NAV_DOTS, 'aiChat', 1)).toBe('expanded');
-    expect(getAdjacentNavDotId(NAV_DOTS, 'aiChat', -1)).toBe('settings');
+    expect(getAdjacentNavDotId(NAV_DOTS, 'missing' as NavDotId, 1)).toBe('expanded');
+    expect(getAdjacentNavDotId(NAV_DOTS, 'missing' as NavDotId, -1)).toBe('settings');
   });
 
   it('returns null when no nav dots exist', () => {
-    expect(getAdjacentNavDotId([], 'todo', 1)).toBeNull();
+    expect(getAdjacentNavDotId([], 'aiChat', 1)).toBeNull();
   });
 });

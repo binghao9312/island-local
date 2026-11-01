@@ -40,7 +40,7 @@ beforeEach(async () => {
   }, electron: { ipcRenderer: { send: vi.fn(), on: vi.fn(), removeListener: vi.fn() } } }));
   loader = await import('../../maxExpandContentEagerLoader'); hook = (await import('../useEagerContentLoader')).useEagerContentLoader;
 });
-afterEach(() => { unmountHook(); vi.doUnmock('katex'); vi.unstubAllGlobals(); });
+afterEach(() => { unmountHook(); vi.doUnmock('react-markdown'); vi.unstubAllGlobals(); });
 
 it('skips loading in performance mode and uses the real component after native import completes', async () => {
   expect(renderHook(hook, true)).toBeFalsy(); flushHookEffects(); expect(loader.getLoadedMaxExpandContentEager()).toBe(null);
@@ -60,7 +60,7 @@ it.each(['unmount', 'performance'])('discards native import completion after %s'
 }, 20_000);
 
 it('contains a failed external package load while preserving the actual eager loader and import chain', async () => {
-  vi.doMock('katex', () => { throw new Error('external package unavailable'); });
+  vi.doMock('react-markdown', () => { throw new Error('external package unavailable'); });
   renderHook(hook, false); flushHookEffects(); await expect(loader.loadMaxExpandContentEager()).rejects.toThrow(); await settleHook();
   expect(renderHook(hook, false)).toBeFalsy();
 });

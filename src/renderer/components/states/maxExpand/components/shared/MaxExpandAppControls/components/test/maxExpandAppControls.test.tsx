@@ -30,10 +30,10 @@ import Component from '../..';
 import { MAX_EXPAND_APPS } from '../../../../app/config/appLauncherConfig';
 describe('MaxExpandAppControls', () => {
   it('uses the active app icon and stops bubbling for both return controls', () => {
-    const props = { activeTab: 'todo', onBackToExpanded: vi.fn(), onBackToLauncher: vi.fn() };
+    const props = { activeTab: 'aiChat' as const, onBackToExpanded: vi.fn(), onBackToLauncher: vi.fn() };
     const tree = render(Component, props);
-    expect(value(tree, 'img', 'src')).toBe(MAX_EXPAND_APPS.todo.icon);
-    expect(value(tree, 'img', 'alt')).toBe('maxExpand.nav.todo');
+    expect(value(tree, 'img', 'src')).toBe(MAX_EXPAND_APPS.aiChat.icon);
+    expect(value(tree, 'img', 'alt')).toBe('maxExpand.nav.aiChat');
     const event = { stopPropagation: vi.fn() };
     trigger(tree, '.max-expand-app-back-button', 'onClick', event);
     trigger(tree, '.max-expand-app-home-button', 'onClick', event);

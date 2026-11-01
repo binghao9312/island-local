@@ -62,7 +62,6 @@ export function OverviewTab(): ReactElement {
     dragIndexRef,
     dragOverIndex,
     openTargetPage,
-    openWorldClockPage,
     openApp,
     handleAppDragStart,
     handleAppDragOver,
@@ -124,7 +123,7 @@ export function OverviewTab(): ReactElement {
       case 'breakReminder':
         return <BreakReminderWidget openBreakReminderPage={() => openTargetPage('settings')} />;
       case 'worldClock':
-        return <WorldClockWidget onOpenWorldClockPage={openWorldClockPage} />;
+        return <WorldClockWidget />;
       case 'alarm':
         return <AlarmWidget onOpenAlarmPage={() => openTargetPage('alarm')} />;
       case 'performanceMonitor':

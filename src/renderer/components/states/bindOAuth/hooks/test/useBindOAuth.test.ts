@@ -45,7 +45,7 @@ vi.mock('../../../../../store/slices', async (load) => {
 beforeEach(() => {
   resetBrowser(); Object.assign(browser, { api });
   api.netFetch.mockReset().mockImplementation(() => Promise.resolve({ ok: true, status: 200, body: JSON.stringify(responses.shift() ?? { code: 200 }) }));
-  useIslandStore.setState({ state: 'bindOAuth', uiStateLocked: false, authReturnState: 'hover', maxExpandTab: 'todo',
+  useIslandStore.setState({ state: 'bindOAuth', uiStateLocked: false, authReturnState: 'hover', maxExpandTab: 'aiChat',
     bindOAuthContext: { tempToken: 'temporary-token', username: '账号', email: 'user@example.test' } });
 });
 afterEach(() => { unmountHooks(); vi.unstubAllGlobals(); });

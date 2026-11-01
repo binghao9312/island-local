@@ -551,11 +551,11 @@ describe('Island slice tab, appearance and persistence settings', () => {
     const island = store();
     island.getState().setHoverTab('weather');
     island.getState().setExpandTab('song');
-    island.getState().setMaxExpandTab('calendar');
+    island.getState().setMaxExpandTab('settings');
     expect(island.getState()).toMatchObject({
       hoverTab: 'weather',
       expandTab: 'song',
-      maxExpandTab: 'calendar',
+      maxExpandTab: 'settings',
       maxExpandLauncherVisible: false
     });
     island.getState().showMaxExpandLauncher();

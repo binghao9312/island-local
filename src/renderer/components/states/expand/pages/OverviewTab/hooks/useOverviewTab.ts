@@ -88,12 +88,6 @@ export function useOverviewTab(): UseOverviewTabReturn {
     });
   }, [setMaxExpand, setMaxExpandTab]);
 
-  // 世界时钟仅在灵动岛最大展开页面中提供。
-  const openWorldClockPage = useCallback((): void => {
-    setMaxExpandTab('worldClock');
-    setMaxExpand();
-  }, [setMaxExpand, setMaxExpandTab]);
-
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
@@ -255,7 +249,6 @@ export function useOverviewTab(): UseOverviewTabReturn {
     dragIndexRef,
     dragOverIndex,
     openTargetPage,
-    openWorldClockPage,
     openApp,
     handleAppDragStart,
     handleAppDragOver,

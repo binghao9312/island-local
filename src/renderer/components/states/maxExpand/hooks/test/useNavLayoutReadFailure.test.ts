@@ -55,11 +55,11 @@ it('读取拒绝保留未加载状态，本地真实事件可恢复且卸载后�
   expect(renderHook(useNavLayout)).toEqual({ navLayoutConfig: [], navLayoutLoaded: false });
   receive('store:unrelated-setting', [{ id: 'todo', visible: false }]);
   expect(renderHook(useNavLayout)).toEqual({ navLayoutConfig: [], navLayoutLoaded: false });
-  browser.dispatchEvent(new CustomEvent('maxexpand-nav-layout-changed', { detail: [{ id: 'memo', visible: true }, { id: 'invalid-cache', visible: true }] }));
+  browser.dispatchEvent(new CustomEvent('maxexpand-nav-layout-changed', { detail: [{ id: 'memo', visible: true }, { id: 'invalid-cache', visible: true }, { id: 'aiChat', visible: false }] }));
   const loaded = renderHook(useNavLayout);
   expect(loaded.navLayoutLoaded).toBe(true);
-  expect(loaded.navLayoutConfig[0]).toEqual({ id: 'memo', visible: true });
-  expect(loaded.navLayoutConfig.some((item) => String(item.id) === 'invalid-cache')).toBe(false);
+  expect(loaded.navLayoutConfig).toEqual([{ id: 'aiChat', visible: false }]);
+  expect(loaded.navLayoutConfig.some((item) => ['invalid-cache', 'memo'].includes(String(item.id)))).toBe(false);
   unmountHook();
   browser.dispatchEvent(new CustomEvent('maxexpand-nav-layout-changed', { detail: [{ id: 'todo', visible: false }] }));
   expect(renderHook(useNavLayout)).toEqual(loaded);

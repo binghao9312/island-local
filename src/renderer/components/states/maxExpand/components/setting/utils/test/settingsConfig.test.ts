@@ -272,7 +272,7 @@ describe('normalizeMaxExpandNavLayoutConfig', () => {
     expect(result).toEqual(mod.DEFAULT_MAXEXPAND_NAV_LAYOUT);
   });
 
-  it('preserves ordering from input', () => {
+  it('keeps aiChat and drops removed ids regardless of input order', () => {
     const input = [
       { id: 'stock', visible: true },
       { id: 'todo', visible: true },
@@ -280,18 +280,17 @@ describe('normalizeMaxExpandNavLayoutConfig', () => {
       { id: 'album', visible: true },
     ];
     const result = mod.normalizeMaxExpandNavLayoutConfig(input);
-    expect(result.map((i) => i.id).slice(0, 4)).toEqual(['stock', 'todo', 'aiChat', 'album']);
+    expect(result.map((i) => i.id)).toEqual(['aiChat']);
   });
 
-  it('allows previously fixed tabs to be hidden', () => {
+  it('allows the only configurable tab to be hidden and drops removed ids', () => {
     const input = [
       { id: 'aiChat', visible: false },
       { id: 'stock', visible: false },
       { id: 'todo', visible: true },
     ];
     const result = mod.normalizeMaxExpandNavLayoutConfig(input);
-    expect(result.find((i) => i.id === 'aiChat')?.visible).toBe(false);
-    expect(result.find((i) => i.id === 'stock')?.visible).toBe(false);
+    expect(result).toEqual([{ id: 'aiChat', visible: false }]);
   });
 
   it('drops the removed legacy miniGame id from saved layouts without crashing', () => {
@@ -302,22 +301,18 @@ describe('normalizeMaxExpandNavLayoutConfig', () => {
     ];
     const result = mod.normalizeMaxExpandNavLayoutConfig(input);
     expect(result.map((i) => i.id)).not.toContain('miniGame');
-    expect(result.slice(0, 2).map((i) => i.id)).toEqual(['aiChat', 'todo']);
     expect(result.find((i) => i.id === 'aiChat')?.visible).toBe(false);
     expect([...result.map((i) => i.id)].sort()).toEqual([...mod.MAXEXPAND_CONFIGURABLE_TABS].sort());
   });
 
-  it('respects visible=false when at least one page remains visible', () => {
+  it('drops removed tabs even when they were saved as hidden', () => {
     const input = [
       { id: 'todo', visible: false },
-      { id: 'album', visible: false },
-      { id: 'mail', visible: false },
+      { id: 'calendar', visible: false },
       { id: 'aiChat', visible: true },
     ];
     const result = mod.normalizeMaxExpandNavLayoutConfig(input);
-    expect(result.find((i) => i.id === 'todo')?.visible).toBe(false);
-    expect(result.find((i) => i.id === 'album')?.visible).toBe(false);
-    expect(result.find((i) => i.id === 'mail')?.visible).toBe(false);
+    expect(result).toEqual([{ id: 'aiChat', visible: true }]);
   });
 
   it('allows every page to be hidden', () => {
@@ -326,41 +321,31 @@ describe('normalizeMaxExpandNavLayoutConfig', () => {
     expect(result.filter((i) => i.visible)).toHaveLength(0);
   });
 
-  it('defaults missing tabs to visible=true', () => {
-    const input = [{ id: 'todo', visible: false }, { id: 'aiChat', visible: true }];
+  it('defaults a missing aiChat entry to visible=true when only removed ids are saved', () => {
+    const input = [{ id: 'todo', visible: false }];
     const result = mod.normalizeMaxExpandNavLayoutConfig(input);
-    expect(result.find((i) => i.id === 'todo')?.visible).toBe(false);
-    // All other non-always-visible tabs should default to true
-    expect(result.find((i) => i.id === 'urlFavorites')?.visible).toBe(true);
-    expect(result.find((i) => i.id === 'album')?.visible).toBe(true);
-    expect(result.find((i) => i.id === 'mail')?.visible).toBe(true);
-    expect(result.find((i) => i.id === 'localFileSearch')?.visible).toBe(true);
-    expect(result.find((i) => i.id === 'clipboardHistory')?.visible).toBe(true);
-    expect(result.find((i) => i.id === 'memo')?.visible).toBe(true);
-    expect(result.find((i) => i.id === 'countdown')?.visible).toBe(true);
-    expect(result.find((i) => i.id === 'alarm')?.visible).toBe(true);
-    expect(result.find((i) => i.id === 'toolbox')?.visible).toBe(true);
+    expect(result).toEqual([{ id: 'aiChat', visible: true }]);
   });
 
   it('treats visible=undefined as visible=true', () => {
-    const input = [{ id: 'todo', visible: undefined }];
+    const input = [{ id: 'aiChat', visible: undefined }];
     const result = mod.normalizeMaxExpandNavLayoutConfig(input);
-    expect(result.find((i) => i.id === 'todo')?.visible).toBe(true);
+    expect(result.find((i) => i.id === 'aiChat')?.visible).toBe(true);
   });
 
   it('deduplicates by id, keeping the first occurrence', () => {
     const input = [
-      { id: 'todo', visible: true },
-      { id: 'todo', visible: false },
+      { id: 'aiChat', visible: false },
+      { id: 'aiChat', visible: true },
     ];
     const result = mod.normalizeMaxExpandNavLayoutConfig(input);
-    expect(result.find((i) => i.id === 'todo')?.visible).toBe(true);
+    expect(result).toEqual([{ id: 'aiChat', visible: false }]);
   });
 
   it('skips non-object items in the array', () => {
-    const input = [null, undefined, 'string', 42, { id: 'todo', visible: false }, { id: 'aiChat', visible: true }];
+    const input = [null, undefined, 'string', 42, { id: 'todo', visible: false }, { id: 'aiChat', visible: false }];
     const result = mod.normalizeMaxExpandNavLayoutConfig(input);
-    expect(result.find((i) => i.id === 'todo')?.visible).toBe(false);
+    expect(result).toEqual([{ id: 'aiChat', visible: false }]);
   });
 
   it('skips items with non-string id', () => {
@@ -380,7 +365,7 @@ describe('normalizeMaxExpandNavLayoutConfig', () => {
     ];
     const result = mod.normalizeMaxExpandNavLayoutConfig(input);
     expect(result.find((i) => i.id === 'unknownTab')).toBeUndefined();
-    expect(result.find((i) => i.id === 'todo')?.visible).toBe(false);
+    expect(result.find((i) => i.id === 'todo')).toBeUndefined();
   });
 
   it('always returns all configurable tabs', () => {

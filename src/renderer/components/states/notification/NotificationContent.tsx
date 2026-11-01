@@ -29,6 +29,8 @@ import { useState, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import useIslandStore from '../../../store/slices';
 import { SvgIcon } from '../../../utils/SvgIcon';
+import { ACTIVE_TAB_STORE_KEY } from '../../config/standaloneWindowKeys';
+import { CLI_PANEL_TAB } from '../cli/config/cliConfig';
 import { ALARM_SOUND_STOP_EVENT } from '../../../utils/audio/alarmSound';
 import { getWebsiteFaviconUrl, getWebsiteFaviconUrls, getWebsiteHostname } from '../../../api/site/siteMetaApi';
 import { fetchUpdateSourceUrl } from '../../../api/user/userAccountApi';
@@ -205,8 +207,9 @@ export function NotificationContent({
     try {
       localStorage.setItem(URL_FAVORITES_FOCUS_KEY, normalized);
     } catch { /* noop */ }
-    setMaxExpandTab('urlFavorites');
-    setMaxExpand();
+    void window.api?.storeWrite?.(ACTIVE_TAB_STORE_KEY, 'urlFavorites')
+      .then(() => window.api.openStandaloneWindow())
+      .catch(() => {});
   };
 
   const handleSnooze = (minutes: number): void => {
@@ -299,7 +302,7 @@ export function NotificationContent({
   const handleSwitchToCli = (): void => {
     void window.api?.cliGlowHide?.();
     if (cliProvider) setCliProvider(cliProvider);
-    setMaxExpandTab('cli');
+    setMaxExpandTab(CLI_PANEL_TAB);
     setMaxExpand();
   };
   const handleSwitchToCliState = (): void => {

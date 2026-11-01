@@ -27,7 +27,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import useAppLauncherDrag from '../useAppLauncherDrag';
 import useAppLauncherLayout from '../useAppLauncherLayout';
-import { APP_LAUNCHER_LONG_PRESS_MS, MAX_EXPAND_APP_TABS } from '../../config/appLauncherConfig';
+import { APP_LAUNCHER_LONG_PRESS_MS } from '../../config/appLauncherConfig';
 import { getAppLauncherTabs, hideAppLauncherLayout, reorderAppLauncherLayout } from '../../utils/appLauncherOrder';
 import { DEFAULT_MAXEXPAND_NAV_LAYOUT, MAXEXPAND_NAV_LAYOUT_STORE_KEY } from '../../../setting/utils/settingsConfig';
 import type { PointerEvent } from 'react';
@@ -116,7 +116,7 @@ describe('应用导航排序', () => {
     resetHooks();
     vi.clearAllMocks();
     vi.useFakeTimers();
-    storedLayout = [{ id: 'calendar', visible: false }, { id: 'todo', visible: true }];
+    storedLayout = [{ id: 'aiChat', visible: true }];
     listeners = [];
     storeRead.mockImplementation(() => Promise.resolve(storedLayout));
     storeWrite.mockImplementation((key: string, layout: unknown) => {
@@ -145,13 +145,11 @@ describe('应用导航排序', () => {
   });
 
   it('读取 Layout 顺序和可见性，隐藏入口不被补齐逻辑重新加入', () => {
-    const layout = [{ id: 'calendar', visible: false }, { id: 'todo', visible: true }, { id: 'calendar', visible: true }, { id: 'removed-app', visible: true }];
+    const layout = [{ id: 'aiChat', visible: false }, { id: 'removed-app', visible: true }];
     const tabs = getAppLauncherTabs(layout);
-    expect(tabs.slice(0, 2)).toEqual(['todo', 'urlFavorites']);
-    expect(tabs).not.toContain('calendar');
+    expect(tabs).toEqual(['settings']);
+    expect(tabs).not.toContain('removed-app');
     expect(tabs.at(-1)).toBe('settings');
-    expect(new Set(tabs).size).toBe(MAX_EXPAND_APP_TABS.length - 1);
-    expect([...tabs].sort()).toEqual(MAX_EXPAND_APP_TABS.filter((tab) => tab !== 'calendar').sort());
   });
 
   it('全部应用隐藏时仍保留设置入口，空配置按默认可见性展示', () => {
@@ -159,34 +157,19 @@ describe('应用导航排序', () => {
     expect(getAppLauncherTabs([])).toEqual([...DEFAULT_MAXEXPAND_NAV_LAYOUT.map((item) => item.id), 'settings']);
   });
 
-  it('移动应用只调整顺序，保留全部应用与可见性且不修改原配置', () => {
-    const layout = DEFAULT_MAXEXPAND_NAV_LAYOUT.map((item) => ({ ...item, visible: item.id !== 'calendar' }));
-    const snapshot = structuredClone(layout);
-    const updated = reorderAppLauncherLayout(layout, 'album', 'todo');
-    expect(updated[0]).toEqual({ id: 'album', visible: true });
-    expect(updated[1].id).toBe('todo');
-    expect(updated).toHaveLength(layout.length);
-    expect(updated).toContainEqual({ id: 'calendar', visible: false });
-    expect(getAppLauncherTabs(updated)).not.toContain('calendar');
-    expect(layout).toEqual(snapshot);
-    expect([...updated].sort((a, b) => a.id.localeCompare(b.id))).toEqual([...snapshot].sort((a, b) => a.id.localeCompare(b.id)));
-  });
-
   it('设置入口固定，原地移动不生成写入配置', () => {
-    expect(reorderAppLauncherLayout(DEFAULT_MAXEXPAND_NAV_LAYOUT, 'settings', 'todo')).toBe(DEFAULT_MAXEXPAND_NAV_LAYOUT);
-    expect(reorderAppLauncherLayout(DEFAULT_MAXEXPAND_NAV_LAYOUT, 'todo', 'settings')).toBe(DEFAULT_MAXEXPAND_NAV_LAYOUT);
-    expect(reorderAppLauncherLayout(DEFAULT_MAXEXPAND_NAV_LAYOUT, 'todo', 'todo')).toBe(DEFAULT_MAXEXPAND_NAV_LAYOUT);
+    expect(reorderAppLauncherLayout(DEFAULT_MAXEXPAND_NAV_LAYOUT, 'settings', 'aiChat')).toBe(DEFAULT_MAXEXPAND_NAV_LAYOUT);
+    expect(reorderAppLauncherLayout(DEFAULT_MAXEXPAND_NAV_LAYOUT, 'aiChat', 'settings')).toBe(DEFAULT_MAXEXPAND_NAV_LAYOUT);
+    expect(reorderAppLauncherLayout(DEFAULT_MAXEXPAND_NAV_LAYOUT, 'aiChat', 'aiChat')).toBe(DEFAULT_MAXEXPAND_NAV_LAYOUT);
   });
 
-  it('隐藏只更新可见性，保留应用顺序、其他隐藏配置与设置入口', () => {
-    const layout = DEFAULT_MAXEXPAND_NAV_LAYOUT.map((item) => ({ ...item, visible: item.id !== 'calendar' }));
+  it('隐藏只更新可见性，保留应用顺序与设置入口', () => {
+    const layout = DEFAULT_MAXEXPAND_NAV_LAYOUT;
     const snapshot = structuredClone(layout);
-    const hidden = hideAppLauncherLayout(layout, 'todo');
-    expect(hidden.map((item) => item.id)).toEqual(layout.map((item) => item.id));
-    expect(hidden).toContainEqual({ id: 'todo', visible: false });
-    expect(hidden).toContainEqual({ id: 'calendar', visible: false });
+    const hidden = hideAppLauncherLayout(layout, 'aiChat');
+    expect(hidden).toEqual([{ id: 'aiChat', visible: false }]);
     expect(layout).toEqual(snapshot);
-    expect(hideAppLauncherLayout(hidden, 'todo')).toBe(hidden);
+    expect(hideAppLauncherLayout(hidden, 'aiChat')).toBe(hidden);
     expect(hideAppLauncherLayout(layout, 'settings')).toBe(layout);
   });
 
@@ -194,44 +177,29 @@ describe('应用导航排序', () => {
     const initial = render(useAppLauncherLayout);
     expect(initial.ready).toBe(false);
     expect(initial.tabs).toEqual([]);
-    await initial.moveApp('album', 'todo');
-    await initial.hideApp('todo');
+    await initial.moveApp('aiChat', 'aiChat');
+    await initial.hideApp('aiChat');
     expect(storeWrite).not.toHaveBeenCalled();
     const loaded = render(useAppLauncherLayout);
     expect(loaded.ready).toBe(true);
-    expect(loaded.tabs.slice(0, 2)).toEqual(['todo', 'urlFavorites']);
-    expect(loaded.tabs).not.toContain('calendar');
+    expect(loaded.tabs).toEqual(['aiChat', 'settings']);
     expect(storeRead).toHaveBeenCalledWith(MAXEXPAND_NAV_LAYOUT_STORE_KEY);
-  });
-
-  it('拖动写回同一份本地 Layout，重新挂载恢复已保存的顺序', async () => {
-    render(useAppLauncherLayout);
-    await Promise.resolve();
-    await render(useAppLauncherLayout).moveApp('album', 'todo');
-    const saved = render(useAppLauncherLayout);
-    expect(saved.tabs.slice(0, 2)).toEqual(['album', 'todo']);
-    expect(saved.tabs).not.toContain('calendar');
-    expect(storeWrite).toHaveBeenCalledWith(MAXEXPAND_NAV_LAYOUT_STORE_KEY, expect.arrayContaining([{ id: 'calendar', visible: false }]));
-    resetHooks();
-    render(useAppLauncherLayout);
-    await Promise.resolve();
-    expect(render(useAppLauncherLayout).tabs).toEqual(saved.tabs);
   });
 
   it('隐藏立即更新入口，保存到同一份 Layout，重启后保持隐藏且可从设置页恢复', async () => {
     render(useAppLauncherLayout);
     await Promise.resolve();
     const original = render(useAppLauncherLayout).tabs;
-    const pending = render(useAppLauncherLayout).hideApp('todo');
-    expect(render(useAppLauncherLayout).tabs).not.toContain('todo');
+    const pending = render(useAppLauncherLayout).hideApp('aiChat');
+    expect(render(useAppLauncherLayout).tabs).not.toContain('aiChat');
     await pending;
     expect(storeWrite).toHaveBeenCalledExactlyOnceWith(MAXEXPAND_NAV_LAYOUT_STORE_KEY,
-      expect.arrayContaining([{ id: 'todo', visible: false }, { id: 'calendar', visible: false }]));
+      [{ id: 'aiChat', visible: false }]);
     resetHooks();
     render(useAppLauncherLayout);
     await Promise.resolve();
-    expect(render(useAppLauncherLayout).tabs).toEqual(original.filter((tab) => tab !== 'todo'));
-    const restored = (storedLayout as typeof DEFAULT_MAXEXPAND_NAV_LAYOUT).map((item) => ({ ...item, visible: item.id === 'todo' || item.visible }));
+    expect(render(useAppLauncherLayout).tabs).toEqual(original.filter((tab) => tab !== 'aiChat'));
+    const restored = [{ id: 'aiChat', visible: true }];
     window.dispatchEvent(new CustomEvent('maxexpand-nav-layout-changed', { detail: restored }));
     expect(render(useAppLauncherLayout).tabs).toEqual(original);
   });
@@ -241,7 +209,7 @@ describe('应用导航排序', () => {
     await Promise.resolve();
     const original = render(useAppLauncherLayout).tabs;
     storeWrite.mockImplementation(() => failure === 'false' ? Promise.resolve(false) : Promise.reject(new Error('disk unavailable')));
-    await render(useAppLauncherLayout).hideApp('todo');
+    await render(useAppLauncherLayout).hideApp('aiChat');
     expect(render(useAppLauncherLayout).tabs).toEqual(original);
     expect(render(useAppLauncherLayout).saveFailed).toBe(true);
   });
@@ -251,7 +219,6 @@ describe('应用导航排序', () => {
     await Promise.resolve();
     const loaded = render(useAppLauncherLayout);
     await loaded.hideApp('settings');
-    await loaded.hideApp('calendar');
     expect(storeWrite).not.toHaveBeenCalled();
     expect(render(useAppLauncherLayout).tabs.at(-1)).toBe('settings');
   });
@@ -259,145 +226,17 @@ describe('应用导航排序', () => {
   it.each(['local', 'remote'])('同步设置页的 %s 顺序及显示隐藏变更', async (source) => {
     render(useAppLauncherLayout);
     await Promise.resolve();
-    const updated = [{ id: 'mail', visible: false }, { id: 'album', visible: true }, { id: 'calendar', visible: false }];
+    const updated = [{ id: 'aiChat', visible: false }];
     if (source === 'local') window.dispatchEvent(new CustomEvent('maxexpand-nav-layout-changed', { detail: updated }));
     else listeners[0](`store:${MAXEXPAND_NAV_LAYOUT_STORE_KEY}`, updated);
     const result = render(useAppLauncherLayout);
-    expect(result.tabs.slice(0, 2)).toEqual(['album', 'todo']);
-    expect(result.tabs).not.toContain('mail');
-    expect(result.tabs).not.toContain('calendar');
-    expect(result.tabs).toHaveLength(MAX_EXPAND_APP_TABS.length - 2);
-    const toggled = updated.map((item) => ({ ...item, visible: item.id === 'mail' }));
+    expect(result.tabs).toEqual(['settings']);
+    const toggled = [{ id: 'aiChat', visible: true }];
     if (source === 'local') window.dispatchEvent(new CustomEvent('maxexpand-nav-layout-changed', { detail: toggled }));
     else listeners[0](`store:${MAXEXPAND_NAV_LAYOUT_STORE_KEY}`, toggled);
     const visible = render(useAppLauncherLayout).tabs;
-    expect(visible[0]).toBe('mail');
-    expect(visible).not.toContain('album');
-    expect(visible.at(-1)).toBe('settings');
+    expect(visible).toEqual(['aiChat', 'settings']);
     expect(storeWrite).not.toHaveBeenCalled();
-  });
-
-  it.each(['false', 'reject'])('保存返回 %s 时保留已保存顺序并提供失败状态', async (failure) => {
-    render(useAppLauncherLayout);
-    await Promise.resolve();
-    const loaded = render(useAppLauncherLayout);
-    storeWrite.mockImplementation(() => failure === 'false' ? Promise.resolve(false) : Promise.reject(new Error('disk unavailable')));
-    await loaded.moveApp('album', 'todo');
-    const result = render(useAppLauncherLayout);
-    expect(result.tabs).toEqual(loaded.tabs);
-    expect(result.saveFailed).toBe(true);
-    expect(result.saving).toBe(false);
-  });
-
-  it('连续排序和隐藏依次保存，旧回调与较早的配置回传不会覆盖最新预览', async () => {
-    render(useAppLauncherLayout);
-    await Promise.resolve();
-    const original = storedLayout as typeof DEFAULT_MAXEXPAND_NAV_LAYOUT;
-    const writes = delaySaves();
-    const loaded = render(useAppLauncherLayout);
-    const firstLayout = reorderAppLauncherLayout(original, 'album', 'todo');
-    const secondLayout = reorderAppLauncherLayout(firstLayout, 'album', 'mail');
-    const finalLayout = hideAppLauncherLayout(secondLayout, 'todo');
-    const first = loaded.moveApp('album', 'todo');
-    const second = loaded.moveApp('album', 'mail');
-    const third = loaded.hideApp('todo');
-    await Promise.resolve();
-    expect(storeWrite).toHaveBeenCalledOnce();
-    expect(writes[0].layout).toEqual(firstLayout);
-    expect(render(useAppLauncherLayout).tabs).toEqual(getAppLauncherTabs(finalLayout));
-    listeners[0](`store:${MAXEXPAND_NAV_LAYOUT_STORE_KEY}`, firstLayout);
-    expect(render(useAppLauncherLayout).tabs).toEqual(getAppLauncherTabs(finalLayout));
-    writes[0].finish(true);
-    await first;
-    expect(storeWrite).toHaveBeenCalledTimes(2);
-    expect(writes[1].layout).toEqual(secondLayout);
-    expect(render(useAppLauncherLayout).saving).toBe(true);
-    writes[1].finish(true);
-    await second;
-    expect(storeWrite).toHaveBeenCalledTimes(3);
-    expect(writes[2].layout).toEqual(finalLayout);
-    expect(render(useAppLauncherLayout).saving).toBe(true);
-    writes[2].finish(true);
-    await third;
-    expect(render(useAppLauncherLayout).saving).toBe(false);
-    expect(render(useAppLauncherLayout).saveFailed).toBe(false);
-    expect(storedLayout).toEqual(finalLayout);
-    resetHooks();
-    render(useAppLauncherLayout);
-    await Promise.resolve();
-    expect(render(useAppLauncherLayout).tabs).toEqual(getAppLauncherTabs(finalLayout));
-  });
-
-  it.each(['false', 'reject'])('较早保存返回 %s 时继续保存后续隐藏，保留全部操作', async (failure) => {
-    render(useAppLauncherLayout);
-    await Promise.resolve();
-    const writes = delaySaves();
-    const loaded = render(useAppLauncherLayout);
-    const first = loaded.hideApp('todo');
-    const second = loaded.hideApp('album');
-    const latest = render(useAppLauncherLayout).tabs;
-    expect(latest).not.toContain('todo');
-    expect(latest).not.toContain('album');
-    await Promise.resolve();
-    if (failure === 'false') writes[0].finish(false);
-    else writes[0].fail(new Error('disk unavailable'));
-    await first;
-    expect(writes).toHaveLength(2);
-    expect(render(useAppLauncherLayout).tabs).toEqual(latest);
-    expect(render(useAppLauncherLayout).saving).toBe(true);
-    expect(render(useAppLauncherLayout).saveFailed).toBe(false);
-    writes[1].finish(true);
-    await second;
-    expect(storedLayout).toEqual(writes[1].layout);
-    expect(getAppLauncherTabs(storedLayout as typeof DEFAULT_MAXEXPAND_NAV_LAYOUT)).toEqual(latest);
-    expect(render(useAppLauncherLayout).saveFailed).toBe(false);
-    expect(render(useAppLauncherLayout).saving).toBe(false);
-  });
-
-  it.each(['false', 'reject'])('最后保存返回 %s 时恢复最近成功的布局，仍可接受新操作', async (failure) => {
-    render(useAppLauncherLayout);
-    await Promise.resolve();
-    const writes = delaySaves();
-    const loaded = render(useAppLauncherLayout);
-    const first = loaded.hideApp('todo');
-    const second = loaded.hideApp('album');
-    await Promise.resolve();
-    writes[0].finish(true);
-    await first;
-    if (failure === 'false') writes[1].finish(false);
-    else writes[1].fail(new Error('disk unavailable'));
-    await second;
-    const result = render(useAppLauncherLayout);
-    expect(result.tabs).toEqual(getAppLauncherTabs(writes[0].layout));
-    expect(result.tabs).toContain('album');
-    expect(result.tabs).not.toContain('todo');
-    expect(result.saving).toBe(false);
-    expect(result.saveFailed).toBe(true);
-    const retry = result.hideApp('urlFavorites');
-    await Promise.resolve();
-    expect(writes[2].layout).toEqual(hideAppLauncherLayout(writes[0].layout, 'urlFavorites'));
-    writes[2].finish(true);
-    await retry;
-    expect(render(useAppLauncherLayout).saveFailed).toBe(false);
-    expect(render(useAppLauncherLayout).tabs).toEqual(getAppLauncherTabs(writes[2].layout));
-  });
-
-  it('连续保存全部失败时恢复原布局，原地操作不增加排队写入', async () => {
-    render(useAppLauncherLayout);
-    await Promise.resolve();
-    const writes = delaySaves();
-    const loaded = render(useAppLauncherLayout);
-    const first = loaded.hideApp('todo');
-    const second = loaded.hideApp('album');
-    await loaded.hideApp('todo');
-    await loaded.moveApp('mail', 'mail');
-    writes[0].finish(false);
-    await first;
-    expect(writes).toHaveLength(2);
-    writes[1].finish(false);
-    await second;
-    expect(render(useAppLauncherLayout).tabs).toEqual(loaded.tabs);
-    expect(render(useAppLauncherLayout).saveFailed).toBe(true);
   });
 
   it('卸载后保存失败不会更新已卸载状态，重新挂载保留原布局', async () => {
@@ -405,7 +244,7 @@ describe('应用导航排序', () => {
     await Promise.resolve();
     const writes = delaySaves();
     const loaded = render(useAppLauncherLayout);
-    const pending = loaded.hideApp('todo');
+    const pending = loaded.hideApp('aiChat');
     await Promise.resolve();
     resetHooks();
     writes[0].finish(false);
@@ -421,17 +260,14 @@ describe('应用导航排序', () => {
     await Promise.resolve();
     const writes = delaySaves();
     const loaded = render(useAppLauncherLayout);
-    const first = loaded.hideApp('todo');
-    const second = loaded.hideApp('album');
+    const pending = loaded.hideApp('aiChat');
     await Promise.resolve();
     resetHooks();
     writes[0].finish(true);
-    await first;
-    writes[1].finish(true);
-    await second;
+    await pending;
     render(useAppLauncherLayout);
     await Promise.resolve();
-    expect(render(useAppLauncherLayout).tabs).toEqual(getAppLauncherTabs(writes[1].layout));
+    expect(render(useAppLauncherLayout).tabs).toEqual(getAppLauncherTabs(writes[0].layout));
   });
 });
 

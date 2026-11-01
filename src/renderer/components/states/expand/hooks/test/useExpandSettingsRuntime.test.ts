@@ -140,7 +140,7 @@ describe('expand actual layout cache and settings lifecycle', () => {
       id: 'song',
       visible: false
     }] : [{
-      id: 'todo',
+      id: 'aiChat',
       visible: false
     }]));
     await mountNav();
@@ -149,7 +149,7 @@ describe('expand actual layout cache and settings lifecycle', () => {
       visible: false
     });
     expect(renderHook(nav.useExpandNavLayout).maxExpandNavLayoutConfig[0]).toEqual({
-      id: 'todo',
+      id: 'aiChat',
       visible: false
     });
     broadcast('unrelated', false);
@@ -158,17 +158,17 @@ describe('expand actual layout cache and settings lifecycle', () => {
       visible: false
     }]);
     broadcast(`store:${  MAXEXPAND_NAV_LAYOUT_STORE_KEY}`, [{
-      id: 'album',
+      id: 'aiChat',
       visible: false
     }]);
     expect(renderHook(nav.useExpandNavLayout).navLayoutConfig[0].id).toBe('tools');
-    expect(renderHook(nav.useExpandNavLayout).maxExpandNavLayoutConfig[0].id).toBe('album');
+    expect(renderHook(nav.useExpandNavLayout).maxExpandNavLayoutConfig[0].id).toBe('aiChat');
     emit('expand-nav-layout-changed', [{
       id: 'overview',
       visible: false
     }]);
     emit('maxexpand-nav-layout-changed', [{
-      id: 'memo',
+      id: 'aiChat',
       visible: false
     }]);
     expect(renderHook(nav.useExpandNavLayout).navLayoutConfig[0]).toEqual({
@@ -176,7 +176,7 @@ describe('expand actual layout cache and settings lifecycle', () => {
       visible: true
     });
     expect(renderHook(nav.useExpandNavLayout).maxExpandNavLayoutConfig[0]).toEqual({
-      id: 'memo',
+      id: 'aiChat',
       visible: false
     });
     unmountHook();

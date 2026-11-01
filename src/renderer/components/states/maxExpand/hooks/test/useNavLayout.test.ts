@@ -58,8 +58,9 @@ describe('useNavLayout lifecycle', () => {
   let listeners: ((channel: string, value: unknown) => void)[];
   const storeRead = vi.fn();
   const unsubscribe = vi.fn();
-  const firstLayout = [{ id: 'todo', visible: true }, { id: 'calendar', visible: false }];
-  const latestLayout = [{ id: 'calendar', visible: true }, { id: 'todo', visible: false }];
+  const firstLayout = [{ id: 'todo', visible: false }, { id: 'aiChat', visible: true }];
+  const latestLayout = [{ id: 'calendar', visible: true }, { id: 'aiChat', visible: false }];
+  const latestNormalized = [{ id: 'aiChat', visible: false }];
 
   function render(enabled: boolean): ReturnType<typeof useNavLayout> {
     hooks.cursor = 0;
@@ -107,14 +108,14 @@ describe('useNavLayout lifecycle', () => {
     expect(unsubscribe).toHaveBeenCalledOnce();
     window.dispatchEvent(new CustomEvent('maxexpand-nav-layout-changed', { detail: latestLayout }));
     listeners[0](`store:${MAXEXPAND_NAV_LAYOUT_STORE_KEY}`, latestLayout);
-    expect(render(false).navLayoutConfig[0].id).toBe('todo');
+    expect(render(false).navLayoutConfig[0].visible).toBe(true);
     expect(render(true).navLayoutLoaded).toBe(false);
 
     reads[1](latestLayout);
     await Promise.resolve();
     const restored = render(true);
     expect(restored.navLayoutLoaded).toBe(true);
-    expect(restored.navLayoutConfig.slice(0, 2)).toEqual(latestLayout);
+    expect(restored.navLayoutConfig).toEqual(latestNormalized);
   });
 
   it.each(['remote', 'local'])('迟到的初次读取不能覆盖更新的 %s 布局事件', async (source) => {
@@ -124,7 +125,7 @@ describe('useNavLayout lifecycle', () => {
     expect(render(true).navLayoutLoaded).toBe(true);
     reads[0](firstLayout);
     await Promise.resolve();
-    expect(render(true).navLayoutConfig.slice(0, 2)).toEqual(latestLayout);
+    expect(render(true).navLayoutConfig).toEqual(latestNormalized);
   });
 
   it('切入应用化模式后拒绝未完成的旧读取', async () => {

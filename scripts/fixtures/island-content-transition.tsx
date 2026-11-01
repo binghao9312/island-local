@@ -80,7 +80,7 @@ function Page(props: { state: IslandState; rows: number }): ReactElement {
   }, [state]);
   return (
     <div data-fixture-state={state}>
-      {Array.from({ length: rows }, (value, index) => (
+      {Array.from({ length: rows }, (_, index) => (
         <div data-fixture-row={index} key={`row-${index}`}>
           <span>{state}</span><span>{index}</span><span>{`synthetic event ${index}`}</span>
         </div>

@@ -149,6 +149,9 @@ describe('实际导航和布局推导', () => {
     }]);
     render().updateMaxExpandNavLayout([{
       id: 'todo',
+      visible: true
+    }, {
+      id: 'aiChat',
       visible: false
     }]);
     await settle();
@@ -159,10 +162,10 @@ describe('实际导航和布局推导', () => {
       id: 'song',
       visible: false
     }]));
-    expect(render().maxExpandNavLayout[0]).toEqual({
-      id: 'todo',
+    expect(render().maxExpandNavLayout).toEqual([{
+      id: 'aiChat',
       visible: false
-    });
+    }]);
     expect(dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({
       type: 'expand-nav-layout-changed',
       detail: render().expandNavLayout

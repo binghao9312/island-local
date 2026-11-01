@@ -185,7 +185,7 @@ beforeEach(async () => {
   buttons = [];
   read.mockResolvedValue(MAXEXPAND_CONFIGURABLE_TABS.map((id) => ({
     id,
-    visible: id === 'todo' || id === 'album'
+    visible: true
   })));
   write.mockResolvedValue(true);
   vi.stubGlobal('CustomEvent', NativeCustomEvent);
@@ -238,7 +238,7 @@ describe('MaxExpandAppLauncher with actual layout and drag hooks', () => {
     flushHookEffects();
     expect(entries()[1].props.className).not.toContain('is-active');
     expect(disconnect).toHaveBeenCalled();
-    run('todo');
+    run();
     flushHookEffects();
     expect(select).not.toHaveBeenCalled();
   });
@@ -248,7 +248,7 @@ describe('MaxExpandAppLauncher with actual layout and drag hooks', () => {
       ...pointer(),
       detail: 1
     });
-    expect(select).toHaveBeenCalledWith('todo');
+    expect(select).toHaveBeenCalledWith('aiChat');
     invoke(entries()[0], 'onPointerDown', pointer());
     await vi.advanceTimersByTimeAsync(450);
     let tree = run();
@@ -279,11 +279,11 @@ describe('MaxExpandAppLauncher with actual layout and drag hooks', () => {
     run();
     flushHookEffects();
     invoke(entries()[0], 'onPointerMove', pointer(0, {
-      clientX: 170
+      clientX: 550
     }));
     run();
     invoke(entries()[0], 'onPointerUp', pointer(0, {
-      clientX: 170
+      clientX: 550
     }));
     await settleHook();
     expect(write).toHaveBeenCalledOnce();

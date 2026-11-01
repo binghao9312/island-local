@@ -59,7 +59,7 @@ beforeEach(() => {
   resetBrowser(); listeners.clear(); cleanups.clear(); storeRead.mockImplementation((key) => Promise.resolve(key === 'agent-notification-enabled' ? true : 'official'));
   // eslint-disable-next-line prefer-object-spread -- 简写排序会将 storeRead 放到基础 API 之前，必须保留最后覆盖顺序。
   vi.stubGlobal('window', Object.assign(browser, { api: Object.assign({}, network, subscriptionApi, { storeRead }) }));
-  useIslandStore.setState({ state: 'idle', maxExpandTab: 'todo', maxExpandAppModeEnabled: false, maxExpandLauncherVisible: false });
+  useIslandStore.setState({ state: 'idle', maxExpandTab: 'aiChat', maxExpandAppModeEnabled: false, maxExpandLauncherVisible: false });
 });
 afterEach(() => { unmountHooks(); vi.unstubAllGlobals(); });
 /**
@@ -121,17 +121,17 @@ describe('useIslandNotificationSubscriptions 实际订阅与通知', () => {
     expect(notification).toHaveBeenCalledWith(expect.objectContaining({ title: 'notification.update.readyTitle', type: 'update-ready', updateVersion: '2.0' }));
     expect(JSON.parse(network.netFetch.mock.calls[0][1]?.body ?? '{}')).toEqual({ appName: 'eisland', version: '2.0' });
   });
-  it.each(['toolbox', 'settings', 'urlFavorites', 'clipboardHistory', 'aiChat'] as const)('可见应用 %s 页抑制剪贴板 URL', async (maxExpandTab) => {
+  it.each(['settings', 'aiChat'] as const)('可见应用 %s 页抑制剪贴板 URL', async (maxExpandTab) => {
     await mount(); useIslandStore.setState({ maxExpandTab, state: 'maxExpand' }); await emit('onClipboardUrlsDetected', { urls: ['https://example.com'], title: '' });
     expect(notification).not.toHaveBeenCalled();
   });
-  it.each(['urlFavorites', 'clipboardHistory', 'aiChat'] as const)('显式关闭收藏页抑制仍产生 URL 通知：%s', async (maxExpandTab) => {
+  it.each(['aiChat'] as const)('显式关闭收藏页抑制仍产生 URL 通知：%s', async (maxExpandTab) => {
     await mount(); storage.set(CLIPBOARD_URL_SUPPRESS_IN_FAVORITES_KEY, '0'); useIslandStore.setState({ maxExpandTab, state: 'maxExpand' });
     await emit('onClipboardUrlsDetected', { urls: ['https://example.com/path'], title: '' });
     expect(notification).toHaveBeenCalledWith(expect.objectContaining({ body: 'example.com', icon: 'https://example.com/favicon.ico', urls: ['https://example.com/path'] }));
   });
   it.each([
-    ['idle', false, false, 'urlFavorites'], ['maxExpand', true, true, 'settings'], ['maxExpand', true, false, 'todo'], ['maxExpand', false, true, 'todo'],
+    ['idle', false, false, 'aiChat'], ['maxExpand', true, true, 'settings'], ['maxExpand', true, true, 'aiChat'], ['expanded', false, false, 'aiChat'],
   ] as const)('状态 %s/应用模式 %s/启动器 %s/页 %s 决定可见性', async (state, maxExpandAppModeEnabled, maxExpandLauncherVisible, maxExpandTab) => {
     await mount(); storage.set(CLIPBOARD_URL_SUPPRESS_IN_FAVORITES_KEY, '1'); useIslandStore.setState({ state, maxExpandAppModeEnabled, maxExpandLauncherVisible, maxExpandTab });
     await emit('onClipboardUrlsDetected', { urls: ['https://example.com'], title: 'Custom title' });

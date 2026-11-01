@@ -51,7 +51,7 @@ beforeEach(() => {
   vi.useFakeTimers(); resetBrowser(); Object.assign(browser, { api });
   api.netFetch.mockReset().mockImplementation(() => Promise.resolve({ ok: true, status: 200, body: JSON.stringify(responses.shift() ?? { code: 200, data: { enabled: false } }) }));
   api.storeRead.mockReset().mockResolvedValue('integrated');
-  useIslandStore.setState({ state: 'register', authReturnState: 'idle', uiStateLocked: false, maxExpandTab: 'todo' });
+  useIslandStore.setState({ state: 'register', authReturnState: 'idle', uiStateLocked: false, maxExpandTab: 'aiChat' });
 });
 afterEach(() => { unmountHooks(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 interface Fields { username: string; email: string; code: string; password: string; confirm: string }

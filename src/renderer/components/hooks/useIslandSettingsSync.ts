@@ -44,6 +44,7 @@ import {
   resolveBgMediaPreviewUrl,
 } from '../config/dynamicIslandConfig';
 import { ISLAND_POSITION_LOCKED_STORE_KEY } from '../../../shared/storeKeys';
+import { ACTIVE_TAB_STORE_KEY } from '../config/standaloneWindowKeys';
 import { ISLAND_AUTO_DIM_ENABLED_STORE_KEY, ISLAND_AUTO_DIM_DELAY_STORE_KEY, DEFAULT_AUTO_DIM_DELAY_SEC } from './useIslandAutoDim';
 import type { IslandBgMediaConfig } from '../config/dynamicIslandConfig';
 
@@ -169,9 +170,9 @@ export function useIslandSettingsSync(options: UseIslandSettingsSyncOptions): vo
 
     const unsubscribeSettings = window.api?.onSettingsChanged?.((channel: string, value: unknown) => {
       if (channel === 'shortcut:open-clipboard-history') {
-        const store = useIslandStore.getState();
-        store.setMaxExpandTab('clipboardHistory');
-        store.setMaxExpand();
+        void window.api?.storeWrite?.(ACTIVE_TAB_STORE_KEY, 'clipboardHistory')
+          .then(() => window.api.openStandaloneWindow())
+          .catch(() => {});
       }
         if (channel === 'shortcut:toggle-ui-lock') {
           const store = useIslandStore.getState();

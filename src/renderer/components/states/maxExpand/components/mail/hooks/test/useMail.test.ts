@@ -141,7 +141,7 @@ beforeEach(async () => {
   api.clipboardOpenUrl.mockReset().mockResolvedValue(true);
   surface = new EventTarget();
   vi.stubGlobal('window', Object.assign(surface, { api }));
-  useIslandStore.setState({ maxExpandTab: 'memo', maxExpandLauncherVisible: true });
+  useIslandStore.setState({ maxExpandTab: 'aiChat', maxExpandLauncherVisible: true });
 });
 afterEach(() => {
   unmountHooks();

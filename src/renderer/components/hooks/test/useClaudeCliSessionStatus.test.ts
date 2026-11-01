@@ -35,7 +35,7 @@ vi.hoisted(() => { vi.stubGlobal('window', Object.assign(new EventTarget(), { lo
 vi.mock('react', async (load) => ({ ...(await load<typeof import('react')>()), ...hookMocks, ...lifecycleHooks }));
 vi.mock('react-i18next', async (load) => ({ ...(await load<typeof import('react-i18next')>()), useTranslation: () => ({ t: (key: string) => key }) }));
 beforeEach(() => {
-  resetCliBoundary(); useIslandStore.setState({ state: 'idle', uiStateLocked: false, maxExpandAppModeEnabled: false, maxExpandLauncherVisible: false, maxExpandTab: 'todo', cliProvider: 'claude', notification: { title: '', body: '' } });
+  resetCliBoundary(); useIslandStore.setState({ state: 'idle', uiStateLocked: false, maxExpandAppModeEnabled: false, maxExpandLauncherVisible: false, maxExpandTab: 'aiChat', cliProvider: 'claude', notification: { title: '', body: '' } });
 });
 afterEach(() => { unmountHooks(); vi.unstubAllGlobals(); });
 /**
@@ -75,17 +75,15 @@ describe('CLI原生状态与真实副作用', () => {
     expect(play).toHaveBeenCalledOnce(); expect(cliIpc.cliGlowShow).toHaveBeenCalledOnce();
   });
   it.each([
-    { state: 'cli' as const, app: false, launcher: false, tab: 'todo' as const },
-    { state: 'maxExpand' as const, app: false, launcher: true, tab: 'cli' as const },
-    { state: 'maxExpand' as const, app: true, launcher: false, tab: 'cli' as const },
+    { state: 'cli' as const, app: false, launcher: false, tab: 'aiChat' as const },
   ])('已在CLI视图时新会话不弹通知：$state/$app/$launcher', async ({ state, app, launcher, tab }) => {
     await mount(); useIslandStore.setState({ state, maxExpandAppModeEnabled: app, maxExpandLauncherVisible: launcher, maxExpandTab: tab });
     claude?.(snapshot()); await settleBackground(); expect(play).not.toHaveBeenCalled(); expect(cliIpc.cliGlowShow).not.toHaveBeenCalled();
   });
   it.each([
-    { state: 'idle' as const, app: false, launcher: false, tab: 'todo' as const },
-    { state: 'maxExpand' as const, app: true, launcher: true, tab: 'cli' as const },
-    { state: 'maxExpand' as const, app: false, launcher: false, tab: 'todo' as const },
+    { state: 'idle' as const, app: false, launcher: false, tab: 'aiChat' as const },
+    { state: 'maxExpand' as const, app: true, launcher: true, tab: 'settings' as const },
+    { state: 'maxExpand' as const, app: false, launcher: false, tab: 'aiChat' as const },
   ])('CLI视图之外的新会话提示：$state/$app/$launcher/$tab', async ({ state, app, launcher, tab }) => {
     await mount(); useIslandStore.setState({ state, maxExpandAppModeEnabled: app, maxExpandLauncherVisible: launcher, maxExpandTab: tab });
     claude?.(snapshot()); await settleBackground(); expect(play).toHaveBeenCalledOnce(); expect(useIslandStore.getState().state).toBe('notification');
@@ -100,10 +98,9 @@ describe('CLI原生状态与真实副作用', () => {
     expect(play).toHaveBeenCalledOnce(); expect(cliIpc.expandWindowNotification).toHaveBeenCalledOnce();
   });
   it.each([
-    { state: 'cli' as const, app: false, launcher: false, tab: 'todo' as const, expected: false },
-    { state: 'maxExpand' as const, app: true, launcher: false, tab: 'cli' as const, expected: false },
-    { state: 'maxExpand' as const, app: true, launcher: true, tab: 'cli' as const, expected: true },
-    { state: 'maxExpand' as const, app: false, launcher: false, tab: 'todo' as const, expected: true },
+    { state: 'cli' as const, app: false, launcher: false, tab: 'aiChat' as const, expected: false },
+    { state: 'maxExpand' as const, app: true, launcher: true, tab: 'settings' as const, expected: true },
+    { state: 'maxExpand' as const, app: false, launcher: false, tab: 'aiChat' as const, expected: true },
   ])('权限提醒遵守现有CLI和启动器可见状态：$state/$app/$launcher/$tab', async ({ state, app, launcher, tab, expected }) => {
     cliIpc.claudeCodeStatusGet.mockResolvedValue(snapshot()); await mount();
     useIslandStore.setState({ state, maxExpandAppModeEnabled: app, maxExpandLauncherVisible: launcher, maxExpandTab: tab });

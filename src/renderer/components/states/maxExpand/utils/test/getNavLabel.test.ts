@@ -32,13 +32,13 @@ import type { NavDotId } from '../../config/shellConstants';
 it('损坏缓存经白名单规范化后只产生具有默认中文标签的导航', () => {
   const layout = normalizeMaxExpandNavLayoutConfig([
     null, false, { id: 'unknown-navigation', visible: true },
-    { id: 'memo', visible: true }, { id: 'todo', visible: false },
+    { id: 'memo', visible: true }, { id: 'aiChat', visible: false }, { id: 'todo', visible: false },
   ]);
-  expect(layout[0]).toEqual({ id: 'memo', visible: true });
+  expect(layout).toEqual([{ id: 'aiChat', visible: false }]);
   expect(layout.some((item) => String(item.id) === 'unknown-navigation')).toBe(false);
   expect(getDefaultNavLabel('expanded')).toBe('返回');
   expect(getDefaultNavLabel('settings')).toBe('设置');
-  expect(getDefaultNavLabel('memo')).toBe('备忘录');
+  expect(getDefaultNavLabel('aiChat')).toBe('AI 对话');
   layout.forEach(({ id }) => {
     // 与真实 Shell 相同：转换发生在内部白名单规范化之后。
     const navId = id as NavDotId;

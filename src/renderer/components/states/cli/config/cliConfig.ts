@@ -28,7 +28,7 @@ import type { MaxExpandTab } from '../../../../store/types';
 import type { CliPermissionOption } from '../types/cliTypes';
 
 /** 点击状态主体进入的最大展开页 */
-export const CLI_PANEL_TAB: MaxExpandTab = 'cli';
+export const CLI_PANEL_TAB: MaxExpandTab = 'aiChat';
 
 /** 授权按钮，按拒绝、批准、永久批准的顺序展示 */
 export const CLI_PERMISSION_OPTIONS: readonly CliPermissionOption[] = [

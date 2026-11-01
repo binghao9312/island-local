@@ -36,9 +36,8 @@ import type { Feedback } from '../../login/config/loginConfig';
 /** 设置密码状态交互逻辑 Hook */
 export function useSetPassword() {
   const { t } = useTranslation();
-  const { setPasswordContext, setMaxExpand, setMaxExpandTab, setLogin } = useIslandStore(useShallow((store) => ({
+  const { setPasswordContext, setMaxExpandTab, setLogin } = useIslandStore(useShallow((store) => ({
     setPasswordContext: store.setPasswordContext,
-    setMaxExpand: store.setMaxExpand,
     setMaxExpandTab: store.setMaxExpandTab,
     setLogin: store.setLogin,
   })));

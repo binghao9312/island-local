@@ -161,7 +161,7 @@ describe('CLI内容真实快照、歌词配置与状态集成', () => {
     expect(claudeGet).toHaveBeenCalledOnce();
     expect(findElement(tree, (node) => node.props.className === 'cli-state-icon').props.src).toBe(GifIcon.CLAWD_IDLE);
     invoke(findElement(tree, (node) => node.props.className === 'cli-state-body'), 'onClick');
-    expect(useIslandStore.getState()).toMatchObject({ state: 'maxExpand', maxExpandTab: 'cli' });
+    expect(useIslandStore.getState()).toMatchObject({ state: 'maxExpand', maxExpandTab: 'aiChat' });
     expect(expand).toHaveBeenCalledOnce(); expect(disableMouse).toHaveBeenCalledOnce();
     invoke(findElement(tree, (node) => node.props.className === 'cli-state-action-btn'), 'onClick');
     expect(useIslandStore.getState().state).toBe('idle');

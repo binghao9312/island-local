@@ -191,6 +191,9 @@ beforeEach(() => {
   values.set(MAXEXPAND_NAV_LAYOUT_STORE_KEY, [{
     id: 'todo',
     visible: true
+  }, {
+    id: 'aiChat',
+    visible: false
   }]);
   values.set(UPDATE_SOURCE_STORE_KEY, 'github');
   values.set(CLIPBOARD_URL_SUPPRESS_IN_FAVORITES_KEY, false);
@@ -266,10 +269,10 @@ describe('真实初始化配置接线', () => {
         end: '#778899'
       }
     });
-    expect(setters.setMaxExpandNavLayout).toHaveBeenCalledWith(expect.arrayContaining([{
-      id: 'todo',
-      visible: true
-    }]));
+    expect(setters.setMaxExpandNavLayout).toHaveBeenCalledWith([{
+      id: 'aiChat',
+      visible: false
+    }]);
     expect(setters.setUpdateSource).toHaveBeenCalledWith('github');
     expect(setters.setAboutVersion).toHaveBeenCalledWith('2.0.0');
     expect(setItem).toHaveBeenCalledWith(CLIPBOARD_URL_SUPPRESS_IN_FAVORITES_KEY, '0');

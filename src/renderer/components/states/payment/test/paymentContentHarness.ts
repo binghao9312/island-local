@@ -59,6 +59,6 @@ export function resetPayment(): void {
     create: { code: 200, data: { ...order } }, lookup: { code: 200, data: { ...order } } });
   api.netFetch.mockReset().mockImplementation((url) => Promise.resolve({ ok: true, status: 200, body: JSON.stringify(reply(url)) }));
   api.storeWrite.mockReset().mockResolvedValue(); api.clipboardOpenUrl.mockReset().mockResolvedValue();
-  useIslandStore.setState({ state: 'payment', authReturnState: 'idle', uiStateLocked: false, paymentContext: { type: 'pro' }, maxExpandTab: 'todo' });
+  useIslandStore.setState({ state: 'payment', authReturnState: 'idle', uiStateLocked: false, paymentContext: { type: 'pro' }, maxExpandTab: 'aiChat' });
 }
 export { api, browser, storage };

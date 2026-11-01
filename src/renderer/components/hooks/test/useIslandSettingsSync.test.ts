@@ -26,6 +26,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useIslandSettingsSync } from '../useIslandSettingsSync';
+import { ACTIVE_TAB_STORE_KEY } from '../../config/standaloneWindowKeys';
 import { ISLAND_WIDTH } from '../../../../shared/islandDimensions';
 import { renderWithHooks, resetLifecycle, runEffects, unmountHooks } from '../../components/test/contentLifecycleHarness';
 import { beginIslandWindowTransition, completeIslandWindowTransition, getIslandWindowTransitionId } from '../../../utils/islandWindowTransition';
@@ -68,6 +69,8 @@ const api = {
   animationSpeedGet: vi.fn<Window['api']['animationSpeedGet']>(),
   shapeModeGet: vi.fn<Window['api']['shapeModeGet']>(),
   storeRead: vi.fn<Window['api']['storeRead']>(),
+  storeWrite: vi.fn().mockResolvedValue(true),
+  openStandaloneWindow: vi.fn().mockResolvedValue(true),
   loadWallpaperFile: vi.fn<Window['api']['loadWallpaperFile']>(),
   setIslandPositionOffset: vi.fn<Window['api']['setIslandPositionOffset']>(),
   onSettingsChanged: vi.fn<Window['api']['onSettingsChanged']>(),
@@ -341,8 +344,9 @@ describe('Island IPC and local settings', () => {
     await commit();
     broadcast('shortcut:open-clipboard-history', undefined);
     broadcast('shortcut:toggle-ui-lock', undefined);
-    expect(io.setMaxExpandTab).toHaveBeenCalledWith('clipboardHistory');
-    expect(io.setMaxExpand).toHaveBeenCalledOnce();
+    await settle();
+    expect(api.storeWrite).toHaveBeenCalledWith(ACTIVE_TAB_STORE_KEY, 'clipboardHistory');
+    expect(api.openStandaloneWindow).toHaveBeenCalledOnce();
     expect(io.toggleUiStateLock).toHaveBeenCalledOnce();
     [null, 1, {}, { title: 'missing body' }, { body: 'missing title' }].forEach((value) => broadcast('notification:show', value));
     expect(options.setNotificationRef.current).not.toHaveBeenCalled();

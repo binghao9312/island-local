@@ -109,7 +109,7 @@ export const createIslandSlice: StateCreator<
   hoverTab: 'time',
   expandTab: 'overview',
   performanceMonitorPinned: false,
-  maxExpandTab: 'todo',
+  maxExpandTab: 'aiChat',
   maxExpandAppModeEnabled: false,
   maxExpandLauncherVisible: true,
   cliProvider: readCliProvider(),

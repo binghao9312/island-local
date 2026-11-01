@@ -25,7 +25,6 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MAX_EXPAND_APP_TABS } from '../../config/appLauncherConfig';
 import { getAppLauncherHoverOffsets } from '../../utils/appLauncherHover';
 import { useAppNavigationTransition } from '../useAppNavigationTransition';
 import type { MaxExpandTab } from '../../../../../../../store/types';
@@ -167,7 +166,7 @@ describe('useAppNavigationTransition', () => {
     unmounted = false;
     options = {
       onSelectApp, onBackToLauncher,
-      activeTab: 'todo', launcherVisible: true, animationEnabled: true, contentActive: true,
+      activeTab: 'todo' as unknown as MaxExpandTab, launcherVisible: true, animationEnabled: true, contentActive: true,
     };
     onSelectApp.mockImplementation((tab: MaxExpandTab) => {
       options = { ...options, activeTab: tab, launcherVisible: false };
@@ -181,7 +180,7 @@ describe('useAppNavigationTransition', () => {
     circleBounds = { left: 50, top: 90, width: 60, height: 60 };
     selectedIndex = 0;
     const positions = [{ x: 0, y: 0 }, { x: 70, y: 0 }, { x: 0, y: 70 }, { x: 300, y: 200 }];
-    items = (['calendar', 'todo', 'alarm', 'settings'] as const).map((tab, index) => {
+    items = (['calendar', 'todo', 'alarm', 'settings'] as unknown as MaxExpandTab[]).map((tab, index) => {
       const circle = {
         animate: vi.fn(createAnimation),
         getBoundingClientRect: () => ({
@@ -225,10 +224,10 @@ describe('useAppNavigationTransition', () => {
   });
 
   it('放大网格中的真实圆并同步推开近邻，全部动画完成才清理过渡', async () => {
-    render().selectApp('calendar');
+    render().selectApp('calendar' as MaxExpandTab);
     expect(onSelectApp).toHaveBeenCalledExactlyOnceWith('calendar');
     expect(render().transition).toEqual({
-      direction: 'open', tab: 'calendar', icon: { left: 40, top: 70, width: 60, height: 60 },
+      direction: 'open', tab: 'calendar' as MaxExpandTab, icon: { left: 40, top: 70, width: 60, height: 60 },
     });
     expect(stage.querySelector).toHaveBeenCalledWith('.max-expand-app-launcher-item[data-app="calendar"] .max-expand-app-launcher-circle');
     const applicationFrames = application.animate.mock.calls[0][0] as Keyframe[];
@@ -275,7 +274,7 @@ describe('useAppNavigationTransition', () => {
     render().backToLauncher();
     expect(onBackToLauncher).not.toHaveBeenCalled();
     expect(render().transition).toEqual({
-      direction: 'close', tab: 'todo', icon: { left: 170, top: 120, width: 72, height: 72 },
+      direction: 'close', tab: 'todo' as MaxExpandTab, icon: { left: 170, top: 120, width: 72, height: 72 },
     });
     const applicationFrames = application.animate.mock.calls[0][0] as Keyframe[];
     expect(applicationFrames[0]).toEqual(expect.objectContaining({ transform: 'translate(0px, 0px) scale(1)', opacity: 1 }));
@@ -302,7 +301,8 @@ describe('useAppNavigationTransition', () => {
     })));
     const hoverOffsets = getAppLauncherHoverOffsets(positions, activeIndex);
     stageBounds = { left: 0, top: 0, width: 400, height: 440 };
-    items = MAX_EXPAND_APP_TABS.map((tab, index) => {
+    const syntheticTabs = positions.map((_, index) => `synthetic-${index}` as MaxExpandTab);
+    items = syntheticTabs.map((tab, index) => {
       const width = 55.2 * (index === activeIndex ? 1.2 : 1);
       const circle = {
         animate: vi.fn(createAnimation),
@@ -322,7 +322,7 @@ describe('useAppNavigationTransition', () => {
         querySelector: vi.fn((selector: string) => selector === '.max-expand-app-launcher-circle' ? circle : visual),
       };
     });
-    options.activeTab = MAX_EXPAND_APP_TABS[activeIndex];
+    options.activeTab = syntheticTabs[activeIndex];
     options.launcherVisible = direction === 'open';
     const actions = render();
     if (direction === 'open') actions.selectApp(options.activeTab);
@@ -360,8 +360,8 @@ describe('useAppNavigationTransition', () => {
 
   it('同一事件批次和播放期间忽略重复选择与返回，结束后可以继续操作', async () => {
     const actions = render();
-    actions.selectApp('calendar');
-    actions.selectApp('alarm');
+    actions.selectApp('calendar' as MaxExpandTab);
+    actions.selectApp('alarm' as MaxExpandTab);
     actions.backToLauncher();
     render().backToLauncher();
     expect(onSelectApp).toHaveBeenCalledExactlyOnceWith('calendar');
@@ -410,7 +410,7 @@ describe('useAppNavigationTransition', () => {
     options.launcherVisible = false;
     render().backToLauncher();
     render();
-    options = { ...options, activeTab: 'calendar' };
+    options = { ...options, activeTab: 'calendar' as MaxExpandTab };
     expect(render().transition).toBeNull();
     expect(vi.getTimerCount()).toBe(0);
     await completeAnimations();
@@ -422,11 +422,11 @@ describe('useAppNavigationTransition', () => {
   });
 
   it('外部返回导航后取消进入过渡，旧 Promise 不影响下一个应用', async () => {
-    render().selectApp('calendar');
+    render().selectApp('calendar' as MaxExpandTab);
     render();
     const previous = [...animations];
     options = { ...options, launcherVisible: true };
-    render().selectApp('alarm');
+    render().selectApp('alarm' as MaxExpandTab);
     expect(render().transition?.tab).toBe('alarm');
     previous.forEach((animation) => animation.complete());
     await Promise.resolve();
@@ -443,7 +443,7 @@ describe('useAppNavigationTransition', () => {
     render();
     options = { ...options, contentActive: false };
     render().backToLauncher();
-    result.selectApp('alarm');
+    result.selectApp('alarm' as MaxExpandTab);
     await completeAnimations();
 
     expect(result.transition).toBeNull();
@@ -462,7 +462,7 @@ describe('useAppNavigationTransition', () => {
     expect(onBackToLauncher).toHaveBeenCalledOnce();
     expect(vi.getTimerCount()).toBe(0);
 
-    result.selectApp('calendar');
+    result.selectApp('calendar' as MaxExpandTab);
     expect(render().transition).toBeNull();
     expect(onSelectApp).toHaveBeenCalledExactlyOnceWith('calendar');
     expect(animations).toHaveLength(createdBeforeDisabling);
@@ -470,7 +470,7 @@ describe('useAppNavigationTransition', () => {
 
   it('系统减少动态效果初始开启时立即切页，中途开启时立即完成返回', () => {
     media.matches = true;
-    render().selectApp('calendar');
+    render().selectApp('calendar' as MaxExpandTab);
     expect(render().transition).toBeNull();
     expect(animations).toHaveLength(0);
     setReducedMotion(false);
@@ -484,7 +484,7 @@ describe('useAppNavigationTransition', () => {
 
   it('缺少动画能力或有效图标几何时降级直接切页', () => {
     stageBounds.width = 0;
-    render().selectApp('calendar');
+    render().selectApp('calendar' as MaxExpandTab);
     expect(render().transition).toBeNull();
     expect(onSelectApp).toHaveBeenCalledExactlyOnceWith('calendar');
     stageBounds.width = 400;
@@ -496,7 +496,7 @@ describe('useAppNavigationTransition', () => {
   });
 
   it('当前应用被从导航隐藏后仍能直接返回导航，不等待不存在的图标', () => {
-    options = { ...options, activeTab: 'calendar', launcherVisible: false };
+    options = { ...options, activeTab: 'calendar' as MaxExpandTab, launcherVisible: false };
     stage.querySelector.mockReturnValue(null);
     render().backToLauncher();
     expect(render().transition).toBeNull();
@@ -507,7 +507,7 @@ describe('useAppNavigationTransition', () => {
 
   it('缺少原生 matchMedia 时仍可完成导航和释放动画', async () => {
     vi.stubGlobal('window', { ...window, matchMedia: undefined });
-    render().selectApp('calendar');
+    render().selectApp('calendar' as MaxExpandTab);
     render();
     await completeAnimations();
     expect(onSelectApp).toHaveBeenCalledExactlyOnceWith('calendar');
@@ -518,7 +518,7 @@ describe('useAppNavigationTransition', () => {
   it('导航视口零高度或图标已经可见时不调整滚动位置', async () => {
     const viewport = { scrollTop: 42, getBoundingClientRect: () => ({ top: 70, height: 0 }) };
     launcher.querySelector.mockReturnValue(viewport);
-    options = { ...options, activeTab: 'calendar', launcherVisible: false };
+    options = { ...options, activeTab: 'calendar' as MaxExpandTab, launcherVisible: false };
     render().backToLauncher();
     render();
     await completeAnimations();
@@ -567,7 +567,7 @@ describe('useAppNavigationTransition', () => {
     animations.forEach((animation) => animation.complete());
     setReducedMotion(true);
     oldActions.backToLauncher();
-    oldActions.selectApp('calendar');
+    oldActions.selectApp('calendar' as MaxExpandTab);
     await vi.advanceTimersByTimeAsync(1000);
 
     expect(removeListener).toHaveBeenCalledOnce();

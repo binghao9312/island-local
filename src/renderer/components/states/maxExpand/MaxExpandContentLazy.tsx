@@ -30,44 +30,12 @@ import type { MaxExpandTab } from '../../../store/types';
 import { MaxExpandContentShell } from './MaxExpandContentShell';
 
 const AcpChatTab = lazy(() => import('./components/acpChat').then((module) => ({ default: module.AcpChatTab })));
-const TodoTab = lazy(() => import('./components/todo/components/TodoTab').then((module) => ({ default: module.TodoTab })));
-const UrlFavoritesTab = lazy(() => import('./components/urlFavorites').then((module) => ({ default: module.UrlFavoritesTab })));
-const LocalFileSearchTab = lazy(() => import('./components/localFileSearch/components/LocalFileSearchTab').then((module) => ({ default: module.LocalFileSearchTab })));
-const ClipboardHistoryTab = lazy(() => import('./components/clipBoardHistory').then((module) => ({ default: module.ClipboardHistoryTab })));
-const AlbumTab = lazy(() => import('./components/album/components/AlbumTab').then((module) => ({ default: module.AlbumTab })));
-const MailTab = lazy(() => import('./components/mail').then((module) => ({ default: module.MailTab })));
 const SettingsTab = lazy(() => import('./components/setting').then((module) => ({ default: module.SettingsTab })));
-const CountdownTab = lazy(() => import('./components/countdown').then((module) => ({ default: module.CountdownTab })));
-const MemoTab = lazy(() => import('./components/memo/components/MemoTab').then((module) => ({ default: module.MemoTab })));
-const AlarmTab = lazy(() => import('./components/alarm/components/AlarmTab').then((module) => ({ default: module.AlarmTab })));
-const ToolboxTab = lazy(() => import('./components/toolbox').then((module) => ({ default: module.ToolboxTab })));
-const StockTab = lazy(() => import('./components/stock').then((module) => ({ default: module.StockTab })));
-const CliTab = lazy(() => import('./components/cli').then((module) => ({ default: module.CliTab })));
-const CalculatorTab = lazy(() => import('./components/calculator').then((module) => ({ default: module.CalculatorTab })));
-const WorldClockTab = lazy(() => import('./components/worldClock').then((module) => ({ default: module.WorldClockTab })));
-const CalendarTab = lazy(() => import('./components/calendar').then((module) => ({ default: module.CalendarTab })));
-const SongTab = lazy(() => import('./components/song'));
 
 function renderLazyActiveTab(activeTab: MaxExpandTab, loadingFallback: ReactElement, contentReady: boolean): ReactElement | null {
   if (!contentReady) return loadingFallback;
   let content: ReactElement | null = null;
   if (activeTab === 'aiChat') content = <AcpChatTab />;
-  if (activeTab === 'todo') content = <TodoTab />;
-  if (activeTab === 'urlFavorites') content = <UrlFavoritesTab />;
-  if (activeTab === 'localFileSearch') content = <LocalFileSearchTab />;
-  if (activeTab === 'clipboardHistory') content = <ClipboardHistoryTab />;
-  if (activeTab === 'album') content = <AlbumTab />;
-  if (activeTab === 'mail') content = <MailTab />;
-  if (activeTab === 'memo') content = <MemoTab />;
-  if (activeTab === 'countdown') content = <CountdownTab />;
-  if (activeTab === 'alarm') content = <AlarmTab />;
-  if (activeTab === 'toolbox') content = <ToolboxTab />;
-  if (activeTab === 'stock') content = <StockTab />;
-  if (activeTab === 'cli') content = <CliTab />;
-  if (activeTab === 'calculator') content = <CalculatorTab />;
-  if (activeTab === 'worldClock') content = <WorldClockTab />;
-  if (activeTab === 'calendar') content = <CalendarTab />;
-  if (activeTab === 'song') content = <SongTab />;
   if (activeTab === 'settings') content = <SettingsTab />;
   return <Suspense fallback={loadingFallback}>{content}</Suspense>;
 }

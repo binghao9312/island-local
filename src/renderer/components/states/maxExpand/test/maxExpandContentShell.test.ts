@@ -101,7 +101,7 @@ vi.mock('../maxExpandLoading', () => ({ default: () => createElement('div', { 'd
 vi.mock('../components/app', () => ({
   default: (props: { onSelectApp: (tab: MaxExpandTab) => void }) => createElement('button', {
     'data-launcher': true,
-    onClick: () => props.onSelectApp('calendar'),
+    onClick: () => props.onSelectApp('aiChat'),
   }),
   MaxExpandAppNavigation: (props: {
     launcherVisible: boolean;
@@ -115,7 +115,7 @@ vi.mock('../components/app', () => ({
   createElement('button', {
     'data-launcher': true,
     hidden: !props.launcherVisible,
-    onClick: () => props.onSelectApp('calendar'),
+    onClick: () => props.onSelectApp('aiChat'),
   }),
   !props.launcherVisible && createElement('div', {}, props.children, createElement('button', {
     'data-home-control': true,
@@ -175,7 +175,7 @@ describe('MaxExpandContentShell app mode', () => {
     hooks.effects = [];
     hooks.pending = [];
     mocks.store = {
-      maxExpandTab: 'todo',
+      maxExpandTab: 'aiChat',
       maxExpandLauncherVisible: true,
       setExpanded: vi.fn(),
       setMaxExpandTab: vi.fn((tab: MaxExpandTab) => {
@@ -186,7 +186,7 @@ describe('MaxExpandContentShell app mode', () => {
     };
     mocks.appMode = { appModeEnabled: true, appModeLoaded: true };
     mocks.navLayout = {
-      navLayoutConfig: [{ id: 'calendar', visible: true }, { id: 'todo', visible: true }, { id: 'alarm', visible: false }],
+      navLayoutConfig: [{ id: 'aiChat', visible: true }],
       navLayoutLoaded: true,
     };
     mocks.useNavLayout.mockImplementation(() => mocks.navLayout);
@@ -221,21 +221,21 @@ describe('MaxExpandContentShell app mode', () => {
     const home = render();
     const homeNavigation = findComponent(home.tree, MaxExpandAppNavigation);
     expect(homeNavigation?.props).toMatchObject({
-      activeTab: 'todo',
+      activeTab: 'aiChat',
       launcherVisible: true,
       animationEnabled: false,
       contentActive: true,
     });
-    homeNavigation?.props.onSelectApp?.('calendar');
+    homeNavigation?.props.onSelectApp?.('aiChat');
     const application = render();
     const appNavigation = findComponent(application.tree, MaxExpandAppNavigation);
 
-    expect(application.markup).toContain('data-active-app="calendar"');
+    expect(application.markup).toContain('data-active-app="aiChat"');
     expect(application.markup).toContain('data-home-control="true"');
     expect(application.markup).toContain('data-launcher-visible="false"');
     expect(application.markup).toContain('data-launcher="true" hidden=""');
     expect(application.markup).not.toContain('settings-nav-dots');
-    expect(appNavigation?.props).toMatchObject({ activeTab: 'calendar', launcherVisible: false });
+    expect(appNavigation?.props).toMatchObject({ activeTab: 'aiChat', launcherVisible: false });
 
     appNavigation?.props.onBackToLauncher?.();
     renderActiveTab.mockClear();
@@ -262,7 +262,7 @@ describe('MaxExpandContentShell app mode', () => {
 
   it('配置读取前保留指定应用且不注册传统 Tab 或滚轮处理', () => {
     mocks.appMode = { appModeEnabled: false, appModeLoaded: false };
-    mocks.store.maxExpandTab = 'alarm';
+    mocks.store.maxExpandTab = 'settings';
     const { markup } = render();
 
     expect(markup).toContain('data-loading="true"');
@@ -273,7 +273,7 @@ describe('MaxExpandContentShell app mode', () => {
   });
 
   it('关闭应用化模式后恢复保存的可见性与顺序，再次开启后移除传统监听', () => {
-    mocks.store.maxExpandTab = 'alarm';
+    mocks.store.maxExpandTab = 'invalid' as MaxExpandTab;
     mocks.store.maxExpandLauncherVisible = false;
     render();
     expect(pressTab().defaultPrevented).toBe(false);
@@ -282,18 +282,17 @@ describe('MaxExpandContentShell app mode', () => {
 
     mocks.appMode.appModeEnabled = false;
     const legacy = render();
-    expect(mocks.store.setMaxExpandTab).toHaveBeenLastCalledWith('calendar');
+    expect(mocks.store.setMaxExpandTab).toHaveBeenLastCalledWith('aiChat');
     expect(legacy.markup).toContain('settings-nav-dots');
     expect(legacy.markup).not.toContain('data-home-control');
     expect(legacy.markup).not.toContain('data-app-navigation');
-    expect(legacy.markup.indexOf('title="maxExpand.nav.calendar"')).toBeLessThan(legacy.markup.indexOf('title="maxExpand.nav.todo"'));
-    expect(legacy.markup).not.toContain('title="maxExpand.nav.alarm"');
+    expect(legacy.markup).toContain('title="maxExpand.nav.aiChat"');
     render();
     expect(pressTab().defaultPrevented).toBe(true);
-    expect(mocks.store.maxExpandTab).toBe('todo');
+    expect(mocks.store.maxExpandTab).toBe('settings');
     render();
     expect(wheel().defaultPrevented).toBe(true);
-    expect(mocks.store.maxExpandTab).toBe('settings');
+    expect(mocks.store.setExpanded).toHaveBeenCalledOnce();
 
     mocks.appMode.appModeEnabled = true;
     render();
@@ -306,7 +305,7 @@ describe('MaxExpandContentShell app mode', () => {
   it('传统布局重新读取期间不校正应用或响应切页输入', () => {
     mocks.appMode.appModeEnabled = false;
     mocks.navLayout.navLayoutLoaded = false;
-    mocks.store.maxExpandTab = 'alarm';
+    mocks.store.maxExpandTab = 'settings';
     render();
 
     expect(pressTab().defaultPrevented).toBe(false);
@@ -317,7 +316,7 @@ describe('MaxExpandContentShell app mode', () => {
   it('退出时保留的隐藏壳层不纠正页面，也不响应导航输入', () => {
     mocks.appMode.appModeEnabled = false;
     mocks.contentActive = false;
-    mocks.store.maxExpandTab = 'alarm';
+    mocks.store.maxExpandTab = 'settings';
     render();
 
     expect(pressTab().defaultPrevented).toBe(false);

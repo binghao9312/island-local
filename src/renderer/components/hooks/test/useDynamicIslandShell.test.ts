@@ -52,7 +52,7 @@ beforeEach(() => {
   });
   vi.stubGlobal('cancelAnimationFrame', (id: number) => frames.delete(id));
   vi.stubGlobal('window', Object.assign(surface, { api: { ...ipc, ...native } }));
-  useIslandStore.setState({ state: 'idle', uiStateLocked: false, maxExpandAppModeEnabled: false, maxExpandLauncherVisible: false, maxExpandTab: 'todo', hoverTab: 'time' });
+  useIslandStore.setState({ state: 'idle', uiStateLocked: false, maxExpandAppModeEnabled: false, maxExpandLauncherVisible: false, maxExpandTab: 'aiChat', hoverTab: 'time' });
 });
 afterEach(() => { unmountHooks(); completeIslandWindowTransition(getIslandWindowTransitionId()); vi.useRealTimers(); vi.unstubAllGlobals(); });
 /**
@@ -224,16 +224,15 @@ describe('壳层真实状态动作和形变时序', () => {
     expect(useIslandStore.getState().state).toBe('hover'); expect(native.expandWindow).toHaveBeenCalledOnce();
   });
   it.each([
-    { app: false, launcher: false, active: true, tab: 'cli' as const, expected: 'cli' },
-    { app: true, launcher: false, active: true, tab: 'cli' as const, expected: 'cli' },
-    { app: true, launcher: true, active: true, tab: 'cli' as const, expected: 'hover' },
-    { app: false, launcher: true, active: false, tab: 'cli' as const, expected: 'hover' },
-    { app: false, launcher: false, active: true, tab: 'todo' as const, expected: 'hover' },
+    { app: true, launcher: false, active: true, tab: 'settings' as const, expected: 'hover' },
+    { app: true, launcher: true, active: true, tab: 'settings' as const, expected: 'hover' },
+    { app: false, launcher: true, active: false, tab: 'settings' as const, expected: 'hover' },
+    { app: false, launcher: false, active: true, tab: 'aiChat' as const, expected: 'hover' },
   ])('maxExpand退出核对真实启动器、CLI页与活动引用：$app/$launcher/$active/$tab', async ({ app, launcher, active, tab, expected }) => {
     useIslandStore.setState({ state: 'maxExpand', maxExpandAppModeEnabled: app, maxExpandLauncherVisible: launcher, maxExpandTab: tab });
     const input = options({ state: 'maxExpand', hasActiveCliSessionRef: { current: active } });
     (await mount(input)).handleIslandClick(); expect(useIslandStore.getState().state).toBe(expected);
-    expect(native.expandWindowNotification).toHaveBeenCalledTimes(expected === 'cli' ? 1 : 0);
+    expect(native.expandWindowNotification).not.toHaveBeenCalled();
   });
   it('本地外光事件同轮前置监听器卸载时，EventTarget不再执行已移除监听器', async () => {
     const input = options({ isMusicPlaying: true, coverImage: 'cover.png', isPlaying: true });

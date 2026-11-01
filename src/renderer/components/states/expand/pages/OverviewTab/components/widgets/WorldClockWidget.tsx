@@ -34,16 +34,16 @@ import { buildAllTicks, getAllTimezoneOptions, getCityLabel } from '../../../../
 /** 世界时钟刷新间隔（毫秒）。 */
 const CLOCK_UPDATE_INTERVAL_MS = 1000;
 
-/** 世界时钟小组件的页面跳转回调。 */
+/** 世界时钟小组件的页面跳转回调；世界时钟页面已从 MaxExpand 移除，未提供时标题不可点击。 */
 interface WorldClockWidgetProps {
-  onOpenWorldClockPage: () => void;
+  onOpenWorldClockPage?: () => void;
 }
 
 /**
  * 渲染总览世界时钟小组件。
  * @returns 世界时钟小组件
  */
-export function WorldClockWidget({ onOpenWorldClockPage }: WorldClockWidgetProps): ReactElement {
+export function WorldClockWidget({ onOpenWorldClockPage }: WorldClockWidgetProps = {}): ReactElement {
   const { t, i18n } = useTranslation();
   const localTimezoneRef = useRef(getUserTimezone('UTC'));
   const [config] = useOverviewWorldClockConfig();
@@ -83,7 +83,7 @@ export function WorldClockWidget({ onOpenWorldClockPage }: WorldClockWidgetProps
           onKeyDown={(event) => {
             if (event.key === 'Enter' || event.key === ' ') {
               event.preventDefault();
-              onOpenWorldClockPage();
+              onOpenWorldClockPage?.();
             }
           }}
         >

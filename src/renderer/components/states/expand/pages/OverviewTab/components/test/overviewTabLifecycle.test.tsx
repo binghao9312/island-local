@@ -179,7 +179,7 @@ beforeEach(async () => {
     getItem, setItem
   });
   useIslandStore.setState({
-    state: 'expanded', maxExpandTab: 'memo', uiStateLocked: false
+    state: 'expanded', maxExpandTab: 'aiChat', uiStateLocked: false
   });
 });
 afterEach(() => {
@@ -316,10 +316,5 @@ describe('OverviewTab 真实状态与控件集成', () => {
     else {expect(useIslandStore.getState()).toMatchObject({
       state: 'maxExpand', maxExpandTab: 'album'
     });}
-    root = view();
-    invoke(find(root, (node) => node.type === WorldClockWidget), 'onOpenWorldClockPage');
-    expect(useIslandStore.getState()).toMatchObject({
-      state: 'maxExpand', maxExpandTab: 'worldClock'
-    });
   });
 });

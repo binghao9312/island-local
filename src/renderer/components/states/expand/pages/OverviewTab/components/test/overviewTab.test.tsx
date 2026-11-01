@@ -178,12 +178,9 @@ describe('OverviewTab', () => {
     cleanup.forEach((fn) => fn());
   });
 
-  it('配置订阅选择世界时钟始终进入集成页，待办更新和卸载后事件边界', async () => {
+  it('待办更新和卸载后事件边界', async () => {
     const cleanup = await boot();
     update('store:overview-layout', { left: 'worldClock', right: 'todo' });
-    trigger(render(OverviewTab), mocks.widgets[9], 'onOpenWorldClockPage');
-    expect(mocks.select).toHaveBeenCalledWith('worldClock');
-    expect(mocks.openWindow).not.toHaveBeenCalled();
     update('store:todos', []);
     expect(value(render(OverviewTab), mocks.widgets[7], 'todos')).toEqual([]);
     cleanup.forEach((fn) => fn());

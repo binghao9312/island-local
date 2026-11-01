@@ -165,14 +165,9 @@ export function useIslandNotificationSubscriptions(options: UseIslandNotificatio
 
       const store = useIslandStore.getState();
       const appVisible = store.state === 'maxExpand' && !(store.maxExpandAppModeEnabled && store.maxExpandLauncherVisible);
-      const isToolboxTab = appVisible && store.maxExpandTab === 'toolbox';
       const isSettingTab = appVisible && store.maxExpandTab === 'settings';
-      if (isToolboxTab || isSettingTab) return;
-      if (
-        suppressInFavorites
-        && appVisible
-        && (store.maxExpandTab === 'urlFavorites' || store.maxExpandTab === 'clipboardHistory' || store.maxExpandTab === 'aiChat')
-      ) return;
+      if (isSettingTab) return;
+      if (suppressInFavorites && appVisible && store.maxExpandTab === 'aiChat') return;
 
       const faviconUrl = getWebsiteFaviconUrl(urls[0]);
       const hostname = getWebsiteHostname(urls[0]);

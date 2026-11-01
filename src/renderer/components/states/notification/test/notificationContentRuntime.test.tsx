@@ -96,6 +96,7 @@ function bridge() {
   return {
     storeRead: vi.fn((key: string): Promise<unknown> => Promise.resolve(storage[key])),
     storeWrite: vi.fn<(key: string, value: unknown) => Promise<void>>(() => Promise.resolve()),
+    openStandaloneWindow: vi.fn<() => Promise<boolean>>(() => Promise.resolve(true)),
     updaterDownload: vi.fn<(source: string, url?: string) => Promise<boolean>>(() => Promise.resolve(true)),
     updaterInstall: vi.fn<() => Promise<boolean>>(() => Promise.resolve(true)),
     updaterCheck: vi.fn<(source?: string, url?: string) => Promise<boolean>>(() => Promise.resolve(true)),
@@ -310,7 +311,7 @@ describe('NotificationContent real hooks', () => {
     await click('switch');
     await click('switchCliState');
     await click('ignore');
-    expect(model.store.setMaxExpandTab).toHaveBeenCalledWith('cli');
+    expect(model.store.setMaxExpandTab).toHaveBeenCalledWith('aiChat');
     expect(model.store.setCli).toHaveBeenCalledTimes(1);
     expect(model.store.setCliProvider).toHaveBeenCalledTimes(provider ? 2 : 0);
     surface.api = undefined;
@@ -624,13 +625,16 @@ describe('NotificationContent real hooks', () => {
       title: 'Body'
     })]));
     invoke(byClass(run(), 'notification-favorited-badge'), 'onClick');
+    await Promise.resolve();
     expect(localStorageLeaf.setItem).toHaveBeenCalledWith('url-favorites-focus-url', 'https://example.com');
-    expect(model.store.setMaxExpandTab).toHaveBeenCalledWith('urlFavorites');
+    expect(api.storeWrite).toHaveBeenCalledWith('standalone-window-active-tab', 'urlFavorites');
+    expect(api.openStandaloneWindow).toHaveBeenCalledTimes(1);
     localStorageLeaf.setItem.mockImplementationOnce(() => {
       throw new Error('local write');
     });
     invoke(byClass(run(), 'notification-favorited-badge'), 'onClick');
-    expect(model.store.setMaxExpand).toHaveBeenCalledTimes(2);
+    await Promise.resolve();
+    expect(api.openStandaloneWindow).toHaveBeenCalledTimes(2);
   });
   it('favorite title falls back to URL when body is blank or the URL itself', async () => {
     props.type = 'clipboard-url';

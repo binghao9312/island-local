@@ -67,7 +67,6 @@ export interface UseOverviewTabReturn {
   dragIndexRef: RefObject<number | null>;
   dragOverIndex: number | null;
   openTargetPage: (target: string) => void;
-  openWorldClockPage: () => void;
   openApp: (path: string) => void;
   handleAppDragStart: (e: DragEvent, index: number) => void;
   handleAppDragOver: (e: DragEvent, index: number) => void;

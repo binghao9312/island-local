@@ -30,22 +30,6 @@ import type { MaxExpandTab } from '../../../../../../store/types';
 /** 完整应用映射保证新增 MaxExpand 页面时同步补齐导航入口。 */
 export const MAX_EXPAND_APPS = {
   aiChat: { icon: SvgIcon.AI },
-  todo: { icon: SvgIcon.CHECKED },
-  urlFavorites: { icon: SvgIcon.BOOKMARK_ON },
-  localFileSearch: { icon: SvgIcon.SEARCH },
-  clipboardHistory: { icon: SvgIcon.COPY },
-  album: { icon: SvgIcon.PHOTO_ALBUM },
-  mail: { icon: SvgIcon.MAIL },
-  memo: { icon: SvgIcon.MEMO },
-  countdown: { icon: SvgIcon.COUNTDOWN },
-  alarm: { icon: SvgIcon.TIMER },
-  toolbox: { icon: SvgIcon.PLUGIN },
-  stock: { icon: SvgIcon.STOCK_CHOOSE },
-  cli: { icon: SvgIcon.CODING },
-  calculator: { icon: SvgIcon.CALCULATOR },
-  worldClock: { icon: SvgIcon.WORLDCLOCK },
-  calendar: { icon: SvgIcon.CALENDER },
-  song: { icon: SvgIcon.MUSIC },
   settings: { icon: SvgIcon.SETTING },
 } as const satisfies Record<MaxExpandTab, { icon: string }>;
 

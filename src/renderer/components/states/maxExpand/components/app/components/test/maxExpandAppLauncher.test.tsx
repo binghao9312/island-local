@@ -25,9 +25,10 @@
  */
 
 import { describe, expect, it, vi } from 'vitest';
+import type { MaxExpandTab } from '../../../../../../../store/types';
 import { render, nodes, value, trigger, text } from '../../../../test/componentHarness';
 import Component from '../MaxExpandAppLauncher';
-const layout = vi.hoisted(() => ({ tabs: ['todo', 'calendar'], ready: true, saving: false, saveFailed: false }));
+const layout = vi.hoisted(() => ({ tabs: ['aiChat', 'settings'] as MaxExpandTab[], ready: true, saving: false, saveFailed: false }));
 const drag = vi.hoisted(() => ({ consumeClick: vi.fn(() => false), pressedTab: null as string | null, drag: null as { tab: string; x: number; y: number; offsets: unknown[]; hideTarget: boolean } | null }));
 vi.mock('../../hooks/useAppLauncherLayout', () => ({ default: () => layout }));
 vi.mock('../../hooks/useAppLauncherDrag', () => ({ default: () => drag }));
@@ -36,9 +37,9 @@ describe('MaxExpandAppLauncher', () => {
   it('selects a real app and suppresses a click consumed by a prior drag', () => {
     const tree = render(Component, props);
     expect(nodes(tree, '.max-expand-app-launcher-item')).toHaveLength(2);
-    const event = { detail: 1, currentTarget: { dataset: { app: 'todo' } }, preventDefault: vi.fn() };
+    const event = { detail: 1, currentTarget: { dataset: { app: 'aiChat' } }, preventDefault: vi.fn() };
     trigger(tree, '.max-expand-app-launcher-item', 'onClick', event);
-    expect(props.onSelectApp).toHaveBeenCalledWith('todo');
+    expect(props.onSelectApp).toHaveBeenCalledWith('aiChat');
     drag.consumeClick.mockReturnValueOnce(true);
     trigger(tree, '.max-expand-app-launcher-item', 'onClick', event);
     expect(props.onSelectApp).toHaveBeenCalledTimes(1);
@@ -46,7 +47,7 @@ describe('MaxExpandAppLauncher', () => {
   });
   it('ignores touch hover and marks mouse hover while showing drag and save states', () => {
     const tree = render(Component, props);
-    const currentTarget = { dataset: { app: 'todo' } };
+    const currentTarget = { dataset: { app: 'aiChat' } };
     trigger(tree, '.max-expand-app-launcher-item', 'onPointerEnter', {
       currentTarget,
       pointerType: 'touch'
@@ -58,7 +59,7 @@ describe('MaxExpandAppLauncher', () => {
     });
     expect(nodes(render(Component, props), '.is-active')).toHaveLength(1);
     layout.saveFailed = true; layout.saving = true;
-    drag.pressedTab = 'todo'; drag.drag = { tab: 'todo', x: 4, y: 5, offsets: [], hideTarget: true };
+    drag.pressedTab = 'aiChat'; drag.drag = { tab: 'aiChat', x: 4, y: 5, offsets: [], hideTarget: true };
     const active = render(Component, props);
     expect(value(active, '.max-expand-app-launcher', 'data-dragging')).toBe(true);
     expect(value(active, '.max-expand-app-hide-zone', 'data-active')).toBe(true);

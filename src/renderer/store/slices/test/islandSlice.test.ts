@@ -112,37 +112,37 @@ describe('createIslandSlice', () => {
 
     expect(store.getState().state).toBe('maxExpand');
     expect(store.getState().maxExpandLauncherVisible).toBe(true);
-    expect(store.getState().maxExpandTab).toBe('todo');
+    expect(store.getState().maxExpandTab).toBe('aiChat');
   });
 
   it('preserves a direct app selection when entering maxExpand', () => {
     const store = createSliceState(createIslandSlice);
 
-    store.getState().setMaxExpandTab('clipboardHistory');
+    store.getState().setMaxExpandTab('settings');
     store.getState().setMaxExpand();
 
     expect(store.getState().state).toBe('maxExpand');
     expect(store.getState().maxExpandLauncherVisible).toBe(false);
-    expect(store.getState().maxExpandTab).toBe('clipboardHistory');
+    expect(store.getState().maxExpandTab).toBe('settings');
   });
 
   it('returns home without resizing and can reopen the same app', () => {
     const store = createSliceState(createIslandSlice);
     store.getState().setMaxExpand();
-    store.getState().setMaxExpandTab('calendar');
+    store.getState().setMaxExpandTab('settings');
     api.expandWindowSettings.mockClear();
 
     store.getState().showMaxExpandLauncher();
 
     expect(store.getState().state).toBe('maxExpand');
     expect(store.getState().maxExpandLauncherVisible).toBe(true);
-    expect(store.getState().maxExpandTab).toBe('calendar');
+    expect(store.getState().maxExpandTab).toBe('settings');
     expect(api.expandWindowSettings).not.toHaveBeenCalled();
 
-    store.getState().setMaxExpandTab('calendar');
+    store.getState().setMaxExpandTab('settings');
 
     expect(store.getState().maxExpandLauncherVisible).toBe(false);
-    expect(store.getState().maxExpandTab).toBe('calendar');
+    expect(store.getState().maxExpandTab).toBe('settings');
   });
 
   it('preserves the selected app when returning from authentication', () => {

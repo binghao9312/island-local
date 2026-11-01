@@ -35,9 +35,8 @@ import type { Feedback } from '../../login/config/loginConfig';
 /** 绑定 OAuth 状态交互逻辑 Hook */
 export function useBindOAuth() {
   const { t } = useTranslation();
-  const { bindOAuthContext, setMaxExpand, setMaxExpandTab, setLogin } = useIslandStore(useShallow((store) => ({
+  const { bindOAuthContext, setMaxExpandTab, setLogin } = useIslandStore(useShallow((store) => ({
     bindOAuthContext: store.bindOAuthContext,
-    setMaxExpand: store.setMaxExpand,
     setMaxExpandTab: store.setMaxExpandTab,
     setLogin: store.setLogin,
   })));

@@ -29,23 +29,7 @@ import type { NavDotId } from '../config/shellConstants';
 /** 导航点 ID 到默认中文标签的映射 */
 const NAV_LABEL_MAP: Record<string, string> = {
   expanded: '返回',
-  todo: '待办',
-  urlFavorites: 'URL 收藏',
-  album: '相册',
-  mail: '邮箱',
-  localFileSearch: '文件查找',
-  clipboardHistory: '剪贴板',
   aiChat: 'AI 对话',
-  memo: '备忘录',
-  countdown: '倒数日',
-  alarm: '闹钟',
-  toolbox: '工具箱',
-  stock: '股票行情',
-  cli: 'CLI 控制台',
-  calculator: '计算器',
-  worldClock: '世界时钟',
-  calendar: '日历',
-  song: '歌曲',
   settings: '设置',
 };
 
