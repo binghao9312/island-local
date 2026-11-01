@@ -39,6 +39,12 @@ import {
   shiftCalendarMonth,
 } from '../../../../maxExpand/components/calendar/utils/calendarUtils';
 import { getCalendarDateKey } from '../../../../maxExpand/components/calendar/utils/calendarHolidayUtils';
+import { useGoogleCalendar } from '../hooks/useGoogleCalendar';
+import {
+  getGoogleCalendarWindow,
+  getGoogleStatusKey,
+  toGoogleTimelineEvents,
+} from '../utils/googleCalendarEvents';
 
 /** 7 个星期的简写头，基准从周日开始 */
 const WEEKDAY_KEYS = [
@@ -72,10 +78,17 @@ export function CalendarTab(): ReactElement {
   const holidayInfo = useCalendarHolidays(year);
   const todos = useCalendarTodos();
   const { items: countdowns } = useCountdownItems();
+  const googleWindow = useMemo(() => getGoogleCalendarWindow(year, month), [year, month]);
+  const google = useGoogleCalendar(googleWindow.timeMin, googleWindow.timeMax);
+  const googleEvents = useMemo(
+    () => toGoogleTimelineEvents(google.events, t('expanded.calendar.google.untitled', { defaultValue: '(No title)' })),
+    [google.events, t],
+  );
+  const googleStatusKey = getGoogleStatusKey({ enabled: google.enabled, status: google.status, error: google.error });
 
   const allEvents = useMemo(
-    () => getCalendarTimelineEvents(holidayInfo.holidays, todos, countdowns, today),
-    [holidayInfo.holidays, todos, countdowns, today],
+    () => [...getCalendarTimelineEvents(holidayInfo.holidays, todos, countdowns, today), ...googleEvents],
+    [holidayInfo.holidays, todos, countdowns, today, googleEvents],
   );
 
   const yearEvents = useMemo(
@@ -214,9 +227,26 @@ export function CalendarTab(): ReactElement {
 
       {/* 右侧日程列表 */}
       <div className="compact-calendar-events-section">
-        <div className="compact-calendar-events-title">
-          {selectedKey}
+        <div className="compact-calendar-events-header">
+          <div className="compact-calendar-events-title">
+            {selectedKey}
+          </div>
+          {google.enabled && google.status?.loggedIn === true && (
+            <button
+              type="button"
+              className="compact-calendar-nav-btn"
+              onClick={google.refresh}
+              aria-label={t('expanded.calendar.google.refresh', { defaultValue: 'Refresh Google Calendar' })}
+            >
+              ↻
+            </button>
+          )}
         </div>
+        {googleStatusKey && (
+          <div className="compact-calendar-google-status">
+            {t(googleStatusKey, { defaultValue: 'Google Calendar unavailable' })}
+          </div>
+        )}
         {selectedEvents.length === 0 ? (
           <div className="compact-calendar-no-events">
             {t('expanded.calendar.noEvents', { defaultValue: '暂无日程安排' })}
@@ -232,6 +262,14 @@ export function CalendarTab(): ReactElement {
                 <span className="compact-calendar-event-label" title={event.label}>
                   {event.label}
                 </span>
+                {event.kind === 'google' && (
+                  <span
+                    className="compact-calendar-google-badge"
+                    title={t('expanded.calendar.google.badge', { defaultValue: 'Google Calendar' })}
+                  >
+                    G
+                  </span>
+                )}
               </div>
             ))}
           </div>

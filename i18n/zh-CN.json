@@ -685,7 +685,17 @@
       "nextPage": "下一页"
     },
     "calendar": {
-      "noEvents": "暂无日程安排"
+      "noEvents": "暂无日程安排",
+      "google": {
+        "badge": "Google 日历",
+        "untitled": "（无标题）",
+        "missing": "未找到 gws 命令行工具，请安装后即可同步 Google 日历。",
+        "loggedOut": "尚未登录 Google，请先运行 gws auth login。",
+        "network": "网络异常，Google 日历同步失败。",
+        "error": "无法加载 Google 日历。",
+        "refresh": "刷新 Google 日历",
+        "writeFailed": "日程保存失败，请稍后重试。"
+      }
     },
     "agentUsage": {
       "title": "Agent 用量",

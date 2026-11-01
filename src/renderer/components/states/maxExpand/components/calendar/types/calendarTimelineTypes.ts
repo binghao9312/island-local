@@ -14,7 +14,7 @@
 /** 包含首尾日期的日历事件。 */
 export interface CalendarTimelineEvent {
   id: string;
-  kind: 'holiday' | 'todo' | 'countdown';
+  kind: 'holiday' | 'todo' | 'countdown' | 'google';
   label: string;
   start: string;
   end: string;

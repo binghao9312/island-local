@@ -74,10 +74,26 @@ vi.mock('../../../../../maxExpand/components/countdown/hooks/useCountdownItems',
   useCountdownItems: () => ({ items: [] }),
 }));
 
+const mockGoogle = vi.hoisted(() => ({
+  enabled: false,
+  status: null as { available: boolean; loggedIn: boolean } | null,
+  events: [] as Array<{ id: string; title: string; allDay: boolean; start: string; end: string }>,
+  error: null as string | null,
+  refresh: vi.fn(),
+}));
+
+vi.mock('../../hooks/useGoogleCalendar', () => ({
+  useGoogleCalendar: () => mockGoogle,
+}));
+
 beforeEach(() => {
   vi.clearAllMocks();
   mockCalendar.selectedDate = new Date(2026, 10, 1);
   mockCalendar.selectedDay = 1;
+  mockGoogle.enabled = false;
+  mockGoogle.status = null;
+  mockGoogle.events = [];
+  mockGoogle.error = null;
 });
 
 describe('CalendarTab in expanded view', () => {
@@ -101,5 +117,40 @@ describe('CalendarTab in expanded view', () => {
 
     trigger(tree, '.compact-calendar-nav-btn', 'onClick');
     expect(mockCalendar.selectDate).toHaveBeenCalled();
+  });
+
+  it('merges Google events with a badge and shows the refresh control when signed in', () => {
+    mockGoogle.enabled = true;
+    mockGoogle.status = { available: true, loggedIn: true };
+    mockGoogle.events = [
+      { id: 'g1', title: 'Design review', allDay: false, start: new Date(2026, 10, 1, 10, 0).toISOString(), end: new Date(2026, 10, 1, 11, 0).toISOString() },
+    ];
+
+    const tree = render(CalendarTab);
+
+    expect(text(tree)).toContain('10:00 Design review');
+    expect(nodes(tree, '.compact-calendar-google-badge')).toHaveLength(1);
+    expect(nodes(tree, '.compact-calendar-google-status')).toHaveLength(0);
+    expect(nodes(tree, '.compact-calendar-nav-btn')).toHaveLength(3);
+  });
+
+  it('shows a status line and no Google UI when gws is missing', () => {
+    mockGoogle.enabled = true;
+    mockGoogle.status = { available: false, loggedIn: false };
+
+    const tree = render(CalendarTab);
+
+    expect(nodes(tree, '.compact-calendar-google-status')).toHaveLength(1);
+    expect(nodes(tree, '.compact-calendar-google-badge')).toHaveLength(0);
+    expect(nodes(tree, '.compact-calendar-nav-btn')).toHaveLength(2);
+  });
+
+  it('hides Google UI entirely while sync is disabled', () => {
+    mockGoogle.enabled = false;
+
+    const tree = render(CalendarTab);
+
+    expect(nodes(tree, '.compact-calendar-google-status')).toHaveLength(0);
+    expect(nodes(tree, '.compact-calendar-google-badge')).toHaveLength(0);
   });
 });

@@ -685,7 +685,17 @@
       "nextPage": "Next page"
     },
     "calendar": {
-      "noEvents": "No events scheduled"
+      "noEvents": "No events scheduled",
+      "google": {
+        "badge": "Google Calendar",
+        "untitled": "(No title)",
+        "missing": "gws CLI not found. Install it to sync Google Calendar.",
+        "loggedOut": "Not signed in to Google. Run gws auth login first.",
+        "network": "Network error. Google Calendar could not be synced.",
+        "error": "Google Calendar could not be loaded.",
+        "refresh": "Refresh Google Calendar",
+        "writeFailed": "Could not save the event. Please try again."
+      }
     },
     "agentUsage": {
       "title": "Agent Usage",

@@ -685,7 +685,17 @@
       "nextPage": "次のページ"
     },
     "calendar": {
-      "noEvents": "予定はありません"
+      "noEvents": "予定はありません",
+      "google": {
+        "badge": "Googleカレンダー",
+        "untitled": "（タイトルなし）",
+        "missing": "gws コマンドが見つかりません。インストールすると Google カレンダーと同期できます。",
+        "loggedOut": "Google にサインインしていません。gws auth login を実行してください。",
+        "network": "ネットワークエラーのため、Google カレンダーを同期できませんでした。",
+        "error": "Google カレンダーを読み込めませんでした。",
+        "refresh": "Google カレンダーを更新",
+        "writeFailed": "予定を保存できませんでした。もう一度お試しください。"
+      }
     },
     "agentUsage": {
       "title": "Agent 使用量",
