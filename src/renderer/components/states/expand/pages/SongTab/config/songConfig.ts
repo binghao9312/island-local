@@ -26,8 +26,8 @@
 
 import type { WaveLayer } from '../types/songTypes';
 
-/** 显示歌词行数 */
-export const VISIBLE_LINES = 5;
+/** 显示歌词行数（当前行 + 下一行） */
+export const VISIBLE_LINES = 2;
 
 /** 播放时每帧推进的波形相位 */
 export const WAVE_TIME_STEP = 0.025;

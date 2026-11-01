@@ -70,7 +70,7 @@ describe('SongTab', () => {
     expect(value(render(SongTab), '.ov-ctrl-play', 'title')).toContain('controls.play');
   });
 
-  it('加载中、无歌词和前奏分别显示对应内容，正常歌词最多五行', () => {
+  it('加载中、无歌词和前奏分别显示对应内容，正常歌词仅展示当前行与下一行', () => {
     mocks.state.isMusicPlaying = true; mocks.state.lyricsLoading = true;
     expect(nodes(render(SongTab), '.ov-lrc-loading-dot')).toHaveLength(3);
     mocks.state.lyricsLoading = false;
@@ -80,8 +80,10 @@ describe('SongTab', () => {
     expect(nodes(render(SongTab), '.ov-lrc-line')).toHaveLength(2);
     mocks.state.currentPositionMs = 4000;
     const tree = render(SongTab);
-    expect(nodes(tree, '.ov-lrc-line')).toHaveLength(5);
+    const lines = nodes(tree, '.ov-lrc-line');
+    expect(lines).toHaveLength(2);
     expect(text(nodes(tree, '.current'))).toBe('line3');
+    expect(text(lines[1])).toBe('line4');
   });
 
   it('歌词功能关闭时不显示加载中或暂无歌词占位', async () => {

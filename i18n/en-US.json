@@ -967,6 +967,7 @@
     "providerSwitch": "Agent provider",
     "newChat": "New chat",
     "thought": "Thinking",
+    "thinking": "Thinking…",
     "plan": "Plan",
     "empty": "Ask {{name}} anything. It runs locally on this computer.",
     "errorHint": "Send a message to try again, or start a new chat.",

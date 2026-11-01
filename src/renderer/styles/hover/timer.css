@@ -23,13 +23,27 @@
  * @description 计时器输入框、显示、开始/暂停/重置控制按钮样式
  */
 
-/** 时间标签页整体容器 - 左侧时间，右侧日期 */
+/** 时间标签页整体容器 - 左侧紧邻导航点的工具按钮网格，右侧大时间与日期 */
 .time-tab-wrapper {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  padding-left: 6px;
   gap: 8px;
   white-space: nowrap;
+  box-sizing: border-box;
+}
+
+/** 工具按钮组网格容器（操作、媒体与系统工具按钮） */
+.time-tools-grid {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 /** TimeTab 中 action buttons 的尺寸覆盖 */
@@ -51,7 +65,7 @@
   width: 1px;
   height: 28px;
   background: rgba(var(--color-text-rgb), 0.2);
-  margin: 0 2px;
+  margin: 0 4px 0 auto;
   flex-shrink: 0;
 }
 
@@ -67,6 +81,7 @@
 .timer-main-shell {
   position: relative;
   flex-shrink: 0;
+  width: 140px;
 }
 
 /** 计时器主体 */
@@ -207,12 +222,13 @@
   height: 20px;
 }
 
-/** 工具按钮组（截图、任务管理器） */
+/** 工具按钮组（倒计时、截图、任务管理器，排列为两行网格避免 60px 高度溢出） */
 .timer-tools {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: repeat(2, 1fr);
+  grid-auto-flow: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px 4px;
 }
 
 /** 工具按钮组内按钮尺寸覆盖（小于默认 action-btn） */

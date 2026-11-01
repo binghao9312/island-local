@@ -967,6 +967,7 @@
     "providerSwitch": "智能体来源",
     "newChat": "新对话",
     "thought": "思考过程",
+    "thinking": "思考中…",
     "plan": "计划",
     "empty": "向 {{name}} 提问吧，它在本机运行。",
     "errorHint": "再发一条消息即可重试，或开始新对话。",

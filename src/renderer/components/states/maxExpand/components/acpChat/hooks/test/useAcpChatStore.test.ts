@@ -34,6 +34,7 @@ const api = {
   acpProviders: vi.fn(),
   acpPrompt: vi.fn(),
   acpCancel: vi.fn(),
+  acpStop: vi.fn(),
   acpReset: vi.fn(),
   acpPermissionResolve: vi.fn(),
 };
@@ -70,10 +71,18 @@ describe('useAcpChatStore', () => {
     expect(useAcpChatStore.getState().providers).toHaveLength(1);
   });
 
-  it('persists the selected provider', () => {
+  it('defaults to antigravity when no stored provider exists', () => {
+    storage.clear();
+    useAcpChatStore.getState().selectProvider('antigravity');
+    expect(useAcpChatStore.getState().activeProvider).toBe('antigravity');
+  });
+
+  it('persists the selected provider and stops the previously active provider', () => {
+    useAcpChatStore.setState({ activeProvider: 'omp' });
     useAcpChatStore.getState().selectProvider('gemini');
     expect(useAcpChatStore.getState().activeProvider).toBe('gemini');
     expect(storage.get('eIsland_acpActiveProvider')).toBe('gemini');
+    expect(api.acpStop).toHaveBeenCalledWith('omp');
   });
 
   it('adds the user message, streams updates, then finishes the turn', async () => {

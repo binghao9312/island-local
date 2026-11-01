@@ -24,7 +24,7 @@
  * @author 鸡哥
  */
 
-import { spawn } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 import type {
   AcpConnectionStatus,
   AcpEvent,
@@ -46,17 +46,53 @@ const ACP_PROTOCOL_VERSION = 1;
 /** 握手（initialize + session/new）的最长等待时间 */
 const HANDSHAKE_TIMEOUT_MS = 90_000;
 
+/** 默认空闲自动停止时间：10 分钟无提问且无活动自动退出进程 */
+export const ACP_IDLE_TIMEOUT_MS = 10 * 60 * 1000;
+
 /** 仅保留 stderr 末尾这么多字符，用于进程异常退出时给出线索 */
 const STDERR_TAIL_MAX = 2000;
 
 /** 子进程的最小接口，真实实现是 ChildProcess，测试中可以用假对象替代 */
 export interface AcpChildProcess {
+  pid?: number;
   stdin: { write(chunk: string): unknown };
   stdout: JsonRpcInput;
   stderr: { on(event: 'data', listener: (chunk: Buffer | string) => void): unknown } | null;
   on(event: 'exit', listener: (code: number | null, signal: string | null) => void): unknown;
   on(event: 'error', listener: (error: Error) => void): unknown;
-  kill(): unknown;
+  kill(signal?: string): unknown;
+}
+
+/** 智能体客户端通用接口（原生 ACP 客户端与 Antigravity 适配器通用） */
+export interface IAcpClient {
+  readonly status: AcpConnectionStatus;
+  start(): Promise<AcpStartResult>;
+  prompt(text: string, images?: AcpImageData[]): Promise<AcpPromptResult>;
+  cancel(): void;
+  resolvePermission(requestId: string, optionId: string | null): boolean;
+  stop(): void;
+}
+
+/**
+ * 终止子进程及其整棵派生进程树。
+ * Windows 下直接对包装了 cmd.exe 的 .cmd 垫片调用 child.kill() 只会终止 cmd.exe，
+ * 内部真正的 node/agent 进程会变成孤儿进程滞留；因此优先调用 taskkill /PID <pid> /T /F。
+ * @param child - 子进程对象
+ */
+export function defaultKillProcessTree(child: AcpChildProcess): void {
+  if (process.platform === 'win32' && typeof child.pid === 'number' && child.pid > 0) {
+    try {
+      execSync(`taskkill /PID ${child.pid} /T /F`, { windowsHide: true, stdio: 'ignore' });
+      return;
+    } catch {
+      // taskkill 失败（如进程已退出）后回退至原生 kill()
+    }
+  }
+  try {
+    child.kill();
+  } catch {
+    // 忽略已被终止的异常
+  }
 }
 
 /** 启动子进程的函数 */
@@ -76,6 +112,10 @@ export interface AcpAgentClientOptions {
   spawnFn?: AcpSpawnFn;
   /** 命令解析函数，返回完整路径或 null，默认在 PATH 中查找 */
   resolvePath?: (command: string) => string | null;
+  /** 终止子进程树的函数，默认使用 taskkill (Win32) 回退到 kill() */
+  killFn?: (child: AcpChildProcess) => void;
+  /** 空闲自动停止毫秒数，默认 10 分钟 (10 * 60 * 1000) */
+  idleTimeoutMs?: number;
 }
 
 /**
@@ -123,7 +163,7 @@ function errorText(error: unknown): string {
 }
 
 /** 单个供应商的 ACP 客户端 */
-export class AcpAgentClient {
+export class AcpAgentClient implements IAcpClient {
   private readonly options: AcpAgentClientOptions;
 
   private child: AcpChildProcess | null = null;
@@ -142,6 +182,9 @@ export class AcpAgentClient {
 
   private readonly permissions = new Map<string, (optionId: string | null) => void>();
 
+  private idleTimer: NodeJS.Timeout | null = null;
+
+  private promptInFlight = false;
   /**
    * @param options - 客户端构造参数
    */
@@ -175,8 +218,14 @@ export class AcpAgentClient {
    * @returns 结束原因或失败信息
    */
   async prompt(text: string, images: AcpImageData[] = []): Promise<AcpPromptResult> {
+    this.promptInFlight = true;
+    this.clearIdleTimer();
     const started = await this.start();
-    if (!started.ok || !this.connection) return { ok: false, error: started.error };
+    if (!started.ok || !this.connection) {
+      this.promptInFlight = false;
+      this.resetIdleTimer();
+      return { ok: false, error: started.error };
+    }
     const blocks: Array<Record<string, unknown>> = images.map((image) => ({
       type: 'image',
       data: image.data,
@@ -191,6 +240,9 @@ export class AcpAgentClient {
       return { ok: true, stopReason: result?.stopReason ?? 'end_turn' };
     } catch (error) {
       return { ok: false, error: errorText(error) };
+    } finally {
+      this.promptInFlight = false;
+      this.resetIdleTimer();
     }
   }
 
@@ -218,10 +270,14 @@ export class AcpAgentClient {
 
   /** 终止进程并回到空闲状态 */
   stop(): void {
+    this.clearIdleTimer();
+    this.promptInFlight = false;
     const child = this.child;
     this.teardown(new Error('Agent stopped'));
     this.setStatus('idle');
-    child?.kill();
+    if (child) {
+      (this.options.killFn ?? defaultKillProcessTree)(child);
+    }
   }
 
   private setStatus(status: AcpConnectionStatus, message?: string): void {
@@ -244,12 +300,17 @@ export class AcpAgentClient {
       this.attach(child);
       await withTimeout(this.handshake(), HANDSHAKE_TIMEOUT_MS, 'ACP handshake timed out');
       this.setStatus('ready');
+      this.resetIdleTimer();
       return { ok: true };
     } catch (error) {
+      this.clearIdleTimer();
+      this.promptInFlight = false;
       const message = this.withStderr(errorText(error));
       const child = this.child;
       this.teardown(new Error(message));
-      child?.kill();
+      if (child) {
+        (this.options.killFn ?? defaultKillProcessTree)(child);
+      }
       this.setStatus('error', message);
       return { ok: false, status: 'error', error: message };
     }
@@ -288,9 +349,39 @@ export class AcpAgentClient {
   private handleExit(child: AcpChildProcess, reason: string): void {
     // 已被 teardown 替换或重复触发（error 之后又 exit）时忽略
     if (this.child !== child) return;
+    this.clearIdleTimer();
+    this.promptInFlight = false;
     const message = this.withStderr(reason);
     this.teardown(new Error(message));
     this.setStatus('exited', message);
+  }
+
+  /** 重置空闲自动停止计时器 */
+  private resetIdleTimer(): void {
+    this.clearIdleTimer();
+    if (this.currentStatus !== 'ready' || this.promptInFlight) return;
+    const timeoutMs = this.options.idleTimeoutMs ?? ACP_IDLE_TIMEOUT_MS;
+    if (timeoutMs <= 0) return;
+    this.idleTimer = setTimeout(() => {
+      if (!this.promptInFlight && this.currentStatus === 'ready') {
+        this.stop();
+      }
+    }, timeoutMs);
+  }
+
+  /** 清除空闲计时器 */
+  private clearIdleTimer(): void {
+    if (this.idleTimer !== null) {
+      clearTimeout(this.idleTimer);
+      this.idleTimer = null;
+    }
+  }
+
+  /** 收到活动时重置空闲计时 */
+  private touchActivity(): void {
+    if (!this.promptInFlight) {
+      this.resetIdleTimer();
+    }
   }
 
   private withStderr(message: string): string {
@@ -316,6 +407,7 @@ export class AcpAgentClient {
   }
 
   private handleNotification(method: string, params: unknown): void {
+    this.touchActivity();
     if (method !== 'session/update') return;
     const update = (params as { update?: AcpSessionUpdate } | null)?.update;
     if (update && typeof update.sessionUpdate === 'string') {
@@ -324,6 +416,7 @@ export class AcpAgentClient {
   }
 
   private async handleRequest(method: string, params: unknown): Promise<unknown> {
+    this.touchActivity();
     if (method !== 'session/request_permission') {
       throw new JsonRpcError(-32601, `Method not found: ${method}`);
     }

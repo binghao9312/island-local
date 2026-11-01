@@ -73,12 +73,14 @@ export function TimeTab({
 
   return (
     <div className="time-tab-wrapper">
-      <ActionButtons />
-      <MediaButtons
-        activePanel={activePanel}
-        onPanelToggle={handlePanelToggle}
-      />
-      <CountdownEdit activePanel={activePanel} />
+      <div className="time-tools-grid">
+        <ActionButtons />
+        <MediaButtons
+          activePanel={activePanel}
+          onPanelToggle={handlePanelToggle}
+        />
+        <CountdownEdit activePanel={activePanel} />
+      </div>
       <div className="time-tab-divider" />
       <div className="hover-time-panel">
         <div className="hover-time-row">

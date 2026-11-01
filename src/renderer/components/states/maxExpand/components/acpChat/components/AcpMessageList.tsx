@@ -25,10 +25,10 @@
  */
 
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ReactElement, ReactNode } from 'react';
 import type { AcpChatItem } from '../../../../../../../shared/acpTypes';
 import { AcpMessageItem } from './AcpMessageItem';
-
 /** 距离底部多少像素以内仍视为"贴底" */
 const STICK_THRESHOLD_PX = 48;
 
@@ -50,10 +50,11 @@ interface AcpMessageListProps {
  * @returns 可滚动的消息列表元素
  */
 export function AcpMessageList({ items, busy, emptyContent }: AcpMessageListProps): ReactElement {
+  const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const stickRef = useRef(true);
   const last = items[items.length - 1];
-  // 流式追加文字不改变条目数量，用末条内容长度触发滚动
+  const isWaitingFirstChunk = busy && (!last || last.kind !== 'agent' || last.text === '');
   const lastSize = last && (last.kind === 'agent' || last.kind === 'thought') ? last.text.length : 0;
 
   useEffect(() => {
@@ -72,7 +73,17 @@ export function AcpMessageList({ items, busy, emptyContent }: AcpMessageListProp
       onWheelCapture={(event) => { event.stopPropagation(); }}
     >
       {items.length === 0 ? emptyContent : items.map((item) => <AcpMessageItem key={item.id} item={item} />)}
-      {busy && <span className="size-2 animate-pulse self-start rounded-full bg-[rgba(var(--color-text-rgb),0.5)]" role="status" />}
+      {isWaitingFirstChunk && (
+        <div
+          className="max-expand-chat-bubble ai r1pxc-chat flex items-center gap-1.5 self-start px-3 py-2"
+          role="status"
+          aria-label={t('acpChat.thinking', { defaultValue: '思考中…' })}
+        >
+          <span className="size-1.5 rounded-full bg-[rgba(var(--color-text-rgb),0.6)] animate-bounce [animation-delay:-0.3s]" />
+          <span className="size-1.5 rounded-full bg-[rgba(var(--color-text-rgb),0.6)] animate-bounce [animation-delay:-0.15s]" />
+          <span className="size-1.5 rounded-full bg-[rgba(var(--color-text-rgb),0.6)] animate-bounce" />
+        </div>
+      )}
     </div>
   );
 }

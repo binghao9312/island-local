@@ -56,21 +56,26 @@ interface AcpChatStore {
 }
 
 /**
- * 读取上次选中的供应商
- * @returns 供应商标识，默认 gemini
+ * 读取上次选中的供应商，默认 antigravity
+ * @returns 供应商标识，默认 antigravity
  */
 function loadActiveProvider(): AcpProviderId {
   try {
-    return localStorage.getItem(ACTIVE_PROVIDER_KEY) === 'omp' ? 'omp' : 'gemini';
+    const saved = localStorage.getItem(ACTIVE_PROVIDER_KEY);
+    if (saved === 'gemini' || saved === 'omp' || saved === 'antigravity') {
+      return saved;
+    }
   } catch {
-    return 'gemini';
+    // 默认使用 antigravity
   }
+  return 'antigravity';
 }
 
 let unsubscribeEvents: (() => void) | null = null;
 
 /** 每次重置会话递增；被重置打断的提问不应再把错误写进新会话 */
-const turnEpoch: Record<AcpProviderId, number> = { gemini: 0, omp: 0 };
+const turnEpoch: Record<AcpProviderId, number> = { antigravity: 0, gemini: 0, omp: 0 };
+
 
 /** ACP 聊天全局 store */
 export const useAcpChatStore = create<AcpChatStore>((set, get) => ({
@@ -96,6 +101,10 @@ export const useAcpChatStore = create<AcpChatStore>((set, get) => ({
   },
 
   selectProvider: (providerId) => {
+    const previous = get().activeProvider;
+    if (previous !== providerId) {
+      void window.api.acpStop(previous);
+    }
     try {
       localStorage.setItem(ACTIVE_PROVIDER_KEY, providerId);
     } catch {

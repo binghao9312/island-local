@@ -967,6 +967,7 @@
     "providerSwitch": "智慧體來源",
     "newChat": "新對話",
     "thought": "思考過程",
+    "thinking": "思考中…",
     "plan": "計畫",
     "empty": "向 {{name}} 提問吧，它在本機執行。",
     "errorHint": "再傳一則訊息即可重試，或開始新對話。",

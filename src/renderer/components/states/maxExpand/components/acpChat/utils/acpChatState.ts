@@ -64,7 +64,7 @@ export function createEmptyChat(): AcpProviderChat {
  * @returns 初始状态表
  */
 export function createInitialChats(): AcpChats {
-  return { gemini: createEmptyChat(), omp: createEmptyChat() };
+  return { antigravity: createEmptyChat(), gemini: createEmptyChat(), omp: createEmptyChat() };
 }
 
 /**

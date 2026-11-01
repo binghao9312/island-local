@@ -41,6 +41,12 @@ beforeEach(() => { slots.cursor = 0; slots.values = []; slots.effects = []; });
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 function render() { slots.cursor = 0; return ((TimeTab({ fullTimeStr: '12:34:56' }) as TreeElement)); }
 describe('TimeTab', () => {
-  it('renders supplied clock alongside countdown', () => { const root = render(); expect(text(root)).toContain('12:34:56'); expect(find(root, (node) => node.type === CountdownEdit).props.activePanel).toBe('countdown'); });
+  it('renders supplied clock alongside countdown and groups tools into grid', () => {
+    const root = render();
+    expect(text(root)).toContain('12:34:56');
+    expect(find(root, (node) => node.type === CountdownEdit).props.activePanel).toBe('countdown');
+    const toolsGrid = find(root, (node) => node.props?.className === 'time-tools-grid');
+    expect(toolsGrid).toBeDefined();
+  });
   it.each(['brightness', 'volume'])('opens %s then toggles back to countdown', (panel) => { invoke(find(render(), (node) => node.type === MediaButtons), 'onPanelToggle', panel); expect(find(render(), (node) => node.type === CountdownEdit).props.activePanel).toBe(panel); invoke(find(render(), (node) => node.type === MediaButtons), 'onPanelToggle', panel); expect(find(render(), (node) => node.type === CountdownEdit).props.activePanel).toBe('countdown'); });
 });
