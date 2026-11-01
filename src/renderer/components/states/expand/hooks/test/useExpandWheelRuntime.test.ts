@@ -106,7 +106,7 @@ describe('useExpandWheelNav real context and native events', () => {
     expect(wheel(1)).toBe(false);
     expect(options.setExpandTab).not.toHaveBeenCalled();
   });
-  it.each(['.ov-dash-todo-list', '.ov-dash-apps', '.ov-dash-url-favorites-list', '.ov-dash-break-reminder-list', '.tools-app-list-body', '.translation-editor-textarea'])('nested scrolling in %s retains native behavior', (selector) => {
+  it.each(['.ov-dash-todo-list', '.ov-dash-apps', '.ov-dash-url-favorites-list', '.ov-dash-break-reminder-list', '.tools-app-list-body'])('nested scrolling in %s retains native behavior', (selector) => {
     mount();
     expect(wheel(1, selector)).toBe(false);
     expect(options.setExpandTab).not.toHaveBeenCalled();

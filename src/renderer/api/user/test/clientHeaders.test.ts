@@ -123,7 +123,6 @@ describe('client mutation replay policy', () => {
     { path: '/v1/user/profile', method: 'PUT', auth: 'token', replay: true },
     { path: '/v1/surveys/1', method: 'DELETE', auth: 'token', replay: true },
     { path: '/v1/upload/user-avatar', method: 'POST', auth: 'token', replay: true },
-    { path: '/v1/toolbox/image-translations/1', method: 'DELETE', auth: 'token', replay: true },
     { path: '/v1/other', method: 'POST', auth: 'token', replay: false },
     { path: '/v1/user/profile', method: 'POST', auth: undefined, replay: false },
     { path: '/v1/user/profile', method: 'POST', auth: ' ', replay: false },

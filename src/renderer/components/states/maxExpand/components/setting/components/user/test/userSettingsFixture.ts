@@ -31,7 +31,7 @@ import { elements, findElement, invoke, textContent } from '../../../../../../..
 import { renderWithHooks, resetLifecycle, runEffects, unmountHooks } from '../../app/components/test/themeHookHarness';
 import type { UserAccountProfile } from '../../../../../../../../utils/userAccount';
 import type { Mock } from 'vitest';
-const apiNames = ['closeUserPaymentOrder', 'deleteImageTranslationHistory', 'fetchUserPaymentOrders', 'fetchProMonthPricing', 'fetchAgentBalance', 'fetchImageTranslationHistory', 'fetchOAuthBindings', 'fetchUserProfile', 'logoutUser', 'refreshUserToken', 'sendUserEmailCode', 'unbindOAuth', 'unregisterUser', 'updateUserPassword', 'updateUserProfile', 'uploadUserAvatar', 'fetchQuestionnaireHistory', 'deleteQuestionnaireHistory'] as const;
+const apiNames = ['closeUserPaymentOrder', 'fetchUserPaymentOrders', 'fetchProMonthPricing', 'fetchAgentBalance', 'fetchOAuthBindings', 'fetchUserProfile', 'logoutUser', 'refreshUserToken', 'sendUserEmailCode', 'unbindOAuth', 'unregisterUser', 'updateUserPassword', 'updateUserProfile', 'uploadUserAvatar', 'fetchQuestionnaireHistory', 'deleteQuestionnaireHistory'] as const;
 type ApiName = typeof apiNames[number];
 type ApiMock = Mock<(...args: unknown[]) => Promise<unknown>>;
 const mocks = vi.hoisted(() => ({
@@ -76,7 +76,7 @@ vi.mock('react-i18next', () => ({
   })
 }));
 vi.mock('../../../../../../../../api/user/userAccountApi', () => ({
-  ...Object.fromEntries(['closeUserPaymentOrder', 'deleteImageTranslationHistory', 'fetchUserPaymentOrders', 'fetchProMonthPricing', 'fetchAgentBalance', 'fetchImageTranslationHistory', 'fetchOAuthBindings', 'fetchUserProfile', 'logoutUser', 'refreshUserToken', 'sendUserEmailCode', 'unbindOAuth', 'unregisterUser', 'updateUserPassword', 'updateUserProfile', 'uploadUserAvatar'].map((name) => {
+  ...Object.fromEntries(['closeUserPaymentOrder', 'fetchUserPaymentOrders', 'fetchProMonthPricing', 'fetchAgentBalance', 'fetchOAuthBindings', 'fetchUserProfile', 'logoutUser', 'refreshUserToken', 'sendUserEmailCode', 'unbindOAuth', 'unregisterUser', 'updateUserPassword', 'updateUserProfile', 'uploadUserAvatar'].map((name) => {
     const callback = vi.fn<(...args: unknown[]) => Promise<unknown>>();
     mocks.api[name as ApiName] = callback;
     return [name, callback];
@@ -117,8 +117,6 @@ vi.mock('../utils/loginHeatmapStorage', () => ({
   recordLoginDay: mocks.recordDay
 }));
 export const transport = {
-  downloadPickSavePath: vi.fn<(name: string) => Promise<string | null>>(),
-  downloadStart: vi.fn<(options: unknown) => Promise<unknown>>(),
   clipboardOpenUrl: vi.fn<(url: string) => Promise<void>>(),
   copy: vi.fn<(text: string) => Promise<void>>()
 };
@@ -173,7 +171,7 @@ export function setupUser(): void {
       balanceYuan: '12.34'
     }
   });
-  ['fetchUserPaymentOrders', 'fetchImageTranslationHistory'].forEach((name) => {
+  ['fetchUserPaymentOrders'].forEach((name) => {
     mocks.api[name as ApiName].mockResolvedValue({
       ok: true,
       data: {
@@ -202,10 +200,6 @@ export function setupUser(): void {
     ticket: 'ticket',
     randstr: 'rand',
     sign: 'sign'
-  });
-  transport.downloadPickSavePath.mockResolvedValue('C:/download/image.jpg');
-  transport.downloadStart.mockResolvedValue({
-    ok: true
   });
   transport.clipboardOpenUrl.mockResolvedValue();
   transport.copy.mockResolvedValue();

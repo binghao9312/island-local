@@ -20,26 +20,14 @@
 
 /**
  * @file userSettingsMedia.test.ts
- * @description 用户订阅充值、导航状态及图片预览真实缩放拖动生命周期回归。
+ * @description 用户订阅充值与导航状态真实回调回归。
  * @author 鸡哥
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { elementProps, elements, findElement, invoke, textContent } from '../../../../../../../test/elementHarness';
-import { runEffects, unmountHooks } from '../../app/components/test/themeHookHarness';
+import { unmountHooks } from '../../app/components/test/themeHookHarness';
 import { bootUser, cleanupUser, clickUser, mocks, navigateUser, profile, renderUser, settleUser, setupUser, skeletonLabels } from './userSettingsFixture';
-const image = {
-  id: 1,
-  taskId: 'abcdef12345',
-  username: 'reader',
-  status: 'SUCCEEDED',
-  sourceLanguage: 'auto',
-  targetLanguage: 'zh',
-  sourceUrl: 'https://host/source.png',
-  resultUrl: 'https://host/result.webp',
-  createdAt: '2026-01-01T00:00:00',
-  errorMessage: ''
-};
 beforeEach(setupUser);
 afterEach(cleanupUser);
 describe('订阅价格、充值余额和金额输入', () => {
@@ -191,12 +179,12 @@ describe('订阅价格、充值余额和金额输入', () => {
     expect(textContent(renderUser())).not.toContain('99.99');
   });
 });
-describe('导航和图片翻译状态', () => {
+describe('导航状态', () => {
   it('摘要所有导航卡片和展开导航执行实际回调', async () => {
     await bootUser();
     const tree = renderUser();
     const cards = elements(tree).filter((node) => node.type === 'button' && String(elementProps(node).className).startsWith('settings-index-card') && !textContent(node).includes('settings.user.actions.refresh'));
-    const expected = ['pro', 'recharge', 'orders', 'edit', 'edit', 'password', 'oauth', 'image-translation', 'questionnaire', 'account'];
+    const expected = ['pro', 'recharge', 'orders', 'edit', 'edit', 'password', 'oauth', 'questionnaire', 'account'];
     cards.forEach((node, index) => {
       invoke(node, 'onClick');
       expect(elementProps(findElement(renderUser(), (entry) => 'activePage' in elementProps(entry))).activePage).toBe(expected[index]);
@@ -218,137 +206,5 @@ describe('导航和图片翻译状态', () => {
     invoke(banner, 'onDismiss');
     expect(mocks.store.setQuestionnaire).toHaveBeenCalledOnce();
     expect(mocks.reminder.dismiss).toHaveBeenCalledOnce();
-  });
-  it('所有翻译状态、无结果、错误、空语言和未知语言回退', async () => {
-    const values = ['SUCCEEDED', 'FAILED', 'PROCESSING', 'QUEUED', '', '@@@'];
-    mocks.api.fetchImageTranslationHistory.mockResolvedValue({
-      ok: true,
-      data: {
-        items: values.map((statusValue, index) => ({
-          ...image,
-          taskId: String(index),
-          status: statusValue,
-          sourceLanguage: ['', 'unknown-language'][index] ?? 'en',
-          targetLanguage: ['', 'unknown-language'][index] ?? 'auto',
-          resultUrl: index % 2 ? null : '  ',
-          errorMessage: index === 1 ? 'task failed' : ''
-        })),
-        page: 1,
-        total: 6,
-        totalPages: 2
-      }
-    });
-    await bootUser('image-translation');
-    const text = textContent(renderUser());
-    ['succeeded', 'failed', 'processing', 'queued', 'unknown'].forEach((status) => {
-      expect(text).toContain(`settings.user.imageTranslation.status.${status}`);
-    });
-    expect(text).toContain('settings.user.imageTranslation.resultUnavailable');
-    expect(text).toContain('settings.user.imageTranslation.resultPending');
-    expect(text).toContain('task failed');
-  });
-});
-describe('图片预览缩放、拖动和清理', () => {
-  it('真实wheel注册、缩放夹紧、拖动边界及所有指针退出分支', async () => {
-    mocks.api.fetchImageTranslationHistory.mockResolvedValue({
-      ok: true,
-      data: {
-        items: [image],
-        page: 1,
-        total: 1,
-        totalPages: 1
-      }
-    });
-    await bootUser('image-translation');
-    const source = findElement(renderUser(), (node) => node.type === 'button' && String(elementProps(node).className) === 'settings-user-image-translation-image-wrap');
-    invoke(source, 'onClick');
-    const preview = () => findElement(renderUser(), (node) => String(elementProps(node).className).startsWith('settings-user-image-translation-preview'));
-    const listeners = new Map<string, (event: unknown) => void>();
-    const set = vi.fn();
-    const release = vi.fn();
-    let captured = false;
-    const target = {
-      clientWidth: 200,
-      clientHeight: 100,
-      setPointerCapture: set,
-      hasPointerCapture: () => captured,
-      releasePointerCapture: release,
-      addEventListener: vi.fn((name: string, callback: (event: unknown) => void) => {
-        listeners.set(name, callback);
-      }),
-      removeEventListener: vi.fn((name: string) => {
-        listeners.delete(name);
-      })
-    };
-    const ref = elementProps(preview()).ref as {
-      current: typeof target | null;
-    };
-    ref.current = target;
-    runEffects();
-    const stop = vi.fn();
-    const prevent = vi.fn();
-    const event = (pointerId = 1, clientX = 10, clientY = 10, button = 0) => ({
-      pointerId,
-      clientX,
-      clientY,
-      button,
-      currentTarget: target,
-      preventDefault: prevent,
-      stopPropagation: stop
-    });
-    invoke(preview(), 'onPointerMove', event());
-    invoke(preview(), 'onPointerUp', event());
-    invoke(preview(), 'onPointerCancel', event());
-    invoke(preview(), 'onPointerDown', event(1, 10, 10, 1));
-    expect(set).not.toHaveBeenCalled();
-    listeners.get('wheel')?.({
-      deltaY: -10000,
-      preventDefault: prevent,
-      stopPropagation: stop
-    });
-    renderUser();
-    runEffects();
-    expect(String(elementProps(findElement(preview(), (node) => node.type === 'img')).style && (elementProps(findElement(preview(), (node) => node.type === 'img')).style as {
-      transform: string;
-    }).transform)).toContain('scale(4)');
-    invoke(preview(), 'onPointerDown', event());
-    expect(set).toHaveBeenCalledWith(1);
-    invoke(preview(), 'onPointerMove', event(2));
-    invoke(preview(), 'onPointerUp', event(2));
-    invoke(preview(), 'onPointerCancel', event(2));
-    invoke(preview(), 'onPointerMove', event(1, 11, 11));
-    invoke(preview(), 'onPointerMove', event(1, 11, 30));
-    invoke(preview(), 'onPointerMove', event(1, 1000, -1000));
-    expect(String(elementProps(preview()).className)).toContain('is-dragging');
-    captured = true;
-    invoke(preview(), 'onPointerUp', event());
-    expect(release).toHaveBeenCalledWith(1);
-    invoke(preview(), 'onClick', event());
-    expect(elements(renderUser()).some((node) => String(elementProps(node).className).startsWith('settings-user-image-translation-preview'))).toBe(true);
-    invoke(preview(), 'onPointerDown', event());
-    captured = false;
-    invoke(preview(), 'onPointerUp', event());
-    expect(release).toHaveBeenCalledOnce();
-    listeners.get('wheel')?.({
-      deltaY: 10000,
-      preventDefault: prevent,
-      stopPropagation: stop
-    });
-    renderUser();
-    runEffects();
-    expect((elementProps(findElement(preview(), (node) => node.type === 'img')).style as {
-      transform: string;
-    }).transform).toContain('scale(0.5)');
-    invoke(preview(), 'onPointerCancel', event());
-    invoke(preview(), 'onClick', event());
-    renderUser();
-    runEffects();
-    expect(listeners.size).toBe(0);
-    const [, result] = elements(renderUser()).filter((node) => node.type === 'button' && String(elementProps(node).className) === 'settings-user-image-translation-image-wrap');
-    invoke(result, 'onClick');
-    expect(elementProps(findElement(preview(), (node) => node.type === 'img')).src).toBe(image.resultUrl);
-    invoke(preview(), 'onClick', event());
-    renderUser();
-    runEffects();
   });
 });

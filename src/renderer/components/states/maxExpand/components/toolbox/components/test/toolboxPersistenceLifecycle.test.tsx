@@ -106,7 +106,7 @@ describe('toolbox native persistence lifecycle', () => {
     expect(read).toHaveBeenNthCalledWith(1, 'toolbox-nav-config', true);
     expect(read).toHaveBeenNthCalledWith(2, 'toolbox-nav-order', true);
     expect(read).toHaveBeenNthCalledWith(3, 'toolbox-hidden-nav-order', true);
-    expect(cards()).toHaveLength(12);
+    expect(cards()).toHaveLength(11);
     expect(cards()[0]).toContain('download-create');
   });
   it('hidden-order rejection consumes failure without applying a partially loaded visible order', async () => {
@@ -116,7 +116,7 @@ describe('toolbox native persistence lifecycle', () => {
     await settleHook();
     expect(read).toHaveBeenCalledTimes(3);
     expect(cards()[0]).toContain('download-create');
-    expect(cards()).toHaveLength(12);
+    expect(cards()).toHaveLength(11);
   });
   it('unmount during the second read prevents late values from replacing default cards', async () => {
     const hidden = deferred<unknown>();

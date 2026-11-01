@@ -26,7 +26,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ScreenshotSettingsPage } from '../ScreenshotSettingsPage';
-import { elementProps, elements, findElement, invoke, resetState, rewindState } from '../../../../../../../../test/elementHarness';
+import { elementProps, elements, invoke, resetState, rewindState } from '../../../../../../../../test/elementHarness';
 vi.mock('react', async (importOriginal) => ({
   ...await importOriginal<typeof import('react')>(),
   ...(await import('../../../../../../../../test/elementHarness')).hookMocks,
@@ -52,15 +52,5 @@ describe('ScreenshotSettingsPage', () => {
     expect(api.storeWrite).toHaveBeenCalledWith('screenshot-engine', 'js');
     rewindState();
     expect(elements(ScreenshotSettingsPage()).filter((node) => elementProps(node).name === 'screenshot-engine').map((node) => elementProps(node).checked)).toEqual([false, true]);
-  });
-  it('prevents language swap for auto detection and enables it for explicit languages', () => {
-    const tree = ScreenshotSettingsPage();
-    expect(elements(tree).filter((node) => node.type === 'button' && elementProps(node).disabled === true)).toHaveLength(1);
-    resetState(['zh', 'en', 'js', 'local']);
-    const explicit = ScreenshotSettingsPage();
-    const swap = findElement(explicit, (node) => node.type === 'button' && elementProps(node).disabled === false);
-    invoke(swap, 'onClick');
-    expect(api.storeWrite).toHaveBeenCalledWith('screenshot-translate-source-lang', 'en');
-    expect(api.storeWrite).toHaveBeenCalledWith('screenshot-translate-target-lang', 'zh');
   });
 });

@@ -20,24 +20,14 @@
 
 /**
  * @file userSettingsBoundary.test.ts
- * @description 用户中心旧本地数据、迟到定时器、缺ref及异步预览边界回归。
+ * @description 用户中心旧本地数据、迟到定时器及冷却边界回归。
  * @author 鸡哥
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { elementProps, elements, findElement, invoke, textContent } from '../../../../../../../test/elementHarness';
+import { elementProps, findElement, invoke, textContent } from '../../../../../../../test/elementHarness';
 import { runEffects } from '../../app/components/test/themeHookHarness';
-import { bootUser, cleanupUser, clickUser, mocks, navigateUser, profile, renderUser, settleUser, setupUser, transport } from './userSettingsFixture';
-const image = {
-  id: 1,
-  taskId: 'task-1',
-  status: 'SUCCEEDED',
-  sourceLanguage: 'auto',
-  targetLanguage: 'zh',
-  sourceUrl: 'https://host/source.png',
-  resultUrl: 'https://host/result.webp',
-  createdAt: ''
-};
+import { bootUser, cleanupUser, clickUser, mocks, navigateUser, profile, renderUser, setupUser } from './userSettingsFixture';
 beforeEach(setupUser);
 afterEach(cleanupUser);
 describe('用户中心兼容和迟到事件边界', () => {
@@ -97,47 +87,6 @@ describe('用户中心兼容和迟到事件边界', () => {
     expect(textContent(renderUser())).toContain('reader');
     expect(mocks.writeToken).toHaveBeenCalledWith('fresh-token');
   });
-  it('无绑定预览元素时跳过wheel监听，关闭预览恢复图片卡片', async () => {
-    mocks.api.fetchImageTranslationHistory.mockResolvedValue({
-      ok: true,
-      data: {
-        items: [image],
-        page: 1,
-        total: 1,
-        totalPages: 1
-      }
-    });
-    await bootUser('image-translation');
-    invoke(findElement(renderUser(), (node) => node.type === 'button' && elementProps(node).className === 'settings-user-image-translation-image-wrap'), 'onClick');
-    renderUser();
-    runEffects();
-    const preview = findElement(renderUser(), (node) => String(elementProps(node).className).startsWith('settings-user-image-translation-preview'));
-    invoke(preview, 'onClick', {});
-    expect(elements(renderUser()).some((node) => node.type === 'button' && elementProps(node).className === 'settings-user-image-translation-image-wrap')).toBe(true);
-  });
-  it('翻译结果下载过程中显示等待状态并阻止第二次下载', async () => {
-    mocks.api.fetchImageTranslationHistory.mockResolvedValue({
-      ok: true,
-      data: {
-        items: [image],
-        page: 1,
-        total: 1,
-        totalPages: 1
-      }
-    });
-    await bootUser('image-translation');
-    let resolve: ((value: string | null) => void) | undefined;
-    transport.downloadPickSavePath.mockReturnValue(new Promise((done) => {
-      resolve = done;
-    }));
-    invoke(findElement(renderUser(), (node) => node.type === 'button' && textContent(node) === 'settings.user.imageTranslation.actions.downloadResult'), 'onClick');
-    const pending = findElement(renderUser(), (node) => node.type === 'button' && textContent(node) === 'settings.user.imageTranslation.actions.downloading');
-    expect(elementProps(pending).disabled).toBe(true);
-    invoke(pending, 'onClick');
-    expect(transport.downloadPickSavePath).toHaveBeenCalledOnce();
-    resolve?.(null);
-    await settleUser();
-  });
   it('空状态订单不触发已付款资料刷新', async () => {
     mocks.api.fetchUserPaymentOrders.mockResolvedValue({
       ok: true,
@@ -156,28 +105,6 @@ describe('用户中心兼容和迟到事件边界', () => {
     await bootUser('orders');
     expect(mocks.api.fetchUserProfile).toHaveBeenCalledOnce();
     expect(textContent(renderUser())).toContain('settings.user.payment.status.unknown');
-  });
-  it.each([true, false])('抹除排队回调处理当前预览匹配=%s', async (matching) => {
-    mocks.api.fetchImageTranslationHistory.mockResolvedValue({
-      ok: true,
-      data: {
-        items: [image, {
-          ...image,
-          taskId: 'task-2'
-        }],
-        page: 1,
-        total: 2,
-        totalPages: 1
-      }
-    });
-    await bootUser('image-translation');
-    const first = findElement(renderUser(), (node) => node.type === 'article' && node.key === 'task-1');
-    const remove = findElement(matching ? first : findElement(renderUser(), (node) => node.type === 'article' && node.key === 'task-2'), (node) => node.type === 'button' && textContent(node) === 'settings.user.imageTranslation.actions.remove');
-    invoke(findElement(first, (node) => node.type === 'button' && elementProps(node).className === 'settings-user-image-translation-image-wrap'), 'onClick');
-    expect(elements(renderUser()).some((node) => String(elementProps(node).className).startsWith('settings-user-image-translation-preview'))).toBe(true);
-    invoke(remove, 'onClick');
-    await settleUser();
-    expect(mocks.api.deleteImageTranslationHistory).toHaveBeenCalledWith('opaque', matching ? 'task-1' : 'task-2');
   });
   it('问卷页同样转发待填写提醒', async () => {
     mocks.reminder.questionnaire = {

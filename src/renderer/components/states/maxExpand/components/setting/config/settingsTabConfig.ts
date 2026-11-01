@@ -49,8 +49,6 @@ export const SETTINGS_OPEN_TAB_STORE_KEY = 'settings-open-tab';
 export const ISLAND_AUTO_DIM_ENABLED_STORE_KEY = 'island-auto-dim-enabled';
 export const ISLAND_AUTO_DIM_DELAY_STORE_KEY = 'island-auto-dim-delay';
 export const AUTO_HIDE_FULLSCREEN_WINDOWS_STORE_KEY = 'auto-hide-fullscreen-windows';
-export const SCREENSHOT_TRANSLATE_SOURCE_LANG_STORE_KEY = 'screenshot-translate-source-lang';
-export const SCREENSHOT_TRANSLATE_TARGET_LANG_STORE_KEY = 'screenshot-translate-target-lang';
 export { SCREENSHOT_ENGINE_STORE_KEY } from '../../../../../../../shared/storeKeys';
 export const DEFAULT_AUTO_DIM_DELAY_SEC = 10;
 

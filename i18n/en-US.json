@@ -656,7 +656,6 @@
       "overview": "Preparing the overview and quick actions.",
       "song": "Preparing song information and playback controls.",
       "tools": "Preparing tools and shortcuts.",
-      "translation": "Preparing the translation input and results panel.",
       "performanceMonitor": "Preparing system performance and hardware status panels.",
       "agentUsage": "Preparing the Agent usage panel."
     },
@@ -665,7 +664,6 @@
       "overview": "Overview",
       "song": "Music",
       "tools": "Tools",
-      "translation": "Translation",
       "performanceMonitor": "Performance Monitor",
       "agentUsage": "Agent Usage",
       "maxExpand": "Max Expand",
@@ -733,14 +731,6 @@
     },
     "settingsTab": {
       "label": "Settings"
-    },
-    "translation": {
-      "title": "Quick Translate",
-      "sourceLabel": "Source",
-      "targetLabel": "Target",
-      "inputTitle": "Original",
-      "outputTitle": "Translation",
-      "languageAria": "Translation language selector"
     }
   },
   "toolsTab": {
@@ -1636,7 +1626,6 @@
         "index": "Navigation",
         "download": "MT Download",
         "software": "Software",
-        "translate": "Translate",
         "fileService": "File Service",
         "encodingService": "Encoding Svc",
         "networkService": "Network Svc",
@@ -1673,10 +1662,6 @@
         "software": {
           "label": "Software",
           "desc": "Quickly access common software downloads and feedback entry."
-        },
-        "translate": {
-          "label": "Text Translation",
-          "desc": "Translate text between multiple languages."
         },
         "fileService-hash": {
           "label": "File Hash Check",
@@ -1774,30 +1759,6 @@
           "removeSuccess": "Download task removed",
           "removeFailed": "Failed to remove download task",
           "openFolderFailed": "Failed to open file location"
-        }
-      },
-      "translate": {
-        "title": "Text Translation",
-        "subtitle": "Machine translation powered by Tencent Cloud",
-        "inputPlaceholder": "Enter text to translate...",
-        "outputPlaceholder": "Translation result will appear here",
-        "translateBtn": "Translate",
-        "translating": "Translating...",
-        "swap": "Swap Languages",
-        "clear": "Clear",
-        "copy": "Copy",
-        "loginRequired": "Please sign in before using translation",
-        "error": "Translation failed. Please try again later",
-        "lang": {
-          "auto": "Auto Detect",
-          "zh": "Chinese",
-          "en": "English",
-          "ja": "Japanese",
-          "ko": "Korean",
-          "fr": "French",
-          "de": "German",
-          "es": "Spanish",
-          "ru": "Russian"
         }
       },
       "fileService": {
@@ -2964,9 +2925,7 @@
         "engineTitle": "Screenshot Engine",
         "engineHint": "Choose the engine for screenshots. Plugin mode supports multi-monitor capture, JS mode has better compatibility.",
         "enginePlugin": "Plugin Mode",
-        "engineJs": "JS Mode",
-        "translateTitle": "Screenshot Translation Language",
-        "translateHint": "Configure source and target languages for screenshot translation."
+        "engineJs": "JS Mode"
       },
       "notifications": {
         "configChanged": {
@@ -3057,7 +3016,6 @@
           "overview": "Overview",
           "song": "Music",
           "tools": "Tools",
-          "translation": "Translation",
           "performanceMonitor": "Performance Monitor",
           "agentUsage": "Agent Usage"
         }
@@ -4206,7 +4164,6 @@
         "ordersDesc": "Check order status, continue payment, or close pending orders",
         "logoutDesc": "Sign out or delete your account",
         "oauthDesc": "View linked third-party login accounts",
-        "imageTranslationDesc": "View past image translation records",
         "questionnaireDesc": "View past questionnaire submission records"
       },
       "pages": {
@@ -4218,7 +4175,6 @@
         "orders": "My Orders",
         "account": "Account",
         "oauth": "Third-party App",
-        "image-translation": "Image Translation",
         "questionnaire": "Questionnaire Records",
         "switchTo": "Switch to {{label}}"
       },
@@ -4241,44 +4197,6 @@
         "feedback": {
           "unbindSuccess": "Unbound successfully",
           "unbindFailed": "Failed to unbind"
-        }
-      },
-      "imageTranslation": {
-        "subtitle": "View original images alongside their translated results",
-        "loading": "Loading image translation history…",
-        "loadFailed": "Failed to load image translation history",
-        "empty": "No image translation history",
-        "languageConnector": "to",
-        "sourceImage": "Before Translation",
-        "sourceImageAlt": "Original image before translation",
-        "resultImage": "After Translation",
-        "resultImageAlt": "Translated result image",
-        "resultPending": "Waiting for translation result",
-        "resultUnavailable": "No result image available",
-        "previewLabel": "Image preview",
-        "actions": {
-          "downloadSource": "Download Original",
-          "downloadResult": "Download Translation",
-          "downloading": "Downloading…",
-          "downloadStarted": "Download started",
-          "downloadFailed": "Download failed",
-          "remove": "Remove Record",
-          "removing": "Removing…",
-          "removeSuccess": "Images and translation record removed",
-          "removeFailed": "Failed to remove images"
-        },
-        "pagination": {
-          "label": "Image translation history pagination",
-          "previous": "Previous",
-          "next": "Next",
-          "summary": "Page {{page}} / {{totalPages}}, {{total}} total"
-        },
-        "status": {
-          "queued": "Queued",
-          "processing": "Translating",
-          "succeeded": "Completed",
-          "failed": "Failed",
-          "unknown": "Unknown"
         }
       },
       "questionnaire": {

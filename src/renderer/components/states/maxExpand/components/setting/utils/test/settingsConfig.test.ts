@@ -91,7 +91,6 @@ describe('normalizeExpandNavLayoutConfig', () => {
       { id: 'tools', visible: true },
       { id: 'song', visible: true },
       { id: 'overview', visible: true },
-      { id: 'translation', visible: true },
       { id: 'performanceMonitor', visible: true },
       { id: 'agentUsage', visible: true },
     ];
@@ -100,7 +99,6 @@ describe('normalizeExpandNavLayoutConfig', () => {
       'tools',
       'song',
       'overview',
-      'translation',
       'performanceMonitor',
       'agentUsage',
     ]);
@@ -150,10 +148,9 @@ describe('normalizeExpandNavLayoutConfig', () => {
     // 'song' first, then missing tabs appended
     const ids = result.map((i) => i.id);
     expect(ids[0]).toBe('song');
-    // overview, tools, translation, performanceMonitor, agentUsage should be appended
+    // overview, tools, performanceMonitor, agentUsage should be appended
     expect(ids).toContain('overview');
     expect(ids).toContain('tools');
-    expect(ids).toContain('translation');
     expect(ids).toContain('performanceMonitor');
     expect(ids).toContain('agentUsage');
     expect(result.length).toBe(mod.EXPAND_CONFIGURABLE_TABS.length);
@@ -200,6 +197,16 @@ describe('normalizeExpandNavLayoutConfig', () => {
     const result = mod.normalizeExpandNavLayoutConfig(input);
     expect(result.find((i) => i.id === 'unknownTab')).toBeUndefined();
     expect(result.find((i) => i.id === 'song')?.visible).toBe(true);
+  });
+
+  it('drops the removed translation tab from a stored layout', () => {
+    const result = mod.normalizeExpandNavLayoutConfig([
+      { id: 'translation', visible: true },
+      { id: 'song', visible: true },
+    ]);
+    expect(result.map((i) => i.id)).not.toContain('translation');
+    expect(result[0].id).toBe('song');
+    expect(result).toHaveLength(mod.EXPAND_CONFIGURABLE_TABS.length);
   });
 
   it('returns all configurable tabs even when only partial input given', () => {

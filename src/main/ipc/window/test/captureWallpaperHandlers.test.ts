@@ -258,17 +258,6 @@ describe('capture and wallpaper ipc handlers', () => {
     expect(Buffer.from(await items[0].data['image/png'].arrayBuffer())).toEqual(pngBuffer);
     expect(closeCaptureWindow).toHaveBeenCalledTimes(1);
 
-    const translateSender = {
-      id: 7,
-      once: vi.fn(),
-      removeListener: vi.fn(),
-    };
-    await expect(handleHandlers.get('capture-translate')?.(
-      { sender: translateSender },
-      { dataURL: 'data:image/png;base64,TRANSLATE', token: '', targetLanguage: 'zh' },
-    )).resolves.toEqual({ success: false, code: 'loginRequired', message: '请先登录 Pro 账号后再使用图片翻译' });
-    expect(closeCaptureWindow).toHaveBeenCalledTimes(1);
-
     await onHandlers.get('capture-save')?.({}, { dataURL: `data:image/png;base64,${pngBuffer.toString('base64')}` });
     expect(captureWindow.hide).toHaveBeenCalled();
     expect(writeFileSyncMock).toHaveBeenCalledWith('C:/Pictures/s1.png', pngBuffer);

@@ -656,7 +656,6 @@
       "overview": "準備總覽與快捷操作。",
       "song": "準備歌曲信息與播放控制。",
       "tools": "準備實用工具與快捷入口。",
-      "translation": "準備翻譯輸入與結果面板。",
       "performanceMonitor": "準備系統性能與硬件狀態面板。",
       "agentUsage": "準備 Agent 用量面板。"
     },
@@ -665,7 +664,6 @@
       "overview": "總覽",
       "song": "歌曲",
       "tools": "工具",
-      "translation": "翻譯",
       "performanceMonitor": "性能監控",
       "agentUsage": "Agent用量",
       "maxExpand": "最大展開",
@@ -733,14 +731,6 @@
     },
     "settingsTab": {
       "label": "設置"
-    },
-    "translation": {
-      "title": "快速翻譯",
-      "sourceLabel": "源語言",
-      "targetLabel": "目標語言",
-      "inputTitle": "原文",
-      "outputTitle": "譯文",
-      "languageAria": "翻譯語言選擇"
     }
   },
   "toolsTab": {
@@ -1636,7 +1626,6 @@
         "index": "快速導航",
         "download": "多線程下載",
         "software": "常用軟件",
-        "translate": "文本翻譯",
         "fileService": "文件服務",
         "encodingService": "編碼服務",
         "networkService": "網絡服務",
@@ -1673,10 +1662,6 @@
         "software": {
           "label": "常用軟件",
           "desc": "快速訪問常用軟件下載入口與反饋通道。"
-        },
-        "translate": {
-          "label": "文本翻譯",
-          "desc": "輸入文本並在多語言間進行翻譯。"
         },
         "fileService-hash": {
           "label": "文件哈希校驗",
@@ -1774,30 +1759,6 @@
           "removeSuccess": "已刪除下載記錄",
           "removeFailed": "刪除下載記錄失敗",
           "openFolderFailed": "打開文件所在位置失敗"
-        }
-      },
-      "translate": {
-        "title": "文本翻譯",
-        "subtitle": "由騰訊雲提供機器翻譯服務",
-        "inputPlaceholder": "輸入要翻譯的文本…",
-        "outputPlaceholder": "翻譯結果將顯示在此處",
-        "translateBtn": "翻譯",
-        "translating": "翻譯中…",
-        "swap": "交換語言",
-        "clear": "清空",
-        "copy": "複製",
-        "loginRequired": "請先登錄後再使用翻譯服務",
-        "error": "翻譯失敗，請稍後重試",
-        "lang": {
-          "auto": "自動檢測",
-          "zh": "中文",
-          "en": "英語",
-          "ja": "日語",
-          "ko": "韓語",
-          "fr": "法語",
-          "de": "德語",
-          "es": "西班牙語",
-          "ru": "俄語"
         }
       },
       "fileService": {
@@ -2964,9 +2925,7 @@
         "engineTitle": "截圖引擎",
         "engineHint": "選擇截圖使用的引擎。插件模式支持多顯示器截圖，JS 模式兼容性更好。",
         "enginePlugin": "插件模式",
-        "engineJs": "JS 模式",
-        "translateTitle": "截圖翻譯語言",
-        "translateHint": "配置截圖翻譯的源語言和目標語言。"
+        "engineJs": "JS 模式"
       },
       "notifications": {
         "configChanged": {
@@ -3057,7 +3016,6 @@
           "overview": "總覽",
           "song": "歌曲",
           "tools": "工具",
-          "translation": "翻譯",
           "performanceMonitor": "性能監控",
           "agentUsage": "Agent用量"
         }
@@ -4206,7 +4164,6 @@
         "ordersDesc": "查看訂單狀態、繼續支付或主動關閉待支付訂單",
         "logoutDesc": "退出當前賬號或註銷",
         "oauthDesc": "查看已綁定的第三方登錄賬號",
-        "imageTranslationDesc": "查看歷史圖片翻譯記錄",
         "questionnaireDesc": "查看歷史問卷填寫記錄"
       },
       "pages": {
@@ -4218,7 +4175,6 @@
         "orders": "我的訂單",
         "account": "關於賬戶",
         "oauth": "第三方應用綁定",
-        "image-translation": "圖片翻譯",
         "questionnaire": "問卷記錄",
         "switchTo": "切換到{{label}}"
       },
@@ -4241,44 +4197,6 @@
         "feedback": {
           "unbindSuccess": "已解除綁定",
           "unbindFailed": "解除綁定失敗"
-        }
-      },
-      "imageTranslation": {
-        "subtitle": "查看原始圖片與翻譯後的結果圖片",
-        "loading": "加載圖片翻譯記錄中…",
-        "loadFailed": "加載圖片翻譯記錄失敗",
-        "empty": "暫無圖片翻譯記錄",
-        "languageConnector": "到",
-        "sourceImage": "翻譯前",
-        "sourceImageAlt": "翻譯前圖片",
-        "resultImage": "翻譯後",
-        "resultImageAlt": "翻譯後圖片",
-        "resultPending": "等待翻譯結果",
-        "resultUnavailable": "無可用結果圖片",
-        "previewLabel": "圖片預覽",
-        "actions": {
-          "downloadSource": "下載原始截圖",
-          "downloadResult": "下載翻譯截圖",
-          "downloading": "下載中…",
-          "downloadStarted": "已開始下載",
-          "downloadFailed": "下載失敗",
-          "remove": "抹掉此記錄",
-          "removing": "抹掉中…",
-          "removeSuccess": "圖片及翻譯記錄已抹掉",
-          "removeFailed": "抹掉圖片失敗"
-        },
-        "pagination": {
-          "label": "圖片翻譯歷史分頁",
-          "previous": "上一頁",
-          "next": "下一頁",
-          "summary": "第 {{page}} / {{totalPages}} 頁，共 {{total}} 條"
-        },
-        "status": {
-          "queued": "排隊中",
-          "processing": "翻譯中",
-          "succeeded": "已完成",
-          "failed": "失敗",
-          "unknown": "未知"
         }
       },
       "questionnaire": {

@@ -25,5 +25,3 @@
  */
 
 export type { ToolboxSoftwareItem } from './ToolboxSoftwareItem';
-export type { TranslateResponse } from './TranslateResponse';
-export type { TranslateApiResult } from './TranslateApiResult';

@@ -41,8 +41,6 @@ interface UserRecordSkeletonListProps {
   label: string;
   /** 详情区的标签/数值行数，0 表示不渲染详情区 */
   rows: number;
-  /** 是否渲染左右两张图片位，对应图片翻译记录 */
-  media?: boolean;
 }
 
 interface UserValueSkeletonProps {
@@ -139,10 +137,9 @@ export function UserProfileSkeleton(): ReactElement {
  * @param props - 骨架配置
  * @param props.label - 读屏播报的加载文案
  * @param props.rows - 详情区的标签/数值行数，0 表示不渲染详情区
- * @param props.media - 是否渲染左右两张图片位
  * @returns 记录骨架列表
  */
-export function UserRecordSkeletonList({ label, rows, media = false }: UserRecordSkeletonListProps): ReactElement {
+export function UserRecordSkeletonList({ label, rows }: UserRecordSkeletonListProps): ReactElement {
   return (
     <div className="settings-user-skeleton-list" role="status" aria-busy="true" aria-label={label}>
       {placeholderKeys('record', RECORD_SKELETON_COUNT).map((recordKey) => (
@@ -154,16 +151,6 @@ export function UserRecordSkeletonList({ label, rows, media = false }: UserRecor
           {rows > 0 && (
             <div className="settings-user-skeleton-rows">
               {renderLabelValueRows('row', rows, 'settings-user-skeleton-row')}
-            </div>
-          )}
-          {media && (
-            <div className="settings-user-image-translation-images">
-              {placeholderKeys('media', 2).map((mediaKey) => (
-                <div key={mediaKey} className="settings-user-image-translation-image-card">
-                  <span className="settings-skeleton-block settings-user-skeleton-label" />
-                  <div className="settings-user-image-translation-image-wrap" />
-                </div>
-              ))}
             </div>
           )}
         </div>

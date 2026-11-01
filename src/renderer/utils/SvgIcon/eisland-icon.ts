@@ -110,7 +110,6 @@ export const SvgIcon = {
   BREAK: '../svg/app/BREAK.svg',
   PROLONGED_SITTING: '../svg/app/PROLONGED_SITTING.svg',
   DRINKING_WATER: '../svg/app/DRINKING_WATER.svg',
-  SWITCHING: '../svg/app/SWITCHING.svg',
   SOUND: '../svg/app/SOUND.svg',
   NOTIFICATION: '../svg/app/NOTIFICATION.svg',
   CHECKED: '../svg/app/CHECKED.svg',

@@ -29,7 +29,6 @@ import { OverviewTab } from '../pages/OverviewTab';
 import { PerformanceMonitorTab } from '../pages/PerformanceMonitorTab';
 import { SongTab } from '../pages/SongTab';
 import { ToolsTab } from '../pages/ToolsTab';
-import { TranslationTab } from '../pages/TranslationTab';
 import type { ReactElement } from 'react';
 import type { ExpandedTabContentProps } from '../types/expandTypes';
 
@@ -48,7 +47,6 @@ export function ExpandedTabContent({ expandTab, slideDir, tabAnimation }: Expand
         {expandTab === 'overview' && <OverviewTab />}
         {expandTab === 'song' && <SongTab />}
         {expandTab === 'tools' && <ToolsTab />}
-        {expandTab === 'translation' && <TranslationTab />}
         {expandTab === 'performanceMonitor' && <PerformanceMonitorTab />}
         {expandTab === 'agentUsage' && <AgentUsageTab />}
       </div>

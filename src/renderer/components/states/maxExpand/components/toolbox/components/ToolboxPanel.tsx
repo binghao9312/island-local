@@ -31,7 +31,6 @@ import { FileServiceToolSection } from '../../tools/components/FileServiceToolSe
 import { NetworkServiceToolSection } from '../../tools/components/NetworkServiceToolSection';
 import { SoftwareToolSection } from '../../tools/components/SoftwareToolSection';
 import { FormatFactoryToolSection } from '../../tools/components/FormatFactoryToolSection';
-import { TranslateToolSection } from '../../tools/components/TranslateToolSection';
 import { TOOLBOX_SIDEBAR_ITEMS } from '../config/toolboxSidebarConfig';
 import { ToolboxIndex } from './ToolboxIndex';
 import type { ReactElement } from 'react';
@@ -87,7 +86,6 @@ export function ToolboxPanel({ t, navigation, onSoftwareFeedbackNavigate }: Tool
           setDownloadPage={setDownloadPage}
         />
       )}
-      {activeSidebar === 'translate' && <TranslateToolSection />}
       {activeSidebar === 'software' && (
         <SoftwareToolSection onFeedbackNavigate={onSoftwareFeedbackNavigate} />
       )}

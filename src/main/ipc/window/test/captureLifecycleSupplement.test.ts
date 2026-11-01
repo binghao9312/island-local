@@ -20,7 +20,7 @@
 
 /**
  * @file captureLifecycleSupplement.test.ts
- * @description 截图保存失败、翻译来源验证及发送窗口销毁时的取消与监听清理测试。
+ * @description 截图保存失败及发送窗口销毁时的取消与监听清理测试。
  * @author 鸡哥
  */
 
@@ -37,7 +37,6 @@ const io = vi.hoisted(() => ({
   sources: vi.fn<() => Promise<{ thumbnail: ImageFixture }[]>>(),
   image: vi.fn<(url: string) => ImageFixture>(),
   save: vi.fn<() => Promise<{ canceled: boolean; filePath?: string }>>(),
-  translate: vi.fn<(token: string, url: string, source: string, target: string, signal: AbortSignal) => Promise<unknown>>(),
 }));
 vi.mock('electron', () => ({
   app: { getPath: () => 'C:/fixture-pictures' }, clipboard: { write: io.clipboard },
@@ -54,7 +53,6 @@ vi.mock('electron', () => ({
 }));
 vi.mock('fs/promises', () => ({ writeFile: io.write }));
 vi.mock('../../../window/screenshotHelper', () => ({ capturePrimaryDisplayPng: io.screenshot, encodeScreenshotPng: async (image: ImageFixture) => image.toPNG() }));
-vi.mock('../../../services/imageTranslationService', () => ({ translateCaptureImage: io.translate }));
 const win = { isDestroyed: vi.fn<() => boolean>(), hide: vi.fn(), webContents: { id: 7 } };
 let currentWindow: BrowserWindow | null;
 const close = vi.fn();
@@ -76,7 +74,6 @@ beforeEach(() => {
   currentWindow = win as unknown as BrowserWindow;
   start.mockResolvedValue(undefined); io.screenshot.mockReturnValue(null); io.sources.mockResolvedValue([]);
   io.image.mockReturnValue({ toPNG: () => Buffer.from('png') }); io.save.mockResolvedValue({ canceled: true });
-  io.translate.mockResolvedValue({ success: true, text: 'translated' });
   registerCaptureIpcHandlers({ getCaptureWindow: () => currentWindow, closeCaptureWindow: close, startRegionScreenshot: start });
 });
 afterEach(() => vi.restoreAllMocks());
@@ -115,37 +112,6 @@ describe('截图图像来源及保存清理', () => {
     if (scenario === 'failure') expect(console.error).toHaveBeenCalled();
   });
 });
-describe('截图翻译来源校验、参数回退和取消清理', () => {
-  it.each(['capture-translate'])('%s 拒绝关闭、销毁和错误来源窗口', async (channel) => {
-    currentWindow = null;
-    await expect(invoke(channel)).resolves.toEqual({ success: false, code: 'captureWindowClosed' });
-    currentWindow = win as unknown as BrowserWindow; win.isDestroyed.mockReturnValue(true);
-    await expect(invoke(channel)).resolves.toEqual({ success: false, code: 'captureWindowClosed' });
-    win.isDestroyed.mockReturnValue(false);
-    await expect(invoke(channel, {}, Object.assign(new EventEmitter(), { id: 9 }))).resolves.toEqual({ success: false, code: 'captureWindowClosed' });
-    expect(io.translate).not.toHaveBeenCalled();
-  });
-  it.each([undefined, { token: 4, dataURL: null, sourceLanguage: 3, targetLanguage: false }, { sourceLanguage: '', targetLanguage: '' }])('缺失或非法参数 %s 采用既有默认值', async (payload) => {
-    await expect(invoke('capture-translate', payload)).resolves.toEqual({ success: true, text: 'translated' });
-    expect(io.translate).toHaveBeenCalledWith('', '', 'auto', 'zh', expect.any(AbortSignal));
-  });
-  it.each(['capture-translate'])('%s 成功和失败都移除 destroyed 监听，发送方销毁触发 abort', async (channel) => {
-    const sender = Object.assign(new EventEmitter(), { id: 7 });
-    const payload = { token: 'fixture-token', dataURL: 'fixture-data', sourceLanguage: 'en', targetLanguage: 'fr' };
-    const result = invoke(channel, payload, sender);
-    expect(sender.listenerCount('destroyed')).toBe(1);
-    sender.emit('destroyed');
-    await expect(result).resolves.toMatchObject({ success: true });
-    const signal = io.translate.mock.calls[0]?.[4];
-    expect(signal?.aborted).toBe(true); expect(sender.listenerCount('destroyed')).toBe(0);
-    expect(io.translate).toHaveBeenCalledWith('fixture-token', 'fixture-data', 'en', 'fr', expect.any(AbortSignal));
-    const failure = new Error('provider failed');
-    io.translate.mockRejectedValue(failure);
-    await expect(invoke(channel, payload, sender)).rejects.toThrow('provider failed');
-    expect(sender.listenerCount('destroyed')).toBe(0);
-  });
-});
-
 it('主屏截图单飞，窗口销毁中止 native 请求并清理监听', async () => {
   let resolveCapture!: (value: Buffer | null) => void;
   io.screenshot.mockReturnValue(new Promise((resolve) => { resolveCapture = resolve; }));

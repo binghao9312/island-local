@@ -65,11 +65,11 @@ afterEach(() => { unmountHook(); vi.unstubAllGlobals(); });
 
 describe('toolbox navigation persistence', () => {
   it('preserves hidden cards and their saved order while appending new defaults', () => {
-    const config = parseToolboxNavConfig(['software', 'software', 'bad'], ['translate', 'download-create', 'software', 'bad']);
+    const config = parseToolboxNavConfig(['software', 'software', 'bad'], ['fileService-hash', 'download-create', 'software', 'bad']);
     expect(config.visibleOrder[0]).toBe('software');
-    expect(config.hiddenOrder).toEqual(['translate', 'download-create']);
-    expect(config.visibleOrder).not.toContain('translate');
-    expect(config.visibleOrder).toHaveLength(10);
+    expect(config.hiddenOrder).toEqual(['fileService-hash', 'download-create']);
+    expect(config.visibleOrder).not.toContain('fileService-hash');
+    expect(config.visibleOrder).toHaveLength(9);
   });
 
   it.each([null, {}, ['bad', 7]])('restores defaults for missing or invalid configuration: %j', (raw) => {
@@ -83,15 +83,15 @@ describe('toolbox navigation persistence', () => {
   it('migrates legacy hidden cards into a single stored configuration', async () => {
     read.mockImplementation((key) => {
       if (key === 'toolbox-nav-order') return Promise.resolve(['software']);
-      if (key === 'toolbox-hidden-nav-order') return Promise.resolve(['translate']);
+      if (key === 'toolbox-hidden-nav-order') return Promise.resolve(['fileService-hash']);
       return Promise.resolve(stored);
     });
     await mount();
-    expect(state().hiddenCards.map((card) => card.id)).toEqual(['translate']);
+    expect(state().hiddenCards.map((card) => card.id)).toEqual(['fileService-hash']);
     await state().toggleNavEditMode();
     await state().toggleNavEditMode();
-    expect(save).toHaveBeenCalledWith(TOOLBOX_NAV_CONFIG_STORE_KEY, null, expect.objectContaining({ hiddenOrder: ['translate'] }));
-    expect(state().visibleCards.map((card) => card.id)).not.toContain('translate');
+    expect(save).toHaveBeenCalledWith(TOOLBOX_NAV_CONFIG_STORE_KEY, null, expect.objectContaining({ hiddenOrder: ['fileService-hash'] }));
+    expect(state().visibleCards.map((card) => card.id)).not.toContain('fileService-hash');
   });
 
   it('saves removing every card and reloads the empty order', async () => {
@@ -103,7 +103,7 @@ describe('toolbox navigation persistence', () => {
     unmountHook(); resetHook();
     await mount();
     expect(state().visibleCards).toEqual([]);
-    expect(state().hiddenCards).toHaveLength(12);
+    expect(state().hiddenCards).toHaveLength(11);
   });
 
   it.each(['remove', 'add', 'move', 'reset'] as const)('pending initialization cannot discard %s', async (action) => {
@@ -118,7 +118,7 @@ describe('toolbox navigation persistence', () => {
       state().handleDragStart(event, 0); state().handleDrop(event, 2);
     }
     const expected = state().visibleCards.map((card) => card.id);
-    pending.resolve({ visibleOrder: ['translate'], hiddenOrder: DEFAULT_TOOLBOX_NAV_ORDER.filter((id) => id !== 'translate') });
+    pending.resolve({ visibleOrder: ['fileService-hash'], hiddenOrder: DEFAULT_TOOLBOX_NAV_ORDER.filter((id) => id !== 'fileService-hash') });
     await settleHook();
     expect(state().visibleCards.map((card) => card.id)).toEqual(expected);
   });
@@ -127,21 +127,21 @@ describe('toolbox navigation persistence', () => {
     await mount();
     await state().toggleNavEditMode();
     state().removeCard('software');
-    stored = parseToolboxNavConfig(DEFAULT_TOOLBOX_NAV_ORDER.filter((id) => id !== 'translate'), ['translate']);
+    stored = parseToolboxNavConfig(DEFAULT_TOOLBOX_NAV_ORDER.filter((id) => id !== 'fileService-hash'), ['fileService-hash']);
     save.mockImplementationOnce(() => {
       stored = applyToolboxNavEdits(stored as ToolboxNavConfig, [{ type: 'remove', id: 'networkService' }]);
       return Promise.resolve('conflict');
     });
     await state().toggleNavEditMode();
     expect(save).toHaveBeenCalledTimes(2);
-    expect((stored as ToolboxNavConfig).hiddenOrder).toEqual(['translate', 'networkService', 'software']);
+    expect((stored as ToolboxNavConfig).hiddenOrder).toEqual(['fileService-hash', 'networkService', 'software']);
     expect(state().navEditMode).toBe(false);
   });
 
   it('preserves a remote removal and reorder when locally moving a different card', () => {
-    const latest = parseToolboxNavConfig(['translate', 'software', ...DEFAULT_TOOLBOX_NAV_ORDER.filter((id) => !['translate', 'software', 'networkService'].includes(id))], ['networkService']);
+    const latest = parseToolboxNavConfig(['download-history', 'software', ...DEFAULT_TOOLBOX_NAV_ORDER.filter((id) => !['download-history', 'software', 'networkService'].includes(id))], ['networkService']);
     const next = applyToolboxNavEdits(latest, [{ type: 'move', id: 'download-create', before: 'fileService-hash' }]);
-    expect(next.visibleOrder.slice(0, 2)).toEqual(['translate', 'software']);
+    expect(next.visibleOrder.slice(0, 2)).toEqual(['download-history', 'software']);
     expect(next.hiddenOrder).toEqual(['networkService']);
     expect(next.visibleOrder.indexOf('download-create') + 1).toBe(next.visibleOrder.indexOf('fileService-hash'));
   });

@@ -114,7 +114,6 @@ describe('SvgIcon', () => {
     expect(SvgIcon).toHaveProperty('BREAK');
     expect(SvgIcon).toHaveProperty('PROLONGED_SITTING');
     expect(SvgIcon).toHaveProperty('DRINKING_WATER');
-    expect(SvgIcon).toHaveProperty('SWITCHING');
     expect(SvgIcon).toHaveProperty('SOUND');
     expect(SvgIcon).toHaveProperty('NOTIFICATION');
     expect(SvgIcon).toHaveProperty('CHECKED');

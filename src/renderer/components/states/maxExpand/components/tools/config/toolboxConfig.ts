@@ -25,6 +25,5 @@
  */
 
 export * from './commonToolboxConfig';
-export * from './translateToolConfig';
 export * from './formatFactoryToolConfig';
 export * from './downloadToolConfig';
