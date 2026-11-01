@@ -1052,6 +1052,47 @@
       "issueTitle": "Agent输出不符合预期 - {{traceId}}"
     }
   },
+  "acpChat": {
+    "providerSwitch": "智能体来源",
+    "newChat": "新对话",
+    "thought": "思考过程",
+    "plan": "计划",
+    "empty": "向 {{name}} 提问吧，它在本机运行。",
+    "errorHint": "再发一条消息即可重试，或开始新对话。",
+    "status": {
+      "idle": "未启动",
+      "starting": "启动中…",
+      "ready": "就绪",
+      "exited": "已停止",
+      "error": "出错",
+      "not-installed": "未安装"
+    },
+    "notInstalled": {
+      "title": "未检测到 {{name}}",
+      "hint": "请先用下面的命令安装，然后重新检测。",
+      "recheck": "重新检测"
+    },
+    "tool": {
+      "pending": "等待中",
+      "in_progress": "执行中",
+      "completed": "已完成",
+      "failed": "失败"
+    },
+    "permission": {
+      "title": "需要你的许可",
+      "queued": "还有 {{count}} 条等待",
+      "cancel": "取消"
+    },
+    "input": {
+      "placeholder": "输入消息（回车发送，Shift+回车换行）",
+      "send": "发送",
+      "stop": "停止",
+      "attachImage": "添加图片",
+      "removeImage": "移除图片",
+      "attachLimit": "部分图片已跳过：最多 8 张，每张不超过 8 MB。",
+      "attachFailed": "无法读取该图片。"
+    }
+  },
   "urlFavoritesTab": {
     "title": "URL 收藏",
     "count": "{{count}} 条",

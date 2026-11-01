@@ -31,6 +31,7 @@ export * from './performance';
 export * from './agentUsage';
 export * from './process';
 export * from './media';
+export * from './acp';
 export * from './agent';
 export * from './claudeCode';
 export * from './codex';

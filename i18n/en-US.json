@@ -1052,6 +1052,47 @@
       "issueTitle": "Agent output unexpected - {{traceId}}"
     }
   },
+  "acpChat": {
+    "providerSwitch": "Agent provider",
+    "newChat": "New chat",
+    "thought": "Thinking",
+    "plan": "Plan",
+    "empty": "Ask {{name}} anything. It runs locally on this computer.",
+    "errorHint": "Send a message to try again, or start a new chat.",
+    "status": {
+      "idle": "Not started",
+      "starting": "Starting…",
+      "ready": "Ready",
+      "exited": "Stopped",
+      "error": "Error",
+      "not-installed": "Not installed"
+    },
+    "notInstalled": {
+      "title": "{{name}} is not installed",
+      "hint": "Install it with the command below, then check again.",
+      "recheck": "Check again"
+    },
+    "tool": {
+      "pending": "Pending",
+      "in_progress": "Running",
+      "completed": "Done",
+      "failed": "Failed"
+    },
+    "permission": {
+      "title": "Permission needed",
+      "queued": "+{{count}} more waiting",
+      "cancel": "Cancel"
+    },
+    "input": {
+      "placeholder": "Message (Enter to send, Shift+Enter for a new line)",
+      "send": "Send",
+      "stop": "Stop",
+      "attachImage": "Attach image",
+      "removeImage": "Remove image",
+      "attachLimit": "Some images were skipped: up to 8 images, 8 MB each.",
+      "attachFailed": "Could not read the image."
+    }
+  },
   "urlFavoritesTab": {
     "title": "URL Favorites",
     "count": "{{count}} items",

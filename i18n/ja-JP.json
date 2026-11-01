@@ -1052,6 +1052,47 @@
     "storageLoading": "チャット履歴を読み込んでいます…",
     "storageRetry": "再試行"
   },
+  "acpChat": {
+    "providerSwitch": "エージェントの種類",
+    "newChat": "新しいチャット",
+    "thought": "思考",
+    "plan": "プラン",
+    "empty": "{{name}} に何でも聞いてみましょう。このPC上で動作します。",
+    "errorHint": "メッセージを送ると再試行します。新しいチャットを始めることもできます。",
+    "status": {
+      "idle": "未起動",
+      "starting": "起動中…",
+      "ready": "準備完了",
+      "exited": "停止",
+      "error": "エラー",
+      "not-installed": "未インストール"
+    },
+    "notInstalled": {
+      "title": "{{name}} がインストールされていません",
+      "hint": "下のコマンドでインストールしてから、もう一度確認してください。",
+      "recheck": "再確認"
+    },
+    "tool": {
+      "pending": "待機中",
+      "in_progress": "実行中",
+      "completed": "完了",
+      "failed": "失敗"
+    },
+    "permission": {
+      "title": "許可が必要です",
+      "queued": "あと {{count}} 件待機中",
+      "cancel": "キャンセル"
+    },
+    "input": {
+      "placeholder": "メッセージを入力（Enterで送信、Shift+Enterで改行）",
+      "send": "送信",
+      "stop": "停止",
+      "attachImage": "画像を添付",
+      "removeImage": "画像を削除",
+      "attachLimit": "一部の画像をスキップしました：最大8枚、各8 MBまで。",
+      "attachFailed": "画像を読み込めませんでした。"
+    }
+  },
   "urlFavoritesTab": {
     "title": "URLのお気に入り",
     "count": "{{count}}件",

@@ -1052,6 +1052,47 @@
     "storageLoading": "正在載入聊天記錄…",
     "storageRetry": "重試"
   },
+  "acpChat": {
+    "providerSwitch": "智慧體來源",
+    "newChat": "新對話",
+    "thought": "思考過程",
+    "plan": "計畫",
+    "empty": "向 {{name}} 提問吧，它在本機執行。",
+    "errorHint": "再傳一則訊息即可重試，或開始新對話。",
+    "status": {
+      "idle": "未啟動",
+      "starting": "啟動中…",
+      "ready": "就緒",
+      "exited": "已停止",
+      "error": "發生錯誤",
+      "not-installed": "未安裝"
+    },
+    "notInstalled": {
+      "title": "未偵測到 {{name}}",
+      "hint": "請先用下方指令安裝，然後重新偵測。",
+      "recheck": "重新偵測"
+    },
+    "tool": {
+      "pending": "等待中",
+      "in_progress": "執行中",
+      "completed": "已完成",
+      "failed": "失敗"
+    },
+    "permission": {
+      "title": "需要你的許可",
+      "queued": "還有 {{count}} 則等待",
+      "cancel": "取消"
+    },
+    "input": {
+      "placeholder": "輸入訊息（Enter 傳送，Shift+Enter 換行）",
+      "send": "傳送",
+      "stop": "停止",
+      "attachImage": "新增圖片",
+      "removeImage": "移除圖片",
+      "attachLimit": "部分圖片已略過：最多 8 張，每張不超過 8 MB。",
+      "attachFailed": "無法讀取該圖片。"
+    }
+  },
   "urlFavoritesTab": {
     "title": "URL 收藏",
     "count": "{{count}} 條",

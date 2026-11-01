@@ -87,6 +87,12 @@ import type {
   CodexStatusSnapshot,
   CodexMonitorMutationResult,
   AgentUsageSnapshot,
+  AcpEvent,
+  AcpImageData,
+  AcpProviderId,
+  AcpProviderInfo,
+  AcpPromptResult,
+  AcpStartResult,
 } from './types';
 import type { TrayMenuAction, TrayMenuState } from '../shared/trayMenu';
 
@@ -379,6 +385,13 @@ declare global {
       codexSessionsDelete: (sessionIds: string[]) => Promise<CodexStatusSnapshot>;
       onCodexStatusUpdated: (callback: (snapshot: CodexStatusSnapshot) => void) => () => void;
       agentUsageSnapshotGet: () => Promise<AgentUsageSnapshot>;
+      acpProviders: () => Promise<AcpProviderInfo[]>;
+      acpStart: (providerId: AcpProviderId) => Promise<AcpStartResult>;
+      acpReset: (providerId: AcpProviderId) => Promise<AcpStartResult>;
+      acpPrompt: (providerId: AcpProviderId, text: string, images: AcpImageData[]) => Promise<AcpPromptResult>;
+      acpCancel: (providerId: AcpProviderId) => Promise<void>;
+      acpPermissionResolve: (requestId: string, optionId: string | null) => Promise<boolean>;
+      onAcpEvent: (callback: (event: AcpEvent) => void) => () => void;
     };
   }
 }

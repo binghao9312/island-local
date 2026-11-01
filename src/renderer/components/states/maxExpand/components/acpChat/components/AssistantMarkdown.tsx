@@ -20,7 +20,7 @@
 
 /**
  * @file AssistantMarkdown.tsx
- * @description AI 助手消息 Markdown 渲染组件，支持 GFM 语法与自定义代码块/链接渲染。
+ * @description AI 助手消息 Markdown 渲染组件，支持 GFM 语法与自定义代码块渲染，链接交给系统浏览器打开。
  * @author 鸡哥
  */
 
@@ -29,31 +29,28 @@ import type { ReactElement } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { MarkdownCodeBlock } from './MarkdownCodeBlock';
-import { MarkdownSiteLink } from './MarkdownSiteLink';
 
 /** remark-gfm 插件列表（模块级常量，避免每次渲染重建） */
 const MARKDOWN_REMARK_PLUGINS = [remarkGfm];
 
-/** 自定义 Markdown 组件映射：code 使用 MarkdownCodeBlock，a 使用 MarkdownSiteLink */
+/** 自定义 Markdown 组件映射：code 使用 MarkdownCodeBlock，a 只允许外部链接 */
 const MARKDOWN_COMPONENTS: import('react-markdown').Components = {
   pre: ({ children }) => <>{children}</>,
   code: ({ className, children }) => {
-    const isBlock = /language-/.test(className ?? '');
+    // 无语言标记的围栏代码块也带换行，按块渲染，避免被当成行内代码
+    const isBlock = /language-/.test(className ?? '') || String(children ?? '').includes('\n');
     if (!isBlock) {
       return <code className={className}>{children}</code>;
     }
     return <MarkdownCodeBlock className={className}>{children}</MarkdownCodeBlock>;
   },
-  a: ({ href, children, onClick, target, rel }) => {
-    return (
-      <MarkdownSiteLink
-        href={typeof href === 'string' ? href : ''}
-        children={children}
-        onClick={onClick}
-        target={target}
-        rel={rel}
-      />
-    );
+  a: ({ href, children }) => {
+    const url = typeof href === 'string' ? href.trim() : '';
+    // 只放行 http(s) 与 mailto：新窗口请求由主进程转交系统浏览器，其他协议（含 javascript:）一律按纯文本渲染
+    if (!/^(https?:|mailto:)/i.test(url)) {
+      return <span>{children}</span>;
+    }
+    return <a href={url} target="_blank" rel="noopener noreferrer">{children}</a>;
   },
 };
 

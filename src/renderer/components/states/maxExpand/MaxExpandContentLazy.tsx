@@ -29,7 +29,7 @@ import type { ReactElement } from 'react';
 import type { MaxExpandTab } from '../../../store/types';
 import { MaxExpandContentShell } from './MaxExpandContentShell';
 
-const AiChatTab = lazy(() => import('./components/agent/components/AiChatTab').then((module) => ({ default: module.AiChatTab })));
+const AcpChatTab = lazy(() => import('./components/acpChat').then((module) => ({ default: module.AcpChatTab })));
 const TodoTab = lazy(() => import('./components/todo/components/TodoTab').then((module) => ({ default: module.TodoTab })));
 const UrlFavoritesTab = lazy(() => import('./components/urlFavorites').then((module) => ({ default: module.UrlFavoritesTab })));
 const LocalFileSearchTab = lazy(() => import('./components/localFileSearch/components/LocalFileSearchTab').then((module) => ({ default: module.LocalFileSearchTab })));
@@ -51,7 +51,7 @@ const SongTab = lazy(() => import('./components/song'));
 function renderLazyActiveTab(activeTab: MaxExpandTab, loadingFallback: ReactElement, contentReady: boolean): ReactElement | null {
   if (!contentReady) return loadingFallback;
   let content: ReactElement | null = null;
-  if (activeTab === 'aiChat') content = <AiChatTab />;
+  if (activeTab === 'aiChat') content = <AcpChatTab />;
   if (activeTab === 'todo') content = <TodoTab />;
   if (activeTab === 'urlFavorites') content = <UrlFavoritesTab />;
   if (activeTab === 'localFileSearch') content = <LocalFileSearchTab />;
