@@ -29,6 +29,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LyricsTranslationContent } from '../LyricsTranslationContent';
 
 import { LyricsTranslationContentView } from '../components/LyricsTranslationContentView';
+import { useLyricsIslandWidthSync } from '../../lyrics/hooks/useLyricsIslandWidthSync';
 import type { TreeElement } from '../../test/tree';
 const slots = vi.hoisted(() => ({ cursor: 0, values: [] as unknown[], effects: [] as Array<() => unknown> }));
 vi.mock('react', async (importOriginal) => { const actual = await importOriginal<typeof import('react')>(); const { mockHooks } = await import('../../test/hooks'); return mockHooks(actual, slots); });
@@ -46,9 +47,19 @@ vi.mock('../../lyrics/hooks/useAutoIdle', () => ({ useAutoIdle: vi.fn() }));
 vi.mock('../../lyrics/hooks/useCurrentLyric', () => ({ useCurrentLyric: () => model.lyric }));
 vi.mock('../hooks/useTranslationLyric', () => ({ useTranslationLyric: translation.useTranslationLyric }));
 vi.mock('../hooks/useTranslationFallback', () => ({ useTranslationFallback: vi.fn() }));
+vi.mock('../../lyrics/hooks/useLyricsIslandWidthSync', () => ({ useLyricsIslandWidthSync: vi.fn() }));
 beforeEach(() => { slots.cursor = 0; slots.values = []; slots.effects = []; });
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 describe('LyricsTranslationContent', () => {
   it('forwards combined music, current lyric and translated text to view', () => { model.store.translationLyrics = { status: 'available', lines: [{ text: 'Translated' }] }; const root = ((LyricsTranslationContent() as TreeElement)); expect(root.type).toBe(LyricsTranslationContentView); expect(root.props).toMatchObject({ currentPositionMs: 1500, coverImage: 'cover.jpg', glowEnabled: true, clockEnabled: true, clockText: '12:34', mediaTitle: 'Song', fallbackText: 'Artist', currentText: 'Original', translationText: 'Translated' }); expect(translation.useTranslationLyric).toHaveBeenCalledWith(model.store.translationLyrics.lines, 1, 1500); });
+  it('把原文、译文与北京时间交给宽度测量；加载中不计入文本，关闭时钟时不计入时钟', () => {
+    model.store.translationLyrics = { status: 'available', lines: [{ text: 'Translated' }] };
+    ((LyricsTranslationContent() as TreeElement));
+    expect(useLyricsIslandWidthSync).toHaveBeenLastCalledWith({ lineText: 'Original', translationText: 'Translated', clockText: '12:34' });
+    model.settings.clockEnabled = false; model.store.lyricsLoading = true;
+    ((LyricsTranslationContent() as TreeElement));
+    expect(useLyricsIslandWidthSync).toHaveBeenLastCalledWith({ lineText: '', translationText: '', clockText: '' });
+    model.settings.clockEnabled = true; model.store.lyricsLoading = false;
+  });
   it('passes null translation lines when unavailable', () => { model.store.translationLyrics = null; ((LyricsTranslationContent() as TreeElement)); expect(translation.useTranslationLyric).toHaveBeenCalledWith(null, 1, 1500); });
 });

@@ -56,3 +56,52 @@ export async function isMouseInWindow(): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * 判断屏幕坐标是否落在壳层矩形内，用于收缩后的歌词壳层命中测试。
+ * @description 窗口 DIP 尺寸与视口 CSS 宽度之比即缩放系数，据此把屏幕点换算到视口 CSS 坐标系。
+ * @param input - 命中判断参数。
+ * @param input.mousePosition - 鼠标屏幕坐标（DIP）。
+ * @param input.windowBounds - 原生窗口屏幕范围（DIP）。
+ * @param input.viewportWidth - 视口 CSS 宽度，无效值（非正数）时视为未命中。
+ * @param input.shellRect - 壳层在视口内的 CSS 矩形。
+ * @returns 落在壳层内返回 true，否则返回 false。
+ */
+export function isPointInShellRect(input: {
+  mousePosition: { x: number; y: number };
+  windowBounds: { x: number; y: number; width: number };
+  viewportWidth: number;
+  shellRect: { left: number; top: number; width: number; height: number };
+}): boolean {
+  const { mousePosition, windowBounds, viewportWidth, shellRect } = input;
+  if (viewportWidth <= 0 || windowBounds.width <= 0) return false;
+  const scale = windowBounds.width / viewportWidth;
+  const x = (mousePosition.x - windowBounds.x) / scale;
+  const y = (mousePosition.y - windowBounds.y) / scale;
+  return x >= shellRect.left
+    && x <= shellRect.left + shellRect.width
+    && y >= shellRect.top
+    && y <= shellRect.top + shellRect.height;
+}
+
+/**
+ * 判断鼠标是否位于可见灵动岛壳层内。
+ * @description 歌词状态的原生窗口固定为 500px，壳层收缩后窗口外的透明区域应穿透，因此命中以壳层矩形为准；找不到壳层或无法获取鼠标状态时回退为窗口范围判断。
+ * @returns 鼠标在壳层内返回 true，否则返回 false。
+ */
+export async function isMouseInIslandShell(): Promise<boolean> {
+  try {
+    const shell = document.querySelector<HTMLElement>('.island-shell');
+    if (!shell) return await isMouseInWindow();
+    const mouseWindowState = await window.api?.getMouseWindowState?.();
+    if (!mouseWindowState) return await isMouseInWindow();
+    return isPointInShellRect({
+      mousePosition: mouseWindowState.mousePosition,
+      windowBounds: mouseWindowState.bounds,
+      viewportWidth: document.documentElement.clientWidth,
+      shellRect: shell.getBoundingClientRect(),
+    });
+  } catch {
+    return false;
+  }
+}

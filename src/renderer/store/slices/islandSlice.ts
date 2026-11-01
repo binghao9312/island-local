@@ -122,6 +122,7 @@ export const createIslandSlice: StateCreator<
   animationSpeed: 'medium' as const,
   shapeMode: 'notch' as const,
   lyricsIdleDisplayEnabled: true,
+  lyricsContentWidth: null,
 
   setIdle: (force?: boolean) => set((prev) => {
     // 固定性能监控时拒绝一切自动收起（含 force），用户主动导航会先取消固定。
@@ -346,6 +347,15 @@ export const createIslandSlice: StateCreator<
     set({ lyricsIdleDisplayEnabled: enabled });
     const { state } = get();
     if (!enabled && (state === 'lyrics' || state === 'lyricsTranslation')) get().setIdle();
+  },
+
+  /**
+   * 写入歌词行测量宽度；值未变化时不通知订阅者，避免同一行内重复重渲染。
+   * @param width - 歌词内容自然宽度（像素），null 表示尚未测量
+   */
+  setLyricsContentWidth: (width) => {
+    if (get().lyricsContentWidth === width) return;
+    set({ lyricsContentWidth: width });
   },
 
   setNotification: (data) => set((prev) => {

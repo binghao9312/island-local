@@ -31,6 +31,7 @@ import { LyricsContent } from '../LyricsContent';
 
 import { ScrollingText } from '../components/ScrollingText';
 import { KaraokeSyllableLine } from '../components/KaraokeSyllableLine';
+import { useLyricsIslandWidthSync } from '../hooks/useLyricsIslandWidthSync';
 import type { TreeElement } from '../../test/tree';
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'zh-CN' } }) }));
 const model = vi.hoisted(() => ({
@@ -44,10 +45,18 @@ vi.mock('../hooks/useBeijingClock', () => ({ useBeijingClock: () => '12:34' }));
 vi.mock('../hooks/useAutoIdle', () => ({ useAutoIdle: vi.fn() }));
 vi.mock('../hooks/useCurrentLyric', () => ({ useCurrentLyric: () => model.lyric }));
 vi.mock('../hooks/useKaraokeScrollProgress', () => ({ useKaraokeScrollProgress: () => 0.5 }));
-beforeEach(() => { model.store.lyricsLoading = false; model.lyric.isIntro = false; model.lyric.currentText = 'Original'; model.settings.karaokeEnabled = false; model.lyric.hasSyllables = false; model.settings.clockEnabled = true; model.store.isPlaying = true; });
+vi.mock('../hooks/useLyricsIslandWidthSync', () => ({ useLyricsIslandWidthSync: vi.fn() }));
+beforeEach(() => { vi.mocked(useLyricsIslandWidthSync).mockClear(); model.store.lyricsLoading = false; model.lyric.isIntro = false; model.lyric.currentText = 'Original'; model.settings.karaokeEnabled = false; model.lyric.hasSyllables = false; model.settings.clockEnabled = true; model.store.isPlaying = true; });
 describe('LyricsContent', () => {
   it('renders clock, cover and plain lyric', () => { const root = ((LyricsContent() as TreeElement)); expect(text(root)).toContain('12:34'); expect(text(root)).toContain('Original'); expect(find(root, (node) => node.type === ScrollingText).props.scrollProgress).toBe(0.5); expect(byClass(root, 'idle-album-cover').props.className).toContain('glowing'); });
   it('prioritizes loading and intro over current text', () => { model.store.lyricsLoading = true; expect(text(((LyricsContent() as TreeElement)))).toContain('songTab.lyrics.loading'); model.store.lyricsLoading = false; model.lyric.isIntro = true; expect(text(((LyricsContent() as TreeElement)))).toContain('Song'); expect(text(((LyricsContent() as TreeElement)))).not.toContain('Original'); });
   it('renders artist and album as the no-lyrics fallback and omits disabled clock', () => { model.lyric.currentText = ''; model.settings.clockEnabled = false; model.store.mediaInfo = { title: 'Song', artist: 'Artist', album: 'Album' }; const root = ((LyricsContent() as TreeElement)); expect(text(root)).toContain('Artist · Album'); expect(text(root)).not.toContain('songTab.lyrics.empty'); expect(text(root)).not.toContain('12:34'); model.store.mediaInfo = { title: 'Song', artist: 'Artist', album: '' }; });
+  it('把当前行与北京时间交给宽度测量；加载中或关闭时钟时不计入对应部分', () => {
+    ((LyricsContent() as TreeElement));
+    expect(useLyricsIslandWidthSync).toHaveBeenLastCalledWith({ lineText: 'Original', translationText: '', clockText: '12:34' });
+    model.settings.clockEnabled = false; model.store.lyricsLoading = true;
+    ((LyricsContent() as TreeElement));
+    expect(useLyricsIslandWidthSync).toHaveBeenLastCalledWith({ lineText: '', translationText: '', clockText: '' });
+  });
   it('forwards karaoke timing and marks paused glow', () => { model.settings.karaokeEnabled = true; model.lyric.hasSyllables = true; model.store.isPlaying = false; const root = ((LyricsContent() as TreeElement)); expect(find(root, (node) => node.type === KaraokeSyllableLine).props).toMatchObject({ lineStartMs: 1000, posMs: 1500 }); expect(byClass(root, 'idle-glow').props.className).toContain('paused'); });
 });

@@ -476,15 +476,16 @@
   height: 88px;
 }
 
+/** 歌词宽度随当前行收缩，由 useIslandShellPresentation 写入变量；未测量时回退原 500px（与原生窗口同宽） */
 .island-shell.lyrics {
-  width: 500px;
+  width: var(--lyrics-island-width, 500px);
   height: 42px;
   background: var(--color-island-bg);
   border-radius: 0 0 22px 22px;
 }
 
 .island-shell.lyricsTranslation {
-  width: 500px;
+  width: var(--lyrics-island-width, 500px);
   height: 60px;
   background: var(--color-island-bg);
   border-radius: 0 0 22px 22px;

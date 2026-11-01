@@ -269,6 +269,9 @@ export interface IslandSlice {
   /** 收起状态是否允许自动显示歌词行（设置项 music:lyrics-idle-display-enabled 的镜像） */
   lyricsIdleDisplayEnabled: boolean;
   setLyricsIdleDisplayEnabled: (enabled: boolean) => void;
+  /** 歌词状态当前行的内容自然宽度（像素，已含封面、时钟与行间距），null 表示尚未测量；壳层据此收缩宽度 */
+  lyricsContentWidth: number | null;
+  setLyricsContentWidth: (width: number | null) => void;
   setNotification: (data: NotificationData) => void;
 
   setGuide: () => void;

@@ -101,6 +101,7 @@ export function useDynamicIslandCoordinator(options: UseDynamicIslandCoordinator
     springAnimation,
     animationSpeed,
     shapeMode,
+    lyricsContentWidth,
   } = store;
 
   const {
@@ -290,6 +291,7 @@ export function useDynamicIslandCoordinator(options: UseDynamicIslandCoordinator
     animationSpeed,
     shapeMode,
     dominantColor,
+    lyricsContentWidth,
   });
 
   const { wrapClick } = useIslandDrag({ shapeMode, state, positionLockedRef });

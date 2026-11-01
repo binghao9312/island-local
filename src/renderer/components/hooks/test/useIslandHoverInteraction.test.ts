@@ -123,6 +123,16 @@ describe('useIslandHoverInteraction 真实轮询和状态交互', () => {
     expect(input.leaveTimerRef.current).toBeNull(); expect(input.isHoveringRef.current).toBe(true); expect(input.setIdle).not.toHaveBeenCalled();
     await vi.advanceTimersByTimeAsync(50); expect(browser.api.disableMousePassthrough).toHaveBeenCalledOnce();
   });
+  it('歌词态以可见壳层为命中区：窗口内壳层外保持穿透，进入壳层才取消穿透', async () => {
+    const shell = { getBoundingClientRect: () => ({ left: 0, top: 0, width: 300, height: 42 }) };
+    vi.stubGlobal('document', { querySelector: (selector: string) => (selector === '.island-shell' ? shell : null), documentElement: { clientWidth: 500 } });
+    const bounds = { x: 0, y: 0, width: 500, height: 42 };
+    const input = options('lyrics'); input.idleClickExpandRef.current = true;
+    mouse.mockResolvedValue({ mousePosition: { x: 400, y: 20 }, bounds }); await mount(input);
+    expect(browser.api.enableMousePassthrough).toHaveBeenCalledOnce(); expect(browser.api.disableMousePassthrough).not.toHaveBeenCalled();
+    mouse.mockResolvedValue({ mousePosition: { x: 100, y: 20 }, bounds }); await vi.advanceTimersByTimeAsync(50);
+    expect(browser.api.disableMousePassthrough).toHaveBeenCalledOnce(); expect(input.setHover).not.toHaveBeenCalled();
+  });
   it('重新进入清理离开定时器；已排定进入定时器不会重复安排', async () => {
     const input = options(); input.leaveTimerRef.current = setTimeout(vi.fn(), 10000) as unknown as ReturnType<typeof setTimeout>; input.enterTimerRef.current = setTimeout(vi.fn(), 10000) as unknown as ReturnType<typeof setTimeout>;
     await mount(input); expect(input.leaveTimerRef.current).toBeNull(); expect(input.setHover).not.toHaveBeenCalled();

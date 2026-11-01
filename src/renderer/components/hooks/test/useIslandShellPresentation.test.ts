@@ -52,4 +52,16 @@ describe('useIslandShellPresentation 实际展示值', () => {
     expect(next.shellClassName).toBe(first.shellClassName); expect(next.shellStyle).toEqual({ '--glow-r': 7, '--glow-g': 8, '--glow-b': 9 });
     expect(renderWithHooks(() => useIslandShellPresentation(base)).shellStyle).toBeUndefined();
   });
+  it('歌词态按测量宽度写入壳层变量，并钳制到收起态下限与原歌词上限', () => {
+    const style = (input: Options) => renderWithHooks(() => useIslandShellPresentation(input)).shellStyle;
+    expect(style({ ...base, state: 'lyrics', lyricsContentWidth: 146.35 })).toEqual({ '--lyrics-island-width': '260px' });
+    expect(style({ ...base, state: 'lyricsTranslation', lyricsContentWidth: 400 })).toEqual({ '--lyrics-island-width': '400px' });
+    expect(style({ ...base, state: 'lyrics', lyricsContentWidth: 900 })).toEqual({ '--lyrics-island-width': '500px' });
+  });
+  it('歌词变量与播放光晕变量共存，非歌词态或未测量时不写入宽度变量', () => {
+    const style = (input: Options) => renderWithHooks(() => useIslandShellPresentation(input)).shellStyle;
+    expect(style({ ...base, state: 'lyrics', showGlow: 'playing', lyricsContentWidth: 400, dominantColor: [1, 2, 3] })).toEqual({ '--glow-r': 1, '--glow-g': 2, '--glow-b': 3, '--lyrics-island-width': '400px' });
+    expect(style({ ...base, state: 'hover', lyricsContentWidth: 400 })).toBeUndefined();
+    expect(style({ ...base, state: 'lyrics', lyricsContentWidth: null })).toBeUndefined();
+  });
 });

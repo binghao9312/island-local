@@ -24,7 +24,7 @@
  * @author 鸡哥
  */
 
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 
 const { getMousePositionMock, getMouseWindowStateMock, getWindowBoundsMock } = vi.hoisted(() => ({
   getMousePositionMock: vi.fn(),
@@ -259,5 +259,94 @@ describe('isMouseInWindow', () => {
 
       expect(await isMouseInWindow()).toBe(false);
     });
+  });
+});
+
+describe('isPointInShellRect', () => {
+  let isPointInShellRect: typeof import('../dynamicIslandWindowUtils').isPointInShellRect;
+
+  beforeEach(async () => {
+    isPointInShellRect = (await import('../dynamicIslandWindowUtils')).isPointInShellRect;
+  });
+
+  const shellRect = { left: 100, top: 0, width: 200, height: 42 };
+  const windowBounds = { x: 50, y: 30, width: 500 };
+
+  it('同缩放下按视口 CSS 坐标判断壳层边界（含边缘）', () => {
+    const at = (x: number, y: number) => isPointInShellRect({ mousePosition: { x, y }, windowBounds: { ...windowBounds, width: 500 }, viewportWidth: 500, shellRect: { ...shellRect } });
+    expect(at(50 + 100, 30 + 10)).toBe(true);
+    expect(at(50 + 300, 30 + 41)).toBe(true);
+    expect(at(50 + 99, 30 + 10)).toBe(false);
+    expect(at(50 + 310, 30 + 10)).toBe(false);
+    expect(at(50 + 150, 30 + 43)).toBe(false);
+  });
+
+  it('窗口 DIP 宽度为视口 CSS 宽度的倍数时先换算再判断', () => {
+    expect(isPointInShellRect({
+      mousePosition: { x: 50 + 300, y: 30 + 10 },
+      windowBounds: { x: 50, y: 30, width: 1000 },
+      viewportWidth: 500,
+      shellRect,
+    })).toBe(true);
+  });
+
+  it('视口或窗口宽度无效时视为未命中', () => {
+    expect(isPointInShellRect({ mousePosition: { x: 150, y: 10 }, windowBounds, viewportWidth: 0, shellRect })).toBe(false);
+    expect(isPointInShellRect({ mousePosition: { x: 150, y: 10 }, windowBounds: { ...windowBounds, width: 0 }, viewportWidth: 500, shellRect })).toBe(false);
+  });
+});
+
+describe('isMouseInIslandShell', () => {
+  let isMouseInIslandShell: () => Promise<boolean>;
+  const shell = { getBoundingClientRect: () => ({ left: 100, top: 0, width: 200, height: 42 }) };
+
+  beforeEach(async () => {
+    isMouseInIslandShell = (await import('../dynamicIslandWindowUtils')).isMouseInIslandShell;
+    getMouseWindowStateMock.mockReset();
+    getMousePositionMock.mockReset();
+    getWindowBoundsMock.mockReset();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  /**
+   * 注册带或不带壳层元素的文档桩。
+   * @param element - 壳层元素，null 表示页面中不存在壳层。
+   */
+  function stubDocument(element: unknown): void {
+    vi.stubGlobal('document', {
+      querySelector: (selector: string) => (selector === '.island-shell' ? element : null),
+      documentElement: { clientWidth: 500 },
+    });
+  }
+
+  it('鼠标在壳层内为命中，壳层外但仍在 500px 窗口内为未命中', async () => {
+    stubDocument(shell);
+    getMouseWindowStateMock.mockResolvedValue({ mousePosition: { x: 50 + 150, y: 30 + 10 }, bounds: { x: 50, y: 30, width: 500, height: 42 } });
+    expect(await isMouseInIslandShell()).toBe(true);
+    getMouseWindowStateMock.mockResolvedValue({ mousePosition: { x: 50 + 400, y: 30 + 10 }, bounds: { x: 50, y: 30, width: 500, height: 42 } });
+    expect(await isMouseInIslandShell()).toBe(false);
+  });
+
+  it('页面没有壳层元素时回退为窗口范围判断', async () => {
+    stubDocument(null);
+    getMouseWindowStateMock.mockResolvedValue({ mousePosition: { x: 400, y: 10 }, bounds: { x: 0, y: 0, width: 500, height: 42 } });
+    expect(await isMouseInIslandShell()).toBe(true);
+  });
+
+  it('无法获取合并鼠标状态时回退为分离接口的窗口范围判断', async () => {
+    stubDocument(shell);
+    getMouseWindowStateMock.mockResolvedValue(null);
+    getMousePositionMock.mockResolvedValue({ x: 400, y: 10 });
+    getWindowBoundsMock.mockResolvedValue({ x: 0, y: 0, width: 500, height: 42 });
+    expect(await isMouseInIslandShell()).toBe(true);
+  });
+
+  it('读取鼠标状态失败时视为未命中', async () => {
+    stubDocument(shell);
+    getMouseWindowStateMock.mockRejectedValue(new Error('ipc failed'));
+    expect(await isMouseInIslandShell()).toBe(false);
   });
 });

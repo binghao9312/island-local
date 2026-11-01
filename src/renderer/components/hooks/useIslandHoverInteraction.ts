@@ -28,6 +28,7 @@ import { useCallback, useEffect } from 'react';
 import useIslandStore from '../../store/isLandStore';
 import type { IslandState } from './useDynamicIslandShell';
 import { STATE_CONFIGS, isMouseInWindow } from '../config/dynamicIslandConfig';
+import { isMouseInIslandShell } from '../config/dynamicIslandWindowUtils';
 import { isPerformanceMonitorPinActive } from '../../store/slices/islandSlice';
 import { isCurrentLyricIdenticalToTranslation } from '../states/lyrics/utils/isCurrentLyricIdenticalToTranslation';
 
@@ -117,7 +118,9 @@ export function useIslandHoverInteraction(options: UseIslandHoverInteractionOpti
     const checkMousePosition = async (): Promise<void> => {
       if (aborted) return;
 
-      const inWindow = await isMouseInWindow();
+      /** 歌词态原生窗口固定为 500px，命中判断需跟随收缩后的可见壳层，窗口内的透明区域应穿透 */
+      const lyricsHitState = state === 'lyrics' || state === 'lyricsTranslation';
+      const inHitArea = lyricsHitState ? await isMouseInIslandShell() : await isMouseInWindow();
       if (aborted) return;
 
       if (useIslandStore.getState().uiStateLocked) {
@@ -141,14 +144,14 @@ export function useIslandHoverInteraction(options: UseIslandHoverInteractionOpti
       }
 
       if (state === 'notification' || state === 'cli' || state === 'guide' || state === 'login' || state === 'register' || state === 'resetPassword' || state === 'payment' || state === 'questionnaire' || state === 'musicProvidersLogin') {
-        if (inWindow) {
+        if (inHitArea) {
           setMousePassthrough(false);
         }
         scheduleCheck();
         return;
       }
 
-      if (inWindow) {
+      if (inHitArea) {
         if (leaveTimerRef.current !== null) {
           clearTimeout(leaveTimerRef.current);
           leaveTimerRef.current = null;

@@ -34,6 +34,7 @@ import { useBeijingClock } from './hooks/useBeijingClock';
 import { useAutoIdle } from './hooks/useAutoIdle';
 import { useCurrentLyric } from './hooks/useCurrentLyric';
 import { useKaraokeScrollProgress } from './hooks/useKaraokeScrollProgress';
+import { useLyricsIslandWidthSync } from './hooks/useLyricsIslandWidthSync';
 import { KaraokeSyllableLine } from './components/KaraokeSyllableLine';
 import { ScrollingText } from './components/ScrollingText';
 import '../../../styles/lyrics/lyrics.css';
@@ -59,6 +60,11 @@ export function LyricsContent(): ReactElement {
   useAutoIdle(isMusicPlaying, lyricsLoading, syncedLyrics, setIdle);
   const { currentIdx, hasLyrics, isIntro, currentLine, currentText, hasSyllables } = useCurrentLyric(syncedLyrics, lyricsLoading, currentPositionMs);
   const karaokeScrollProgress = useKaraokeScrollProgress(karaokeEnabled, currentLine, hasSyllables, isIntro, currentPositionMs);
+  useLyricsIslandWidthSync({
+    lineText: lyricsLoading || isIntro ? '' : currentText,
+    translationText: '',
+    clockText: clockEnabled ? clockText : '',
+  });
 
   const [r, g, b] = dominantColor;
 

@@ -27,6 +27,7 @@
 import { useMemo } from 'react';
 import { getStateClassName } from '../config/dynamicIslandConfig';
 import { useIslandCornerStyle } from './useIslandCornerStyle';
+import { resolveLyricsShellWidth } from '../states/lyrics/utils/lyricsIslandWidth';
 import type { IslandShapeMode } from '../../store/types';
 
 interface UseIslandShellPresentationOptions {
@@ -38,6 +39,8 @@ interface UseIslandShellPresentationOptions {
   animationSpeed: string;
   shapeMode: IslandShapeMode;
   dominantColor: [number, number, number];
+  /** 歌词内容测量宽度（像素），歌词状态下用于收缩壳层；未测量或非歌词状态为 null */
+  lyricsContentWidth?: number | null;
 }
 
 interface IslandShellPresentationState {
@@ -61,21 +64,22 @@ export function useIslandShellPresentation(options: UseIslandShellPresentationOp
     animationSpeed,
     shapeMode,
     dominantColor,
+    lyricsContentWidth = null,
   } = options;
 
   const shellClassName = useMemo(() => {
     return `island-shell shape-${shapeMode} corners-${cornerStyle} ${getStateClassName(state as Parameters<typeof getStateClassName>[0]) || 'idle'}${morphing ? ' morphing' : ''}${fromState ? ` from-${fromState}` : ''}${showGlow ? ' music-glow' : ''}${showGlow === 'paused' ? ' music-paused' : ''}${springAnimation ? ' spring-animation' : ''} speed-${animationSpeed}`;
   }, [state, morphing, fromState, showGlow, springAnimation, animationSpeed, shapeMode, cornerStyle]);
 
+  const lyricsWidth = resolveLyricsShellWidth({ state, contentWidth: lyricsContentWidth, shapeMode, cornerStyle });
+
   const shellStyle = useMemo<React.CSSProperties | undefined>(() => {
-    if (!showGlow) return undefined;
+    if (!showGlow && lyricsWidth === null) return undefined;
     const [r, g, b] = dominantColor;
-    return {
-      '--glow-r': r,
-      '--glow-g': g,
-      '--glow-b': b,
-    } as React.CSSProperties;
-  }, [showGlow, dominantColor]);
+    const glowStyle = showGlow ? { '--glow-r': r, '--glow-g': g, '--glow-b': b } : {};
+    const widthStyle = lyricsWidth === null ? {} : { '--lyrics-island-width': `${lyricsWidth}px` };
+    return { ...glowStyle, ...widthStyle } as React.CSSProperties;
+  }, [showGlow, dominantColor, lyricsWidth]);
 
   return {
     shellClassName,
