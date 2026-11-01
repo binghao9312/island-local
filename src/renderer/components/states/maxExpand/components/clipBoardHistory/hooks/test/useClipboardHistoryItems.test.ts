@@ -28,7 +28,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { useClipboardHistoryItems } from '../useClipboardHistoryItems';
 import useIslandStore from '../../../../../../../store/slices';
 import { deferred, flushHookEffects, renderHook, resetHook, settleHook, unmountHook } from '../../../../../../hooks/test/startupHookHarness';
-import { DEFAULT_HISTORY_LIMIT, EXIT_MAX_EXPAND_ON_COPY_STORE_KEY, HISTORY_ENABLED_STORE_KEY, HISTORY_LIMIT_STORE_KEY, LOCAL_STORAGE_KEY, STORE_KEY } from '../../config/clipboardHistoryConfig';
+import { DEFAULT_HISTORY_LIMIT, MAX_HISTORY_LIMIT, EXIT_MAX_EXPAND_ON_COPY_STORE_KEY, HISTORY_ENABLED_STORE_KEY, HISTORY_LIMIT_STORE_KEY, LOCAL_STORAGE_KEY, STORE_KEY } from '../../config/clipboardHistoryConfig';
 import type { ClipboardHistoryItem, UseClipboardHistoryItemsReturn } from '../../types/clipboardHistoryTypes';
 
 vi.hoisted(() => {
@@ -110,12 +110,27 @@ beforeEach(() => {
 });
 afterEach(() => { unmountHook(); useIslandStore.setState(snapshot, true); vi.restoreAllMocks(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 
-it.each([NaN, Infinity, undefined, 0, 1.6, 60])('loads limits with real finite validation: %s', async (limit) => {
+it('defaults the queue size to 5 and caps it at 20', () => {
+  expect(DEFAULT_HISTORY_LIMIT).toBe(5);
+  expect(MAX_HISTORY_LIMIT).toBe(20);
+});
+
+it.each<[unknown, number]>([[NaN, 5], [Infinity, 5], [undefined, 5], ['12', 5], [0, 1], [1.6, 2], [20, 20], [21, 20], [50, 20], [60, 20]])('loads limits with real finite validation: %s -> %s', async (limit, expected) => {
   stored.set(HISTORY_LIMIT_STORE_KEY, limit);
   const hook = await mount();
   expect(hook.loaded).toBe(true);
   expect(hook.items).toEqual([row()]);
-  expect(hook.historyLimit).toBe(typeof limit === 'number' && Number.isFinite(limit) ? Math.max(1, Math.min(50, Math.round(limit))) : DEFAULT_HISTORY_LIMIT);
+  expect(hook.historyLimit).toBe(expected);
+});
+
+it('clamps a legacy stored limit of 50 to 20 and rewrites the trimmed history', async () => {
+  stored.set(HISTORY_LIMIT_STORE_KEY, 50);
+  stored.set(STORE_KEY, Array.from({ length: 30 }, (_, index) => row(index + 1, `entry ${index + 1}`)));
+  const hook = await mount();
+  expect(hook.historyLimit).toBe(20);
+  expect(hook.items).toHaveLength(20);
+  const writes = write.mock.calls.filter(([key]) => key === STORE_KEY);
+  expect(writes.at(-1)?.[1]).toHaveLength(20);
 });
 
 it.each([false, true])('honors native historyEnabled=%s and truncates changed limits', async (enabled) => {

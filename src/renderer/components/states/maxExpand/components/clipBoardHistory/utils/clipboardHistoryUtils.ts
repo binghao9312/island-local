@@ -24,7 +24,7 @@
  * @author 鸡哥
  */
 
-import { LOCAL_STORAGE_KEY, MS_PER_DAY, MS_PER_HOUR, STORE_KEY } from '../config/clipboardHistoryConfig';
+import { DEFAULT_HISTORY_LIMIT, LOCAL_STORAGE_KEY, MAX_HISTORY_LIMIT, MIN_HISTORY_LIMIT, MS_PER_DAY, MS_PER_HOUR, STORE_KEY } from '../config/clipboardHistoryConfig';
 import type { ClipboardCleanupRange, ClipboardHistoryFilter, ClipboardHistoryItem } from '../types/clipboardHistoryTypes';
 
 /** 标准化剪贴板文本（统一换行符、去首尾空白） */
@@ -72,6 +72,16 @@ export function matchesClipboardFilter(item: ClipboardHistoryItem, filter: Clipb
   const isUrl = isLikelyUrl(item.text);
   if (filter === 'url') return isUrl;
   return !isUrl && !isLikelyPassword(item.text);
+}
+
+/**
+ * 将持久化的条数上限规范化为 [MIN_HISTORY_LIMIT, MAX_HISTORY_LIMIT] 内的整数
+ * @param value - 持久化读取到的原始值
+ * @returns 规范化后的条数上限；非有限数字时返回默认值
+ */
+export function clampHistoryLimit(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return DEFAULT_HISTORY_LIMIT;
+  return Math.max(MIN_HISTORY_LIMIT, Math.min(MAX_HISTORY_LIMIT, Math.round(value)));
 }
 
 /** 校验并截断历史数据 */

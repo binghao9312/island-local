@@ -2613,6 +2613,29 @@
   box-shadow: 0 0 0 1px rgba(var(--color-text-rgb), 0.4);
 }
 
+/* 剪贴板历史条数步进器 */
+.settings-clipboard-limit-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.settings-clipboard-limit-stepper .settings-lyrics-source-btn {
+  justify-content: center;
+  min-width: 28px;
+  padding: 5px 0;
+}
+.settings-clipboard-limit-stepper .settings-lyrics-source-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.settings-clipboard-limit-value {
+  min-width: 56px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--color-island-text);
+}
+
 .settings-font-delete {
   margin-left: 4px;
   padding: 0;
