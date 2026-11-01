@@ -792,24 +792,38 @@
 }
 
 /** Agent 额度控件 */
-.ov-dash-agent-quota-list {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 6px;
+/* 标题独占一行并与列表留出间距；卡片高度不足时列表内部滚动，不再压缩条目导致与标题重叠。 */
+.ov-dash-agent-quota-widget {
   min-height: 0;
 
 }
 
-.ov-dash-agent-quota-item {
+.ov-dash-agent-quota-widget .ov-dash-widget-header {
+  margin-bottom: 8px;
+
+}
+
+.ov-dash-agent-quota-list {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 4px;
-  justify-content: center;
-  min-width: 0;
+  gap: 8px;
   min-height: 0;
-  padding: 5px 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+
+}
+
+/* 条目按内容高度排布，不参与剩余高度分配，溢出时由列表滚动。 */
+.ov-dash-agent-quota-item {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: flex-start;
+  min-width: 0;
+  padding: 7px 9px;
   background: rgb(var(--color-text-rgb), .035);
   border-radius: 7px;
 
