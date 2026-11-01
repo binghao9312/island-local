@@ -117,24 +117,20 @@ describe('真实配置读取和提交', () => {
   it.each([{
     source: 'zh',
     target: 'en',
-    engine: 'js',
-    ocr: 'local'
+    engine: 'js'
   }, {
     source: 42,
     target: null,
-    engine: 'damaged',
-    ocr: 'damaged'
-  }])('配置$engine/$ocr使用合法值或默认', async ({
+    engine: 'damaged'
+  }])('配置$engine使用合法值或默认', async ({
     source,
     target,
-    engine,
-    ocr
+    engine
   }) => {
     const values: Record<string, unknown> = {
       'screenshot-translate-source-lang': source,
       'screenshot-translate-target-lang': target,
-      'screenshot-engine': engine,
-      'screenshot-ocr-engine': ocr
+      'screenshot-engine': engine
     };
     api.storeRead.mockImplementation((key) => Promise.resolve(values[key]));
     render();
@@ -142,7 +138,6 @@ describe('真实配置读取和提交', () => {
     await settle();
     expect(dropdowns(render()).map((node) => elementProps(node).value)).toEqual([typeof source === 'string' ? source : 'auto', typeof target === 'string' ? target : 'en']);
     expect(elements(render()).filter((node) => elementProps(node).name === 'screenshot-engine').map((node) => elementProps(node).checked)).toEqual(engine === 'js' ? [false, true] : [true, false]);
-    expect(elements(render()).filter((node) => elementProps(node).name === 'screenshot-ocr-engine').map((node) => elementProps(node).checked)).toEqual(ocr === 'local' ? [true, false] : [false, true]);
   });
   it('读取拒绝保留默认且不触发写入', async () => {
     api.storeRead.mockRejectedValue(new Error('offline'));
@@ -152,7 +147,7 @@ describe('真实配置读取和提交', () => {
     expect(dropdowns(render()).map((node) => elementProps(node).value)).toEqual(['auto', 'en']);
     expect(api.storeWrite).not.toHaveBeenCalled();
   });
-  it('卸载后四个延迟读取均取消状态更新', async () => {
+  it('卸载后三个延迟读取均取消状态更新', async () => {
     const pending = new Map<string, (value: unknown) => void>();
     api.storeRead.mockImplementation((key) => new Promise((resolve) => {
       pending.set(key, resolve);
@@ -167,7 +162,7 @@ describe('真实配置读取和提交', () => {
     expect(dropdowns(render()).map((node) => elementProps(node).value)).toEqual(['auto', 'en']);
     expect(elements(render()).filter((node) => elementProps(node).name === 'screenshot-engine').map((node) => elementProps(node).checked)).toEqual([true, false]);
   });
-  it('两组引擎和源目标语言实际提交，交换auto不写入而有效语言交换', () => {
+  it('截图引擎和源目标语言实际提交，交换auto不写入而有效语言交换', () => {
     invoke(findElement(render(), (node) => elementProps(node).className === 'translate-swap-btn'), 'onClick');
     expect(api.storeWrite).not.toHaveBeenCalled();
     const radios = elements(render()).filter((node) => node.type === 'input');
@@ -176,8 +171,6 @@ describe('真实配置读取和提交', () => {
     });
     expect(api.storeWrite).toHaveBeenCalledWith('screenshot-engine', 'plugin');
     expect(api.storeWrite).toHaveBeenCalledWith('screenshot-engine', 'js');
-    expect(api.storeWrite).toHaveBeenCalledWith('screenshot-ocr-engine', 'local');
-    expect(api.storeWrite).toHaveBeenCalledWith('screenshot-ocr-engine', 'server');
     const [source, target] = dropdowns(render());
     invoke(source, 'onChange', 'zh');
     invoke(target, 'onChange', 'fr');

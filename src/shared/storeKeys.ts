@@ -30,11 +30,5 @@ export const ISLAND_POSITION_LOCKED_STORE_KEY = 'island-position-locked';
 /** 截图引擎配置键 */
 export const SCREENSHOT_ENGINE_STORE_KEY = 'screenshot-engine';
 
-/** OCR 引擎配置键 */
-export const SCREENSHOT_OCR_ENGINE_STORE_KEY = 'screenshot-ocr-engine';
-
 /** 截图引擎类型 */
 export type ScreenshotEngine = 'plugin' | 'js';
-
-/** OCR 引擎类型 */
-export type ScreenshotOcrEngine = 'local' | 'server';

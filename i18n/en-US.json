@@ -2965,10 +2965,6 @@
         "engineHint": "Choose the engine for screenshots. Plugin mode supports multi-monitor capture, JS mode has better compatibility.",
         "enginePlugin": "Plugin Mode",
         "engineJs": "JS Mode",
-        "ocrEngineTitle": "OCR Engine",
-        "ocrEngineHint": "Local OCR uses Tesseract.js on this device without uploading images; server OCR uses cloud recognition and billing.",
-        "ocrEngineLocal": "Local OCR",
-        "ocrEngineServer": "Server OCR",
         "translateTitle": "Screenshot Translation Language",
         "translateHint": "Configure source and target languages for screenshot translation."
       },
@@ -4210,7 +4206,6 @@
         "ordersDesc": "Check order status, continue payment, or close pending orders",
         "logoutDesc": "Sign out or delete your account",
         "oauthDesc": "View linked third-party login accounts",
-        "ocrDesc": "View past OCR text recognition records",
         "imageTranslationDesc": "View past image translation records",
         "questionnaireDesc": "View past questionnaire submission records"
       },
@@ -4224,7 +4219,6 @@
         "account": "Account",
         "oauth": "Third-party App",
         "image-translation": "Image Translation",
-        "ocr-history": "OCR History",
         "questionnaire": "Questionnaire Records",
         "switchTo": "Switch to {{label}}"
       },
@@ -4304,36 +4298,6 @@
         "erasing": "Deleting…",
         "eraseSuccess": "Questionnaire submission deleted; you may submit again without another reward",
         "eraseFailed": "Failed to delete questionnaire submission"
-      },
-      "ocrHistory": {
-        "subtitle": "View original images alongside OCR-recognized text",
-        "loading": "Loading OCR history…",
-        "loadFailed": "Failed to load OCR history",
-        "empty": "No OCR history",
-        "record": "OCR #{{id}}",
-        "sourceImage": "Original Image",
-        "sourceImageAlt": "Original OCR image",
-        "recognizedText": "Recognized Text",
-        "emptyText": "No text recognized",
-        "actions": {
-          "downloadSource": "Download Original",
-          "downloading": "Downloading…",
-          "downloadStarted": "Download started",
-          "downloadFailed": "Download failed",
-          "copyText": "Copy All Text",
-          "copying": "Copying…",
-          "copySuccess": "Text copied",
-          "copyFailed": "Failed to copy text",
-          "remove": "Remove Record",
-          "removing": "Removing…",
-          "removeFailed": "Failed to remove record"
-        },
-        "pagination": {
-          "label": "OCR history pagination",
-          "previous": "Previous",
-          "next": "Next",
-          "summary": "Page {{page}} / {{totalPages}}, {{total}} total"
-        }
       },
       "recharge": {
         "title": "Recharge Balance",

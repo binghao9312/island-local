@@ -130,7 +130,6 @@ export const SvgIcon = {
   MEMO: '../svg/app/MEMO.svg',
   VIDEO: '../svg/app/VIDEO.svg',
   BILIBILI: '../svg/app/BILIBILI.svg',
-  OCR: '../svg/app/OCR.svg',
   QUESTIONNAIRE: '../svg/app/QUESTIONNAIRE.svg',
   CALENDER: '../svg/app/CALENDER.svg',
   COUNTDOWN: '../svg/app/COUNTDOWN.svg',

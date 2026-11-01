@@ -134,7 +134,6 @@ describe('SvgIcon', () => {
     expect(SvgIcon).toHaveProperty('MEMO');
     expect(SvgIcon).toHaveProperty('VIDEO');
     expect(SvgIcon).toHaveProperty('BILIBILI');
-    expect(SvgIcon).toHaveProperty('OCR');
     expect(SvgIcon).toHaveProperty('QUESTIONNAIRE');
     expect(SvgIcon).toHaveProperty('CALENDER');
     expect(SvgIcon).toHaveProperty('COUNTDOWN');

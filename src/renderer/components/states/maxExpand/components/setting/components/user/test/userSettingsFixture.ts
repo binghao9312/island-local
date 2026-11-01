@@ -31,7 +31,7 @@ import { elements, findElement, invoke, textContent } from '../../../../../../..
 import { renderWithHooks, resetLifecycle, runEffects, unmountHooks } from '../../app/components/test/themeHookHarness';
 import type { UserAccountProfile } from '../../../../../../../../utils/userAccount';
 import type { Mock } from 'vitest';
-const apiNames = ['closeUserPaymentOrder', 'deleteImageTranslationHistory', 'deleteOcrHistory', 'fetchUserPaymentOrders', 'fetchProMonthPricing', 'fetchAgentBalance', 'fetchImageTranslationHistory', 'fetchOcrHistory', 'fetchOAuthBindings', 'fetchUserProfile', 'logoutUser', 'refreshUserToken', 'sendUserEmailCode', 'unbindOAuth', 'unregisterUser', 'updateUserPassword', 'updateUserProfile', 'uploadUserAvatar', 'fetchQuestionnaireHistory', 'deleteQuestionnaireHistory'] as const;
+const apiNames = ['closeUserPaymentOrder', 'deleteImageTranslationHistory', 'fetchUserPaymentOrders', 'fetchProMonthPricing', 'fetchAgentBalance', 'fetchImageTranslationHistory', 'fetchOAuthBindings', 'fetchUserProfile', 'logoutUser', 'refreshUserToken', 'sendUserEmailCode', 'unbindOAuth', 'unregisterUser', 'updateUserPassword', 'updateUserProfile', 'uploadUserAvatar', 'fetchQuestionnaireHistory', 'deleteQuestionnaireHistory'] as const;
 type ApiName = typeof apiNames[number];
 type ApiMock = Mock<(...args: unknown[]) => Promise<unknown>>;
 const mocks = vi.hoisted(() => ({
@@ -76,7 +76,7 @@ vi.mock('react-i18next', () => ({
   })
 }));
 vi.mock('../../../../../../../../api/user/userAccountApi', () => ({
-  ...Object.fromEntries(['closeUserPaymentOrder', 'deleteImageTranslationHistory', 'deleteOcrHistory', 'fetchUserPaymentOrders', 'fetchProMonthPricing', 'fetchAgentBalance', 'fetchImageTranslationHistory', 'fetchOcrHistory', 'fetchOAuthBindings', 'fetchUserProfile', 'logoutUser', 'refreshUserToken', 'sendUserEmailCode', 'unbindOAuth', 'unregisterUser', 'updateUserPassword', 'updateUserProfile', 'uploadUserAvatar'].map((name) => {
+  ...Object.fromEntries(['closeUserPaymentOrder', 'deleteImageTranslationHistory', 'fetchUserPaymentOrders', 'fetchProMonthPricing', 'fetchAgentBalance', 'fetchImageTranslationHistory', 'fetchOAuthBindings', 'fetchUserProfile', 'logoutUser', 'refreshUserToken', 'sendUserEmailCode', 'unbindOAuth', 'unregisterUser', 'updateUserPassword', 'updateUserProfile', 'uploadUserAvatar'].map((name) => {
     const callback = vi.fn<(...args: unknown[]) => Promise<unknown>>();
     mocks.api[name as ApiName] = callback;
     return [name, callback];
@@ -173,7 +173,7 @@ export function setupUser(): void {
       balanceYuan: '12.34'
     }
   });
-  ['fetchUserPaymentOrders', 'fetchImageTranslationHistory', 'fetchOcrHistory'].forEach((name) => {
+  ['fetchUserPaymentOrders', 'fetchImageTranslationHistory'].forEach((name) => {
     mocks.api[name as ApiName].mockResolvedValue({
       ok: true,
       data: {

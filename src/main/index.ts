@@ -39,7 +39,6 @@ import { registerCodexStatusIpcHandlers } from './ipc/agent/codexStatusIpc';
 import { registerAgentUsageIpcHandlers } from './ipc/agent/agentUsageIpc';
 import { registerClipboardIpcHandlers } from './ipc/settings/clipboard';
 import { registerCaptureIpcHandlers } from './ipc/window/capture';
-import { disposeLocalOcrWorker } from './services/captureLocalOcrService';
 import { registerScreenshotHotkeyIpcHandlers } from './ipc/system/screenshotHotkey';
 import { registerAppIpcHandlers } from './ipc/app/app';
 import { registerSystemIpcHandlers } from './ipc/system/system';
@@ -901,7 +900,6 @@ registerAppLifecycleHandlers({
     codexStatusService.stop();
     stopClipboardUrlWatcher();
     smtcService.cleanupWorker();
-    void disposeLocalOcrWorker();
     destroyTray();
     globalShortcut.unregisterAll();
   },

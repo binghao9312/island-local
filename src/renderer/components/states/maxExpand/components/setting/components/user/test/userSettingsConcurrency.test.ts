@@ -44,12 +44,6 @@ const image = {
   resultUrl: 'https://host/result.webp',
   createdAt: ''
 };
-const ocr = {
-  id: 1,
-  sourceUrl: 'https://host/source.jpg',
-  recognizedText: 'Text',
-  createdAt: ''
-};
 const question = {
   resultId: 1,
   questionnaire: {
@@ -248,43 +242,6 @@ describe('异步并发和guard', () => {
     pending.resolve({
       ok: true
     });
-    await settleUser();
-  });
-  it.each(['download', 'copy', 'remove'] as const)('OCR操作%s期间互斥所有记录操作', async (mode) => {
-    mocks.api.fetchOcrHistory.mockResolvedValue({
-      ok: true,
-      data: {
-        items: [ocr],
-        page: 1,
-        total: 1,
-        totalPages: 1
-      }
-    });
-    await bootUser('ocr-history');
-    const pending = deferred();
-    if (mode === 'download') transport.downloadPickSavePath.mockReturnValue(pending.promise as Promise<string | null>);
-    if (mode === 'copy') transport.copy.mockReturnValue(pending.promise as Promise<void>);
-    if (mode === 'remove') mocks.api.deleteOcrHistory.mockReturnValue(pending.promise);
-    const key = {
-      download: 'downloadSource',
-      copy: 'copyText',
-      remove: 'remove'
-    }[mode];
-    invoke(button(`settings.user.ocrHistory.actions.${key}`), 'onClick');
-    expect(textContent(renderUser())).toContain(`settings.user.ocrHistory.actions.${{
-      download: 'downloading',
-      copy: 'copying',
-      remove: 'removing'
-    }[mode]}`);
-    elements(renderUser()).filter((node) => node.type === 'button' && elementProps(node).disabled === true && String(elementProps(node).className).includes('settings-hotkey-btn')).forEach((node) => {
-      invoke(node, 'onClick');
-    });
-    expect(transport.downloadPickSavePath).toHaveBeenCalledTimes(mode === 'download' ? 1 : 0);
-    expect(transport.copy).toHaveBeenCalledTimes(mode === 'copy' ? 1 : 0);
-    expect(mocks.api.deleteOcrHistory).toHaveBeenCalledTimes(mode === 'remove' ? 1 : 0);
-    pending.resolve(mode === 'remove' ? {
-      ok: true
-    } : null);
     await settleUser();
   });
   it('翻译下载期间阻止重复下载和抹除，空结果不下载', async () => {

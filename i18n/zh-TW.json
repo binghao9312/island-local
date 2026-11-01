@@ -2965,10 +2965,6 @@
         "engineHint": "選擇截圖使用的引擎。插件模式支持多顯示器截圖，JS 模式兼容性更好。",
         "enginePlugin": "插件模式",
         "engineJs": "JS 模式",
-        "ocrEngineTitle": "OCR 識別方案",
-        "ocrEngineHint": "本地 OCR 使用 Tesseract.js 在設備上識別，不上傳圖片；服務端 OCR 使用雲端識別和計費。",
-        "ocrEngineLocal": "本地 OCR",
-        "ocrEngineServer": "服務端 OCR",
         "translateTitle": "截圖翻譯語言",
         "translateHint": "配置截圖翻譯的源語言和目標語言。"
       },
@@ -4210,7 +4206,6 @@
         "ordersDesc": "查看訂單狀態、繼續支付或主動關閉待支付訂單",
         "logoutDesc": "退出當前賬號或註銷",
         "oauthDesc": "查看已綁定的第三方登錄賬號",
-        "ocrDesc": "查看歷史 OCR 文字識別記錄",
         "imageTranslationDesc": "查看歷史圖片翻譯記錄",
         "questionnaireDesc": "查看歷史問卷填寫記錄"
       },
@@ -4224,7 +4219,6 @@
         "account": "關於賬戶",
         "oauth": "第三方應用綁定",
         "image-translation": "圖片翻譯",
-        "ocr-history": "OCR記錄",
         "questionnaire": "問卷記錄",
         "switchTo": "切換到{{label}}"
       },
@@ -4304,36 +4298,6 @@
         "erasing": "刪除中…",
         "eraseSuccess": "問卷提交記錄已刪除，可重新提交但不會再次獲得獎勵",
         "eraseFailed": "刪除問卷提交記錄失敗"
-      },
-      "ocrHistory": {
-        "subtitle": "查看原始圖片與 OCR 識別文本",
-        "loading": "加載 OCR 歷史記錄中…",
-        "loadFailed": "加載 OCR 歷史記錄失敗",
-        "empty": "暫無 OCR 歷史記錄",
-        "record": "OCR #{{id}}",
-        "sourceImage": "原始圖片",
-        "sourceImageAlt": "OCR 原始圖片",
-        "recognizedText": "識別文本",
-        "emptyText": "未識別到文本",
-        "actions": {
-          "downloadSource": "下載原圖",
-          "downloading": "下載中…",
-          "downloadStarted": "已開始下載",
-          "downloadFailed": "下載失敗",
-          "copyText": "複製所有文本",
-          "copying": "複製中…",
-          "copySuccess": "文本已複製",
-          "copyFailed": "複製文本失敗",
-          "remove": "抹掉此記錄",
-          "removing": "抹掉中…",
-          "removeFailed": "抹掉記錄失敗"
-        },
-        "pagination": {
-          "label": "OCR 歷史分頁",
-          "previous": "上一頁",
-          "next": "下一頁",
-          "summary": "第 {{page}} / {{totalPages}} 頁，共 {{total}} 條"
-        }
       },
       "recharge": {
         "title": "餘額充值",

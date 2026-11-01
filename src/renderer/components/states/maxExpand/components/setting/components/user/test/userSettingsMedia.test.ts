@@ -196,7 +196,7 @@ describe('导航和图片翻译状态', () => {
     await bootUser();
     const tree = renderUser();
     const cards = elements(tree).filter((node) => node.type === 'button' && String(elementProps(node).className).startsWith('settings-index-card') && !textContent(node).includes('settings.user.actions.refresh'));
-    const expected = ['pro', 'recharge', 'orders', 'edit', 'edit', 'password', 'oauth', 'ocr-history', 'image-translation', 'questionnaire', 'account'];
+    const expected = ['pro', 'recharge', 'orders', 'edit', 'edit', 'password', 'oauth', 'image-translation', 'questionnaire', 'account'];
     cards.forEach((node, index) => {
       invoke(node, 'onClick');
       expect(elementProps(findElement(renderUser(), (entry) => 'activePage' in elementProps(entry))).activePage).toBe(expected[index]);

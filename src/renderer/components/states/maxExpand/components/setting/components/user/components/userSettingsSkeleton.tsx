@@ -41,7 +41,7 @@ interface UserRecordSkeletonListProps {
   label: string;
   /** 详情区的标签/数值行数，0 表示不渲染详情区 */
   rows: number;
-  /** 是否渲染左右两张图片位，对应图片翻译与 OCR 记录 */
+  /** 是否渲染左右两张图片位，对应图片翻译记录 */
   media?: boolean;
 }
 

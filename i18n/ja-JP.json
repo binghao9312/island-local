@@ -2965,10 +2965,6 @@
         "engineHint": "スクリーンショット用のエンジンを選択します。プラグインモードは複数のディスプレイの撮影に対応し、JS モードは互換性に優れています。",
         "enginePlugin": "プラグインモード",
         "engineJs": "JS モード",
-        "ocrEngineTitle": "OCR エンジン",
-        "ocrEngineHint": "ローカル OCR は Tesseract.js を使ってデバイス上で認識し、画像をアップロードしません。サーバー OCR はクラウドで認識し、料金が発生します。",
-        "ocrEngineLocal": "ローカル OCR",
-        "ocrEngineServer": "サーバー OCR",
         "translateTitle": "スクリーンショットの翻訳言語",
         "translateHint": "スクリーンショットの翻訳元と翻訳先の言語を設定します。"
       },
@@ -4210,7 +4206,6 @@
         "ordersDesc": "注文状況の確認、支払いの続行、未払い注文のキャンセルができます",
         "logoutDesc": "ログアウトまたはアカウントを削除します",
         "oauthDesc": "連携済みの外部ログインアカウントを確認します",
-        "ocrDesc": "過去のOCR文字認識履歴を確認します",
         "imageTranslationDesc": "過去の画像翻訳履歴を確認します",
         "questionnaireDesc": "過去のアンケート回答履歴を確認します"
       },
@@ -4224,7 +4219,6 @@
         "account": "アカウント",
         "oauth": "外部アプリ連携",
         "image-translation": "画像翻訳",
-        "ocr-history": "OCR履歴",
         "questionnaire": "アンケート履歴",
         "switchTo": "{{label}}に切り替え"
       },
@@ -4304,36 +4298,6 @@
         "erasing": "削除中…",
         "eraseSuccess": "アンケートの回答を削除しました。再回答できますが、特典は再付与されません",
         "eraseFailed": "アンケートの回答を削除できませんでした"
-      },
-      "ocrHistory": {
-        "subtitle": "元の画像とOCRで認識したテキストを並べて確認できます",
-        "loading": "OCR履歴を読み込み中…",
-        "loadFailed": "OCR履歴の読み込みに失敗しました",
-        "empty": "OCR履歴はありません",
-        "record": "OCR #{{id}}",
-        "sourceImage": "元画像",
-        "sourceImageAlt": "OCRの元画像",
-        "recognizedText": "認識されたテキスト",
-        "emptyText": "テキストは認識されませんでした",
-        "actions": {
-          "downloadSource": "元画像をダウンロード",
-          "downloading": "ダウンロード中…",
-          "downloadStarted": "ダウンロードを開始しました",
-          "downloadFailed": "ダウンロードに失敗しました",
-          "copyText": "すべてのテキストをコピー",
-          "copying": "コピー中…",
-          "copySuccess": "テキストをコピーしました",
-          "copyFailed": "テキストのコピーに失敗しました",
-          "remove": "履歴を削除",
-          "removing": "削除中…",
-          "removeFailed": "履歴の削除に失敗しました"
-        },
-        "pagination": {
-          "label": "OCR履歴のページ切り替え",
-          "previous": "前へ",
-          "next": "次へ",
-          "summary": "{{page}} / {{totalPages}} ページ、全{{total}}件"
-        }
       },
       "recharge": {
         "title": "残高をチャージ",
