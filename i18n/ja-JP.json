@@ -731,9 +731,9 @@
       "sessions": "本日のセッション {{count}}",
       "noQuotaInLogs": "ローカルログに上限情報はありません",
       "noQuotaData": "上限データはまだありません",
+      "noWindows": "上限データがありません",
       "resetIn": "{{time}}後にリセット",
       "resetDone": "リセット済み",
-      "windowMissing": "このプランでは提供されていません",
       "quota": {
         "notLoggedIn": "Claude Code にログインしていません",
         "loginExpired": "ログインの期限が切れています。Claude Code を開いて再ログインしてください",
@@ -742,6 +742,7 @@
       "window": {
         "fiveHour": "5 時間",
         "weekly": "毎週",
+        "days": "{{count}} 日",
         "hours": "{{count}} 時間",
         "unknown": "上限"
       },

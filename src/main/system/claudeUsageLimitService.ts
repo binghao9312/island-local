@@ -35,6 +35,8 @@ const CACHE_MS = 5 * 60_000;
 const REQUEST_TIMEOUT_MS = 10_000;
 const FIVE_HOUR_WINDOW_MINUTES = 300;
 const WEEKLY_WINDOW_MINUTES = 10080;
+/** limits 中已知 kind 对应的窗口时长；session 即 5 小时会话额度 */
+const LIMIT_KIND_WINDOW_MINUTES: Partial<Record<string, number>> = { session: FIVE_HOUR_WINDOW_MINUTES };
 
 /** Claude 额度获取结果 */
 export interface ClaudeQuotaResult {
@@ -85,34 +87,67 @@ async function readCredentials(path: string): Promise<ClaudeCredentials | null> 
 
 /**
  * 将接口返回的单个窗口转换为额度窗口。
- * @param value - 接口原始窗口对象，如 five_hour / seven_day
- * @param windowMinutes - 该窗口对应的分钟数
- * @returns 额度窗口，接口未返回该窗口时为 null
+ * @param value - 接口原始窗口对象，如 five_hour 或 limits 中的一项
+ * @param windowMinutes - 该窗口对应的分钟数，时长未知时为 null
+ * @param percentKey - 用量百分比所在字段名
+ * @returns 额度窗口，接口未返回有效用量时为 null
  */
-function claudeWindow(value: unknown, windowMinutes: number): AgentUsageRateLimitWindow | null {
+function claudeWindow(value: unknown, windowMinutes: number | null, percentKey: 'utilization' | 'percent'): AgentUsageRateLimitWindow | null {
   const window = asRecord(value);
-  if (!window || typeof window.utilization !== 'number' || !Number.isFinite(window.utilization)) return null;
+  const percent = window?.[percentKey];
+  if (!window || typeof percent !== 'number' || !Number.isFinite(percent)) return null;
   const resetsAt = typeof window.resets_at === 'string' ? Date.parse(window.resets_at) : Number.NaN;
   return {
-    usedPercent: Math.max(0, Math.min(100, window.utilization)),
+    usedPercent: Math.max(0, Math.min(100, percent)),
     windowMinutes,
     resetsAt: Number.isFinite(resetsAt) ? resetsAt : null,
   };
 }
 
 /**
+ * 按窗口时长去重，同一时长只保留首个，因此 5 小时窗口优先于 limits 中的同名 session 项。
+ * @description 时长未知的窗口没有可比较的时长，按用量与重置时间判断是否重复。
+ * @param windows - 按优先级排列的窗口
+ * @returns 去重后的窗口
+ */
+function uniqueWindows(windows: AgentUsageRateLimitWindow[]): AgentUsageRateLimitWindow[] {
+  return windows.filter((window, index) => windows.findIndex((other) => (
+    window.windowMinutes !== null
+      ? other.windowMinutes === window.windowMinutes
+      : other.windowMinutes === null && other.usedPercent === window.usedPercent && other.resetsAt === window.resetsAt
+  )) === index);
+}
+
+/**
+ * 解析用量接口返回的 limits 中的一项。
+ * @description limits 以 kind 标识窗口；目前只有 session 对应 5 小时，其它 kind 的时长未知。
+ * @param value - limits 数组中的原始项
+ * @returns 额度窗口，无效时为 null
+ */
+function claudeLimitWindow(value: unknown): AgentUsageRateLimitWindow | null {
+  const kind = asRecord(value)?.kind;
+  const windowMinutes = typeof kind === 'string' ? LIMIT_KIND_WINDOW_MINUTES[kind] ?? null : null;
+  return claudeWindow(value, windowMinutes, 'percent');
+}
+
+/**
  * 解析用量接口响应。
- * @description 5 小时与每周窗口分别按固定时长映射；套餐未提供的窗口（接口返回 null）保持为空，由界面提示。
+ * @description 合并 five_hour、seven_day 与 limits 中的窗口并去重；套餐未提供的窗口不会出现在结果中。
  * @param body - 接口返回的 JSON
  * @param timestamp - 取得额度的时间戳（毫秒）
- * @returns 额度快照，两个窗口都缺失时返回 null
+ * @returns 额度快照，没有任何窗口时返回 null
  */
 export function parseClaudeRateLimits(body: unknown, timestamp: number): AgentUsageRateLimits | null {
   const root = asRecord(body);
-  const fiveHour = claudeWindow(root?.five_hour, FIVE_HOUR_WINDOW_MINUTES);
-  const weekly = claudeWindow(root?.seven_day, WEEKLY_WINDOW_MINUTES);
-  if (!fiveHour && !weekly) return null;
-  return { primary: fiveHour, secondary: weekly, planType: null, updatedAt: timestamp };
+  const rawLimits = root?.limits;
+  const limits: unknown[] = Array.isArray(rawLimits) ? rawLimits : [];
+  const windows = uniqueWindows([
+    claudeWindow(root?.five_hour, FIVE_HOUR_WINDOW_MINUTES, 'utilization'),
+    claudeWindow(root?.seven_day, WEEKLY_WINDOW_MINUTES, 'utilization'),
+    ...limits.map(claudeLimitWindow),
+  ].filter((window): window is AgentUsageRateLimitWindow => window !== null));
+  if (windows.length === 0) return null;
+  return { windows, planType: null, updatedAt: timestamp };
 }
 
 /**

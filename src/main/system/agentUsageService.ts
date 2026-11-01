@@ -192,9 +192,10 @@ function codexWindow(value: unknown, timestamp: number): AgentUsageRateLimitWind
 function codexRateLimits(value: unknown, timestamp: number): AgentUsageRateLimits | null {
   const rateLimits = asRecord(value);
   if (!rateLimits) return null;
+  const windows = [codexWindow(rateLimits.primary, timestamp), codexWindow(rateLimits.secondary, timestamp)]
+    .filter((window): window is AgentUsageRateLimitWindow => window !== null);
   return {
-    primary: codexWindow(rateLimits.primary, timestamp),
-    secondary: codexWindow(rateLimits.secondary, timestamp),
+    windows,
     planType: typeof rateLimits.plan_type === 'string' ? rateLimits.plan_type : null,
     updatedAt: timestamp,
   };

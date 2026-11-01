@@ -29,7 +29,6 @@ import { AgentIcon } from '../../../../../../../utils/SvgIcon';
 import { AGENT_USAGE_PROVIDER_ICONS } from '../../config/agentUsageConfig';
 import {
   effectivePercent,
-  findRateLimitWindow,
   formatDuration,
   formatTokens,
   quotaLevel,
@@ -41,14 +40,6 @@ import {
 const t = (key: string, options?: Record<string, unknown>): string => (options ? `${key}:${JSON.stringify(options)}` : key);
 
 describe('agentUsageUtils', () => {
-  it('按窗口时长查找额度窗口，套餐未提供时返回 null', () => {
-    const fiveHour = { usedPercent: 10, windowMinutes: 300, resetsAt: null };
-    const weekly = { usedPercent: 20, windowMinutes: 10080, resetsAt: null };
-    expect(findRateLimitWindow({ primary: weekly, secondary: fiveHour, planType: null, updatedAt: 1 }, 300)).toBe(fiveHour);
-    expect(findRateLimitWindow({ primary: weekly, secondary: null, planType: null, updatedAt: 1 }, 300)).toBeNull();
-    expect(findRateLimitWindow(null, 10080)).toBeNull();
-  });
-
   it('额度缺失提示按状态与来源区分', () => {
     // 测试用 t 会在翻译键后拼接选项，比较时只取键名部分。
     const keyOf = (value: string): string => value.split(':')[0];
@@ -78,6 +69,10 @@ describe('agentUsageUtils', () => {
     expect(windowLabel(300, t)).toContain('window.fiveHour');
     expect(windowLabel(10080, t)).toContain('window.weekly');
     expect(windowLabel(120, t)).toContain('"count":2');
+    expect(windowLabel(43200, t)).toContain('"count":30');
+    expect(windowLabel(43200, t)).toContain('window.days');
+    expect(windowLabel(1440, t)).toContain('window.days');
+    expect(windowLabel(90, t)).toContain('window.hours');
     expect(windowLabel(null, t)).toContain('window.unknown');
   });
 

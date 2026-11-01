@@ -136,8 +136,10 @@ describe('AgentQuotaWidget', () => {
         today: tokens(1_200_000),
         quotaStatus: 'ok',
         rateLimits: {
-          primary: { usedPercent: 95, windowMinutes: 300, resetsAt: NOW + 3_600_000 },
-          secondary: { usedPercent: 40, windowMinutes: 10080, resetsAt: NOW - 1 },
+          windows: [
+            { usedPercent: 95, windowMinutes: 300, resetsAt: NOW + 3_600_000 },
+            { usedPercent: 40, windowMinutes: 10080, resetsAt: NOW - 1 },
+          ],
           planType: 'plus',
           updatedAt: NOW,
         },
@@ -156,14 +158,16 @@ describe('AgentQuotaWidget', () => {
     expect(byClass(rows[1], 'ov-dash-agent-quota-fill').props.className).toBe('ov-dash-agent-quota-fill');
   });
 
-  it('额度条按窗口时长匹配而非返回顺序，每条显示重置时间', async () => {
+  it('按来源返回的窗口逐条展示，每条显示重置时间', async () => {
     leaves.snapshot.mockResolvedValue(snapshot([
       provider({
         provider: 'codex',
         quotaStatus: 'ok',
         rateLimits: {
-          primary: { usedPercent: 40, windowMinutes: 10080, resetsAt: NOW + 3_600_000 },
-          secondary: { usedPercent: 60, windowMinutes: 300, resetsAt: NOW + 1_800_000 },
+          windows: [
+            { usedPercent: 40, windowMinutes: 10080, resetsAt: NOW + 3_600_000 },
+            { usedPercent: 60, windowMinutes: 300, resetsAt: NOW + 1_800_000 },
+          ],
           planType: 'plus',
           updatedAt: NOW,
         },
@@ -172,26 +176,64 @@ describe('AgentQuotaWidget', () => {
     await mount();
     const item = elements(run()).find((node) => node.props.className === 'ov-dash-agent-quota-item ov-dash-agent-quota-item--codex');
     const rows = elements(item).filter((node) => node.props.className === 'ov-dash-agent-quota-row');
-    expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-window')))).toEqual(['expanded.agentUsage.window.fiveHour', 'expanded.agentUsage.window.weekly']);
-    expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-percent')))).toEqual(['60%', '40%']);
+    expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-window')))).toEqual(['expanded.agentUsage.window.weekly', 'expanded.agentUsage.window.fiveHour']);
+    expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-percent')))).toEqual(['40%', '60%']);
     expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-reset')))).toEqual(['expanded.agentUsage.resetIn', 'expanded.agentUsage.resetIn']);
   });
 
-  it('套餐未提供某个窗口时该行显示未提供提示，不渲染进度条', async () => {
+  it('Codex 免费套餐只返回 30 天窗口：仅渲染一行并以天数命名，不出现 5 小时或每周占位', async () => {
     leaves.snapshot.mockResolvedValue(snapshot([
       provider({
         provider: 'codex',
         quotaStatus: 'ok',
-        rateLimits: { primary: { usedPercent: 1, windowMinutes: 43200, resetsAt: NOW + 3_600_000 }, secondary: null, planType: 'free', updatedAt: NOW },
+        rateLimits: { windows: [{ usedPercent: 1, windowMinutes: 43200, resetsAt: NOW + 3_600_000 }], planType: 'free', updatedAt: NOW },
       }),
     ]));
     await mount();
     const item = elements(run()).find((node) => node.props.className === 'ov-dash-agent-quota-item ov-dash-agent-quota-item--codex');
     const rows = elements(item).filter((node) => node.props.className === 'ov-dash-agent-quota-row');
-    expect(rows).toHaveLength(2);
-    expect(text(rows[0])).toContain('expanded.agentUsage.windowMissing');
-    expect(elements(rows[0]).some((node) => node.props.className === 'ov-dash-agent-quota-track')).toBe(false);
-    expect(text(rows[1])).toContain('expanded.agentUsage.windowMissing');
+    expect(rows).toHaveLength(1);
+    expect(text(byClass(rows[0], 'ov-dash-agent-quota-window'))).toBe('expanded.agentUsage.window.days');
+    expect(text(byClass(rows[0], 'ov-dash-agent-quota-percent'))).toBe('1%');
+    expect(byClass(rows[0], 'ov-dash-agent-quota-fill').props.style).toEqual({ width: '1%' });
+    expect(text(item)).not.toContain('expanded.agentUsage.window.fiveHour');
+    expect(text(item)).not.toContain('expanded.agentUsage.window.weekly');
+  });
+
+  it('Claude 单窗口套餐（仅 5 小时会话）只渲染一行，不渲染每周行', async () => {
+    leaves.snapshot.mockResolvedValue(snapshot([
+      provider({
+        quotaStatus: 'ok',
+        rateLimits: { windows: [{ usedPercent: 42, windowMinutes: 300, resetsAt: NOW + 3_600_000 }], planType: null, updatedAt: NOW },
+      }),
+    ]));
+    await mount();
+    const item = find(run(), isClaudeItem);
+    const rows = elements(item).filter((node) => node.props.className === 'ov-dash-agent-quota-row');
+    expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-window')))).toEqual(['expanded.agentUsage.window.fiveHour']);
+    expect(text(byClass(rows[0], 'ov-dash-agent-quota-percent'))).toBe('42%');
+    expect(text(item)).not.toContain('expanded.agentUsage.window.weekly');
+  });
+
+  it('来源已取得额度但没有任何窗口时显示一行无额度数据提示，不渲染进度行', async () => {
+    leaves.snapshot.mockResolvedValue(snapshot([
+      provider({
+        provider: 'codex',
+        quotaStatus: 'noData',
+        rateLimits: { windows: [], planType: 'free', updatedAt: NOW },
+      }),
+    ]));
+    await mount();
+    const item = elements(run()).find((node) => node.props.className === 'ov-dash-agent-quota-item ov-dash-agent-quota-item--codex');
+    expect(elements(item).some((node) => node.props.className === 'ov-dash-agent-quota-row')).toBe(false);
+    const hints = elements(item).filter((node) => node.props.className === 'ov-dash-agent-quota-hint');
+    expect(hints.map((node) => text(node))).toEqual(['expanded.agentUsage.noWindows']);
+  });
+
+  it('未登录或登录过期时保留具体原因，不改为无额度数据提示', async () => {
+    leaves.snapshot.mockResolvedValue(snapshot([provider({ quotaStatus: 'loginExpired' })]));
+    await mount();
+    expect(text(byClass(find(run(), isClaudeItem), 'ov-dash-agent-quota-hint'))).toContain('expanded.agentUsage.quota.loginExpired');
   });
 
   it('按设置切换紧凑样式、字号缩放与来源强调色', async () => {
@@ -202,7 +244,7 @@ describe('AgentQuotaWidget', () => {
       provider({
         provider: 'codex',
         quotaStatus: 'ok',
-        rateLimits: { primary: { usedPercent: 30, windowMinutes: 300, resetsAt: NOW + 3_600_000 }, secondary: null, planType: 'plus', updatedAt: NOW },
+        rateLimits: { windows: [{ usedPercent: 30, windowMinutes: 300, resetsAt: NOW + 3_600_000 }], planType: 'plus', updatedAt: NOW },
       }),
     ]));
     await mount();

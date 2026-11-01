@@ -731,9 +731,9 @@
       "sessions": "{{count}} sessions today",
       "noQuotaInLogs": "Local logs have no quota data",
       "noQuotaData": "No quota data yet",
+      "noWindows": "No quota data",
       "resetIn": "Resets in {{time}}",
       "resetDone": "Reset",
-      "windowMissing": "Not provided by your plan",
       "quota": {
         "notLoggedIn": "Not logged in to Claude Code",
         "loginExpired": "Login expired, open Claude Code to log in again",
@@ -742,6 +742,7 @@
       "window": {
         "fiveHour": "5h",
         "weekly": "Weekly",
+        "days": "{{count}}d",
         "hours": "{{count}}h",
         "unknown": "Quota"
       },

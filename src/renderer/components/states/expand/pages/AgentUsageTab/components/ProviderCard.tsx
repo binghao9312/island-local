@@ -28,7 +28,6 @@ import { AGENT_USAGE_PROVIDER_ICONS, TOKEN_BREAKDOWN_KEYS } from '../config/agen
 import { formatTokens, quotaStatusText } from '../utils/agentUsageUtils';
 import { QuotaBar } from './QuotaBar';
 import type { ReactElement } from 'react';
-import type { AgentUsageRateLimitWindow } from '../../../../../../../preload/types/agentUsage';
 import type { ProviderCardProps } from '../types/agentUsageTypes';
 
 /**
@@ -53,7 +52,7 @@ export function ProviderCard({ provider, now, t }: ProviderCardProps): ReactElem
       </div>
     );
   }
-  const windows = [provider.rateLimits?.primary, provider.rateLimits?.secondary].filter((item): item is AgentUsageRateLimitWindow => Boolean(item));
+  const windows = provider.rateLimits?.windows ?? [];
   const breakdown = TOKEN_BREAKDOWN_KEYS.map((key) => ({ key, value: provider.today[key] }));
   return (
     <div className={`au-card au-card--${provider.provider}`}>

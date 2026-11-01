@@ -110,8 +110,10 @@ describe('parseCodexUsageLine', () => {
     }), 'k4');
     expect(second?.tokens).toEqual({ input: 30, cacheRead: 20, output: 5, cacheWrite: 0, total: 55 });
     expect(state.rateLimits).toMatchObject({
-      primary: { usedPercent: 100, windowMinutes: 300, resetsAt: 2_000_000 },
-      secondary: { usedPercent: 12.5, windowMinutes: null, resetsAt: null },
+      windows: [
+        { usedPercent: 100, windowMinutes: 300, resetsAt: 2_000_000 },
+        { usedPercent: 12.5, windowMinutes: null, resetsAt: null },
+      ],
       planType: 'plus',
     });
 
@@ -128,8 +130,23 @@ describe('parseCodexUsageLine', () => {
       plan_type: 'plus',
     }), createCodexParseState('file'), 'k');
     expect(state.rateLimits).toMatchObject({
-      primary: { windowMinutes: 300, resetsAt: at + 600_000 },
-      secondary: { windowMinutes: 10080, resetsAt: 3_000_000 },
+      windows: [
+        { windowMinutes: 300, resetsAt: at + 600_000 },
+        { windowMinutes: 10080, resetsAt: 3_000_000 },
+      ],
+    });
+  });
+
+  it('免费套餐只有 30 天窗口，resets_at 为秒级时间戳，secondary 为空时不占位', () => {
+    const { state } = parseCodexUsageLine(codexTokenLine(iso(0), { input_tokens: 1 }, undefined, {
+      primary: { used_percent: 1, window_minutes: 43200, resets_at: 1_780_000_000 },
+      secondary: null,
+      plan_type: 'free',
+    }), createCodexParseState('file'), 'k');
+    expect(state.rateLimits).toEqual({
+      windows: [{ usedPercent: 1, windowMinutes: 43200, resetsAt: 1_780_000_000_000 }],
+      planType: 'free',
+      updatedAt: Date.parse(iso(0)),
     });
   });
 
@@ -168,13 +185,13 @@ describe('createAgentUsageService', () => {
       available: true,
       todaySessions: 1,
       today: { total: 15 },
-      rateLimits: { primary: { usedPercent: 34 }, planType: 'pro' },
+      rateLimits: { windows: [{ usedPercent: 34 }], planType: 'pro' },
     });
   });
 
   it('Claude 额度来自注入的额度服务，未注入时状态为 noData，额度失败不影响 token 汇总', async () => {
     writeFileSync(join(claudeDir, 'a.jsonl'), `${claudeLine('1', iso(0), { output_tokens: 4 })}\n`);
-    const rateLimits = { primary: { usedPercent: 19, windowMinutes: 300, resetsAt: null }, secondary: null, planType: null, updatedAt: NOW };
+    const rateLimits = { windows: [{ usedPercent: 19, windowMinutes: 300, resetsAt: null }], planType: null, updatedAt: NOW };
     const [withQuota] = (await service(async () => ({ status: 'ok', rateLimits })).getSnapshot()).providers;
     expect(withQuota).toMatchObject({ provider: 'claude', rateLimits, quotaStatus: 'ok', today: { total: 4 } });
 

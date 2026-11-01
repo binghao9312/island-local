@@ -27,7 +27,6 @@
 import type {
   AgentQuotaStatus,
   AgentUsageProviderId,
-  AgentUsageRateLimits,
   AgentUsageRateLimitWindow,
 } from '../../../../../../../preload/types/agentUsage';
 import type { Translate } from '../types/agentUsageTypes';
@@ -66,6 +65,7 @@ export function formatDuration(ms: number): string {
 
 /**
  * 根据窗口时长生成额度窗口名称。
+ * @description 300 分钟为 5 小时、10080 分钟为每周；其余整天数按天显示，否则按小时显示。
  * @param windowMinutes - 窗口分钟数
  * @param t - 翻译函数
  * @returns 窗口名称
@@ -73,18 +73,9 @@ export function formatDuration(ms: number): string {
 export function windowLabel(windowMinutes: number | null, t: Translate): string {
   if (windowMinutes === 300) return t('expanded.agentUsage.window.fiveHour', { defaultValue: '5 小时' });
   if (windowMinutes === 10080) return t('expanded.agentUsage.window.weekly', { defaultValue: '每周' });
+  if (windowMinutes && windowMinutes > 0 && windowMinutes % 1440 === 0) return t('expanded.agentUsage.window.days', { defaultValue: '{{count}} 天', count: windowMinutes / 1440 });
   if (windowMinutes && windowMinutes > 0) return t('expanded.agentUsage.window.hours', { defaultValue: '{{count}} 小时', count: Math.round(windowMinutes / 60) });
   return t('expanded.agentUsage.window.unknown', { defaultValue: '额度' });
-}
-
-/**
- * 按窗口时长从 primary / secondary 中查找额度窗口。
- * @param rateLimits - 额度快照，无额度时为 null
- * @param windowMinutes - 目标窗口分钟数，如 300（5 小时）或 10080（每周）
- * @returns 匹配的窗口，套餐未提供该窗口时返回 null
- */
-export function findRateLimitWindow(rateLimits: AgentUsageRateLimits | null, windowMinutes: number): AgentUsageRateLimitWindow | null {
-  return [rateLimits?.primary, rateLimits?.secondary].find((item) => item?.windowMinutes === windowMinutes) ?? null;
 }
 
 /**

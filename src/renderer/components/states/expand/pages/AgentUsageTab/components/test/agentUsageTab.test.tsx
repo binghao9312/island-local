@@ -160,8 +160,10 @@ describe('AgentUsageTab', () => {
       provider: 'codex',
       quotaStatus: 'ok',
       rateLimits: {
-        primary: { usedPercent: 95, windowMinutes: 300, resetsAt: NOW + 3_600_000 },
-        secondary: { usedPercent: 40, windowMinutes: 10080, resetsAt: NOW - 1 },
+        windows: [
+          { usedPercent: 95, windowMinutes: 300, resetsAt: NOW + 3_600_000 },
+          { usedPercent: 40, windowMinutes: 10080, resetsAt: NOW - 1 },
+        ],
         planType: 'prolite',
         updatedAt: NOW,
       },

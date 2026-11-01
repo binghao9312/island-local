@@ -43,10 +43,12 @@ export interface AgentUsageRateLimitWindow {
   resetsAt: number | null;
 }
 
-/** 最近一次取得的额度；Codex 来自本地日志，Claude Code 来自用量接口 */
+/**
+ * 最近一次取得的额度；Codex 来自本地日志，Claude Code 来自用量接口。
+ * windows 只包含来源实际返回的窗口，套餐未提供的窗口不占位。
+ */
 export interface AgentUsageRateLimits {
-  primary: AgentUsageRateLimitWindow | null;
-  secondary: AgentUsageRateLimitWindow | null;
+  windows: AgentUsageRateLimitWindow[];
   planType: string | null;
   updatedAt: number;
 }

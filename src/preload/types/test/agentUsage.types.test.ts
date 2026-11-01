@@ -40,11 +40,11 @@ describe('agentUsage contracts', () => {
 
   it('接受含可空额度窗口的合法快照', () => {
     const tokens: AgentUsageTokens = { input: 1, output: 2, cacheRead: 3, cacheWrite: 4, total: 10 };
-    const rateLimits: AgentUsageRateLimits = { primary: { usedPercent: 35, windowMinutes: 10080, resetsAt: 1 }, secondary: null, planType: null, updatedAt: 1 };
+    const rateLimits: AgentUsageRateLimits = { windows: [{ usedPercent: 35, windowMinutes: 10080, resetsAt: 1 }], planType: null, updatedAt: 1 };
     const fixture: AgentUsageSnapshot = {
       generatedAt: 1,
       providers: [{ rateLimits, quotaStatus: 'ok', provider: 'codex', available: true, today: tokens, week: tokens, todaySessions: 1, topModel: null }],
     };
-    expect(fixture.providers[0].rateLimits?.primary?.usedPercent).toBe(35);
+    expect(fixture.providers[0].rateLimits?.windows[0].usedPercent).toBe(35);
   });
 });

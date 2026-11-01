@@ -63,10 +63,9 @@ afterEach(() => {
 });
 
 describe('parseClaudeRateLimits', () => {
-  it('5 小时窗口映射为 300 分钟并解析重置时间，未返回的周窗口保持为空', () => {
+  it('5 小时窗口映射为 300 分钟并解析重置时间，未返回的周窗口不出现在结果中', () => {
     expect(parseClaudeRateLimits(usageBody(), NOW)).toEqual({
-      primary: { usedPercent: 19, windowMinutes: 300, resetsAt: Date.parse(RESET_AT) },
-      secondary: null,
+      windows: [{ usedPercent: 19, windowMinutes: 300, resetsAt: Date.parse(RESET_AT) }],
       planType: null,
       updatedAt: NOW,
     });
@@ -76,14 +75,51 @@ describe('parseClaudeRateLimits', () => {
     expect(parseClaudeRateLimits({
       five_hour: { utilization: 130, resets_at: null },
       seven_day: { utilization: -2, resets_at: 'not-a-date' },
-    }, NOW)).toMatchObject({
-      primary: { usedPercent: 100, windowMinutes: 300, resetsAt: null },
-      secondary: { usedPercent: 0, windowMinutes: 10080, resetsAt: null },
-    });
+    }, NOW)?.windows).toEqual([
+      { usedPercent: 100, windowMinutes: 300, resetsAt: null },
+      { usedPercent: 0, windowMinutes: 10080, resetsAt: null },
+    ]);
   });
 
-  it('两个窗口都缺失或响应不是对象时返回 null', () => {
+  it('真实单窗口套餐：five_hour 与 limits 中的 session 项只保留一个 5 小时窗口', () => {
+    const body = {
+      five_hour: { utilization: 42, resets_at: RESET_AT },
+      seven_day: null,
+      limits: [{ kind: 'session', group: 'session', percent: 42, resets_at: RESET_AT, is_active: true }],
+    };
+    expect(parseClaudeRateLimits(body, NOW)?.windows).toEqual([
+      { usedPercent: 42, windowMinutes: 300, resetsAt: Date.parse(RESET_AT) },
+    ]);
+  });
+
+  it('five_hour 为空时 limits 中的 session 项作为 5 小时窗口展示', () => {
+    expect(parseClaudeRateLimits({
+      five_hour: null,
+      seven_day: null,
+      limits: [{ kind: 'session', percent: 7, resets_at: RESET_AT }],
+    }, NOW)?.windows).toEqual([
+      { usedPercent: 7, windowMinutes: 300, resetsAt: Date.parse(RESET_AT) },
+    ]);
+  });
+
+  it('limits 中未知类型的窗口时长为 null，并与同样数值的窗口去重', () => {
+    expect(parseClaudeRateLimits({
+      five_hour: null,
+      seven_day: { utilization: 60, resets_at: RESET_AT },
+      limits: [
+        { kind: 'opus', percent: 15, resets_at: null },
+        { kind: 'opus', percent: 15, resets_at: null },
+        { kind: 'session', percent: 'n/a' },
+      ],
+    }, NOW)?.windows).toEqual([
+      { usedPercent: 60, windowMinutes: 10080, resetsAt: Date.parse(RESET_AT) },
+      { usedPercent: 15, windowMinutes: null, resetsAt: null },
+    ]);
+  });
+
+  it('两个窗口都缺失、limits 无有效项或响应不是对象时返回 null', () => {
     expect(parseClaudeRateLimits({ five_hour: null, seven_day: null }, NOW)).toBeNull();
+    expect(parseClaudeRateLimits({ five_hour: null, seven_day: null, limits: [{ kind: 'session' }] }, NOW)).toBeNull();
     expect(parseClaudeRateLimits('not an object', NOW)).toBeNull();
   });
 });
@@ -95,7 +131,7 @@ describe('createClaudeUsageLimitService', () => {
     const fetchImpl = mockFetch(async () => jsonResponse(usageBody()));
     const service = createClaudeUsageLimitService({ credentialsPath, now: () => current, fetchImpl });
 
-    await expect(service.getQuota()).resolves.toMatchObject({ status: 'ok', rateLimits: { primary: { usedPercent: 19 } } });
+    await expect(service.getQuota()).resolves.toMatchObject({ status: 'ok', rateLimits: { windows: [{ usedPercent: 19 }] } });
     const [url, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe(USAGE_URL);
     expect(init.headers).toEqual({ Authorization: 'Bearer test-access-token', 'anthropic-beta': 'oauth-2025-04-20' });

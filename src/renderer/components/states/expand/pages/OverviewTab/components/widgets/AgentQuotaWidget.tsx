@@ -30,21 +30,23 @@ import useIslandStore from '../../../../../../../store/slices';
 import { AGENT_QUOTA_FONT_SCALE } from '../../config/overviewConfig';
 import { useAgentQuotaSettings } from '../../hooks/useAgentQuotaSettings';
 import type { AgentQuotaSettings } from '../../types/overviewTypes';
-import {
-  AGENT_USAGE_PROVIDER_ICONS,
-  FIVE_HOUR_WINDOW_MINUTES,
-  WEEKLY_WINDOW_MINUTES,
-} from '../../../AgentUsageTab/config/agentUsageConfig';
+import { AGENT_USAGE_PROVIDER_ICONS } from '../../../AgentUsageTab/config/agentUsageConfig';
 import {
   effectivePercent,
-  findRateLimitWindow,
   formatTokens,
   quotaLevel,
   quotaStatusText,
   resetLabel,
+  windowLabel,
 } from '../../../AgentUsageTab/utils/agentUsageUtils';
 import type { Translate } from '../../../AgentUsageTab/types/agentUsageTypes';
-import type { AgentUsageProviderId, AgentUsageProviderSnapshot, AgentUsageRateLimitWindow, AgentUsageSnapshot } from '../../../../../../../../preload/types/agentUsage';
+import type {
+  AgentQuotaStatus,
+  AgentUsageProviderId,
+  AgentUsageProviderSnapshot,
+  AgentUsageRateLimitWindow,
+  AgentUsageSnapshot,
+} from '../../../../../../../../preload/types/agentUsage';
 
 /** 与 Agent 用量页保持相同刷新节奏。 */
 const REFRESH_INTERVAL_MS = 60_000;
@@ -54,25 +56,20 @@ const SKELETON_PROVIDERS: AgentUsageProviderId[] = ['claude', 'codex'];
 /** 跨挂载保留最近一次快照，重新展开时直接显示而不是加载态。 */
 let cachedSnapshot: AgentUsageSnapshot | null = null;
 
+/** 来源已取得但没有额度窗口时，仅这些状态需要说明原因（登录或请求问题），其余统一显示无额度数据。 */
+const QUOTA_FAILURE_STATUSES: readonly AgentQuotaStatus[] = ['notLoggedIn', 'loginExpired', 'error'];
+
 /**
- * 渲染单个额度窗口行，窗口缺失时显示套餐未提供的提示。
+ * 渲染单个额度窗口行，窗口名称由窗口时长决定。
  * @param props - 组件参数
- * @param props.label - 窗口名称
- * @param props.quota - 额度窗口，套餐未提供时为 null
+ * @param props.quota - 来源实际返回的额度窗口
  * @param props.now - 快照生成时间
  * @param props.t - 翻译函数
  * @param props.compact - 为 true 时只显示文字，不渲染进度条
  * @returns 额度行
  */
-function QuotaRow({ label, quota, now, t, compact }: { label: string; quota: AgentUsageRateLimitWindow | null; now: number; t: Translate; compact: boolean }): ReactElement {
-  if (!quota) {
-    return (
-      <div className="ov-dash-agent-quota-row">
-        <span className="ov-dash-agent-quota-window">{label}</span>
-        <span className="ov-dash-agent-quota-hint">{t('expanded.agentUsage.windowMissing')}</span>
-      </div>
-    );
-  }
+function QuotaRow({ quota, now, t, compact }: { quota: AgentUsageRateLimitWindow; now: number; t: Translate; compact: boolean }): ReactElement {
+  const label = windowLabel(quota.windowMinutes, t);
   const percent = effectivePercent(quota, now);
   const resetText = resetLabel(quota.resetsAt, now, t);
   if (compact) {
@@ -99,7 +96,7 @@ function QuotaRow({ label, quota, now, t, compact }: { label: string; quota: Age
 
 /**
  * 渲染单个来源的额度条目。
- * @description 固定展示 5 小时与每周两条额度条，按窗口时长匹配；日志不含额度或目录缺失时展示提示。
+ * @description 只展示来源实际返回的窗口，没有任何窗口时显示一行提示；日志目录缺失时展示未检测提示。
  * @param props - 组件参数
  * @param props.provider - 来源快照
  * @param props.now - 快照生成时间
@@ -109,13 +106,20 @@ function QuotaRow({ label, quota, now, t, compact }: { label: string; quota: Age
  */
 function ProviderItem({ provider, now, t, settings }: { provider: AgentUsageProviderSnapshot; now: number; t: Translate; settings: AgentQuotaSettings }): ReactElement {
   const compact = settings.style === 'compact';
+  const windows = provider.rateLimits?.windows ?? [];
   const renderBody = (): ReactElement => {
     if (!provider.available) return <span className="ov-dash-agent-quota-hint">{t('expanded.agentUsage.unavailable')}</span>;
-    if (!provider.rateLimits) return <span className="ov-dash-agent-quota-hint">{quotaStatusText(provider.quotaStatus, provider.provider, t)}</span>;
+    if (windows.length === 0) {
+      const text = QUOTA_FAILURE_STATUSES.includes(provider.quotaStatus)
+        ? quotaStatusText(provider.quotaStatus, provider.provider, t)
+        : t('expanded.agentUsage.noWindows', { defaultValue: '沒有額度資料' });
+      return <span className="ov-dash-agent-quota-hint">{text}</span>;
+    }
     return (
       <>
-        <QuotaRow label={t('expanded.agentUsage.window.fiveHour')} quota={findRateLimitWindow(provider.rateLimits, FIVE_HOUR_WINDOW_MINUTES)} now={now} t={t} compact={compact} />
-        <QuotaRow label={t('expanded.agentUsage.window.weekly')} quota={findRateLimitWindow(provider.rateLimits, WEEKLY_WINDOW_MINUTES)} now={now} t={t} compact={compact} />
+        {windows.map((quota, index) => (
+          <QuotaRow key={`${quota.windowMinutes ?? 'unknown'}-${index}`} quota={quota} now={now} t={t} compact={compact} />
+        ))}
       </>
     );
   };
