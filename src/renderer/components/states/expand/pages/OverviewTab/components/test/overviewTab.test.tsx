@@ -112,14 +112,15 @@ describe('OverviewTab', () => {
     cleanup.forEach((fn) => fn());
   });
 
-  it.each(['classic', 'gradient', 'minimal'] as const)('时钟 %s 配置样式、时间位数及宜忌分支', async (clockStyle) => {
+  it.each(['classic', 'gradient', 'minimal'] as const)('时钟 %s 配置样式与时间位数', async (clockStyle) => {
     layout = { ...layout, gradientColors: { start: '#123456', middle: '#654321', end: '#abcdef' } };
     layout.clockStyle = clockStyle;
     const cleanup = await boot();
     const tree = render(OverviewTab);
     expect(value(tree, '.ov-dash-time', 'className')).toContain(`--${  clockStyle}`);
     expect(text(nodes(tree, '.ov-dash-clock')).split(':')).toHaveLength(clockStyle === 'minimal' ? 2 : 3);
-    expect(nodes(tree, '.ov-dash-yiji')).toHaveLength(clockStyle === 'minimal' ? 0 : 1);
+    expect(nodes(tree, '.ov-dash-yiji')).toHaveLength(0);
+    expect(nodes(tree, '.ov-dash-lunar')).toHaveLength(0);
     expect(value(tree, '.ov-dash-time', 'style')).toEqual(clockStyle === 'classic' ? undefined : {
       '--ov-clock-gradient-start': '#123456', '--ov-clock-gradient-middle': '#654321', '--ov-clock-gradient-end': '#abcdef',
     });

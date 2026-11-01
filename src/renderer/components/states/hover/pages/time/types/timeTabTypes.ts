@@ -28,8 +28,6 @@
 export interface TimeTabProps {
   /** 完整时间字符串 (YY-MM-DD HH:MM:SS) */
   fullTimeStr: string;
-  /** 农历日期字符串 */
-  lunarStr: string;
 }
 
 /** ActionButtons 组件 Props */

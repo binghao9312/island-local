@@ -7,12 +7,11 @@
 
 /**
  * @file CalendarMonthGrid.tsx
- * @description 按月份缓存日期文案和网格，避免滚动与日期选择重复格式化农历。
+ * @description 按月份缓存日期文案和网格，避免滚动与日期选择重复格式化日期。
  * @author 鸡哥
  */
 
 import { memo, useMemo, type CSSProperties, type ReactElement } from 'react';
-import { Lunar } from 'lunar-javascript';
 import { getCalendarDateKey } from '../utils/calendarHolidayUtils';
 import type { CalendarMonthGridProps } from '../types/calendarTypes';
 import { CalendarEventBars } from './CalendarEventBars';
@@ -29,7 +28,6 @@ export const CalendarMonthGrid = memo(function CalendarMonthGrid({
   selectedDay,
   todayDay,
   holidays,
-  locale,
   formats,
   shortMonthFormat,
   selectedButtonRef,
@@ -38,19 +36,14 @@ export const CalendarMonthGrid = memo(function CalendarMonthGrid({
 }: CalendarMonthGridProps): ReactElement {
   const year = month.date.getFullYear();
   const monthIndex = month.date.getMonth();
-  const showLunar = !locale.startsWith('en');
-  // 缓存仅跟随月份与语言变化，异步事件更新和选中日期变化不触发农历计算。
+  // 缓存仅跟随月份与语言变化，异步事件更新和选中日期变化不触发日期格式化。
   const days = useMemo(() => Array.from({ length: new Date(year, monthIndex + 1, 0).getDate() }, (_, index) => {
     const date = new Date(year, monthIndex, index + 1, 12);
     return {
       key: getCalendarDateKey(date),
       full: formats.full.format(date),
-      lunar: showLunar ? formats.lunar.format(date) : '',
-      lunarDay: !showLunar ? undefined : locale.startsWith('zh')
-        ? Lunar.fromDate(date).getDayInChinese()
-        : formats.lunarDay.formatToParts(date).find((part) => part.type === 'day')?.value,
     };
-  }), [year, monthIndex, locale, formats, showLunar]);
+  }), [year, monthIndex, formats]);
 
   return (
     <div
@@ -72,7 +65,7 @@ export const CalendarMonthGrid = memo(function CalendarMonthGrid({
               const selected = day === selectedDay;
               const metadata = days[day - 1];
               const holidayNames = holidays.get(metadata.key);
-              const dateTitle = [metadata.lunar, ...(holidayNames ?? [])].filter(Boolean).join('\n');
+              const dateTitle = (holidayNames ?? []).join('\n');
               return (
                 <div className="calendar-day-cell" key={date.getTime()}>
                   <button
@@ -89,7 +82,6 @@ export const CalendarMonthGrid = memo(function CalendarMonthGrid({
                     onKeyDown={(event) => onDateKeyDown(event, date)}
                   >
                     <span className="calendar-day-number">{day}</span>
-                    {showLunar && <span className="calendar-day-lunar" aria-hidden="true">{metadata.lunarDay}</span>}
                   </button>
                 </div>
               );

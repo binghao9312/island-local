@@ -27,7 +27,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StrictMode, type ReactElement } from 'react';
 import { nodes, render, trigger, value } from '../states/maxExpand/test/componentHarness';
-import { GUIDE_STEP_TOTAL } from '../../types/DynamicIslandGuideTypes';
+import { GUIDE_STEP_TOTAL, GUIDE_STEPS, type GuideStep } from '../../types/DynamicIslandGuideTypes';
 
 const mocks = vi.hoisted(() => ({
   root: {}, get: vi.fn<() => object | null>(), mount: vi.fn(), render: vi.fn(), send: vi.fn(),
@@ -47,6 +47,13 @@ vi.mock('../components/DynamicIslandGuidePages/update', () => ({ UpdateStep: moc
 vi.mock('../components/DynamicIslandGuidePages/github', () => ({ GithubStep: mocks.steps[7] }));
 vi.mock('../components/DynamicIslandGuidePages/sponsors', () => ({ SponsorStep: mocks.steps[8] }));
 vi.mock('../components/DynamicIslandGuidePages/welcome', () => ({ WelcomeStep: mocks.steps[9] }));
+
+/** 引导步骤到其 mock 组件的映射 */
+const STEP_MOCKS: Record<GuideStep, () => null> = {
+  language: mocks.steps[0], whitelist: mocks.steps[1], smtc: mocks.steps[2], theme: mocks.steps[3],
+  shape: mocks.steps[4], lyricMode: mocks.steps[5], update: mocks.steps[6], github: mocks.steps[7],
+  sponsors: mocks.steps[8], welcome: mocks.steps[9],
+};
 
 /**
  * 从真实入口的挂载树取得内部引导组件。
@@ -79,25 +86,45 @@ describe('DynamicIslandGuide', () => {
     expect(value(tree, mocks.indicator, 'current')).toBe(0);
   });
 
-  it('遍历全部步骤渲染和前进回退，最终完成发送IPC', async () => {
+  it('更新检测关闭时步骤序列不含更新源步骤，总数与进度点保持一致', () => {
+    expect(GUIDE_STEPS).not.toContain('update');
+    expect(GUIDE_STEPS).toEqual(['language', 'whitelist', 'smtc', 'theme', 'shape', 'lyricMode', 'github', 'sponsors', 'welcome']);
+    expect(GUIDE_STEP_TOTAL).toBe(9);
+  });
+
+  it('遍历全部实际步骤渲染和前进回退（跳过更新源步骤），最终完成发送IPC', async () => {
     await import('../DynamicIslandGuide');
     const app = guide();
-    mocks.steps.slice(0, -1).forEach((step, index) => {
+    GUIDE_STEPS.slice(0, -1).forEach((key, index) => {
+      const step = STEP_MOCKS[key];
       let tree = render(app);
       expect(nodes(tree, step)).toHaveLength(1);
+      expect(nodes(tree, STEP_MOCKS.update)).toHaveLength(0);
       expect(value(tree, mocks.indicator, 'current')).toBe(index);
       trigger(tree, step, 'onNext');
       tree = render(app);
-      const next = mocks.steps[index + 1];
+      const next = STEP_MOCKS[GUIDE_STEPS[index + 1]];
       expect(nodes(tree, next)).toHaveLength(1);
+      expect(nodes(tree, STEP_MOCKS.update)).toHaveLength(0);
       trigger(tree, next, 'onPrev');
       expect(nodes(render(app), step)).toHaveLength(1);
       trigger(render(app), step, 'onNext');
     });
     const finalTree = render(app);
-    expect(nodes(finalTree, mocks.steps[9])).toHaveLength(1);
-    trigger(finalTree, mocks.steps[9], 'onComplete');
+    expect(nodes(finalTree, STEP_MOCKS.welcome)).toHaveLength(1);
+    expect(value(finalTree, mocks.indicator, 'current')).toBe(GUIDE_STEP_TOTAL - 1);
+    trigger(finalTree, STEP_MOCKS.welcome, 'onComplete');
     expect(mocks.send).toHaveBeenCalledWith('guide:complete');
+  });
+
+  it('歌词模式步骤的下一步直接进入开源信息，开源信息返回歌词模式', async () => {
+    await import('../DynamicIslandGuide');
+    const app = guide();
+    GUIDE_STEPS.slice(0, GUIDE_STEPS.indexOf('lyricMode')).forEach((key) => trigger(render(app), STEP_MOCKS[key], 'onNext'));
+    trigger(render(app), STEP_MOCKS.lyricMode, 'onNext');
+    expect(nodes(render(app), STEP_MOCKS.github)).toHaveLength(1);
+    trigger(render(app), STEP_MOCKS.github, 'onPrev');
+    expect(nodes(render(app), STEP_MOCKS.lyricMode)).toHaveLength(1);
   });
 
   it('首步跳过直接结束引导', async () => {

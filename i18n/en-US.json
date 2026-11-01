@@ -499,9 +499,6 @@
       "showProgress": "Show playback progress",
       "showInfo": "Show song info"
     },
-    "time": {
-      "lunarPrefix": "Lunar"
-    },
     "weather": {
       "refreshTitle": "Click to refresh weather",
       "today": "Tdy",
@@ -872,9 +869,7 @@
         "4": "Thu",
         "5": "Fri",
         "6": "Sat"
-      },
-      "yi": "P",
-      "ji": "C"
+      }
     }
   },
   "songTab": {
@@ -1478,7 +1473,6 @@
       "yearOverview": "Year overview",
       "monthView": "Month view",
       "selectedDate": "Selected date",
-      "lunarDate": "Lunar date",
       "holidays": "Public holidays",
       "scheduledTodos": "Scheduled to-dos",
       "scheduledCountdowns": "Countdown events",
@@ -3048,10 +3042,7 @@
           "urlNoteStackOverflow": "Tech Q&A",
           "breakSedentary": "Stand up and move",
           "breakGeneric": "Take a short break",
-          "date": "2026-01-01 Thursday",
-          "lunar": "Yisi Year, Twelfth Lunar Month",
-          "yiItems": "Pray · Travel · Open Market",
-          "jiItems": "Groundbreaking · Burial · Soil Breaking"
+          "date": "2026-01-01 Thursday"
         }
       },
       "expandLayout": {

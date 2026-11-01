@@ -49,8 +49,6 @@ export function useCalendar(): UseCalendarReturn {
     month: new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }),
     weekday: new Intl.DateTimeFormat(locale, { weekday: 'short' }),
     full: new Intl.DateTimeFormat(locale, { dateStyle: 'full' }),
-    lunar: new Intl.DateTimeFormat(locale, { calendar: 'chinese', year: 'numeric', month: 'long', day: 'numeric' }),
-    lunarDay: new Intl.DateTimeFormat(locale, { calendar: 'chinese', month: 'short', day: 'numeric' }),
   }), [locale]);
 
   const difference = getCalendarDayDifference(selectedDate, today);

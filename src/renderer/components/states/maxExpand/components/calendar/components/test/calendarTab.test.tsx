@@ -31,7 +31,7 @@ import { CalendarGrid } from '../CalendarGrid';
 import { CalendarYearOverview } from '../CalendarYearOverview';
 import { CalendarDetailPanel } from '../CalendarDetailPanel';
 const date = new Date(2026, 9, 6, 12);
-const formats = { full: new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }), month: new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }), weekday: new Intl.DateTimeFormat('en-US', { weekday: 'short' }), lunar: new Intl.DateTimeFormat('zh-CN-u-ca-chinese'), lunarDay: new Intl.DateTimeFormat('zh-CN-u-ca-chinese', { day: 'numeric' }) };
+const formats = { full: new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }), month: new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }), weekday: new Intl.DateTimeFormat('en-US', { weekday: 'short' }) };
 vi.mock('../../hooks/useCalendar', () => ({ useCalendar: () => ({
   formats,
   selectedDate: date,

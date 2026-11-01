@@ -29,6 +29,7 @@ import { NetworkSettingsSection } from '../NetworkSettingsSection';
 import { elementProps, elements, findElement, invoke, textContent } from '../../../../../../../test/elementHarness';
 import { renderWithHooks, resetLifecycle } from '../../app/components/test/themeHookHarness';
 import type { ComponentProps } from 'react';
+vi.mock('../../../../../../../../../shared/updatesConfig', () => ({ UPDATES_ENABLED: true }));
 vi.mock('react', async (original) => ({ ...(await original<typeof import('react')>()), ...(await import('../../../../../../../test/elementHarness')).hookMocks, ...(await import('../../app/components/test/themeHookHarness')).lifecycleHooks }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 /**

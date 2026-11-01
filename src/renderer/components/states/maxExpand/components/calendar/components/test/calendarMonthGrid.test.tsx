@@ -29,7 +29,7 @@ import { render, nodes } from '../../../../test/componentHarness';
 import { CalendarMonthGrid as Component } from '../CalendarMonthGrid';
 import { getCalendarMonthLayouts } from '../../utils/calendarUtils';
 const date = new Date(2026, 9, 6, 12);
-const formats = { full: new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }), month: new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }), weekday: new Intl.DateTimeFormat('en-US', { weekday: 'short' }), lunar: new Intl.DateTimeFormat('zh-CN-u-ca-chinese'), lunarDay: new Intl.DateTimeFormat('zh-CN-u-ca-chinese', { day: 'numeric' }) };
+const formats = { full: new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }), month: new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }), weekday: new Intl.DateTimeFormat('en-US', { weekday: 'short' }) };
 describe('CalendarMonthGrid', () => {
   const props = {
     formats,
@@ -37,7 +37,6 @@ describe('CalendarMonthGrid', () => {
     selectedDay: 6,
     todayDay: 6,
     holidays: new Map([['2026-10-06', ['Holiday']]]),
-    locale: 'en-US',
     shortMonthFormat: new Intl.DateTimeFormat('en-US', {
       month: 'short'
     }),
@@ -58,20 +57,17 @@ describe('CalendarMonthGrid', () => {
     expect(selected?.props.ref).toBe(props.selectedButtonRef);
     (selected!.props.onClick as () => void)();
     expect(props.onSelectDate.mock.calls[0][0]).toEqual(date);
-    expect(nodes(render(Component, { ...props, locale: 'zh-CN' }), '.calendar-day-lunar')).toHaveLength(31);
+    expect(nodes(render(Component, props), '.calendar-day-lunar')).toHaveLength(0);
   });
 
-  it('formats lunar days for another locale and forwards the date keyboard event', () => {
+  it('forwards the date keyboard event', () => {
     const onDateKeyDown = vi.fn();
-    const input = { ...props, locale: 'ja-JP' };
-    input.onDateKeyDown = onDateKeyDown;
+    const input = { ...props, onDateKeyDown };
     const tree = render(Component, input);
     const event = { key: 'ArrowRight', preventDefault: vi.fn() };
     const selected = nodes(tree, '.calendar-day-button').find((node) => node.props['aria-pressed']);
     (selected!.props.onKeyDown as (input: unknown) => void)(event);
     expect(onDateKeyDown).toHaveBeenCalledExactlyOnceWith(event, date);
-    const lunarDays = nodes(tree, '.calendar-day-lunar');
-    expect(lunarDays).toHaveLength(31);
-    expect(lunarDays.every((node) => typeof node.props.children === 'string')).toBe(true);
+    expect(nodes(tree, '.calendar-day-lunar')).toHaveLength(0);
   });
 });

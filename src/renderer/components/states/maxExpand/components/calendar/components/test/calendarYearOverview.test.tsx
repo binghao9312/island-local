@@ -29,7 +29,7 @@ import { render, nodes, value, trigger, flushEffects } from '../../../../test/co
 import { CalendarYearOverview as Component } from '../CalendarYearOverview';
 import { CalendarOverviewMonths } from '../CalendarOverviewMonths';
 const date = new Date(2026, 9, 6, 12);
-const formats = { full: new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }), month: new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }), weekday: new Intl.DateTimeFormat('en-US', { weekday: 'short' }), lunar: new Intl.DateTimeFormat('zh-CN-u-ca-chinese'), lunarDay: new Intl.DateTimeFormat('zh-CN-u-ca-chinese', { day: 'numeric' }) };
+const formats = { full: new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }), month: new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }), weekday: new Intl.DateTimeFormat('en-US', { weekday: 'short' }) };
 describe('CalendarYearOverview', () => {
   it('keeps adjacent years as placeholders and mounts only the visible year', () => {
     const onVisibleYearChange = vi.fn();

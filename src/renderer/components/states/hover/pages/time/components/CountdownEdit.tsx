@@ -40,7 +40,7 @@ interface CountdownEditProps {
 
 /**
  * 可编辑计时器组件
- * @description 位于时间和农历左侧，直接显示输入框，支持开始、暂停、重置
+ * @description 位于时间左侧，直接显示输入框，支持开始、暂停、重置
  * 倒计时逻辑由 DynamicIsland 全局管理，此组件仅负责 UI 展示和用户交互
  * @param props - 当前面板模式（倒计时/亮度/音量）
  * @returns 倒计时或亮度/音量控件区域

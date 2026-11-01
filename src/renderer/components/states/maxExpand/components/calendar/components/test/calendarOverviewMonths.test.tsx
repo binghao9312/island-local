@@ -28,7 +28,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { render, nodes, trigger } from '../../../../test/componentHarness';
 import { CalendarOverviewMonths as Component } from '../CalendarOverviewMonths';
 import type { ReactElement } from 'react';
-const formats = { full: new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }), month: new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }), weekday: new Intl.DateTimeFormat('en-US', { weekday: 'short' }), lunar: new Intl.DateTimeFormat('zh-CN-u-ca-chinese'), lunarDay: new Intl.DateTimeFormat('zh-CN-u-ca-chinese', { day: 'numeric' }) };
+const formats = { full: new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }), month: new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }), weekday: new Intl.DateTimeFormat('en-US', { weekday: 'short' }) };
 describe('CalendarOverviewMonths', () => {
   it('builds twelve months and passes selection and today only to affected months', () => {
     const onSelectDate = vi.fn(); const onOpenMonth = vi.fn();

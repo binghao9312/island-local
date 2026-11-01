@@ -45,6 +45,6 @@ export function IdleClockContent(props: Omit<IdleContentProps, 'timeStr' | 'dayS
 export function HoverClockContent(): ReactElement {
   const { t, i18n } = useTranslation();
   const hoverTab = useIslandStore((store) => store.hoverTab);
-  const { fullTimeStr, lunarStr } = useIslandTimeStrings({ t, language: i18n.resolvedLanguage, enabled: hoverTab === 'time' });
-  return <HoverContent fullTimeStr={fullTimeStr} lunarStr={lunarStr} />;
+  const { fullTimeStr } = useIslandTimeStrings({ t, language: i18n.resolvedLanguage, enabled: hoverTab === 'time' });
+  return <HoverContent fullTimeStr={fullTimeStr} />;
 }

@@ -53,7 +53,6 @@ export const ALL_DEPENDENCIES: DependencyItem[] = [
   { name: 'imapflow' },
   { name: 'mailparser' },
   { name: 'openmeteo' },
-  { name: 'lunar-javascript' },
   { name: 'lyric-resolver' },
   { name: 'colorthief' },
   { name: 'fetch-installed-software' },

@@ -36,7 +36,6 @@ export function HoverContent(props: HoverContentProps): ReactElement {
   return (
     <HoverForm
       fullTimeStr={hover.fullTimeStr}
-      lunarStr={hover.lunarStr}
       t={hover.t}
       hoverTab={hover.hoverTab}
       setHoverTab={hover.setHoverTab}

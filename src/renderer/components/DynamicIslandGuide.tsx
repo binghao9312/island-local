@@ -29,7 +29,7 @@
 import { StrictMode, useState, useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
 import '../styles/guide.css';
-import { GUIDE_STEP_INDEX, GUIDE_STEP_TOTAL } from '../types/DynamicIslandGuideTypes';
+import { GUIDE_STEP_INDEX, GUIDE_STEP_TOTAL, GUIDE_STEPS, getAdjacentGuideStep } from '../types/DynamicIslandGuideTypes';
 import { WaveEffect } from './components/DynamicIslandSharedWaveEffect';
 import { LanguageStep } from './components/DynamicIslandGuidePages/language';
 import { WhitelistStep } from './components/DynamicIslandGuidePages/smtc-white-list';
@@ -56,94 +56,14 @@ function GuideApp(): ReactElement {
     window.electron.ipcRenderer.send('guide:complete');
   }, []);
 
-  /** 语言选择完成，进入白名单配置 */
-  const handleLanguageNext = useCallback((): void => {
-    setStep('whitelist');
+  /** 前进到步骤序列中的下一步（更新检测关闭时序列不含更新源步骤） */
+  const handleNext = useCallback((): void => {
+    setStep((current) => getAdjacentGuideStep(GUIDE_STEPS, current, 1));
   }, []);
 
-  /** 白名单配置完成，进入 SMTC 检查 */
-  const handleWhitelistNext = useCallback((): void => {
-    setStep('smtc');
-  }, []);
-
-  /** 白名单返回语言选择 */
-  const handleWhitelistPrev = useCallback((): void => {
-    setStep('language');
-  }, []);
-
-  /** SMTC 检查完成，进入主题设置 */
-  const handleSmtcNext = useCallback((): void => {
-    setStep('theme');
-  }, []);
-
-  /** SMTC 返回白名单配置 */
-  const handleSmtcPrev = useCallback((): void => {
-    setStep('whitelist');
-  }, []);
-
-  /** 主题设置完成，进入形态设置 */
-  const handleThemeNext = useCallback((): void => {
-    setStep('shape');
-  }, []);
-
-  /** 主题设置返回 SMTC 检查 */
-  const handleThemePrev = useCallback((): void => {
-    setStep('smtc');
-  }, []);
-
-  /** 形态设置完成，进入歌词模式配置 */
-  const handleShapeNext = useCallback((): void => {
-    setStep('lyricMode');
-  }, []);
-
-  /** 形态设置返回主题设置 */
-  const handleShapePrev = useCallback((): void => {
-    setStep('theme');
-  }, []);
-
-  /** 歌词模式配置完成，进入更新源配置 */
-  const handleLyricModeNext = useCallback((): void => {
-    setStep('update');
-  }, []);
-
-  /** 歌词模式配置返回形态设置 */
-  const handleLyricModePrev = useCallback((): void => {
-    setStep('shape');
-  }, []);
-
-  /** 更新源配置完成，进入开源信息 */
-  const handleUpdateNext = useCallback((): void => {
-    setStep('github');
-  }, []);
-
-  /** 更新源配置返回歌词模式配置 */
-  const handleUpdatePrev = useCallback((): void => {
-    setStep('lyricMode');
-  }, []);
-
-  /** 开源信息完成，进入赞助商页 */
-  const handleGithubNext = useCallback((): void => {
-    setStep('sponsors');
-  }, []);
-
-  /** 开源信息返回更新源配置 */
-  const handleGithubPrev = useCallback((): void => {
-    setStep('update');
-  }, []);
-
-  /** 赞助商页完成，进入欢迎页 */
-  const handleSponsorsNext = useCallback((): void => {
-    setStep('welcome');
-  }, []);
-
-  /** 赞助商页返回开源信息 */
-  const handleSponsorsPrev = useCallback((): void => {
-    setStep('github');
-  }, []);
-
-  /** 欢迎页返回赞助商页 */
-  const handleWelcomePrev = useCallback((): void => {
-    setStep('sponsors');
+  /** 返回步骤序列中的上一步 */
+  const handlePrev = useCallback((): void => {
+    setStep((current) => getAdjacentGuideStep(GUIDE_STEPS, current, -1));
   }, []);
 
   return (
@@ -151,66 +71,66 @@ function GuideApp(): ReactElement {
       <WaveEffect accentColor={accentColor} />
       <div className="guide-content">
         <div className="guide-process-indicator">
-          <ProcessIndicator total={GUIDE_STEP_TOTAL} current={GUIDE_STEP_INDEX[step]} />
+          <ProcessIndicator total={GUIDE_STEP_TOTAL} current={GUIDE_STEP_INDEX[step] ?? 0} />
         </div>
         {step === 'language' && (
           <LanguageStep
-            onNext={handleLanguageNext}
+            onNext={handleNext}
             onSkip={handleComplete}
           />
         )}
         {step === 'whitelist' && (
           <WhitelistStep
-            onNext={handleWhitelistNext}
-            onPrev={handleWhitelistPrev}
+            onNext={handleNext}
+            onPrev={handlePrev}
           />
         )}
         {step === 'smtc' && (
           <SmtcStep
-            onNext={handleSmtcNext}
-            onPrev={handleSmtcPrev}
+            onNext={handleNext}
+            onPrev={handlePrev}
           />
         )}
         {step === 'theme' && (
           <ThemeStep
-            onNext={handleThemeNext}
-            onPrev={handleThemePrev}
+            onNext={handleNext}
+            onPrev={handlePrev}
           />
         )}
         {step === 'shape' && (
           <ShapeStep
-            onNext={handleShapeNext}
-            onPrev={handleShapePrev}
+            onNext={handleNext}
+            onPrev={handlePrev}
           />
         )}
         {step === 'lyricMode' && (
           <LyricModeStep
-            onNext={handleLyricModeNext}
-            onPrev={handleLyricModePrev}
+            onNext={handleNext}
+            onPrev={handlePrev}
           />
         )}
         {step === 'update' && (
           <UpdateStep
-            onNext={handleUpdateNext}
-            onPrev={handleUpdatePrev}
+            onNext={handleNext}
+            onPrev={handlePrev}
           />
         )}
         {step === 'github' && (
           <GithubStep
-            onNext={handleGithubNext}
-            onPrev={handleGithubPrev}
+            onNext={handleNext}
+            onPrev={handlePrev}
           />
         )}
         {step === 'sponsors' && (
           <SponsorStep
-            onNext={handleSponsorsNext}
-            onPrev={handleSponsorsPrev}
+            onNext={handleNext}
+            onPrev={handlePrev}
           />
         )}
         {step === 'welcome' && (
           <WelcomeStep
             onComplete={handleComplete}
-            onPrev={handleWelcomePrev}
+            onPrev={handlePrev}
           />
         )}
       </div>

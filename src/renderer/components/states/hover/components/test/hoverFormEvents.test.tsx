@@ -44,7 +44,7 @@ describe('悬浮页公开事件', () => {
   it('点击内容体拦截冒泡且不切换页面或展开岛', () => {
     const setHoverTab = vi.fn();
     const setExpanded = vi.fn();
-    const tree = HoverForm({ setHoverTab, setExpanded, fullTimeStr: '10:00', lunarStr: '初一',
+    const tree = HoverForm({ setHoverTab, setExpanded, fullTimeStr: '10:00',
       t: i18n.t, hoverTab: 'time', contentRef: { current: null }, getDotLabel: (tab) => tab });
     const stopPropagation = vi.fn();
     invoke(findElement(tree, (node) => node.props.className === 'hover-tab-content'), 'onClick', { stopPropagation });

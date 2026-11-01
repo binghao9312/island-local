@@ -499,9 +499,6 @@
       "showProgress": "显示播放进度",
       "showInfo": "显示歌曲信息"
     },
-    "time": {
-      "lunarPrefix": "农历"
-    },
     "weather": {
       "refreshTitle": "点击刷新天气",
       "today": "今天",
@@ -872,9 +869,7 @@
         "4": "周四",
         "5": "周五",
         "6": "周六"
-      },
-      "yi": "宜",
-      "ji": "忌"
+      }
     }
   },
   "songTab": {
@@ -1474,7 +1469,6 @@
       "yearOverview": "全年概览",
       "monthView": "月视图",
       "selectedDate": "所选日期",
-      "lunarDate": "农历",
       "holidays": "公共假日",
       "scheduledTodos": "当日待办",
       "scheduledCountdowns": "当日倒数日",
@@ -3048,10 +3042,7 @@
           "urlNoteStackOverflow": "技术问答",
           "breakSedentary": "站起来活动",
           "breakGeneric": "休息一下",
-          "date": "2026年01月01日 星期四",
-          "lunar": "乙巳年 腊月十二",
-          "yiItems": "祈福 · 出行 · 开市",
-          "jiItems": "动土 · 安葬 · 破土"
+          "date": "2026年01月01日 星期四"
         }
       },
       "expandLayout": {

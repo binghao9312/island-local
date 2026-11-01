@@ -11,8 +11,8 @@
  * @author 鸡哥
  */
 
-/** 日期数字与农历区域的基础高度，事件轨道在此基础上增高。 */
-export const CALENDAR_WEEK_HEIGHT = 56;
+/** 日期数字区域的基础高度，事件轨道在此基础上增高。 */
+export const CALENDAR_WEEK_HEIGHT = 48;
 /** 每条事件轨道的高度，单位为像素。 */
 export const CALENDAR_EVENT_LANE_HEIGHT = 18;
 /** 事件区与下一条分割线之间的留白，单位为像素。 */

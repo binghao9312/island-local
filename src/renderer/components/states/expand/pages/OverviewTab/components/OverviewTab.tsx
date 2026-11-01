@@ -25,7 +25,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { getDayName, getDayJi, getDayYi, getLunarDate } from '../../../../../../utils/timeUtils';
+import { getDayName } from '../../../../../../utils/timeUtils';
 import { useOverviewTab } from '../hooks/useOverviewTab';
 import { buildGradientClockVars, getOverviewClockParts } from '../utils/overviewTabUtils';
 import {
@@ -147,19 +147,6 @@ export function OverviewTab(): ReactElement {
       <div className={`ov-dash-time ov-dash-time--${layoutConfig.clockStyle}`} style={gradientClockVars}>
         <span className="ov-dash-date">{t('overview.time.date', { defaultValue: '{{yyyy}}年{{month}}月{{day}}日 {{dayName}}', yyyy, month, day, dayName })}</span>
         <span className="ov-dash-clock">{layoutConfig.clockStyle === 'minimal' ? `${hh}:${mm}` : `${hh}:${mm}:${ss}`}</span>
-        <span className="ov-dash-lunar">{getLunarDate(now)}</span>
-        {layoutConfig.clockStyle !== 'minimal' && (
-          <div className="ov-dash-yiji">
-            <div className="ov-dash-yiji-row">
-              <span className="ov-dash-yiji-label yi">{t('overview.time.yi', { defaultValue: '宜' })}</span>
-              <span className="ov-dash-yiji-items">{getDayYi(now).slice(0, 3).join(' · ')}</span>
-            </div>
-            <div className="ov-dash-yiji-row">
-              <span className="ov-dash-yiji-label ji">{t('overview.time.ji', { defaultValue: '忌' })}</span>
-              <span className="ov-dash-yiji-items">{getDayJi(now).slice(0, 3).join(' · ')}</span>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* ========== 右区 ========== */}

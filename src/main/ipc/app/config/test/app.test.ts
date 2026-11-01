@@ -44,4 +44,11 @@ describe('本地工具配置', () => {
       expect(channel).toMatch(/^(theme|island):/);
     });
   });
+
+  it('更新检测关闭时注册表不向 Agent 暴露更新源与更新提示设置', () => {
+    const keys = ISLAND_SETTINGS_REGISTRY.map((entry) => entry.key);
+    expect(keys).not.toContain('update-source');
+    expect(keys).not.toContain('update-auto-prompt-enabled');
+    expect(keys).toContain('theme-mode');
+  });
 });

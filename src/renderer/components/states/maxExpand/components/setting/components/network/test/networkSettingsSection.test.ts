@@ -54,6 +54,7 @@ function makeProps(): ComponentProps<typeof NetworkSettingsSection> {
     onUpdateSourceChange: vi.fn(),
   };
 }
+vi.mock('../../../../../../../../../shared/updatesConfig', () => ({ UPDATES_ENABLED: true }));
 vi.mock('react', async (importOriginal) => ({
   ...await importOriginal<typeof import('react')>(),
   ...(await import('../../../../../../../test/elementHarness')).hookMocks,

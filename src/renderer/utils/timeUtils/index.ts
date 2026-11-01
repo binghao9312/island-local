@@ -24,8 +24,6 @@
  * @author 鸡哥
  */
 
-import { Lunar } from 'lunar-javascript';
-
 /** 星期中文名称映射 */
 export const DAY_NAMES = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'] as const;
 
@@ -64,34 +62,3 @@ export function getDayName(date: Date): string {
   return DAY_NAMES[date.getDay()];
 }
 
-/**
- * 获取农历日期描述
- * @param date - 要查询的 Date 对象
- * @returns 农历日期字符串（如"二月十四"、"闰四月廿三"）
- */
-export function getLunarDate(date: Date): string {
-  const lunar = Lunar.fromDate(date);
-  const month = lunar.getMonthInChinese();
-  const day = lunar.getDayInChinese();
-  return `${month}月${day}`;
-}
-
-/**
- * 获取当日宜做事项
- * @param date - 要查询的 Date 对象
- * @returns 宜做事项数组
- */
-export function getDayYi(date: Date): string[] {
-  const lunar = Lunar.fromDate(date);
-  return lunar.getDayYi() as string[];
-}
-
-/**
- * 获取当日忌做事项
- * @param date - 要查询的 Date 对象
- * @returns 忌做事项数组
- */
-export function getDayJi(date: Date): string[] {
-  const lunar = Lunar.fromDate(date);
-  return lunar.getDayJi() as string[];
-}
