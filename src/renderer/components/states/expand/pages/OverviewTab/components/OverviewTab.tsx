@@ -25,9 +25,16 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { getDayName } from '../../../../../../utils/timeUtils';
+import { useShallow } from 'zustand/react/shallow';
+import useIslandStore from '../../../../../../store/slices';
+import { useOverviewClockSettings } from '../hooks/useOverviewClockSettings';
 import { useOverviewTab } from '../hooks/useOverviewTab';
-import { buildGradientClockVars, getOverviewClockParts } from '../utils/overviewTabUtils';
+import {
+  buildOverviewClockStyle,
+  formatOverviewDate,
+  formatOverviewTime,
+} from '../utils/overviewClockUtils';
+import { buildGradientClockVars } from '../utils/overviewTabUtils';
 import {
   AlbumCarouselWidget,
   BreakReminderWidget,
@@ -72,10 +79,13 @@ export function OverviewTab(): ReactElement {
     toggleSubDone,
     removeTodo,
   } = useOverviewTab();
-  const { hh, mm, ss, yyyy, month, day } = getOverviewClockParts(now);
+  const [clockConfig] = useOverviewClockSettings();
+  const { dominantColor } = useIslandStore(useShallow((store) => ({ dominantColor: store.dominantColor })));
+  const { clockStyle: dynamicClockStyle } = buildOverviewClockStyle(clockConfig, dominantColor);
   const gradientClockVars = buildGradientClockVars(layoutConfig);
-  const dayName = t(`overview.time.weekdays.${now.getDay()}`, { defaultValue: getDayName(now) });
-
+  const showSeconds = clockConfig.showSeconds || layoutConfig.clockStyle !== 'minimal';
+  const timeText = formatOverviewTime(now, clockConfig.is24Hour, showSeconds);
+  const dateText = formatOverviewDate(now, clockConfig.dateFormat, t);
   /**
    * 渲染控件
    * @param type - 控件类型
@@ -144,8 +154,10 @@ export function OverviewTab(): ReactElement {
 
       {/* ========== 中区：时间（始终居中） ========== */}
       <div className={`ov-dash-time ov-dash-time--${layoutConfig.clockStyle}`} style={gradientClockVars}>
-        <span className="ov-dash-date">{t('overview.time.date', { defaultValue: '{{yyyy}}年{{month}}月{{day}}日 {{dayName}}', yyyy, month, day, dayName })}</span>
-        <span className="ov-dash-clock">{layoutConfig.clockStyle === 'minimal' ? `${hh}:${mm}` : `${hh}:${mm}:${ss}`}</span>
+        {clockConfig.showDate && <span className="ov-dash-date">{dateText}</span>}
+        <span className="ov-dash-clock" style={dynamicClockStyle}>
+          {timeText}
+        </span>
       </div>
 
       {/* ========== 右区 ========== */}

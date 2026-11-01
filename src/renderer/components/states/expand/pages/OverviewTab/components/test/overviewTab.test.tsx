@@ -186,7 +186,7 @@ describe('OverviewTab', () => {
     cleanup.forEach((fn) => fn());
     update('store:todos', todos);
     expect(value(render(OverviewTab), mocks.widgets[7], 'todos')).toEqual([]);
-    expect(mocks.unsubscribe).toHaveBeenCalledTimes(2);
+    expect(mocks.unsubscribe).toHaveBeenCalledTimes(3);
   });
 
   it('空存储待办回退旧localStorage', async () => {

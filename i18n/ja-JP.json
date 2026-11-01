@@ -2917,6 +2917,65 @@
           "customHex": "カスタムカラー",
           "invalidHex": "#RRGGBB 形式で入力してください"
         },
+        "clock": {
+          "title": "時計スタイル",
+          "subtitle": "概要パネルの時計の色、フォント、サイズ、日付表示をカスタマイズし、リアルタイムに同期します。",
+          "preview": "ライブプレビュー",
+          "colorMode": "カラーモード",
+          "colorModes": {
+            "auto": "自動グラデーション",
+            "solid": "単色",
+            "gradient": "グラデーション",
+            "album": "アルバム色に追従"
+          },
+          "presetSwatches": "プリセット",
+          "customHex": "カスタムHex",
+          "gradientPresets": "プリセットグラデーション",
+          "gradientStart": "開始色",
+          "gradientEnd": "終了色",
+          "albumHint": "現在再生中の曲のアルバムアートの主要色に追従します。未再生時は自動グラデーションにフォールバックします。",
+          "albumActive": "アルバム色が有効です",
+          "albumIdle": "未再生のため自動グラデーションを使用",
+          "autoHint": "ダイナミックアイランドの標準グラデーションを使用します。",
+          "invalidHex": "#RRGGBB 形式の色を入力してください",
+          "fontFamily": "フォント",
+          "fonts": {
+            "system": "システム標準",
+            "segoe": "Segoe UI Variable",
+            "bahnschrift": "Bahnschrift",
+            "consolas": "Consolas",
+            "georgia": "Georgia",
+            "jhenghei": "Microsoft JhengHei",
+            "cascadia": "Cascadia Code"
+          },
+          "fontWeight": "太さ",
+          "weights": {
+            "light": "細字",
+            "regular": "標準",
+            "bold": "太字",
+            "heavy": "極太"
+          },
+          "fontSize": "サイズ",
+          "sizes": {
+            "small": "S",
+            "medium": "M",
+            "large": "L",
+            "xlarge": "XL"
+          },
+          "timeFormat": "時間形式",
+          "format24": "24時間表示",
+          "format12": "12時間表示",
+          "showSeconds": "秒を表示",
+          "dateLine": "日付行",
+          "showDate": "日付を表示",
+          "dateFormat": "日付形式",
+          "dateFormats": {
+            "full": "yyyy年MM月dd日 週X",
+            "slash": "yyyy/MM/dd",
+            "short": "MM/dd 週X",
+            "shortVal": "{{month}}/{{day}} {{dayName}}"
+          }
+        },
         "musicBgCurrent": "現在の状態",
         "musicBgModified": "変更後",
         "musicBgSilky": "滑らかな波",

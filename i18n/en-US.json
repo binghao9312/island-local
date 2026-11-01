@@ -2917,6 +2917,65 @@
           "customHex": "Custom hex",
           "invalidHex": "Enter a color in #RRGGBB format"
         },
+        "clock": {
+          "title": "Clock Style",
+          "subtitle": "Customize the color, font, size, and date display of the overview clock with instant live sync.",
+          "preview": "Live Preview",
+          "colorMode": "Color Mode",
+          "colorModes": {
+            "auto": "Auto Gradient",
+            "solid": "Solid Color",
+            "gradient": "Gradient",
+            "album": "Follow Album Color"
+          },
+          "presetSwatches": "Presets",
+          "customHex": "Custom Hex",
+          "gradientPresets": "Preset Gradients",
+          "gradientStart": "Start Color",
+          "gradientEnd": "End Color",
+          "albumHint": "Follows the dominant color of the current song's album art; falls back to auto gradient when idle.",
+          "albumActive": "Current album color active",
+          "albumIdle": "No music playing, using auto gradient",
+          "autoHint": "Uses the default dynamic island vibrant gradient sheen.",
+          "invalidHex": "Please enter a color in #RRGGBB format",
+          "fontFamily": "Font",
+          "fonts": {
+            "system": "System Default",
+            "segoe": "Segoe UI Variable",
+            "bahnschrift": "Bahnschrift",
+            "consolas": "Consolas",
+            "georgia": "Georgia",
+            "jhenghei": "Microsoft JhengHei",
+            "cascadia": "Cascadia Code"
+          },
+          "fontWeight": "Weight",
+          "weights": {
+            "light": "Light",
+            "regular": "Regular",
+            "bold": "Bold",
+            "heavy": "Heavy"
+          },
+          "fontSize": "Size",
+          "sizes": {
+            "small": "S",
+            "medium": "M",
+            "large": "L",
+            "xlarge": "XL"
+          },
+          "timeFormat": "Time Format",
+          "format24": "24-Hour",
+          "format12": "12-Hour",
+          "showSeconds": "Show Seconds",
+          "dateLine": "Date Line",
+          "showDate": "Show Date",
+          "dateFormat": "Date Format",
+          "dateFormats": {
+            "full": "yyyy年MM月dd日 週X",
+            "slash": "yyyy/MM/dd",
+            "short": "MM/dd 週X",
+            "shortVal": "{{month}}/{{day}} {{dayName}}"
+          }
+        },
         "musicBgCurrent": "Current",
         "musicBgModified": "Modified",
         "musicBgSilky": "Silky Wave",
