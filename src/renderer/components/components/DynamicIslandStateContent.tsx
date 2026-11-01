@@ -127,8 +127,6 @@ export function DynamicIslandStateContent({
     if (state === 'questionnaire') return <QuestionnaireContent />;
   }
   if (state === 'musicProvidersLogin') return <MusicProvidersLoginContent />;
-  if (state === 'payment') return <PaymentContent />;
-  if (state === 'questionnaire') return <QuestionnaireContent />;
   if (state === 'agent') return <AgentContent />;
   if (state === 'cli') return <CliContent />;
 

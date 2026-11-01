@@ -51,9 +51,7 @@ describe('normalizeIslandState', () => {
       'lyrics',
       'lyricsTranslation',
       'guide',
-      'agentVoiceInput',
       'agent',
-      'stt',
       'cli',
       'musicProvidersLogin',
     ] as const)('preserves supported local state "%s"', (localState) => {
