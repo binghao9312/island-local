@@ -52,14 +52,13 @@ vi.mock('../../states/cli', () => ({ CliContent: Object.assign(vi.fn(), { displa
 vi.mock('../../states/setPassword', () => ({ SetPasswordContent: Object.assign(vi.fn(), { displayName: 'SetPasswordContent' }) }));
 vi.mock('../../states/bindOAuth', () => ({ BindOAuthContent: Object.assign(vi.fn(), { displayName: 'BindOAuthContent' }) }));
 vi.mock('../../states/bindEmail', () => ({ BindEmailContent: Object.assign(vi.fn(), { displayName: 'BindEmailContent' }) }));
-vi.mock('../../states/musicProvidersLogin', () => ({ MusicProvidersLoginContent: Object.assign(vi.fn(), { displayName: 'MusicProvidersLoginContent' }) }));
 beforeEach(() => {
   vi.clearAllMocks();
   resetState();
 });
 afterEach(() => { vi.unstubAllGlobals(); });
 describe('DynamicIslandStateContent', () => {
-  it.each([['idle', 'IdleContent'], ['hover', 'HoverContent'], ['expanded', 'ExpandedContent'], ['notification', 'NotificationContent'], ['maxExpand', 'MaxExpandContent'], ['lyrics', 'LyricsContent'], ['lyricsTranslation', 'LyricsTranslationContent'], ['guide', 'GuideContent'], ['login', 'LoginContent'], ['register', 'RegisterContent'], ['resetPassword', 'ResetPasswordContent'], ['setPassword', 'SetPasswordContent'], ['bindOAuth', 'BindOAuthContent'], ['bindEmail', 'BindEmailContent'], ['musicProvidersLogin', 'MusicProvidersLoginContent'], ['payment', 'PaymentContent'], ['questionnaire', 'QuestionnaireContent'],  ['agent', 'AgentContent'], ['cli', 'CliContent']] as const)('routes %s to its matching %s component', (state, expected) => {
+  it.each([['idle', 'IdleContent'], ['hover', 'HoverContent'], ['expanded', 'ExpandedContent'], ['notification', 'NotificationContent'], ['maxExpand', 'MaxExpandContent'], ['lyrics', 'LyricsContent'], ['lyricsTranslation', 'LyricsTranslationContent'], ['guide', 'GuideContent'], ['login', 'LoginContent'], ['register', 'RegisterContent'], ['resetPassword', 'ResetPasswordContent'], ['setPassword', 'SetPasswordContent'], ['bindOAuth', 'BindOAuthContent'], ['bindEmail', 'BindEmailContent'], ['payment', 'PaymentContent'], ['questionnaire', 'QuestionnaireContent'],  ['agent', 'AgentContent'], ['cli', 'CliContent']] as const)('routes %s to its matching %s component', (state, expected) => {
     const tree = DynamicIslandStateContent({ state, ...props });
     expect((tree?.type as unknown as {
       displayName: string;

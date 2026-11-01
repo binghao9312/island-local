@@ -71,14 +71,6 @@ import type {
   UpdaterNotAvailableData,
   UpdaterStartupAutoCheckRequestData,
   ClipboardUrlsDetectedData,
-  MusicProviderAuthStatus,
-  MusicProviderId,
-  MusicProviderQrCodeResult,
-  QishuiBusinessRequestOptions,
-  QishuiBusinessStatus,
-  QishuiLyricsResult,
-  QishuiSongsResult,
-  QishuiSongUrlResult,
   ExternalAgentData,
   SourceSwitchRequestData,
   RunningProcessInfo,
@@ -1062,70 +1054,6 @@ const api = {
     return ipcRenderer.invoke('music:whitelist:set', list);
   },
   /**
-   * 获取音乐提供商登录状态
-   * @param provider - 音乐提供商标识
-   * @returns 当前登录状态
-   */
-  musicProviderAuthStatus: (provider: MusicProviderId): Promise<MusicProviderAuthStatus> => {
-    return ipcRenderer.invoke('music-provider-auth:status', provider);
-  },
-  /**
-   * 创建音乐提供商登录二维码
-   * @param provider - 音乐提供商标识
-   * @returns 二维码内容与轮询 token
-   */
-  musicProviderAuthCreateQr: (provider: MusicProviderId): Promise<MusicProviderQrCodeResult> => {
-    return ipcRenderer.invoke('music-provider-auth:create-qr', provider);
-  },
-  /**
-   * 检查音乐提供商二维码登录状态
-   * @param provider - 音乐提供商标识
-   * @param token - 二维码轮询 token
-   * @returns 最新登录状态
-   */
-  musicProviderAuthCheckQr: (provider: MusicProviderId, token: string): Promise<MusicProviderAuthStatus> => {
-    return ipcRenderer.invoke('music-provider-auth:check-qr', provider, token);
-  },
-  /**
-   * 清除音乐提供商登录会话
-   * @param provider - 音乐提供商标识
-   * @returns 清理后的登录状态
-   */
-  musicProviderAuthClear: (provider: MusicProviderId): Promise<MusicProviderAuthStatus> => {
-    return ipcRenderer.invoke('music-provider-auth:clear', provider);
-  },
-  qishuiStatus: (): Promise<QishuiBusinessStatus> => ipcRenderer.invoke('qishui:status'),
-  qishuiSearch: (keyword: string, options?: QishuiBusinessRequestOptions): Promise<QishuiSongsResult> => {
-    return ipcRenderer.invoke('qishui:search', keyword, options);
-  },
-  qishuiFeed: (limit?: number): Promise<QishuiSongsResult> => ipcRenderer.invoke('qishui:feed', limit),
-  qishuiPlaylists: (): Promise<Record<string, unknown>> => ipcRenderer.invoke('qishui:playlists'),
-  qishuiPlaylistTracks: (id: string, options?: QishuiBusinessRequestOptions): Promise<Record<string, unknown>> => {
-    return ipcRenderer.invoke('qishui:playlist-tracks', id, options);
-  },
-  qishuiLyrics: (id: string): Promise<QishuiLyricsResult> => ipcRenderer.invoke('qishui:lyrics', id),
-  qishuiSongUrl: (id: string, quality?: string): Promise<QishuiSongUrlResult> => {
-    return ipcRenderer.invoke('qishui:song-url', id, quality);
-  },
-  qishuiComments: (id: string, options?: QishuiBusinessRequestOptions): Promise<Record<string, unknown>> => {
-    return ipcRenderer.invoke('qishui:comments', id, options);
-  },
-  qishuiCreateComment: (id: string, content: string): Promise<Record<string, unknown>> => {
-    return ipcRenderer.invoke('qishui:create-comment', id, content);
-  },
-  qishuiCheckLiked: (ids: string[]): Promise<Record<string, unknown>> => ipcRenderer.invoke('qishui:check-liked', ids),
-  qishuiLike: (id: string, liked: boolean): Promise<Record<string, unknown>> => ipcRenderer.invoke('qishui:like', id, liked),
-  qishuiCollectPlaylist: (id: string, collected: boolean): Promise<Record<string, unknown>> => {
-    return ipcRenderer.invoke('qishui:collect-playlist', id, collected);
-  },
-  qishuiCollectAlbum: (id: string, collected: boolean): Promise<Record<string, unknown>> => {
-    return ipcRenderer.invoke('qishui:collect-album', id, collected);
-  },
-  qishuiAddSong: (playlistId: string, trackId: string): Promise<Record<string, unknown>> => {
-    return ipcRenderer.invoke('qishui:add-song', playlistId, trackId);
-  },
-  qishuiRecentPlay: (id: string): Promise<Record<string, unknown>> => ipcRenderer.invoke('qishui:recent-play', id),
-  /**
    * 获取歌词源配置
    * @returns 歌词源标识字符串
    */
@@ -1139,12 +1067,6 @@ const api = {
    */
   musicLyricsSourceSet: (source: string): Promise<boolean> => {
     return ipcRenderer.invoke('music:lyrics-source:set', source);
-  },
-  musicProviderModeGet: (): Promise<'guest' | 'logged-in'> => {
-    return ipcRenderer.invoke('music:provider-mode:get');
-  },
-  musicProviderModeSet: (mode: 'guest' | 'logged-in'): Promise<boolean> => {
-    return ipcRenderer.invoke('music:provider-mode:set', mode);
   },
   /**
    * 获取歌词功能开关

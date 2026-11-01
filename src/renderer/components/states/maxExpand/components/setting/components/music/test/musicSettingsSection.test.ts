@@ -28,8 +28,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MusicSettingsSection } from '../MusicSettingsSection';
 import { elementProps, findElement, invoke, resetState, textContent } from '../../../../../../../test/elementHarness';
 import type { ComponentProps } from 'react';
-const api = vi.hoisted(() => ({ musicWhitelistSet: vi.fn(() => Promise.resolve()), musicLyricsCalibrateDelaySet: vi.fn(() => Promise.resolve()), musicProviderModeSet: vi.fn(() => Promise.resolve()) }));
-const store = vi.hoisted(() => ({ setMusicProvidersLogin: vi.fn() }));
+const api = vi.hoisted(() => ({ musicWhitelistSet: vi.fn(() => Promise.resolve()), musicLyricsCalibrateDelaySet: vi.fn(() => Promise.resolve()) }));
 /**
  * 构造隔离设置状态和可观察回调的完整配置。
  * @returns 配置状态及可观察回调。
@@ -71,7 +70,7 @@ function makeProps(): ComponentProps<typeof MusicSettingsSection> {
     setMusicSmtcConfigMessage: vi.fn(),
     musicSmtcConfigMessage: null,
     musicSettingsPages: [],
-    musicSettingsPageLabels: { whitelist: 'Apps', lyrics: 'Lyrics', smtc: 'SMTC', providers: 'Providers' },
+    musicSettingsPageLabels: { whitelist: 'Apps', lyrics: 'Lyrics', smtc: 'SMTC' },
     setMusicSettingsPage: vi.fn(),
   };
 }
@@ -82,7 +81,6 @@ vi.mock('react', async (importOriginal) => ({
   ...(await import('../../../../../../../test/elementHarness')).hookMocks,
 }));
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { resolvedLanguage: 'en-US', language: 'en-US', changeLanguage: vi.fn(() => Promise.resolve()) } }) }));
-vi.mock('../../../../../../../../store/slices', () => ({ default: () => store }));
 beforeEach(() => {
   vi.clearAllMocks();
   resetState();
@@ -130,14 +128,5 @@ describe('MusicSettingsSection', () => {
     expect(textContent(tree)).toContain('settings.music.lyrics.betaHint');
     const title = findElement(tree, (n) => elementProps(n).className === 'settings-card-title');
     expect(findElement(title, (n) => typeof n.type === 'function' && n.type.name === 'BetaBadge')).toBeTruthy();
-  });
-  it('gates logged-in provider mode and opens login for an unauthenticated provider', () => {
-    resetState([false, false, false, 'guest']);
-    const tree = MusicSettingsSection({ ...makeProps(), musicSettingsPage: 'providers' });
-    const login = findElement(tree, (n) => n.type === 'button' && textContent(n) === 'settings.music.providers.sodaMusic.login');
-    expect(elementProps(login).disabled).toBe(false);
-    invoke(login, 'onClick');
-    expect(store.setMusicProvidersLogin).toHaveBeenCalledWith('qishui');
-    expect(elementProps(findElement(tree, (n) => n.type === 'button' && textContent(n) === 'settings.music.providers.mode.logged-in')).disabled).toBe(true);
   });
 });
