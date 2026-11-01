@@ -401,12 +401,14 @@ export interface NavCardDef {
 }
 
 /**
- * 更新检测关闭时剔除指向更新设置页的导航卡与搜索项。
+ * 更新检测关闭时剔除指向更新设置页的导航卡与搜索项，以及网络配置中的更新源搜索项。
  * @param items - 原始条目
  * @returns 过滤后的条目
  */
-function withoutUpdateEntries<T extends { tab: SettingsSidebarTabKey }>(items: T[]): T[] {
-  return UPDATES_ENABLED ? items : items.filter((item) => item.tab !== 'update');
+function withoutUpdateEntries<T extends { tab: SettingsSidebarTabKey; labelKey?: string }>(items: T[]): T[] {
+  return UPDATES_ENABLED
+    ? items
+    : items.filter((item) => item.tab !== 'update' && !item.labelKey?.startsWith('settings.network.updateSource.'));
 }
 
 export const NAV_CARDS: NavCardDef[] = withoutUpdateEntries<NavCardDef>([

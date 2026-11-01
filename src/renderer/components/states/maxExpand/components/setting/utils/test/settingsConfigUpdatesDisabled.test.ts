@@ -34,6 +34,11 @@ describe('settings entries with UPDATES_ENABLED=false', () => {
     expect(SEARCHABLE_SETTINGS.some((item) => item.tab === 'update')).toBe(false);
   });
 
+  it('hides the network update source search item but keeps the static asset node one', () => {
+    expect(SEARCHABLE_SETTINGS.some((item) => item.labelKey?.startsWith('settings.network.updateSource.'))).toBe(false);
+    expect(SEARCHABLE_SETTINGS.some((item) => item.labelKey === 'settings.network.staticAssetNode.title')).toBe(true);
+  });
+
   it('keeps the other settings entries', () => {
     expect(NAV_CARDS.some((card) => card.tab === 'about')).toBe(true);
     expect(SEARCHABLE_SETTINGS.some((item) => item.tab === 'music')).toBe(true);

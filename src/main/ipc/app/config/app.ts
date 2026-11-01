@@ -24,14 +24,19 @@
  * @author 鸡哥
  */
 
+import { UPDATES_ENABLED } from '../../../../shared/updatesConfig';
+
 /** 本地文件读取上限（字节） */
 export const MAX_LOCAL_FILE_READ_BYTES = 1024 * 1024;
 
 /** 本地命令输出上限（字节） */
 export const MAX_LOCAL_CMD_OUTPUT_BYTES = 1024 * 1024;
 
+/** 更新相关设置键，更新检测关闭时不向 Agent 暴露 */
+const UPDATE_SETTING_KEYS: ReadonlySet<string> = new Set(['update-auto-prompt-enabled', 'update-source']);
+
 /** 灵动岛设置项注册表 */
-export const ISLAND_SETTINGS_REGISTRY: Array<{ key: string; description: string; type: string }> = [
+export const ISLAND_SETTINGS_REGISTRY: Array<{ key: string; description: string; type: string }> = ([
   { key: 'theme-mode', description: '主题模式 (dark/light/system)', type: 'string' },
   { key: 'island-corner-style', description: '刘海屏顶部边角 (rounded/concave，默认 rounded；concave 为顶部两侧反弧形；胶囊保持圆角；保存成功后同步所有窗口)', type: 'string' },
   { key: 'island-opacity', description: '灵动岛透明度 (10-100)', type: 'number' },
@@ -75,7 +80,7 @@ export const ISLAND_SETTINGS_REGISTRY: Array<{ key: string; description: string;
   { key: 'lyrics-clock', description: '歌词界面时钟开关', type: 'boolean' },
   { key: 'mail-fetch-limit', description: '邮件获取数量限制', type: 'number' },
   { key: 'standalone-window-mac-controls', description: '独立窗口 Mac 风格控制按钮', type: 'boolean' },
-];
+]).filter((entry) => UPDATES_ENABLED || !UPDATE_SETTING_KEYS.has(entry.key));
 
 /** 设置项变更广播通道映射 */
 export const ISLAND_SETTING_BROADCAST_CHANNELS: Record<string, string> = {
