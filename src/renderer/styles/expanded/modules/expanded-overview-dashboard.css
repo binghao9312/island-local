@@ -892,6 +892,23 @@
 
 }
 
+/* 套餐未提供该窗口时，提示占据进度条与百分比所在的列。 */
+.ov-dash-agent-quota-row .ov-dash-agent-quota-hint {
+  grid-column: 2 / -1;
+
+}
+
+/* 重置时间独占一行，位于进度条下方。 */
+.ov-dash-agent-quota-reset {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  font-size: 9px;
+  color: rgb(var(--color-text-rgb), .4);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+}
+
 .ov-dash-agent-quota-percent {
   font-size: 9px;
   font-weight: 600;

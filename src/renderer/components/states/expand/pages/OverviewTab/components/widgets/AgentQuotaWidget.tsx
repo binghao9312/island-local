@@ -27,12 +27,17 @@
 import { useCallback, useEffect, useState, type KeyboardEvent, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import useIslandStore from '../../../../../../../store/slices';
-import { AGENT_USAGE_PROVIDER_ICONS } from '../../../AgentUsageTab/config/agentUsageConfig';
+import {
+  AGENT_USAGE_PROVIDER_ICONS,
+  FIVE_HOUR_WINDOW_MINUTES,
+  WEEKLY_WINDOW_MINUTES,
+} from '../../../AgentUsageTab/config/agentUsageConfig';
 import {
   effectivePercent,
+  findRateLimitWindow,
   formatTokens,
   quotaLevel,
-  windowLabel,
+  resetLabel,
 } from '../../../AgentUsageTab/utils/agentUsageUtils';
 import type { Translate } from '../../../AgentUsageTab/types/agentUsageTypes';
 import type { AgentUsageProviderId, AgentUsageProviderSnapshot, AgentUsageRateLimitWindow, AgentUsageSnapshot } from '../../../../../../../../preload/types/agentUsage';
@@ -46,30 +51,41 @@ const SKELETON_PROVIDERS: AgentUsageProviderId[] = ['claude', 'codex'];
 let cachedSnapshot: AgentUsageSnapshot | null = null;
 
 /**
- * 渲染单个额度窗口行。
+ * 渲染单个额度窗口行，窗口缺失时显示套餐未提供的提示。
  * @param props - 组件参数
- * @param props.quota - 额度窗口
+ * @param props.label - 窗口名称
+ * @param props.quota - 额度窗口，套餐未提供时为 null
  * @param props.now - 快照生成时间
  * @param props.t - 翻译函数
  * @returns 额度行
  */
-function QuotaRow({ quota, now, t }: { quota: AgentUsageRateLimitWindow; now: number; t: Translate }): ReactElement {
+function QuotaRow({ label, quota, now, t }: { label: string; quota: AgentUsageRateLimitWindow | null; now: number; t: Translate }): ReactElement {
+  if (!quota) {
+    return (
+      <div className="ov-dash-agent-quota-row">
+        <span className="ov-dash-agent-quota-window">{label}</span>
+        <span className="ov-dash-agent-quota-hint">{t('expanded.agentUsage.windowMissing')}</span>
+      </div>
+    );
+  }
   const percent = effectivePercent(quota, now);
   const level = quotaLevel(percent);
+  const resetText = resetLabel(quota.resetsAt, now, t);
   return (
     <div className="ov-dash-agent-quota-row">
-      <span className="ov-dash-agent-quota-window">{windowLabel(quota.windowMinutes, t)}</span>
+      <span className="ov-dash-agent-quota-window">{label}</span>
       <div className="ov-dash-agent-quota-track">
         <div className={`ov-dash-agent-quota-fill${level ? ` ov-dash-agent-quota-fill--${level}` : ''}`} style={{ width: `${percent}%` }} />
       </div>
       <span className="ov-dash-agent-quota-percent">{`${Math.round(percent)}%`}</span>
+      {resetText && <span className="ov-dash-agent-quota-reset">{resetText}</span>}
     </div>
   );
 }
 
 /**
  * 渲染单个来源的额度条目。
- * @description 有额度窗口时逐行展示窗口用量；日志不含额度或目录缺失时展示提示。
+ * @description 固定展示 5 小时与每周两条额度条，按窗口时长匹配；日志不含额度或目录缺失时展示提示。
  * @param props - 组件参数
  * @param props.provider - 来源快照
  * @param props.now - 快照生成时间
@@ -77,11 +93,15 @@ function QuotaRow({ quota, now, t }: { quota: AgentUsageRateLimitWindow; now: nu
  * @returns 来源条目
  */
 function ProviderItem({ provider, now, t }: { provider: AgentUsageProviderSnapshot; now: number; t: Translate }): ReactElement {
-  const windows = [provider.rateLimits?.primary, provider.rateLimits?.secondary].filter((item): item is AgentUsageRateLimitWindow => Boolean(item));
   const renderBody = (): ReactElement => {
     if (!provider.available) return <span className="ov-dash-agent-quota-hint">{t('expanded.agentUsage.unavailable')}</span>;
-    if (windows.length > 0) return <>{windows.map((quota) => <QuotaRow key={`${quota.windowMinutes}`} quota={quota} now={now} t={t} />)}</>;
-    return <span className="ov-dash-agent-quota-hint">{t('expanded.agentUsage.noQuotaInLogs')}</span>;
+    if (!provider.rateLimits) return <span className="ov-dash-agent-quota-hint">{t('expanded.agentUsage.noQuotaInLogs')}</span>;
+    return (
+      <>
+        <QuotaRow label={t('expanded.agentUsage.window.fiveHour')} quota={findRateLimitWindow(provider.rateLimits, FIVE_HOUR_WINDOW_MINUTES)} now={now} t={t} />
+        <QuotaRow label={t('expanded.agentUsage.window.weekly')} quota={findRateLimitWindow(provider.rateLimits, WEEKLY_WINDOW_MINUTES)} now={now} t={t} />
+      </>
+    );
   };
   return (
     <div className={`ov-dash-agent-quota-item ov-dash-agent-quota-item--${provider.provider}`}>

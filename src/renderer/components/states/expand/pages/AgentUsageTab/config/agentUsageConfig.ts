@@ -30,6 +30,10 @@ import type { AgentUsageProviderId, AgentUsageTokens } from '../../../../../../.
 export const REFRESH_INTERVAL_MS = 60_000;
 export const START_FETCH_DELAY_MS = 200;
 
+/** 额度窗口时长（分钟）；按时长匹配窗口，不依赖 primary / secondary 的返回顺序 */
+export const FIVE_HOUR_WINDOW_MINUTES = 300;
+export const WEEKLY_WINDOW_MINUTES = 10080;
+
 /** 首次加载时骨架卡片对应的来源 */
 export const SKELETON_PROVIDERS: AgentUsageProviderId[] = ['claude', 'codex'];
 

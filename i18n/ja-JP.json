@@ -733,6 +733,7 @@
       "noQuotaData": "上限データはまだありません",
       "resetIn": "{{time}}後にリセット",
       "resetDone": "リセット済み",
+      "windowMissing": "このプランでは提供されていません",
       "window": {
         "fiveHour": "5 時間",
         "weekly": "毎週",

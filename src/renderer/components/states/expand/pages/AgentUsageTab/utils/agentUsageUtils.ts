@@ -24,7 +24,7 @@
  * @author 鸡哥
  */
 
-import type { AgentUsageRateLimitWindow } from '../../../../../../../preload/types/agentUsage';
+import type { AgentUsageRateLimits, AgentUsageRateLimitWindow } from '../../../../../../../preload/types/agentUsage';
 import type { Translate } from '../types/agentUsageTypes';
 
 /**
@@ -70,6 +70,16 @@ export function windowLabel(windowMinutes: number | null, t: Translate): string 
   if (windowMinutes === 10080) return t('expanded.agentUsage.window.weekly', { defaultValue: '每周' });
   if (windowMinutes && windowMinutes > 0) return t('expanded.agentUsage.window.hours', { defaultValue: '{{count}} 小时', count: Math.round(windowMinutes / 60) });
   return t('expanded.agentUsage.window.unknown', { defaultValue: '额度' });
+}
+
+/**
+ * 按窗口时长从 primary / secondary 中查找额度窗口。
+ * @param rateLimits - 额度快照，无额度时为 null
+ * @param windowMinutes - 目标窗口分钟数，如 300（5 小时）或 10080（每周）
+ * @returns 匹配的窗口，套餐未提供该窗口时返回 null
+ */
+export function findRateLimitWindow(rateLimits: AgentUsageRateLimits | null, windowMinutes: number): AgentUsageRateLimitWindow | null {
+  return [rateLimits?.primary, rateLimits?.secondary].find((item) => item?.windowMinutes === windowMinutes) ?? null;
 }
 
 /**

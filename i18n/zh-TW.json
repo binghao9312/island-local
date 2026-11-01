@@ -733,6 +733,7 @@
       "noQuotaData": "暫無額度資料",
       "resetIn": "{{time}}後重置",
       "resetDone": "已重置",
+      "windowMissing": "目前方案未提供此額度",
       "window": {
         "fiveHour": "5 小時",
         "weekly": "每週",

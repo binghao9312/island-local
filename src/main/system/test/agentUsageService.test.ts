@@ -118,6 +118,19 @@ describe('parseCodexUsageLine', () => {
     expect(state.rateLimits?.planType).toBe('plus');
   });
 
+  it('额度重置时间优先取 resets_at，缺失时按事件时间加 resets_in_seconds 推算', () => {
+    const at = Date.parse(iso(0));
+    const { state } = parseCodexUsageLine(codexTokenLine(iso(0), { input_tokens: 1 }, undefined, {
+      primary: { used_percent: 10, window_minutes: 300, resets_in_seconds: 600 },
+      secondary: { used_percent: 20, window_minutes: 10080, resets_at: 3000, resets_in_seconds: 1 },
+      plan_type: 'plus',
+    }), createCodexParseState('file'), 'k');
+    expect(state.rateLimits).toMatchObject({
+      primary: { windowMinutes: 300, resetsAt: at + 600_000 },
+      secondary: { windowMinutes: 10080, resetsAt: 3_000_000 },
+    });
+  });
+
   it('不修改传入状态', () => {
     const state = createCodexParseState('file');
     const { state: next } = parseCodexUsageLine(JSON.stringify({ type: 'turn_context', payload: { model: 'gpt-x' } }), state, 'k');

@@ -733,6 +733,7 @@
       "noQuotaData": "No quota data yet",
       "resetIn": "Resets in {{time}}",
       "resetDone": "Reset",
+      "windowMissing": "Not provided by your plan",
       "window": {
         "fiveHour": "5h",
         "weekly": "Weekly",

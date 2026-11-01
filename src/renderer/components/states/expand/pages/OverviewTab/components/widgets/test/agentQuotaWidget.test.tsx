@@ -140,6 +140,42 @@ describe('AgentQuotaWidget', () => {
     expect(byClass(rows[1], 'ov-dash-agent-quota-fill').props.className).toBe('ov-dash-agent-quota-fill');
   });
 
+  it('额度条按窗口时长匹配而非返回顺序，每条显示重置时间', async () => {
+    leaves.snapshot.mockResolvedValue(snapshot([
+      provider({
+        provider: 'codex',
+        rateLimits: {
+          primary: { usedPercent: 40, windowMinutes: 10080, resetsAt: NOW + 3_600_000 },
+          secondary: { usedPercent: 60, windowMinutes: 300, resetsAt: NOW + 1_800_000 },
+          planType: 'plus',
+          updatedAt: NOW,
+        },
+      }),
+    ]));
+    await mount();
+    const item = elements(run()).find((node) => node.props.className === 'ov-dash-agent-quota-item ov-dash-agent-quota-item--codex');
+    const rows = elements(item).filter((node) => node.props.className === 'ov-dash-agent-quota-row');
+    expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-window')))).toEqual(['expanded.agentUsage.window.fiveHour', 'expanded.agentUsage.window.weekly']);
+    expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-percent')))).toEqual(['60%', '40%']);
+    expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-reset')))).toEqual(['expanded.agentUsage.resetIn', 'expanded.agentUsage.resetIn']);
+  });
+
+  it('套餐未提供某个窗口时该行显示未提供提示，不渲染进度条', async () => {
+    leaves.snapshot.mockResolvedValue(snapshot([
+      provider({
+        provider: 'codex',
+        rateLimits: { primary: { usedPercent: 1, windowMinutes: 43200, resetsAt: NOW + 3_600_000 }, secondary: null, planType: 'free', updatedAt: NOW },
+      }),
+    ]));
+    await mount();
+    const item = elements(run()).find((node) => node.props.className === 'ov-dash-agent-quota-item ov-dash-agent-quota-item--codex');
+    const rows = elements(item).filter((node) => node.props.className === 'ov-dash-agent-quota-row');
+    expect(rows).toHaveLength(2);
+    expect(text(rows[0])).toContain('expanded.agentUsage.windowMissing');
+    expect(elements(rows[0]).some((node) => node.props.className === 'ov-dash-agent-quota-track')).toBe(false);
+    expect(text(rows[1])).toContain('expanded.agentUsage.windowMissing');
+  });
+
   it('日志目录缺失时显示未检测提示且不显示 token 数', async () => {
     leaves.snapshot.mockResolvedValue(snapshot([provider({ available: false })]));
     await mount();

@@ -165,13 +165,23 @@ function codexTotal(value: unknown): AgentUsageTokens | null {
   );
 }
 
-function codexWindow(value: unknown): AgentUsageRateLimitWindow | null {
+/**
+ * 解析 Codex 额度窗口。
+ * @description 重置时间优先取绝对时间 resets_at（秒），否则按事件时间加上 resets_in_seconds 推算。
+ * @param value - 原始窗口对象
+ * @param timestamp - 所在事件的时间戳（毫秒）
+ * @returns 额度窗口，缺少 used_percent 时返回 null
+ */
+function codexWindow(value: unknown, timestamp: number): AgentUsageRateLimitWindow | null {
   const window = asRecord(value);
   if (!window || typeof window.used_percent !== 'number') return null;
+  let resetsAt: number | null = null;
+  if (typeof window.resets_at === 'number') resetsAt = window.resets_at * 1000;
+  else if (typeof window.resets_in_seconds === 'number') resetsAt = timestamp + window.resets_in_seconds * 1000;
   return {
     usedPercent: Math.max(0, Math.min(100, window.used_percent)),
     windowMinutes: typeof window.window_minutes === 'number' ? window.window_minutes : null,
-    resetsAt: typeof window.resets_at === 'number' ? window.resets_at * 1000 : null,
+    resetsAt,
   };
 }
 
@@ -179,8 +189,8 @@ function codexRateLimits(value: unknown, timestamp: number): AgentUsageRateLimit
   const rateLimits = asRecord(value);
   if (!rateLimits) return null;
   return {
-    primary: codexWindow(rateLimits.primary),
-    secondary: codexWindow(rateLimits.secondary),
+    primary: codexWindow(rateLimits.primary, timestamp),
+    secondary: codexWindow(rateLimits.secondary, timestamp),
     planType: typeof rateLimits.plan_type === 'string' ? rateLimits.plan_type : null,
     updatedAt: timestamp,
   };

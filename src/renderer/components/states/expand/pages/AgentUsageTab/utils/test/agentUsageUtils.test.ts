@@ -29,6 +29,7 @@ import { AgentIcon } from '../../../../../../../utils/SvgIcon';
 import { AGENT_USAGE_PROVIDER_ICONS } from '../../config/agentUsageConfig';
 import {
   effectivePercent,
+  findRateLimitWindow,
   formatDuration,
   formatTokens,
   quotaLevel,
@@ -39,6 +40,14 @@ import {
 const t = (key: string, options?: Record<string, unknown>): string => (options ? `${key}:${JSON.stringify(options)}` : key);
 
 describe('agentUsageUtils', () => {
+  it('按窗口时长查找额度窗口，套餐未提供时返回 null', () => {
+    const fiveHour = { usedPercent: 10, windowMinutes: 300, resetsAt: null };
+    const weekly = { usedPercent: 20, windowMinutes: 10080, resetsAt: null };
+    expect(findRateLimitWindow({ primary: weekly, secondary: fiveHour, planType: null, updatedAt: 1 }, 300)).toBe(fiveHour);
+    expect(findRateLimitWindow({ primary: weekly, secondary: null, planType: null, updatedAt: 1 }, 300)).toBeNull();
+    expect(findRateLimitWindow(null, 10080)).toBeNull();
+  });
+
   it('来源图标映射到 AgentIcon 枚举', () => {
     expect(AGENT_USAGE_PROVIDER_ICONS).toEqual({ claude: AgentIcon.CLAUDE, codex: AgentIcon.CODEX });
   });
