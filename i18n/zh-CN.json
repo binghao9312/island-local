@@ -3902,6 +3902,7 @@
         "feedback": "问题反馈",
         "feedbackHistory": "反馈记录"
       },
+      "forkNotice": "此版本是 eIsland 的 fork，面向台湾用户做了本地化与优化。原作者为 JNTMTMTM（鸡哥），依 GPL-3.0 协议开源。",
       "authorAvatarAlt": "作者头像",
       "githubHome": "GitHub 主页",
       "notice": "本软件开源免费，如果你在任何地方付费购买了本软件，请立即退款并给差评。",

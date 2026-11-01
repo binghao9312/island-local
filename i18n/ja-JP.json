@@ -3902,6 +3902,7 @@
         "feedback": "問題の報告",
         "feedbackHistory": "フィードバック履歴"
       },
+      "forkNotice": "このビルドは eIsland のフォークで、台湾のユーザー向けにローカライズと最適化を行っています。原作者は JNTMTMTM で、GPL-3.0 のもとでオープンソースです。",
       "authorAvatarAlt": "作者のアバター",
       "githubHome": "GitHubホーム",
       "notice": "このソフトウェアはオープンソースで無料です。有料で購入した場合は、直ちに返金を申請してください。",

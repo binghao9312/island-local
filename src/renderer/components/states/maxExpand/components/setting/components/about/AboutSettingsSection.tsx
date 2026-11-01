@@ -29,7 +29,6 @@ import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SERVER_FEATURES_ENABLED } from '../../../../../../../../shared/serverFeaturesConfig';
 import avatarImg from '../../../../../../../assets/avatar/T.jpg';
-import publicSecurityRecordIcon from '../../../../../../../../../resources/icon/gabatb.png';
 import {
   fetchFeedbackQqGroupConfig,
   fetchMyIssueFeedbackList,
@@ -485,15 +484,12 @@ export function AboutSettingsSection({ aboutVersion, initialPage = 'development'
           <div className="settings-about-version">eIsland v{aboutVersion}</div>
         </div>
       </div>
+      <div className="settings-about-fork">{t('settings.about.forkNotice', { defaultValue: '此版本是 eIsland 的 fork，面向台湾用户做了本地化与优化。原作者为 JNTMTMTM（鸡哥），依 GPL-3.0 协议开源。' })}</div>
       <div className="settings-about-notice">{t('settings.about.notice', { defaultValue: '本软件开源免费，如果你在任何地方付费购买了本软件，请立即退款并给差评。' })}</div>
       <div className="settings-about-links">
-        <div className="settings-about-row"><span className="settings-about-label">{t('settings.about.links.website', { defaultValue: '官网' })}</span><a className="settings-about-link" href="https://www.pyisland.com" target="_blank" rel="noreferrer">www.pyisland.com</a></div>
-        <div className="settings-about-row"><span className="settings-about-label">{t('settings.about.links.docs', { defaultValue: '文档站' })}</span><a className="settings-about-link" href="https://docs.pyisland.com" target="_blank" rel="noreferrer">docs.pyisland.com</a></div>
         <div className="settings-about-row"><span className="settings-about-label">{t('settings.about.links.sourceCode', { defaultValue: '开源代码' })}</span><a className="settings-about-link" href="https://github.com/JNTMTMTM/eIsland" target="_blank" rel="noreferrer">github.com/JNTMTMTM/eIsland</a></div>
         <div className="settings-about-row"><span className="settings-about-label">{t('settings.about.links.license', { defaultValue: '开源协议' })}</span><a className="settings-about-link" href="https://github.com/JNTMTMTM/eIsland/blob/main/LICENSE" target="_blank" rel="noreferrer">GNU General Public License v3.0</a></div>
         <div className="settings-about-row"><span className="settings-about-label">{t('settings.about.links.iconLibrary', { defaultValue: '图标库' })}</span><a className="settings-about-link" href="https://www.iconfont.cn/" target="_blank" rel="noreferrer">iconfont.cn</a></div>
-        <div className="settings-about-row"><span className="settings-about-label">{t('settings.about.links.icpRecord', { defaultValue: 'ICP备案' })}</span><a className="settings-about-link" href="https://beian.miit.gov.cn" target="_blank" rel="noreferrer">苏ICP备2026009305号-2</a></div>
-        <div className="settings-about-row"><span className="settings-about-label">{t('settings.about.links.publicSecurityRecord', { defaultValue: '公安备案' })}</span><img className="settings-about-record-icon" src={publicSecurityRecordIcon} alt="" aria-hidden="true" /><a className="settings-about-link" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=32011502013770" target="_blank" rel="noreferrer">苏公网安备32011502013770号</a></div>
       </div>
       <div className="settings-about-deps">
         <div className="settings-about-deps-title">{t('settings.about.depsTitle', { defaultValue: '开源框架、依赖 & 项目' })}</div>

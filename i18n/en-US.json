@@ -3902,6 +3902,7 @@
         "feedback": "Issue Feedback",
         "feedbackHistory": "Feedback History"
       },
+      "forkNotice": "This build is a fork of eIsland, localized and optimized for users in Taiwan. The original author is JNTMTMTM; it is open source under GPL-3.0.",
       "authorAvatarAlt": "Author avatar",
       "githubHome": "GitHub Home",
       "notice": "This software is open-source and free. If you paid for it anywhere, request a refund immediately.",

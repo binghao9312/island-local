@@ -1758,6 +1758,18 @@
   color: rgba(var(--color-text-rgb), 0.5);
 }
 
+/** fork 说明：保留原作者署名，标明本版本为台湾优化 fork */
+.settings-about-fork {
+  font-size: 12px;
+  color: rgba(var(--color-text-rgb), 0.75);
+  background: rgba(100, 160, 255, 0.08);
+  border: 1px solid rgba(100, 160, 255, 0.18);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
 .settings-about-notice {
   font-size: 12px;
   color: rgba(255, 100, 100, 0.85);
