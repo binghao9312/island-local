@@ -733,6 +733,12 @@
       "noQuotaData": "No quota data yet",
       "resetIn": "Resets in {{time}}",
       "resetDone": "Reset",
+      "windowMissing": "Not provided by your plan",
+      "quota": {
+        "notLoggedIn": "Not logged in to Claude Code",
+        "loginExpired": "Login expired, open Claude Code to log in again",
+        "error": "Failed to load quota"
+      },
       "window": {
         "fiveHour": "5h",
         "weekly": "Weekly",
@@ -2897,6 +2903,19 @@
         "gradientBaseColor": "Base Color",
         "musicBgTitle": "Hover Music Background Style",
         "musicBgHint": "Preview and select the background wave effect style for the Hover state song interface.",
+        "agentQuota": {
+          "title": "Agent Quota Card",
+          "hint": "Adjust the font size, display style and accent color of the Agent quota card on the overview. Changes apply immediately.",
+          "fontSize": "Font size",
+          "fontSmall": "S",
+          "fontMedium": "M",
+          "fontLarge": "L",
+          "style": "Display style",
+          "styleBars": "Bars",
+          "styleCompact": "Compact text",
+          "customHex": "Custom hex",
+          "invalidHex": "Enter a color in #RRGGBB format"
+        },
         "musicBgCurrent": "Current",
         "musicBgModified": "Modified",
         "musicBgSilky": "Silky Wave",

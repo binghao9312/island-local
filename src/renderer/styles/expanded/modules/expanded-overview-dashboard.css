@@ -856,7 +856,7 @@
 
 .ov-dash-agent-quota-name {
   overflow: hidden;
-  font-size: 10px;
+  font-size: calc(10px * var(--ov-agent-quota-scale, 1));
   font-weight: 600;
   color: rgb(var(--color-text-rgb), .62);
   text-overflow: ellipsis;
@@ -867,7 +867,7 @@
 .ov-dash-agent-quota-today {
   flex-shrink: 0;
   margin-left: auto;
-  font-size: 12px;
+  font-size: calc(12px * var(--ov-agent-quota-scale, 1));
   line-height: 1.2;
   color: rgb(var(--color-text-rgb), .9);
   font-variant-numeric: tabular-nums;
@@ -885,15 +885,41 @@
 .ov-dash-agent-quota-window,
 .ov-dash-agent-quota-hint {
   overflow: hidden;
-  font-size: 9px;
+  font-size: calc(9px * var(--ov-agent-quota-scale, 1));
   color: rgb(var(--color-text-rgb), .4);
   text-overflow: ellipsis;
   white-space: nowrap;
 
 }
 
+/* 套餐未提供该窗口时，提示占据进度条与百分比所在的列。 */
+.ov-dash-agent-quota-row .ov-dash-agent-quota-hint {
+  grid-column: 2 / -1;
+
+}
+
+/* 重置时间独占一行，位于进度条下方。 */
+.ov-dash-agent-quota-reset {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  font-size: calc(9px * var(--ov-agent-quota-scale, 1));
+  color: rgb(var(--color-text-rgb), .4);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+}
+
+/* 紧凑样式：不渲染进度条，窗口名、百分比与重置时间在一行内依次排列。 */
+.ov-dash-agent-quota-row--compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  align-items: baseline;
+
+}
+
 .ov-dash-agent-quota-percent {
-  font-size: 9px;
+  font-size: calc(9px * var(--ov-agent-quota-scale, 1));
   font-weight: 600;
   color: rgb(var(--color-text-rgb), .78);
   font-variant-numeric: tabular-nums;

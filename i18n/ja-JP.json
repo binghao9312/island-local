@@ -733,6 +733,12 @@
       "noQuotaData": "上限データはまだありません",
       "resetIn": "{{time}}後にリセット",
       "resetDone": "リセット済み",
+      "windowMissing": "このプランでは提供されていません",
+      "quota": {
+        "notLoggedIn": "Claude Code にログインしていません",
+        "loginExpired": "ログインの期限が切れています。Claude Code を開いて再ログインしてください",
+        "error": "上限の取得に失敗しました"
+      },
       "window": {
         "fiveHour": "5 時間",
         "weekly": "毎週",
@@ -2897,6 +2903,19 @@
         "gradientBaseColor": "基準色",
         "musicBgTitle": "Hover 音楽背景のスタイル",
         "musicBgHint": "Hover 状態の音楽画面に表示する背景の波形エフェクトをプレビューして選択します。",
+        "agentQuota": {
+          "title": "Agent クォータ",
+          "hint": "総覧の Agent クォータカードのフォントサイズ、表示スタイル、アクセントカラーを調整します。変更は即時に反映されます。",
+          "fontSize": "フォントサイズ",
+          "fontSmall": "小",
+          "fontMedium": "中",
+          "fontLarge": "大",
+          "style": "表示スタイル",
+          "styleBars": "バー",
+          "styleCompact": "コンパクト表示",
+          "customHex": "カスタムカラー",
+          "invalidHex": "#RRGGBB 形式で入力してください"
+        },
         "musicBgCurrent": "現在の状態",
         "musicBgModified": "変更後",
         "musicBgSilky": "滑らかな波",

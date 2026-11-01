@@ -24,7 +24,12 @@
  * @author 鸡哥
  */
 
-import type { AgentUsageRateLimitWindow } from '../../../../../../../preload/types/agentUsage';
+import type {
+  AgentQuotaStatus,
+  AgentUsageProviderId,
+  AgentUsageRateLimits,
+  AgentUsageRateLimitWindow,
+} from '../../../../../../../preload/types/agentUsage';
 import type { Translate } from '../types/agentUsageTypes';
 
 /**
@@ -70,6 +75,32 @@ export function windowLabel(windowMinutes: number | null, t: Translate): string 
   if (windowMinutes === 10080) return t('expanded.agentUsage.window.weekly', { defaultValue: '每周' });
   if (windowMinutes && windowMinutes > 0) return t('expanded.agentUsage.window.hours', { defaultValue: '{{count}} 小时', count: Math.round(windowMinutes / 60) });
   return t('expanded.agentUsage.window.unknown', { defaultValue: '额度' });
+}
+
+/**
+ * 按窗口时长从 primary / secondary 中查找额度窗口。
+ * @param rateLimits - 额度快照，无额度时为 null
+ * @param windowMinutes - 目标窗口分钟数，如 300（5 小时）或 10080（每周）
+ * @returns 匹配的窗口，套餐未提供该窗口时返回 null
+ */
+export function findRateLimitWindow(rateLimits: AgentUsageRateLimits | null, windowMinutes: number): AgentUsageRateLimitWindow | null {
+  return [rateLimits?.primary, rateLimits?.secondary].find((item) => item?.windowMinutes === windowMinutes) ?? null;
+}
+
+/**
+ * 生成额度缺失时的提示文案，说明没有额度的原因。
+ * @param status - 额度获取状态
+ * @param provider - 来源；Codex 的 noData 指本地日志不含额度，其余来源指接口未返回额度
+ * @param t - 翻译函数
+ * @returns 提示文案
+ */
+export function quotaStatusText(status: AgentQuotaStatus, provider: AgentUsageProviderId, t: Translate): string {
+  if (status === 'notLoggedIn') return t('expanded.agentUsage.quota.notLoggedIn', { defaultValue: '未登录 Claude Code' });
+  if (status === 'loginExpired') return t('expanded.agentUsage.quota.loginExpired', { defaultValue: '登录已过期，请打开 Claude Code 刷新登录' });
+  if (status === 'error') return t('expanded.agentUsage.quota.error', { defaultValue: '额度读取失败' });
+  return provider === 'codex'
+    ? t('expanded.agentUsage.noQuotaInLogs', { defaultValue: '本地日志不含额度信息' })
+    : t('expanded.agentUsage.noQuotaData', { defaultValue: '暂无额度数据' });
 }
 
 /**

@@ -733,6 +733,12 @@
       "noQuotaData": "暫無額度資料",
       "resetIn": "{{time}}後重置",
       "resetDone": "已重置",
+      "windowMissing": "目前方案未提供此額度",
+      "quota": {
+        "notLoggedIn": "尚未登入 Claude Code",
+        "loginExpired": "登入已過期，請開啟 Claude Code 重新登入",
+        "error": "額度讀取失敗"
+      },
       "window": {
         "fiveHour": "5 小時",
         "weekly": "每週",
@@ -2897,6 +2903,19 @@
         "gradientBaseColor": "基準色",
         "musicBgTitle": "Hover 音樂背景樣式",
         "musicBgHint": "預覽並選擇 Hover 態歌曲介面的背景波浪效果樣式。",
+        "agentQuota": {
+          "title": "Agent 額度卡片",
+          "hint": "調整總覽中 Agent 額度卡片的字級、顯示樣式與來源強調色，修改後立即生效。",
+          "fontSize": "字級",
+          "fontSmall": "小",
+          "fontMedium": "中",
+          "fontLarge": "大",
+          "style": "顯示樣式",
+          "styleBars": "進度條",
+          "styleCompact": "精簡文字",
+          "customHex": "自訂色碼",
+          "invalidHex": "請輸入 #RRGGBB 格式的顏色"
+        },
         "musicBgCurrent": "目前狀態",
         "musicBgModified": "修改後效果",
         "musicBgSilky": "絲滑波浪",

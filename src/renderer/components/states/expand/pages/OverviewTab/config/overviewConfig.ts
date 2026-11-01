@@ -25,6 +25,8 @@
  */
 
 import type {
+  AgentQuotaFontSize,
+  AgentQuotaSettings,
   OverviewClockStyle,
   OverviewGradientColors,
   OverviewLayoutConfig,
@@ -59,6 +61,34 @@ export const DEFAULT_OVERVIEW_GRADIENT_COLORS: OverviewGradientColors = {
   start: '#7be4ff',
   middle: '#8da8ff',
   end: '#ffd28a',
+};
+
+/** Agent 额度卡片设置的存储键，与总览布局一样经由 storeRead / storeWrite 持久化 */
+export const AGENT_QUOTA_SETTINGS_STORE_KEY = 'agent-quota-settings';
+
+/** 字号档位对应的缩放系数，作用于额度卡片内的文字尺寸 */
+export const AGENT_QUOTA_FONT_SCALE: Record<AgentQuotaFontSize, number> = {
+  small: 0.85,
+  medium: 1,
+  large: 1.2,
+};
+
+/** 颜色预设，与 Agent 默认强调色保持同一色系 */
+export const AGENT_QUOTA_COLOR_PRESETS: readonly string[] = [
+  '#d97757',
+  '#8da8ff',
+  '#7be4ff',
+  '#ffd28a',
+  '#a6e3a1',
+  '#f38ba8',
+  '#cba6f7',
+  '#f5f5f5',
+];
+
+export const DEFAULT_AGENT_QUOTA_SETTINGS: AgentQuotaSettings = {
+  fontSize: 'medium',
+  style: 'bars',
+  colors: { claude: '#d97757', codex: '#8da8ff' },
 };
 
 export const LAYOUT_STORE_KEY = 'overview-layout';

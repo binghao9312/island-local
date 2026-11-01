@@ -84,6 +84,7 @@ import { createExternalAgentWatcher } from './system/externalAgentWatcher';
 import { createClaudeCodeStatusService } from './system/claudeCodeStatusService';
 import { createCodexStatusService } from './system/codexStatusService';
 import { createAgentUsageService } from './system/agentUsageService';
+import { createClaudeUsageLimitService } from './system/claudeUsageLimitService';
 import {
   queryFocusedWindow,
   queryOpenWindowsWithIcons,
@@ -350,9 +351,13 @@ const acpManager = new AcpManager({
   },
 });
 
+const claudeUsageLimitService = createClaudeUsageLimitService({
+  credentialsPath: join(app.getPath('home'), '.claude', '.credentials.json'),
+});
 const agentUsageService = createAgentUsageService({
   claudeProjectsPath: join(app.getPath('home'), '.claude', 'projects'),
   codexSessionsPath: join(app.getPath('home'), '.codex', 'sessions'),
+  claudeQuota: () => claudeUsageLimitService.getQuota(),
 });
 
 /** SMTC 自动取消订阅时间（毫秒），0 为永不取消 */

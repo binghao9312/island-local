@@ -43,7 +43,7 @@ describe('agentUsage contracts', () => {
     const rateLimits: AgentUsageRateLimits = { primary: { usedPercent: 35, windowMinutes: 10080, resetsAt: 1 }, secondary: null, planType: null, updatedAt: 1 };
     const fixture: AgentUsageSnapshot = {
       generatedAt: 1,
-      providers: [{ rateLimits, provider: 'codex', available: true, today: tokens, week: tokens, todaySessions: 1, topModel: null }],
+      providers: [{ rateLimits, quotaStatus: 'ok', provider: 'codex', available: true, today: tokens, week: tokens, todaySessions: 1, topModel: null }],
     };
     expect(fixture.providers[0].rateLimits?.primary?.usedPercent).toBe(35);
   });

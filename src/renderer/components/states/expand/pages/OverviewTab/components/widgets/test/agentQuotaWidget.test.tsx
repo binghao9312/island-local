@@ -27,12 +27,14 @@
 import { isValidElement, type ReactElement, type ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { flushHookEffects, renderHook, resetHook, settleHook, unmountHook } from '../../../../../../maxExpand/components/calendar/hooks/test/calendarHookHarness';
-import { byClass, elements, invoke, text } from '../../../../../../test/tree';
+import { byClass, elements, find, invoke, text } from '../../../../../../test/tree';
 import { AgentIcon } from '../../../../../../../../utils/SvgIcon';
 import type { AgentUsageProviderSnapshot, AgentUsageSnapshot } from '../../../../../../../../../preload/types/agentUsage';
 
 const leaves = vi.hoisted(() => ({
   snapshot: vi.fn<() => Promise<unknown>>(),
+  storeRead: vi.fn<(key: string) => Promise<unknown>>(),
+  onSettingsChanged: vi.fn<(callback: (channel: string, value: unknown) => void) => () => void>(),
   setExpandTab: vi.fn<(tab: string) => void>(),
 }));
 vi.mock('../../../../../../../../store/slices', () => ({
@@ -45,8 +47,15 @@ let documentTarget: EventTarget & { hidden: boolean };
 
 const tokens = (total: number) => ({ total, input: total, output: 0, cacheRead: 0, cacheWrite: 0 });
 
+/**
+ * 判断元素是否为 Claude 来源条目。
+ * @param node - 元素
+ * @returns 是否为 Claude 条目
+ */
+const isClaudeItem = (node: { props: Record<string, unknown> }): boolean => String(node.props.className ?? '').includes('ov-dash-agent-quota-item--claude');
+
 function provider(overrides: Partial<AgentUsageProviderSnapshot>): AgentUsageProviderSnapshot {
-  return { provider: 'claude', available: true, today: tokens(8_332_768), week: tokens(9_000_000), todaySessions: 1, topModel: null, rateLimits: null, ...overrides };
+  return { provider: 'claude', available: true, today: tokens(8_332_768), week: tokens(9_000_000), todaySessions: 1, topModel: null, rateLimits: null, quotaStatus: 'notLoggedIn', ...overrides };
 }
 
 function snapshot(providers: AgentUsageProviderSnapshot[]): AgentUsageSnapshot {
@@ -87,9 +96,15 @@ beforeEach(async () => {
   vi.useFakeTimers();
   documentTarget = Object.assign(new EventTarget(), { hidden: false });
   vi.stubGlobal('document', documentTarget);
+  leaves.storeRead.mockResolvedValue(undefined);
+  leaves.onSettingsChanged.mockReturnValue(() => {});
   vi.stubGlobal('window', Object.assign(new EventTarget(), {
     setTimeout, clearTimeout, setInterval, clearInterval,
-    api: { agentUsageSnapshotGet: leaves.snapshot },
+    api: {
+      agentUsageSnapshotGet: leaves.snapshot,
+      storeRead: leaves.storeRead,
+      onSettingsChanged: leaves.onSettingsChanged,
+    },
   }));
   Widget = (await import('../AgentQuotaWidget')).AgentQuotaWidget;
 });
@@ -119,6 +134,7 @@ describe('AgentQuotaWidget', () => {
       provider({
         provider: 'codex',
         today: tokens(1_200_000),
+        quotaStatus: 'ok',
         rateLimits: {
           primary: { usedPercent: 95, windowMinutes: 300, resetsAt: NOW + 3_600_000 },
           secondary: { usedPercent: 40, windowMinutes: 10080, resetsAt: NOW - 1 },
@@ -132,12 +148,89 @@ describe('AgentQuotaWidget', () => {
     const items = elements(tree).filter((node) => String(node.props.className).startsWith('ov-dash-agent-quota-item '));
     expect(items.map((node) => byClass(node, 'ov-dash-agent-quota-icon').props.src)).toEqual([AgentIcon.CLAUDE, AgentIcon.CODEX]);
     expect(items.map((node) => text(byClass(node, 'ov-dash-agent-quota-today')))).toEqual(['8.33M', '1.20M']);
-    expect(text(items[0])).toContain('expanded.agentUsage.noQuotaInLogs');
+    expect(text(items[0])).toContain('expanded.agentUsage.quota.notLoggedIn');
     const rows = elements(items[1]).filter((node) => node.props.className === 'ov-dash-agent-quota-row');
     expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-window')))).toEqual(['expanded.agentUsage.window.fiveHour', 'expanded.agentUsage.window.weekly']);
     expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-percent')))).toEqual(['95%', '0%']);
     expect(byClass(rows[0], 'ov-dash-agent-quota-fill').props).toMatchObject({ className: 'ov-dash-agent-quota-fill ov-dash-agent-quota-fill--danger', style: { width: '95%' } });
     expect(byClass(rows[1], 'ov-dash-agent-quota-fill').props.className).toBe('ov-dash-agent-quota-fill');
+  });
+
+  it('额度条按窗口时长匹配而非返回顺序，每条显示重置时间', async () => {
+    leaves.snapshot.mockResolvedValue(snapshot([
+      provider({
+        provider: 'codex',
+        quotaStatus: 'ok',
+        rateLimits: {
+          primary: { usedPercent: 40, windowMinutes: 10080, resetsAt: NOW + 3_600_000 },
+          secondary: { usedPercent: 60, windowMinutes: 300, resetsAt: NOW + 1_800_000 },
+          planType: 'plus',
+          updatedAt: NOW,
+        },
+      }),
+    ]));
+    await mount();
+    const item = elements(run()).find((node) => node.props.className === 'ov-dash-agent-quota-item ov-dash-agent-quota-item--codex');
+    const rows = elements(item).filter((node) => node.props.className === 'ov-dash-agent-quota-row');
+    expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-window')))).toEqual(['expanded.agentUsage.window.fiveHour', 'expanded.agentUsage.window.weekly']);
+    expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-percent')))).toEqual(['60%', '40%']);
+    expect(rows.map((node) => text(byClass(node, 'ov-dash-agent-quota-reset')))).toEqual(['expanded.agentUsage.resetIn', 'expanded.agentUsage.resetIn']);
+  });
+
+  it('套餐未提供某个窗口时该行显示未提供提示，不渲染进度条', async () => {
+    leaves.snapshot.mockResolvedValue(snapshot([
+      provider({
+        provider: 'codex',
+        quotaStatus: 'ok',
+        rateLimits: { primary: { usedPercent: 1, windowMinutes: 43200, resetsAt: NOW + 3_600_000 }, secondary: null, planType: 'free', updatedAt: NOW },
+      }),
+    ]));
+    await mount();
+    const item = elements(run()).find((node) => node.props.className === 'ov-dash-agent-quota-item ov-dash-agent-quota-item--codex');
+    const rows = elements(item).filter((node) => node.props.className === 'ov-dash-agent-quota-row');
+    expect(rows).toHaveLength(2);
+    expect(text(rows[0])).toContain('expanded.agentUsage.windowMissing');
+    expect(elements(rows[0]).some((node) => node.props.className === 'ov-dash-agent-quota-track')).toBe(false);
+    expect(text(rows[1])).toContain('expanded.agentUsage.windowMissing');
+  });
+
+  it('按设置切换紧凑样式、字号缩放与来源强调色', async () => {
+    leaves.storeRead.mockImplementation(async (key: string) => (key === 'agent-quota-settings'
+      ? { fontSize: 'large', style: 'compact', colors: { claude: '#123456', codex: '#abcdef' } }
+      : undefined));
+    leaves.snapshot.mockResolvedValue(snapshot([
+      provider({
+        provider: 'codex',
+        quotaStatus: 'ok',
+        rateLimits: { primary: { usedPercent: 30, windowMinutes: 300, resetsAt: NOW + 3_600_000 }, secondary: null, planType: 'plus', updatedAt: NOW },
+      }),
+    ]));
+    await mount();
+    const tree = run();
+    expect(byClass(tree, 'ov-dash-agent-quota-widget').props.style).toEqual({ '--ov-agent-quota-scale': 1.2 });
+    const item = find(tree, (node) => node.props.className === 'ov-dash-agent-quota-item ov-dash-agent-quota-item--codex');
+    expect(item.props.style).toEqual({ '--ov-agent-accent': '#abcdef' });
+    const compactRow = byClass(item, 'ov-dash-agent-quota-row--compact');
+    expect(elements(compactRow).some((node) => node.props.className === 'ov-dash-agent-quota-track')).toBe(false);
+    expect(text(byClass(compactRow, 'ov-dash-agent-quota-percent'))).toBe('30%');
+  });
+
+  it('设置变更通过订阅即时生效，无存储值时使用默认设置', async () => {
+    let listener: ((channel: string, value: unknown) => void) | undefined;
+    leaves.onSettingsChanged.mockImplementation((callback) => {
+      listener = callback;
+      return () => {};
+    });
+    leaves.snapshot.mockResolvedValue(snapshot([provider({})]));
+    await mount();
+    expect(byClass(run(), 'ov-dash-agent-quota-widget').props.style).toEqual({ '--ov-agent-quota-scale': 1 });
+    expect(find(run(), isClaudeItem).props.style).toEqual({ '--ov-agent-accent': '#d97757' });
+
+    listener?.('store:agent-quota-settings', { fontSize: 'small', style: 'bars', colors: { claude: '#ffffff', codex: '#8da8ff' } });
+    run();
+    flushHookEffects();
+    expect(byClass(run(), 'ov-dash-agent-quota-widget').props.style).toEqual({ '--ov-agent-quota-scale': 0.85 });
+    expect(find(run(), isClaudeItem).props.style).toEqual({ '--ov-agent-accent': '#ffffff' });
   });
 
   it('日志目录缺失时显示未检测提示且不显示 token 数', async () => {

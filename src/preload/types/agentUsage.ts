@@ -43,13 +43,23 @@ export interface AgentUsageRateLimitWindow {
   resetsAt: number | null;
 }
 
-/** 日志中最近一次上报的额度；仅 Codex 本地日志提供 */
+/** 最近一次取得的额度；Codex 来自本地日志，Claude Code 来自用量接口 */
 export interface AgentUsageRateLimits {
   primary: AgentUsageRateLimitWindow | null;
   secondary: AgentUsageRateLimitWindow | null;
   planType: string | null;
   updatedAt: number;
 }
+
+/**
+ * 额度获取状态，用于说明 rateLimits 为空的原因。
+ * - ok：已取得额度窗口
+ * - noData：来源已返回但不含额度窗口
+ * - notLoggedIn：未找到 Claude Code 登录凭据
+ * - loginExpired：凭据已过期或被拒绝，需打开 Claude Code 重新登录
+ * - error：请求失败（网络或服务端异常）
+ */
+export type AgentQuotaStatus = 'ok' | 'noData' | 'notLoggedIn' | 'loginExpired' | 'error';
 
 /** 单个来源的用量汇总 */
 export interface AgentUsageProviderSnapshot {
@@ -62,7 +72,9 @@ export interface AgentUsageProviderSnapshot {
   todaySessions: number;
   /** 最近 7 天 token 用量最多的模型 */
   topModel: string | null;
+  /** 额度窗口；Codex 来自本地日志，Claude Code 来自 OAuth 用量接口 */
   rateLimits: AgentUsageRateLimits | null;
+  quotaStatus: AgentQuotaStatus;
 }
 
 /** Agent 用量快照 */

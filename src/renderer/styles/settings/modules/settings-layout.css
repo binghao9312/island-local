@@ -1446,6 +1446,43 @@
   border-radius: 4px;
 }
 
+/* Agent 额度卡片的来源强调色：预设色块 + 自定义色值 */
+.settings-agent-quota-colors {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.settings-agent-quota-swatch {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid rgba(var(--color-text-rgb), 0.18);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.settings-agent-quota-swatch.active {
+  box-shadow: 0 0 0 2px rgba(var(--color-text-rgb), 0.55);
+}
+
+.settings-agent-quota-hex {
+  width: 84px;
+  padding: 3px 6px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(var(--color-text-rgb), 0.85);
+  background: rgba(var(--color-text-rgb), 0.04);
+  border: 1px solid rgba(var(--color-text-rgb), 0.12);
+  border-radius: 6px;
+}
+
+.settings-agent-quota-error {
+  font-size: 10px;
+  color: #ef4444;
+}
+
 /** 关于软件 Tab */
 .settings-about {
   display: flex;
