@@ -26,4 +26,4 @@
 
 import type { HoverTab } from '../../../../store/types';
 
-export const NAV_DOTS: HoverTab[] = ['time', 'lyrics', 'weather', 'expand'];
+export const NAV_DOTS: HoverTab[] = ['lyrics', 'time', 'weather', 'expand'];

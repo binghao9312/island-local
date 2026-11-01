@@ -208,7 +208,7 @@ export interface ExpandNavItem {
 
 export type ExpandNavLayoutConfig = ExpandNavItem[];
 
-export const EXPAND_CONFIGURABLE_TABS: string[] = ['overview', 'song', 'tools', 'performanceMonitor', 'agentUsage'];
+export const EXPAND_CONFIGURABLE_TABS: string[] = ['song', 'overview', 'tools', 'performanceMonitor', 'agentUsage'];
 
 export const EXPAND_ALWAYS_VISIBLE_TABS: Set<string> = new Set<string>(['overview']);
 

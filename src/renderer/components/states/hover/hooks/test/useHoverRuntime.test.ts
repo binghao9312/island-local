@@ -116,11 +116,12 @@ describe('useHover true store navigation', () => {
     });
   });
   it('time inputs keep scroll then ordinary forward navigation updates real hover tab', () => {
+    store.setState({ hoverTab: 'time' });
     mount();
     expect(wheel(1, true)).toBe(false);
     expect(store.getState().hoverTab).toBe('time');
     expect(wheel(1)).toBe(true);
-    expect(store.getState().hoverTab).toBe('lyrics');
+    expect(store.getState().hoverTab).toBe('weather');
     run();
     flushHookEffects();
     wheel(-1, true);
@@ -132,7 +133,7 @@ describe('useHover true store navigation', () => {
     tab: 'weather',
     delta: 1
   }, {
-    tab: 'time',
+    tab: 'lyrics',
     delta: 0
   }])('special expanded destination from $tab invokes real expansion action', ({
     tab,
@@ -151,6 +152,6 @@ describe('useHover true store navigation', () => {
     });
     mount();
     wheel(-1);
-    expect(store.getState().hoverTab).toBe('lyrics');
+    expect(store.getState().hoverTab).toBe('time');
   });
 });
