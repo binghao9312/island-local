@@ -616,6 +616,11 @@
   z-index: 2;
 }
 
+/** 刘海形态贴住屏幕顶部，光带不走顶边，只沿左、下、右三边 */
+.island-shell.shape-notch.music-glow::after {
+  clip-path: inset(3px 0 0 0);
+}
+
 /** 跑马灯旋转动画 */
 @keyframes music-glow-rotate {
   to {
@@ -636,7 +641,7 @@
 .island-shell.shape-notch.corners-concave.music-glow::after {
   mask: none;
   clip-path: shape(
-    evenodd from 0 1px,
+    evenodd from 0 3px,
     hline to 100%,
     vline to 100%,
     hline to 0,

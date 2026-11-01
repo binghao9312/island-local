@@ -241,6 +241,8 @@ export interface IslandSlice {
   maxExpandLauncherVisible: boolean;
   cliProvider: CliProvider;
   notification: NotificationData;
+  /** 岛屿展开期间到达、等待收起后再弹出的通知 */
+  pendingNotification: NotificationData | null;
 
   springAnimation: boolean;
   animationSpeed: AnimationSpeed;

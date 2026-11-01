@@ -316,6 +316,20 @@ describe('Island slice window transitions and lock contract', () => {
     expect(api.beginWindowTransition.mock.invocationCallOrder[2]).toBeLessThan(api.expandWindow.mock.invocationCallOrder[0]);
   });
 
+  it.each(['hover', 'expanded', 'maxExpand', 'guide'] as const)('defers notifications while the island is open in %s and shows them after collapsing', (open) => {
+    vi.useFakeTimers();
+    const island = store();
+    island.setState({ state: open });
+    island.getState().setNotification(notification);
+    expect(island.getState()).toMatchObject({ state: open, pendingNotification: notification });
+    expect(api.expandWindowNotification).not.toHaveBeenCalled();
+    island.getState().setIdle(true);
+    expect(island.getState()).toMatchObject({ state: 'idle', pendingNotification: null });
+    vi.runAllTimers();
+    expect(island.getState()).toMatchObject({ state: 'notification', notification });
+    vi.useRealTimers();
+  });
+
   it('preserves the current acknowledgement when notification content changes without a state change', () => {
     const island = store();
     island.getState().setNotification(notification);

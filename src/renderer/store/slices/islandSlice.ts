@@ -30,7 +30,7 @@ import { playNotificationSoundOnce } from '../../utils/audio/notificationSound';
 import { beginIslandWindowTransition } from '../../utils/islandWindowTransition';
 import { SERVER_FEATURES_ENABLED } from '../../../shared/serverFeaturesConfig';
 import type { StateCreator } from 'zustand';
-import type { IslandSlice } from '../types';
+import type { IslandSlice, IslandState } from '../types';
 
 function isStandaloneRenderer(): boolean {
   try {
@@ -90,6 +90,9 @@ function releasePerformanceMonitorPinOnLeave(
   });
 }
 
+/** 用户正在操作、通知需延后到收起后再弹出的状态 */
+const NOTIFICATION_DEFER_STATES = new Set<IslandState>(['hover', 'expanded', 'maxExpand', 'guide']);
+
 export const createIslandSlice: StateCreator<
   IslandSlice,
   [],
@@ -114,6 +117,7 @@ export const createIslandSlice: StateCreator<
   maxExpandLauncherVisible: true,
   cliProvider: readCliProvider(),
   notification: emptyNotification,
+  pendingNotification: null,
   springAnimation: true,
   animationSpeed: 'medium' as const,
   shapeMode: 'notch' as const,
@@ -128,6 +132,11 @@ export const createIslandSlice: StateCreator<
     beginIslandWindowTransition(prev.state, 'idle');
     window.api?.collapseWindow(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
     window.api?.enableMousePassthrough();
+    const pending = prev.pendingNotification;
+    if (pending) {
+      setTimeout(() => get().setNotification(pending), getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
+      return { state: 'idle' as const, authReturnState: null, pendingNotification: null };
+    }
     return { state: 'idle' as const, authReturnState: null };
   }),
 
@@ -341,6 +350,8 @@ export const createIslandSlice: StateCreator<
 
   setNotification: (data) => set((prev) => {
     if (prev.uiStateLocked && prev.state !== 'notification') return prev;
+    // 用户正在操作展开的岛屿时不打断，排队到收起为待机后再弹出
+    if (NOTIFICATION_DEFER_STATES.has(prev.state)) return { pendingNotification: data };
     beginIslandWindowTransition(prev.state, 'notification');
     window.api?.expandWindowNotification(getIslandMorphDuration(prev.animationSpeed, prev.springAnimation));
     if (data.type !== 'cli-session-detected') playNotificationSoundOnce();

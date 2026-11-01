@@ -86,7 +86,10 @@ describe('CLI原生状态与真实副作用', () => {
     { state: 'maxExpand' as const, app: false, launcher: false, tab: 'aiChat' as const },
   ])('CLI视图之外的新会话提示：$state/$app/$launcher/$tab', async ({ state, app, launcher, tab }) => {
     await mount(); useIslandStore.setState({ state, maxExpandAppModeEnabled: app, maxExpandLauncherVisible: launcher, maxExpandTab: tab });
-    claude?.(snapshot()); await settleBackground(); expect(play).toHaveBeenCalledOnce(); expect(useIslandStore.getState().state).toBe('notification');
+    claude?.(snapshot()); await settleBackground();
+    if (state === 'idle') { expect(play).toHaveBeenCalledOnce(); expect(useIslandStore.getState().state).toBe('notification'); return; }
+    // 展开状态下不打断用户：通知排队，状态保持不变
+    expect(useIslandStore.getState().state).toBe('maxExpand'); expect(useIslandStore.getState().pendingNotification).not.toBeNull();
   });
   it('新权限提醒执行真实通知音并跳转提供商，已处理权限和缺少权限ID不重复', async () => {
     cliIpc.codexStatusGet.mockResolvedValue(snapshot()); await mount();
