@@ -47,24 +47,28 @@ export function findCurrentIndex(lyrics: SyncedLyricLine[], posMs: number): numb
 }
 
 /**
- * 截取以当前行为中心的歌词窗口，越界位置补空行以保持高度。
+ * 截取当前行及下一行歌词窗口，越界位置补空行以保持高度。
  * @param lyrics - 歌词
  * @param idx - 当前行索引
- * @returns 固定行数的歌词窗口
+ * @returns 包含当前行与下一行的歌词窗口
  */
 export function sliceNearby(
   lyrics: SyncedLyricLine[],
   idx: number,
 ): LyricSliceLine[] {
-  const half = Math.floor(VISIBLE_LINES / 2);
   const result: LyricSliceLine[] = [];
-  for (let offset = -half; offset <= half; offset++) {
-    const i = idx + offset;
-    if (i >= 0 && i < lyrics.length) {
-      result.push({ text: lyrics[i].text, isCurrent: offset === 0, key: `${i}` });
-    } else {
-      result.push({ text: '', isCurrent: false, key: `pad_${offset}` });
-    }
+  // 当前行（高亮展示）
+  if (idx >= 0 && idx < lyrics.length) {
+    result.push({ text: lyrics[idx].text, isCurrent: true, key: `${idx}` });
+  } else {
+    result.push({ text: '', isCurrent: true, key: 'pad_current' });
+  }
+  // 下一行（暗淡展示）
+  const nextIdx = idx + 1;
+  if (nextIdx >= 0 && nextIdx < lyrics.length) {
+    result.push({ text: lyrics[nextIdx].text, isCurrent: false, key: `${nextIdx}` });
+  } else {
+    result.push({ text: '', isCurrent: false, key: 'pad_next' });
   }
   return result;
 }
