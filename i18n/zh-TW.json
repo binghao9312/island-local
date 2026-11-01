@@ -2738,7 +2738,6 @@
       "music-whitelist": "播放器白名單",
       "music-lyrics": "歌詞源",
       "music-smtc": "SMTC",
-      "music-providers": "歌詞提供源",
       "ai": "AI Agent",
       "general": "通用配置",
       "r1pxc": "r1pxc Agent",
@@ -2827,8 +2826,7 @@
     "musicPages": {
       "whitelist": "白名單",
       "lyrics": "歌詞源",
-      "smtc": "SMTC",
-      "providers": "提供源"
+      "smtc": "SMTC"
     },
     "networkPages": {
       "timeout": "請求超時",
@@ -3359,8 +3357,7 @@
         "hint": "僅影響鬧鐘響鈴與試聽音量。"
       },
       "effectVolume": {
-        "title": "音效音量",
-        "hint": "影響 STT 觸發音與木魚敲擊音。"
+        "title": "音效音量"
       }
     },
     "notification": {
@@ -3541,53 +3538,7 @@
         "savedNeverUnsubscribe": "已保存：永不自動取消訂閱",
         "savedAutoUnsubscribe": "已保存：{{ms}} ms 自動取消訂閱"
       },
-      "providers": {
-        "mode": {
-          "title": "汽水音樂請求模式",
-          "hint": "默認使用非登錄態；登錄態需要先完成汽水音樂登錄",
-          "guest": "非登錄態",
-          "logged-in": "登錄態"
-        },
-        "sodaMusic": {
-          "title": "汽水音樂提供方",
-          "login": "登錄"
-        }
-      },
       "pagination": "歌曲設置分頁"
-    },
-    "musicProviderLogin": {
-      "title": "音樂提供商賬號連接",
-      "connected": "已連接",
-      "notConnected": "未連接",
-      "loading": "正在生成二維碼…",
-      "qrUnavailable": "二維碼暫不可用",
-      "success": "登錄成功",
-      "successTitle": "汽水音樂已連接",
-      "qishui": {
-        "name": "汽水音樂",
-        "instruction": "使用汽水音樂 App 掃碼登錄"
-      },
-      "status": {
-        "idle": "準備登錄",
-        "waiting": "等待掃碼確認…",
-        "scanned": "已掃碼，請在手機上確認…",
-        "confirmed": "登錄成功，會話已安全保存",
-        "expired": "二維碼已過期，請刷新",
-        "rate_limited": "請求較頻繁，稍後自動繼續檢查…",
-        "mfa_cancelled": "二次驗證已取消，請刷新二維碼後重試",
-        "error": "登錄狀態檢查失敗，正在重試…"
-      },
-      "steps": {
-        "openDouyin": "打開手機上的抖音 App",
-        "scan": "使用掃一掃掃描左側二維碼",
-        "confirm": "在手機上確認授權登錄"
-      },
-      "actions": {
-        "back": "返回提供商設置",
-        "refresh": "刷新二維碼",
-        "logout": "退出登錄",
-        "done": "完成"
-      }
     },
     "hotkey": {
       "duplicateHotkey": "重複快捷鍵",
@@ -4540,10 +4491,6 @@
       "music-smtc": {
         "label": "SMTC",
         "desc": "系統媒體傳輸控制相關配置。"
-      },
-      "music-providers": {
-        "label": "歌詞提供源",
-        "desc": "配置歌詞獲取來源與優先級。"
       }
     }
   },

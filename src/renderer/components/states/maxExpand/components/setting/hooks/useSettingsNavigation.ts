@@ -137,7 +137,6 @@ export function useSettingsNavigation(options: SettingsNavigationOptions) {
     whitelist: t('settings.musicPages.whitelist', { defaultValue: MUSIC_SETTINGS_PAGE_LABELS.whitelist }),
     lyrics: t('settings.musicPages.lyrics', { defaultValue: MUSIC_SETTINGS_PAGE_LABELS.lyrics }),
     smtc: t('settings.musicPages.smtc', { defaultValue: MUSIC_SETTINGS_PAGE_LABELS.smtc }),
-    providers: t('settings.musicPages.providers', { defaultValue: MUSIC_SETTINGS_PAGE_LABELS.providers }),
   }), [t]);
   const [aboutVersion, setAboutVersion] = useState<string>('');
   const handleNavAction = useCallback((actionId: string): void => {

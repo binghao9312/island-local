@@ -68,14 +68,6 @@ import type {
   UpdaterNotAvailableData,
   UpdaterStartupAutoCheckRequestData,
   ClipboardUrlsDetectedData,
-  MusicProviderAuthStatus,
-  MusicProviderId,
-  MusicProviderQrCodeResult,
-  QishuiBusinessRequestOptions,
-  QishuiBusinessStatus,
-  QishuiLyricsResult,
-  QishuiSongsResult,
-  QishuiSongUrlResult,
   ExternalAgentData,
   RunningProcessInfo,
   RunningWindowInfo,
@@ -245,29 +237,8 @@ declare global {
       logWrite: (level: string, message: string) => void;
       musicWhitelistGet: () => Promise<string[]>;
       musicWhitelistSet: (list: string[]) => Promise<boolean>;
-      musicProviderAuthStatus: (provider: MusicProviderId) => Promise<MusicProviderAuthStatus>;
-      musicProviderAuthCreateQr: (provider: MusicProviderId) => Promise<MusicProviderQrCodeResult>;
-      musicProviderAuthCheckQr: (provider: MusicProviderId, token: string) => Promise<MusicProviderAuthStatus>;
-      musicProviderAuthClear: (provider: MusicProviderId) => Promise<MusicProviderAuthStatus>;
-      qishuiStatus: () => Promise<QishuiBusinessStatus>;
-      qishuiSearch: (keyword: string, options?: QishuiBusinessRequestOptions) => Promise<QishuiSongsResult>;
-      qishuiFeed: (limit?: number) => Promise<QishuiSongsResult>;
-      qishuiPlaylists: () => Promise<Record<string, unknown>>;
-      qishuiPlaylistTracks: (id: string, options?: QishuiBusinessRequestOptions) => Promise<Record<string, unknown>>;
-      qishuiLyrics: (id: string) => Promise<QishuiLyricsResult>;
-      qishuiSongUrl: (id: string, quality?: string) => Promise<QishuiSongUrlResult>;
-      qishuiComments: (id: string, options?: QishuiBusinessRequestOptions) => Promise<Record<string, unknown>>;
-      qishuiCreateComment: (id: string, content: string) => Promise<Record<string, unknown>>;
-      qishuiCheckLiked: (ids: string[]) => Promise<Record<string, unknown>>;
-      qishuiLike: (id: string, liked: boolean) => Promise<Record<string, unknown>>;
-      qishuiCollectPlaylist: (id: string, collected: boolean) => Promise<Record<string, unknown>>;
-      qishuiCollectAlbum: (id: string, collected: boolean) => Promise<Record<string, unknown>>;
-      qishuiAddSong: (playlistId: string, trackId: string) => Promise<Record<string, unknown>>;
-      qishuiRecentPlay: (id: string) => Promise<Record<string, unknown>>;
       musicLyricsSourceGet: () => Promise<string>;
       musicLyricsSourceSet: (source: string) => Promise<boolean>;
-      musicProviderModeGet: () => Promise<'guest' | 'logged-in'>;
-      musicProviderModeSet: (mode: 'guest' | 'logged-in') => Promise<boolean>;
       musicLyricsEnabledGet: () => Promise<boolean>;
       musicLyricsEnabledSet: (enabled: boolean) => Promise<boolean>;
       musicLyricsTranslationEnabledGet: () => Promise<boolean>;

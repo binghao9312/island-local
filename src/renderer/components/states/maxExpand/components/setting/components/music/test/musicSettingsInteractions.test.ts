@@ -25,21 +25,15 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MusicSettingsSection } from '../MusicSettingsSection';
-import { renderWithHooks, resetLifecycle, runEffects } from '../../../hooks/test/settingsCoverageHarness';
+import { renderWithHooks, resetLifecycle } from '../../../hooks/test/settingsCoverageHarness';
 import { elementProps, elements, findElement, invoke, textContent } from '../../../../../../../test/elementHarness';
 import type { ComponentProps } from 'react';
-const store = vi.hoisted(() => ({
-  setMusicProvidersLogin: vi.fn()
-}));
 // 直接调用组件的测试保留选择器，避免使用外部 React dispatcher。
 vi.mock('zustand/react/shallow', () => ({ useShallow: (selector: unknown) => selector }));
 vi.mock('react', async (original) => ({
   ...(await original<typeof import('react')>()),
   ...(await import('../../../../../../../test/elementHarness')).hookMocks,
   ...(await import('../../../hooks/test/settingsCoverageHarness')).lifecycleHooks
-}));
-vi.mock('../../../../../../../../store/slices', () => ({
-  default: () => store
 }));
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -49,12 +43,6 @@ vi.mock('react-i18next', () => ({
   })
 }));
 const api = {
-  musicProviderAuthStatus: vi.fn<() => Promise<{
-    loggedIn: boolean;
-  }>>(),
-  musicProviderModeGet: vi.fn<() => Promise<'guest' | 'logged-in'>>(),
-  musicProviderModeSet: vi.fn<(value: unknown) => Promise<void>>(),
-  musicProviderAuthClear: vi.fn<() => Promise<void>>(),
   musicWhitelistSet: vi.fn<(value: unknown) => Promise<void>>(),
   musicLyricsEnabledSet: vi.fn<(value: unknown) => Promise<void>>(),
   musicLyricsTranslationEnabledSet: vi.fn<(value: unknown) => Promise<void>>(),
@@ -110,8 +98,7 @@ function makeProps(): ComponentProps<typeof MusicSettingsSection> {
     musicSettingsPageLabels: {
       whitelist: 'Apps',
       lyrics: 'Lyrics',
-      smtc: 'SMTC',
-      providers: 'Providers'
+      smtc: 'SMTC'
     },
     setMusicSettingsPage: vi.fn()
   };
@@ -146,11 +133,7 @@ beforeEach(() => {
   resetLifecycle();
   vi.resetAllMocks();
   props = makeProps();
-  api.musicProviderAuthStatus.mockResolvedValue({
-    loggedIn: false
-  });
-  api.musicProviderModeGet.mockResolvedValue('guest');
-  [api.musicProviderModeSet, api.musicProviderAuthClear, api.musicWhitelistSet, api.musicLyricsEnabledSet, api.musicLyricsTranslationEnabledSet, api.musicLyricsSourceSet, api.musicLyricsKaraokeSet, api.musicLyricsClockSet, api.musicLyricsCalibrateEnabledSet, api.musicLyricsCalibrateDelaySet].forEach((mock) => {
+  [api.musicWhitelistSet, api.musicLyricsEnabledSet, api.musicLyricsTranslationEnabledSet, api.musicLyricsSourceSet, api.musicLyricsKaraokeSet, api.musicLyricsClockSet, api.musicLyricsCalibrateEnabledSet, api.musicLyricsCalibrateDelaySet].forEach((mock) => {
     mock.mockResolvedValue(undefined);
   });
   vi.stubGlobal('window', {
@@ -382,52 +365,6 @@ describe('SMTC保存与反馈', () => {
   });
 });
 describe('真实提供方启动和登录生命周期', () => {
-  it.each([true, false])('登录状态=%s通过真实启动效果完成加载', async (loggedIn) => {
-    props.musicSettingsPage = 'providers';
-    api.musicProviderAuthStatus.mockResolvedValue({
-      loggedIn
-    });
-    api.musicProviderModeGet.mockResolvedValue(loggedIn ? 'logged-in' : 'guest');
-    expect(elementProps(button('settings.music.providers.sodaMusic.login')).disabled).toBe(true);
-    runEffects();
-    await settle();
-    const key = loggedIn ? 'settings.musicProviderLogin.actions.logout' : 'settings.music.providers.sodaMusic.login';
-    expect(elementProps(button(key)).disabled).toBe(false);
-    expect(elementProps(button('settings.music.providers.mode.logged-in')).disabled).toBe(!loggedIn);
-    invoke(button(key), 'onClick');
-    if (loggedIn) {
-      expect(elementProps(button(key)).disabled).toBe(true);
-      await settle();
-      expect(api.musicProviderAuthClear).toHaveBeenCalledWith('qishui');
-      expect(textContent(render())).toContain('settings.music.providers.sodaMusic.login');
-    } else expect(store.setMusicProvidersLogin).toHaveBeenCalledWith('qishui');
-  });
-  it('启动请求失败恢复未登录态与guest模式', async () => {
-    props.musicSettingsPage = 'providers';
-    api.musicProviderAuthStatus.mockRejectedValue(new Error('offline'));
-    render();
-    runEffects();
-    await settle();
-    expect(elementProps(button('settings.music.providers.sodaMusic.login')).disabled).toBe(false);
-    expect(String(elementProps(button('settings.music.providers.mode.guest')).className)).toContain('active');
-  });
-  it.each([true, false])('更换请求模式持久化失败=%s，真实本地状态更新', async (failure) => {
-    props.musicSettingsPage = 'providers';
-    api.musicProviderAuthStatus.mockResolvedValue({
-      loggedIn: true
-    });
-    render();
-    runEffects();
-    await settle();
-    if (failure) api.musicProviderModeSet.mockRejectedValue(new Error('offline'));
-    invoke(button('settings.music.providers.mode.logged-in'), 'onClick');
-    await settle();
-    expect(api.musicProviderModeSet).toHaveBeenCalledWith('logged-in');
-    expect(String(elementProps(button('settings.music.providers.mode.logged-in')).className)).toContain('active');
-    invoke(button('settings.music.providers.mode.guest'), 'onClick');
-    await settle();
-    expect(String(elementProps(button('settings.music.providers.mode.guest')).className)).toContain('active');
-  });
   it('公开页名损坏时内容为空，导航开关仍正常', () => {
     props.musicSettingsPage = 'unknown' as typeof props.musicSettingsPage;
     expect(elements(render()).some((node) => elementProps(node).className === 'settings-cards')).toBe(false);

@@ -25,9 +25,7 @@
  */
 
 import { describe, expect, expectTypeOf, it } from 'vitest';
-import type { NowPlayingInfo, SmtcSourceInfo, DetectSourceAppIdResult, SmtcTimeline, SmtcTimestampResult, SourceSwitchRequestData, MusicProviderAuthState, MusicProviderAuthStatus, MusicProviderId, MusicProviderQrCodeResult, QishuiBusinessApi, QishuiBusinessRequestOptions, QishuiBusinessStatus, QishuiLyricsResult, QishuiSong, QishuiSongsResult, QishuiSongUrlResult } from '../media';
-import type { MusicProviderAuthState as OriginalMusicProviderAuthState, MusicProviderAuthStatus as OriginalMusicProviderAuthStatus , MusicProviderId as OriginalMusicProviderId , MusicProviderQrCodeResult as OriginalMusicProviderQrCodeResult  } from '../../../shared/musicProviderAuth';
-import type { QishuiBusinessApi as OriginalQishuiBusinessApi, QishuiBusinessRequestOptions as OriginalQishuiBusinessRequestOptions , QishuiBusinessStatus as OriginalQishuiBusinessStatus , QishuiLyricsResult as OriginalQishuiLyricsResult , QishuiSong as OriginalQishuiSong , QishuiSongsResult as OriginalQishuiSongsResult , QishuiSongUrlResult as OriginalQishuiSongUrlResult  } from '../../../shared/qishuiBusiness';
+import type { NowPlayingInfo, SmtcSourceInfo, DetectSourceAppIdResult, SmtcTimeline, SmtcTimestampResult, SourceSwitchRequestData } from '../media';
 describe('media contracts', () => {
   it('fixes NowPlayingInfo fields and accepts its explicit legal fixture', () => {
     expectTypeOf<NowPlayingInfo>().toEqualTypeOf<{
@@ -118,60 +116,5 @@ describe('media contracts', () => {
     // @ts-expect-error SourceSwitchRequestData.sourceAppId 禁止使用契约外字段值。
     const invalid: SourceSwitchRequestData['sourceAppId'] = 123;
     expect(invalid).toBeDefined();
-  });
-  it('retains MusicProviderAuthState re-export contract', () => {
-    expectTypeOf<MusicProviderAuthState>().toEqualTypeOf<OriginalMusicProviderAuthState>();
-    const fixture: MusicProviderAuthState = 'idle';
-    expect(fixture).toBeDefined();
-  });
-  it('retains MusicProviderAuthStatus re-export contract', () => {
-    expectTypeOf<MusicProviderAuthStatus>().toEqualTypeOf<OriginalMusicProviderAuthStatus>();
-    const fixture: MusicProviderAuthStatus = { provider: 'qishui', loggedIn: false, state: 'idle', retryAfterMs: 0, errorCode: 'sample', message: 'sample' };
-    expect(fixture).toBeDefined();
-  });
-  it('retains MusicProviderId re-export contract', () => {
-    expectTypeOf<MusicProviderId>().toEqualTypeOf<OriginalMusicProviderId>();
-    const fixture: MusicProviderId = 'qishui';
-    expect(fixture).toBeDefined();
-  });
-  it('retains MusicProviderQrCodeResult re-export contract', () => {
-    expectTypeOf<MusicProviderQrCodeResult>().toEqualTypeOf<OriginalMusicProviderQrCodeResult>();
-    const fixture: MusicProviderQrCodeResult = { provider: 'qishui', loggedIn: false, state: 'idle', retryAfterMs: 0, errorCode: 'sample', message: 'sample', token: 'sample', qrContent: 'sample', expiresAt: null };
-    expect(fixture).toBeDefined();
-  });
-  it('retains QishuiBusinessApi re-export contract', () => {
-    expectTypeOf<QishuiBusinessApi>().toEqualTypeOf<OriginalQishuiBusinessApi>();
-    const fixture: QishuiBusinessApi = { status: () => Promise.resolve({ provider: 'qishui', configured: false, loggedIn: false, webSession: false, publicCatalog: false, capabilities: {}, message: 'sample' }), search: () => Promise.resolve({ provider: 'qishui', songs: [], configured: false, loggedIn: false, publicCatalog: false, offset: 0, limit: 0, nextOffset: 0, hasMore: false, error: 'sample' }), feed: () => Promise.resolve({ provider: 'qishui', songs: [], configured: false, loggedIn: false, publicCatalog: false, offset: 0, limit: 0, nextOffset: 0, hasMore: false, error: 'sample' }), playlists: () => Promise.resolve({}), playlistTracks: () => Promise.resolve({}), lyrics: () => Promise.resolve({ provider: 'qishui', id: 'sample', auth: 'sample', lyric: 'sample', tlyric: 'sample' }), songUrl: () => Promise.resolve({ provider: 'qishui', playable: false, playbackMode: 'direct-url', url: 'sample', reason: 'sample', loggedIn: false, encrypted: false, membershipKnown: false, vipLevel: 'unknown', requiredTier: 'free', quality: 'sample', br: 0, duration: 0 }), comments: () => Promise.resolve({}), createComment: () => Promise.resolve({}), checkLiked: () => Promise.resolve({}), like: () => Promise.resolve({}), collectPlaylist: () => Promise.resolve({}), collectAlbum: () => Promise.resolve({}), addSong: () => Promise.resolve({}), recentPlay: () => Promise.resolve({}) };
-    expect(fixture).toBeDefined();
-  });
-  it('retains QishuiBusinessRequestOptions re-export contract', () => {
-    expectTypeOf<QishuiBusinessRequestOptions>().toEqualTypeOf<OriginalQishuiBusinessRequestOptions>();
-    const fixture: QishuiBusinessRequestOptions = { limit: 0, offset: 0, cursor: 'sample', quality: 'sample' };
-    expect(fixture).toBeDefined();
-  });
-  it('retains QishuiBusinessStatus re-export contract', () => {
-    expectTypeOf<QishuiBusinessStatus>().toEqualTypeOf<OriginalQishuiBusinessStatus>();
-    const fixture: QishuiBusinessStatus = { provider: 'qishui', configured: false, loggedIn: false, webSession: false, publicCatalog: false, capabilities: {}, message: 'sample' };
-    expect(fixture).toBeDefined();
-  });
-  it('retains QishuiLyricsResult re-export contract', () => {
-    expectTypeOf<QishuiLyricsResult>().toEqualTypeOf<OriginalQishuiLyricsResult>();
-    const fixture: QishuiLyricsResult = { provider: 'qishui', id: 'sample', auth: 'sample', lyric: 'sample', tlyric: 'sample' };
-    expect(fixture).toBeDefined();
-  });
-  it('retains QishuiSong re-export contract', () => {
-    expectTypeOf<QishuiSong>().toEqualTypeOf<OriginalQishuiSong>();
-    const fixture: QishuiSong = { provider: 'qishui', id: 'sample', providerSongId: 'sample', name: 'sample', artist: 'sample', artists: [], album: 'sample', cover: 'sample', duration: 0, lyric: 'sample' };
-    expect(fixture).toBeDefined();
-  });
-  it('retains QishuiSongsResult re-export contract', () => {
-    expectTypeOf<QishuiSongsResult>().toEqualTypeOf<OriginalQishuiSongsResult>();
-    const fixture: QishuiSongsResult = { provider: 'qishui', songs: [], configured: false, loggedIn: false, publicCatalog: false, offset: 0, limit: 0, nextOffset: 0, hasMore: false, error: 'sample' };
-    expect(fixture).toBeDefined();
-  });
-  it('retains QishuiSongUrlResult re-export contract', () => {
-    expectTypeOf<QishuiSongUrlResult>().toEqualTypeOf<OriginalQishuiSongUrlResult>();
-    const fixture: QishuiSongUrlResult = { provider: 'qishui', playable: false, playbackMode: 'direct-url', url: 'sample', reason: 'sample', loggedIn: false, encrypted: false, membershipKnown: false, vipLevel: 'unknown', requiredTier: 'free', quality: 'sample', br: 0, duration: 0 };
-    expect(fixture).toBeDefined();
   });
 });

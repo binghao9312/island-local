@@ -56,9 +56,6 @@ import { registerStoreIpcHandlers } from './ipc/app/store';
 import { handleAlbumMediaRequest } from './media/albumMedia';
 import { registerLogIpcHandlers } from './ipc/app/log';
 import { registerMusicIpcHandlers } from './ipc/media/music';
-import { registerMusicProviderAuthIpcHandlers } from './ipc/media/musicProviderAuth';
-import { registerQishuiBusinessIpcHandlers } from './ipc/media/qishui';
-import { cleanupQishuiAudioSources, handleQishuiAudioRequest } from './music/providers/qishuiAudio';
 import { registerHotkeyIpcHandlers } from './ipc/system/hotkey';
 import { registerIslandIpcHandlers } from './ipc/settings/island';
 import { registerHideProcessIpcHandlers } from './ipc/system/hideProcess';
@@ -102,7 +99,7 @@ import {
   DEFAULT_CLIPBOARD_URL_DETECT_MODE,
   DEFAULT_ISLAND_POSITION_OFFSET,
   DEFAULT_ISLAND_DISPLAY_SELECTION,
-  WHITELIST_STORE_KEY, LYRICS_SOURCE_STORE_KEY, MUSIC_PROVIDER_MODE_STORE_KEY,
+  WHITELIST_STORE_KEY, LYRICS_SOURCE_STORE_KEY,
   LYRICS_KARAOKE_STORE_KEY, LYRICS_CLOCK_STORE_KEY,
   LYRICS_CALIBRATE_ENABLED_STORE_KEY, LYRICS_CALIBRATE_DELAY_STORE_KEY,
   LYRICS_ENABLED_STORE_KEY, LYRICS_TRANSLATION_ENABLED_STORE_KEY,
@@ -540,14 +537,11 @@ function registerIpcHandlers(): void {
   registerSettingsPreviewHandler();
 
   registerLogIpcHandlers({ writeMainLog });
-  registerMusicProviderAuthIpcHandlers();
-  registerQishuiBusinessIpcHandlers();
 
   registerMusicIpcHandlers({
     storeDir,
     whitelistStoreKey: WHITELIST_STORE_KEY,
     lyricsSourceStoreKey: LYRICS_SOURCE_STORE_KEY,
-    providerModeStoreKey: MUSIC_PROVIDER_MODE_STORE_KEY,
     lyricsKaraokeStoreKey: LYRICS_KARAOKE_STORE_KEY,
     lyricsClockStoreKey: LYRICS_CLOCK_STORE_KEY,
     lyricsCalibrateEnabledStoreKey: LYRICS_CALIBRATE_ENABLED_STORE_KEY,
@@ -737,35 +731,7 @@ protocol.registerSchemesAsPrivileged([
       stream: true,
     },
   },
-  {
-    scheme: 'eisland-qishui',
-    privileges: {
-      standard: true,
-      secure: true,
-      supportFetchAPI: true,
-      stream: true,
-    },
-  },
 ]);
-
-// will-quit 不会等待 Promise；先终止音频下载并删除临时缓存，再允许退出。
-let audioCleanupFinished = false;
-let audioQuitCleanup: Promise<void> | undefined;
-app.on('before-quit', (event) => {
-  if (audioCleanupFinished) return;
-  event.preventDefault();
-  if (audioQuitCleanup) return;
-  audioQuitCleanup = (async () => {
-    try {
-      await cleanupQishuiAudioSources();
-    } catch (error) {
-      console.error('[Qishui] Audio cleanup failed:', error);
-    } finally {
-      audioCleanupFinished = true;
-      app.quit();
-    }
-  })();
-});
 
 registerAppLifecycleHandlers({
   getMainWindow: () => mainWindow,
@@ -852,8 +818,6 @@ app.whenReady().then(() => {
       return new Response('Bad Request', { status: 400 });
     }
   });
-
-  protocol.handle('eisland-qishui', handleQishuiAudioRequest);
 
   islandPositionOffset = readIslandPositionOffsetConfig();
   islandDisplaySelection = readIslandDisplaySelectionConfig();

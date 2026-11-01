@@ -43,20 +43,7 @@ function invoke(channel: string, ...args: unknown[]): unknown { return io.handle
 beforeEach(() => {
   io.handlers.clear(); io.files.clear(); io.read.mockReset(); io.read.mockImplementation((file) => io.files.get(file) ?? ''); io.write.mockReset(); io.broadcast.mockReset();
   vi.spyOn(console, 'error').mockImplementation(() => {});
-  registerMusicIpcHandlers({ storeDir: 'C:/store', whitelistStoreKey: 'whitelist', lyricsSourceStoreKey: 'source', providerModeStoreKey: 'provider', lyricsKaraokeStoreKey: 'karaoke', lyricsClockStoreKey: 'clock', lyricsCalibrateEnabledStoreKey: 'calibrate', lyricsCalibrateDelayStoreKey: 'delay', lyricsEnabledStoreKey: 'enabled', lyricsTranslationEnabledStoreKey: 'translation', smtcUnsubscribeStoreKey: 'unsubscribe', defaultLyricsKaraoke: false, defaultLyricsClock: true, defaultLyricsCalibrateEnabled: false, defaultLyricsCalibrateDelay: 20, getWhitelist: () => [], setWhitelist: () => {}, readLyricsSourceConfig: () => 'auto', getSmtcUnsubscribeMs: () => 2000, setSmtcUnsubscribeMs: () => {}, sanitizeSmtcUnsubscribeMs: () => 2000, detectAllSources: () => Promise.resolve([]) });
-});
-describe('Music provider mode persistence', () => {
-  it.each([[undefined, 'guest'], ['"logged-in"', 'logged-in'], ['"guest"', 'guest'], ['"invalid"', 'guest'], ['null', 'guest'], ['{broken', 'guest']])('reads %s with safe mode %s', (stored, expected) => {
-    if (stored !== undefined) io.files.set(join('C:/store', 'provider.json'), stored);
-    expect(invoke('music:provider-mode:get')).toBe(expected);
-  });
-  it('returns guest when the provider configuration is unreadable', () => {
-    io.files.set(join('C:/store', 'provider.json'), '"logged-in"'); io.read.mockImplementationOnce(() => { throw new Error('denied'); }); expect(invoke('music:provider-mode:get')).toBe('guest');
-  });
-  it.each([['logged-in', 'logged-in'], ['guest', 'guest'], ['invalid', 'guest']])('stores normalized mode %s', (mode, expected) => {
-    expect(invoke('music:provider-mode:set', mode)).toBe(true); expect(io.write).toHaveBeenCalledWith(join('C:/store', 'provider.json'), JSON.stringify(expected, null, 2), 'utf-8');
-  });
-  it('reports a provider write failure', () => { io.write.mockImplementationOnce(() => { throw new Error('full'); }); expect(invoke('music:provider-mode:set', 'logged-in')).toBe(false); });
+  registerMusicIpcHandlers({ storeDir: 'C:/store', whitelistStoreKey: 'whitelist', lyricsSourceStoreKey: 'source', lyricsKaraokeStoreKey: 'karaoke', lyricsClockStoreKey: 'clock', lyricsCalibrateEnabledStoreKey: 'calibrate', lyricsCalibrateDelayStoreKey: 'delay', lyricsEnabledStoreKey: 'enabled', lyricsTranslationEnabledStoreKey: 'translation', smtcUnsubscribeStoreKey: 'unsubscribe', defaultLyricsKaraoke: false, defaultLyricsClock: true, defaultLyricsCalibrateEnabled: false, defaultLyricsCalibrateDelay: 20, getWhitelist: () => [], setWhitelist: () => {}, readLyricsSourceConfig: () => 'auto', getSmtcUnsubscribeMs: () => 2000, setSmtcUnsubscribeMs: () => {}, sanitizeSmtcUnsubscribeMs: () => 2000, detectAllSources: () => Promise.resolve([]) });
 });
 const flags = [{ channel: 'lyrics-calibrate-enabled', key: 'calibrate', fallback: false }, { channel: 'lyrics-enabled', key: 'enabled', fallback: true }, { channel: 'lyrics-translation-enabled', key: 'translation', fallback: true }];
 describe.each(flags)('Music $channel preference', ({ channel, key, fallback }) => {

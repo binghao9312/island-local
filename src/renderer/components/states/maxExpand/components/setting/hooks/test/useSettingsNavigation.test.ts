@@ -100,14 +100,14 @@ describe('真实页面标签、会话和入口', () => {
     expect(state.translatedNetworkSettingsPageLabels['data-center']).toBe('settings.networkPages.data-center');
     expect(state.translatedUpdateSettingsPageLabels['info-sync']).toBe('settings.updatePages.info-sync');
     expect(state.translatedMailSettingsPageLabels.preferences).toBe('settings.mailPages.preferences');
-    expect(state.translatedMusicSettingsPageLabels.providers).toBe('settings.musicPages.providers');
+    expect(state.translatedMusicSettingsPageLabels.smtc).toBe('settings.musicPages.smtc');
     expect(state.currentPluginMarketPageLabel).toBe('settings.pluginMarket.pages.wallpaper');
     expect(state.getSettingsLabel('animation')).toBe('settings.labels.animation');
   });
   it('合法子页切换更新相应标签', () => {
     render().setWeatherSettingsPage('provider');
     render().setMailSettingsPage('imap');
-    render().setMusicSettingsPage('providers');
+    render().setMusicSettingsPage('smtc');
     render().setAiSettingsPage('ollama');
     render().setNetworkSettingsPage('data-center');
     render().setUpdateSettingsPage('info-sync');
@@ -116,7 +116,7 @@ describe('真实页面标签、会话和入口', () => {
     const state = render();
     expect(state.currentWeatherSettingsPageLabel).toBe('settings.weatherPages.provider');
     expect(state.currentMailSettingsPageLabel).toBe('settings.mailPages.imap');
-    expect(state.currentMusicSettingsPageLabel).toBe('settings.musicPages.providers');
+    expect(state.currentMusicSettingsPageLabel).toBe('settings.musicPages.smtc');
     expect(state.currentAiSettingsPageLabel).toBe('settings.aiPages.ollama');
     expect(state.currentNetworkSettingsPageLabel).toBe('settings.networkPages.data-center');
     expect(state.currentUpdateSettingsPageLabel).toBe('settings.updatePages.info-sync');

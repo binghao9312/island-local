@@ -44,7 +44,6 @@ import { CliContent } from '../states/cli';
 import { SetPasswordContent } from '../states/setPassword';
 import { BindOAuthContent } from '../states/bindOAuth';
 import { BindEmailContent } from '../states/bindEmail';
-import { MusicProvidersLoginContent } from '../states/musicProvidersLogin';
 import type { IslandState } from '../hooks/useDynamicIslandShell';
 
 interface DynamicIslandStateContentProps {
@@ -126,7 +125,6 @@ export function DynamicIslandStateContent({
     if (state === 'payment') return <PaymentContent />;
     if (state === 'questionnaire') return <QuestionnaireContent />;
   }
-  if (state === 'musicProvidersLogin') return <MusicProvidersLoginContent />;
   if (state === 'agent') return <AgentContent />;
   if (state === 'cli') return <CliContent />;
 

@@ -24,22 +24,6 @@
  * @author 鸡哥
  */
 
-export type {
-  MusicProviderAuthState,
-  MusicProviderAuthStatus,
-  MusicProviderId,
-  MusicProviderQrCodeResult,
-} from '../../shared/musicProviderAuth';
-export type {
-  QishuiBusinessApi,
-  QishuiBusinessRequestOptions,
-  QishuiBusinessStatus,
-  QishuiLyricsResult,
-  QishuiSong,
-  QishuiSongsResult,
-  QishuiSongUrlResult,
-} from '../../shared/qishuiBusiness';
-
 /** 正在播放的歌曲信息 */
 export interface NowPlayingInfo {
   title: string;
