@@ -68,6 +68,13 @@ export interface SpawnPlan {
  * Gemini 用 --approval-mode default；omp 默认自动批准，必须用 always-ask 覆盖。
  */
 export const ACP_PROVIDER_SPECS: Record<AcpProviderId, AcpProviderSpec> = {
+  antigravity: {
+    id: 'antigravity',
+    label: 'Antigravity',
+    command: 'agy',
+    args: ['--input-format', 'stream-json', '--output-format', 'stream-json'],
+    installHint: 'curl -fsSL https://antigravity.dev/install | sh',
+  },
   gemini: {
     id: 'gemini',
     label: 'Gemini CLI',

@@ -31,6 +31,14 @@ import { describe, expect, expectTypeOf, it } from 'vitest';
 import type {} from '../index.d.ts';
 import type { ElectronAPI } from '@electron-toolkit/preload';
 import type { TrayMenuAction, TrayMenuState } from '../../shared/trayMenu';
+import type {
+  AcpEvent,
+  AcpImageData,
+  AcpPromptResult,
+  AcpProviderId,
+  AcpProviderInfo,
+  AcpStartResult,
+} from '../../shared/acpTypes';
 import type { Point, Bounds, IslandDisplayInfo, SearchLocalFilesOptions, SearchLocalFileResult, SaveTextFilePayload, SaveTextFileResult, ComputeFileHashResult, NowPlayingInfo, MediaCommandResult, SmtcTimestampResult, DetectSourceAppIdResult, ImageCompressionStartPayload, ImageCompressionStartResult, ImageCompressionTask, SaveImageAsResult, ResolveShortcutResult, ExtractVideoTrackOptions, ExtractVideoTrackResult, PickVideoForExtractResult, NetFetchOptions, NetFetchResult, MailInboxResult, NavOrderPayload, SetWallpaperPayload, DownloadStartPayload, DownloadStartResult, DownloadTask, UpdaterCheckResult, UpdaterProgress, UpdaterDownloadedData, UpdaterAvailableData, UpdaterNotAvailableData, UpdaterStartupAutoCheckRequestData, ClipboardUrlsDetectedData, ExternalAgentData, RunningProcessInfo, RunningWindowInfo, PerformanceHardwareSelection, PerformanceSnapshot, ClaudeCodeStatusSnapshot, ClaudeCodeHookMutationResult, CodexStatusSnapshot, CodexMonitorMutationResult, AgentUsageSnapshot } from '../types';
 interface ExpectedApi {
   enableMousePassthrough: () => void;

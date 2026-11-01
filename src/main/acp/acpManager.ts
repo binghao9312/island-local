@@ -32,8 +32,8 @@ import type {
   AcpPromptResult,
   AcpStartResult,
 } from '../../shared/acpTypes';
-import { AcpAgentClient } from './acpAgentClient';
-import type { AcpChildProcess, AcpSpawnFn } from './acpAgentClient';
+import { AcpAgentClient, type AcpChildProcess, type AcpSpawnFn, type IAcpClient } from './acpAgentClient';
+import { AgyAgentClient } from './agyAgentClient';
 import { ACP_PROVIDER_SPECS, resolveCommand } from './providers';
 
 /** 管理器构造参数 */
@@ -58,7 +58,7 @@ export interface AcpManagerOptions {
 export class AcpManager {
   private readonly options: AcpManagerOptions;
 
-  private readonly clients = new Map<AcpProviderId, AcpAgentClient>();
+  private readonly clients = new Map<AcpProviderId, IAcpClient>();
 
   /**
    * @param options - 管理器构造参数
@@ -144,10 +144,10 @@ export class AcpManager {
     this.clients.forEach((client) => client.stop());
   }
 
-  private client(providerId: AcpProviderId): AcpAgentClient {
+  private client(providerId: AcpProviderId): IAcpClient {
     const existing = this.clients.get(providerId);
     if (existing) return existing;
-    const created = new AcpAgentClient({
+    const clientOptions = {
       spec: ACP_PROVIDER_SPECS[providerId],
       cwd: this.options.cwd,
       emit: this.options.emit,
@@ -156,7 +156,11 @@ export class AcpManager {
       resolvePath: this.options.resolvePath,
       killFn: this.options.killFn,
       idleTimeoutMs: this.options.idleTimeoutMs,
-    });
+    };
+    const created: IAcpClient =
+      providerId === 'antigravity'
+        ? new AgyAgentClient(clientOptions)
+        : new AcpAgentClient(clientOptions);
     this.clients.set(providerId, created);
     return created;
   }

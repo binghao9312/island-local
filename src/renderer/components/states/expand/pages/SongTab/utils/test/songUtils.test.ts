@@ -31,8 +31,8 @@ import {
   getSyllableProgress,
   sliceNearby,
 } from '../songUtils';
-import type { SyncedLyricLine } from '../../../../../../store/types';
-import type { Translate } from '../types/songTypes';
+import type { SyncedLyricLine } from '../../../../../../../store/types';
+import type { Translate } from '../../types/songTypes';
 
 describe('songUtils', () => {
   const sampleLyrics: SyncedLyricLine[] = [

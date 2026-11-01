@@ -63,12 +63,14 @@ export function sliceNearby(
   } else {
     result.push({ text: '', isCurrent: true, key: 'pad_current' });
   }
-  // 下一行（暗淡展示）
-  const nextIdx = idx + 1;
-  if (nextIdx >= 0 && nextIdx < lyrics.length) {
-    result.push({ text: lyrics[nextIdx].text, isCurrent: false, key: `${nextIdx}` });
-  } else {
-    result.push({ text: '', isCurrent: false, key: 'pad_next' });
+  // 下一行（暗淡展示，受 VISIBLE_LINES 约束）
+  if (VISIBLE_LINES > 1) {
+    const nextIdx = idx + 1;
+    if (nextIdx >= 0 && nextIdx < lyrics.length) {
+      result.push({ text: lyrics[nextIdx].text, isCurrent: false, key: `${nextIdx}` });
+    } else {
+      result.push({ text: '', isCurrent: false, key: 'pad_next' });
+    }
   }
   return result;
 }

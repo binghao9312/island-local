@@ -63,6 +63,16 @@ export interface AcpChildProcess {
   kill(signal?: string): unknown;
 }
 
+/** 智能体客户端通用接口（原生 ACP 客户端与 Antigravity 适配器通用） */
+export interface IAcpClient {
+  readonly status: AcpConnectionStatus;
+  start(): Promise<AcpStartResult>;
+  prompt(text: string, images?: AcpImageData[]): Promise<AcpPromptResult>;
+  cancel(): void;
+  resolvePermission(requestId: string, optionId: string | null): boolean;
+  stop(): void;
+}
+
 /**
  * 终止子进程及其整棵派生进程树。
  * Windows 下直接对包装了 cmd.exe 的 .cmd 垫片调用 child.kill() 只会终止 cmd.exe，
@@ -153,7 +163,7 @@ function errorText(error: unknown): string {
 }
 
 /** 单个供应商的 ACP 客户端 */
-export class AcpAgentClient {
+export class AcpAgentClient implements IAcpClient {
   private readonly options: AcpAgentClientOptions;
 
   private child: AcpChildProcess | null = null;

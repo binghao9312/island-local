@@ -71,6 +71,12 @@ describe('useAcpChatStore', () => {
     expect(useAcpChatStore.getState().providers).toHaveLength(1);
   });
 
+  it('defaults to antigravity when no stored provider exists', () => {
+    storage.clear();
+    useAcpChatStore.getState().selectProvider('antigravity');
+    expect(useAcpChatStore.getState().activeProvider).toBe('antigravity');
+  });
+
   it('persists the selected provider and stops the previously active provider', () => {
     useAcpChatStore.setState({ activeProvider: 'omp' });
     useAcpChatStore.getState().selectProvider('gemini');

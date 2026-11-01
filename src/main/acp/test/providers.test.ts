@@ -92,5 +92,6 @@ describe('buildSpawnPlan', () => {
     expect(ACP_PROVIDER_SPECS.omp.args).toContain('--approval-mode=always-ask');
     expect(ACP_PROVIDER_SPECS.omp.args).not.toContain('--auto-approve');
     expect(ACP_PROVIDER_SPECS.gemini.args).not.toContain('--yolo');
+    expect(ACP_PROVIDER_SPECS.antigravity.args).not.toContain('--dangerously-skip-permissions');
   });
 });

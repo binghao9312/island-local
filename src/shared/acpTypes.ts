@@ -25,7 +25,7 @@
  */
 
 /** 支持的 ACP 智能体供应商标识 */
-export type AcpProviderId = 'gemini' | 'omp';
+export type AcpProviderId = 'antigravity' | 'gemini' | 'omp';
 
 /** 供应商静态描述，渲染进程用于切换器与未安装提示 */
 export interface AcpProviderInfo {
