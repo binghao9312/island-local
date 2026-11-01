@@ -28,6 +28,8 @@
 export interface TimeTabProps {
   /** 完整时间字符串 (YY-MM-DD HH:MM:SS) */
   fullTimeStr: string;
+  /** 可选的最近日程覆盖项（主要用于测试覆盖） */
+  upcomingEvent?: { timeStr: string; title: string } | null;
 }
 
 /** ActionButtons 组件 Props */
