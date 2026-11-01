@@ -284,7 +284,7 @@ export interface MaxExpandNavItem {
 
 export type MaxExpandNavLayoutConfig = MaxExpandNavItem[];
 
-export const MAXEXPAND_CONFIGURABLE_TABS: string[] = ['todo', 'urlFavorites', 'album', 'mail', 'localFileSearch', 'clipboardHistory', 'aiChat', 'memo', 'countdown', 'alarm', 'toolbox', 'miniGame', 'stock', 'cli', 'calculator', 'worldClock', 'calendar', 'song'];
+export const MAXEXPAND_CONFIGURABLE_TABS: string[] = ['todo', 'urlFavorites', 'album', 'mail', 'localFileSearch', 'clipboardHistory', 'aiChat', 'memo', 'countdown', 'alarm', 'toolbox', 'stock', 'cli', 'calculator', 'worldClock', 'calendar', 'song'];
 
 export const MAXEXPAND_ALWAYS_VISIBLE_TABS: Set<string> = new Set<string>();
 
@@ -300,7 +300,6 @@ export const MAXEXPAND_TAB_LABELS: Record<string, string> = {
   countdown: '倒数日',
   alarm: '闹钟',
   toolbox: '工具箱',
-  miniGame: '小游戏',
   stock: '股票行情',
   cli: 'CLI 控制台',
   calculator: '计算器',

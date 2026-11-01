@@ -39,7 +39,6 @@ import { CountdownTab } from './components/countdown';
 import { MemoTab } from './components/memo/components/MemoTab';
 import { AlarmTab } from './components/alarm/components/AlarmTab';
 import { ToolboxTab } from './components/toolbox';
-import { MiniGameTab } from './components/miniGame';
 import { StockTab } from './components/stock';
 import { CliTab } from './components/cli';
 import { CalculatorTab } from './components/calculator';
@@ -60,7 +59,6 @@ function renderEagerActiveTab(activeTab: MaxExpandTab, loadingFallback: ReactEle
   if (activeTab === 'countdown') return <CountdownTab />;
   if (activeTab === 'alarm') return <AlarmTab />;
   if (activeTab === 'toolbox') return <ToolboxTab />;
-  if (activeTab === 'miniGame') return <MiniGameTab />;
   if (activeTab === 'stock') return <StockTab />;
   if (activeTab === 'cli') return <CliTab />;
   if (activeTab === 'calculator') return <CalculatorTab />;

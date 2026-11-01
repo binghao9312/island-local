@@ -267,24 +267,37 @@ describe('normalizeMaxExpandNavLayoutConfig', () => {
 
   it('preserves ordering from input', () => {
     const input = [
-      { id: 'miniGame', visible: true },
+      { id: 'stock', visible: true },
       { id: 'todo', visible: true },
       { id: 'aiChat', visible: true },
       { id: 'album', visible: true },
     ];
     const result = mod.normalizeMaxExpandNavLayoutConfig(input);
-    expect(result.map((i) => i.id).slice(0, 4)).toEqual(['miniGame', 'todo', 'aiChat', 'album']);
+    expect(result.map((i) => i.id).slice(0, 4)).toEqual(['stock', 'todo', 'aiChat', 'album']);
   });
 
   it('allows previously fixed tabs to be hidden', () => {
     const input = [
       { id: 'aiChat', visible: false },
-      { id: 'miniGame', visible: false },
+      { id: 'stock', visible: false },
       { id: 'todo', visible: true },
     ];
     const result = mod.normalizeMaxExpandNavLayoutConfig(input);
     expect(result.find((i) => i.id === 'aiChat')?.visible).toBe(false);
-    expect(result.find((i) => i.id === 'miniGame')?.visible).toBe(false);
+    expect(result.find((i) => i.id === 'stock')?.visible).toBe(false);
+  });
+
+  it('drops the removed legacy miniGame id from saved layouts without crashing', () => {
+    const input = [
+      { id: 'miniGame', visible: true },
+      { id: 'aiChat', visible: false },
+      { id: 'todo', visible: true },
+    ];
+    const result = mod.normalizeMaxExpandNavLayoutConfig(input);
+    expect(result.map((i) => i.id)).not.toContain('miniGame');
+    expect(result.slice(0, 2).map((i) => i.id)).toEqual(['aiChat', 'todo']);
+    expect(result.find((i) => i.id === 'aiChat')?.visible).toBe(false);
+    expect([...result.map((i) => i.id)].sort()).toEqual([...mod.MAXEXPAND_CONFIGURABLE_TABS].sort());
   });
 
   it('respects visible=false when at least one page remains visible', () => {

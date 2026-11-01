@@ -1338,101 +1338,6 @@
       "confirm": "確認"
     }
   },
-  "miniGameTab": {
-    "sidebar": {
-      "index": "ナビゲーション"
-    },
-    "index": {
-      "title": "クイックナビゲーション",
-      "reset": "リセット",
-      "edit": "編集",
-      "done": "完了",
-      "searchPlaceholder": "ゲームを検索...",
-      "searchClear": "検索をクリア",
-      "searchEmpty": "一致するゲームはありません",
-      "hintEdit": "カードをドラッグして並べ替え、「完了」をクリックして保存します。",
-      "hintView": "カードをクリックすると対応するゲームに移動します。",
-      "ariaNav": "ミニゲームのクイックナビゲーション",
-      "removeCard": "{{label}}を削除",
-      "ariaAddPanel": "追加可能なナビゲーションカード",
-      "addableTitle": "追加可能なカード",
-      "emptyAddable": "追加できるカードはありません"
-    },
-    "nav": {
-      "game-2048": {
-        "label": "2048",
-        "desc": "数字を合体させる定番のミニゲーム。スコアとランキングに対応。"
-      },
-      "game-gomoku": {
-        "label": "五目並べ",
-        "desc": "ローカルで2人対戦する五目並べ。先に石を5つ並べた方が勝ちです。"
-      }
-    },
-    "games": {
-      "2048": "2048",
-      "gomoku": "五目並べ"
-    },
-    "comingSoon": "近日公開",
-    "unknownUser": "不明なユーザー",
-    "loginRequired": "スコアとランキングを見るにはログインしてください",
-    "loading": "読み込み中...",
-    "loadError": "データの読み込みに失敗しました",
-    "retry": "再試行",
-    "refresh": "更新",
-    "myBest": "自己ベスト",
-    "highScore": "ハイスコア",
-    "duration": "所要時間",
-    "moves": "手数",
-    "plays": "プレイ回数",
-    "noRecord": "記録はまだありません",
-    "leaderboard": "ランキング",
-    "myRank": "あなたの順位",
-    "leaderboardRestartHint": "再起動後に開始したゲームのスコアはランキングに反映されません。",
-    "rankUnavailable": "ランク外",
-    "lbUser": "ユーザー",
-    "lbScore": "スコア",
-    "lbEmpty": "ランキングデータはまだありません",
-    "auth": {
-      "entryTitle": "ログインしてランキングとスコアを表示",
-      "gotoLogin": "ログイン",
-      "gotoRegister": "新規登録",
-      "hint": "ログインするとスコアを同期し、ランキングを確認して他のプレイヤーと競えます。"
-    },
-    "game2048": {
-      "score": "スコア",
-      "best": "ベスト",
-      "newGame": "新しいゲーム",
-      "gameOver": "ゲームオーバー",
-      "tryAgain": "もう一度プレイ",
-      "hint": "矢印キーまたはWASDでタイルをスライド"
-    },
-    "gomoku": {
-      "hint": "黒と白が交互に石を置き、先に5つ並べた方が勝ちです。",
-      "mode": "対戦モード",
-      "modePve": "AIと対戦",
-      "modePvp": "人と対戦",
-      "difficulty": "対戦の難易度を選択",
-      "difficultyNovice": "入門",
-      "difficultyEasy": "初級",
-      "difficultyHard": "上級",
-      "difficultyExpert": "達人",
-      "difficultyMaster": "名人",
-      "status": "状態",
-      "thinking": "思考中...",
-      "turnBlack": "黒の手番",
-      "turnWhite": "白の手番",
-      "winnerBlack": "黒の勝ち",
-      "winnerWhite": "白の勝ち",
-      "victory": "勝利",
-      "defeat": "敗北",
-      "draw": "引き分け",
-      "restart": "最初から",
-      "highlightLastMove": "直前の手を強調表示",
-      "unrankedHint": "五目並べはまだオンラインランキングに対応していません。",
-      "boardAria": "五目並べの盤面",
-      "cellAria": "{{row}}行{{col}}列"
-    }
-  },
   "stockTab": {
     "title": "株式相場",
     "subtitle": "銘柄コードを検索し、リアルタイムの株価、騰落率、本格的なローソク足チャートを表示します。",
@@ -1602,7 +1507,6 @@
       "countdown": "予定とカウントダウンの表示を準備しています。",
       "alarm": "アラーム一覧とリマインダーの設定画面を準備しています。",
       "toolbox": "ツール一覧とショートカットを準備しています。",
-      "miniGame": "ゲーム一覧とプレイ画面を準備しています。",
       "stock": "株価の表示を準備しています。",
       "cli": "セッション一覧とアクティビティログを準備しています。",
       "calculator": "電卓と入力欄を準備しています。",
@@ -1624,7 +1528,6 @@
       "countdown": "カウントダウン",
       "alarm": "アラーム",
       "toolbox": "ツールボックス",
-      "miniGame": "ミニゲーム",
       "cli": "CLI コンソール",
       "stock": "株価",
       "calculator": "電卓",
@@ -3197,7 +3100,6 @@
           "countdown": "カウントダウン",
           "alarm": "アラーム",
           "toolbox": "ツールボックス",
-          "miniGame": "ミニゲーム",
           "stock": "株価情報",
           "cli": "CLI コンソール",
           "calculator": "電卓",

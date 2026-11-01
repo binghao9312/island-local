@@ -39,7 +39,6 @@ import { MemoTab } from '../components/memo/components/MemoTab';
 import { CountdownTab } from '../components/countdown';
 import { AlarmTab } from '../components/alarm/components/AlarmTab';
 import { ToolboxTab } from '../components/toolbox';
-import { MiniGameTab } from '../components/miniGame';
 import { StockTab } from '../components/stock';
 import { CliTab } from '../components/cli';
 import { CalculatorTab } from '../components/calculator';
@@ -59,7 +58,6 @@ vi.mock('../components/memo/components/MemoTab', () => ({ MemoTab: () => null })
 vi.mock('../components/countdown', () => ({ CountdownTab: () => null }));
 vi.mock('../components/alarm/components/AlarmTab', () => ({ AlarmTab: () => null }));
 vi.mock('../components/toolbox', () => ({ ToolboxTab: () => null }));
-vi.mock('../components/miniGame', () => ({ MiniGameTab: () => null }));
 vi.mock('../components/stock', () => ({ StockTab: () => null }));
 vi.mock('../components/cli', () => ({ CliTab: () => null }));
 vi.mock('../components/calculator', () => ({ CalculatorTab: () => null }));
@@ -68,7 +66,7 @@ vi.mock('../components/calendar', () => ({ CalendarTab: () => null }));
 vi.mock('../components/song', () => ({ default: () => null }));
 vi.mock('../components/setting', () => ({ SettingsTab: () => null }));
 describe('MaxExpandContentEager', () => {
-  const cases = [['aiChat', AiChatTab], ['todo', TodoTab], ['urlFavorites', UrlFavoritesTab], ['localFileSearch', LocalFileSearchTab], ['clipboardHistory', ClipboardHistoryTab], ['album', AlbumTab], ['mail', MailTab], ['memo', MemoTab], ['countdown', CountdownTab], ['alarm', AlarmTab], ['toolbox', ToolboxTab], ['miniGame', MiniGameTab], ['stock', StockTab], ['cli', CliTab], ['calculator', CalculatorTab], ['worldClock', WorldClockTab], ['calendar', CalendarTab], ['song', SongTab], ['settings', SettingsTab]] as const;
+  const cases = [['aiChat', AiChatTab], ['todo', TodoTab], ['urlFavorites', UrlFavoritesTab], ['localFileSearch', LocalFileSearchTab], ['clipboardHistory', ClipboardHistoryTab], ['album', AlbumTab], ['mail', MailTab], ['memo', MemoTab], ['countdown', CountdownTab], ['alarm', AlarmTab], ['toolbox', ToolboxTab], ['stock', StockTab], ['cli', CliTab], ['calculator', CalculatorTab], ['worldClock', WorldClockTab], ['calendar', CalendarTab], ['song', SongTab], ['settings', SettingsTab]] as const;
   it.each(cases)('renders the real routing branch for %s', (tab, child) => {
     const tree = render(Component);
     const renderActiveTab = value(tree, MaxExpandContentShell, 'renderActiveTab') as (tab: string, fallback: ReactElement, ready: boolean) => ReactElement | null;

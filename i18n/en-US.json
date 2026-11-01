@@ -1338,101 +1338,6 @@
       "confirm": "Confirm"
     }
   },
-  "miniGameTab": {
-    "sidebar": {
-      "index": "Navigation"
-    },
-    "index": {
-      "title": "Quick Navigation",
-      "reset": "Reset",
-      "edit": "Edit",
-      "done": "Done",
-      "searchPlaceholder": "Search game items...",
-      "searchClear": "Clear search",
-      "searchEmpty": "No matching game items",
-      "hintEdit": "Drag cards to reorder, then click Done to save.",
-      "hintView": "Click a card to jump to the corresponding game.",
-      "ariaNav": "Mini game quick navigation",
-      "removeCard": "Remove {{label}}",
-      "ariaAddPanel": "Addable navigation cards",
-      "addableTitle": "Addable cards",
-      "emptyAddable": "No cards available to add"
-    },
-    "nav": {
-      "game-2048": {
-        "label": "2048",
-        "desc": "Classic merge-number mini game with score and leaderboard support."
-      },
-      "game-gomoku": {
-        "label": "Gomoku",
-        "desc": "Local two-player gomoku match; connect five to win."
-      }
-    },
-    "games": {
-      "2048": "2048",
-      "gomoku": "Gomoku"
-    },
-    "comingSoon": "Coming Soon",
-    "unknownUser": "Unknown User",
-    "loginRequired": "Please log in to view scores and leaderboard",
-    "loading": "Loading...",
-    "loadError": "Failed to load data",
-    "retry": "Retry",
-    "refresh": "Refresh",
-    "myBest": "My Best",
-    "highScore": "High Score",
-    "duration": "Duration",
-    "moves": "Moves",
-    "plays": "Plays",
-    "noRecord": "No records yet",
-    "leaderboard": "Leaderboard",
-    "myRank": "Your Rank",
-    "leaderboardRestartHint": "Scores from games started after a restart will not be counted on the leaderboard.",
-    "rankUnavailable": "Unranked",
-    "lbUser": "User",
-    "lbScore": "Score",
-    "lbEmpty": "No leaderboard data yet",
-    "auth": {
-      "entryTitle": "Log in to view leaderboard and scores",
-      "gotoLogin": "Log In",
-      "gotoRegister": "Register",
-      "hint": "Log in to sync your scores, view the leaderboard, and compete with other players."
-    },
-    "game2048": {
-      "score": "Score",
-      "best": "Best",
-      "newGame": "New Game",
-      "gameOver": "Game Over",
-      "tryAgain": "Try Again",
-      "hint": "Use arrow keys or WASD to slide tiles"
-    },
-    "gomoku": {
-      "hint": "Black and white take turns; connect five to win.",
-      "mode": "Match Mode",
-      "modePve": "Human vs AI",
-      "modePvp": "Human vs Human",
-      "difficulty": "Select Match Difficulty",
-      "difficultyNovice": "Novice",
-      "difficultyEasy": "Easy",
-      "difficultyHard": "Hard",
-      "difficultyExpert": "Expert",
-      "difficultyMaster": "Master",
-      "status": "Status",
-      "thinking": "Thinking...",
-      "turnBlack": "Black to move",
-      "turnWhite": "White to move",
-      "winnerBlack": "Black wins",
-      "winnerWhite": "White wins",
-      "victory": "Victory",
-      "defeat": "Defeat",
-      "draw": "Draw",
-      "restart": "Restart",
-      "highlightLastMove": "Highlight Last Move",
-      "unrankedHint": "Gomoku is not connected to online leaderboard yet.",
-      "boardAria": "Gomoku board",
-      "cellAria": "Row {{row}}, column {{col}}"
-    }
-  },
   "stockTab": {
     "title": "Stock Market",
     "subtitle": "Search symbols and view live prices, change rates, and professional candlestick charts.",
@@ -1602,7 +1507,6 @@
       "countdown": "Preparing events and countdown views.",
       "alarm": "Preparing the alarm list and reminder controls.",
       "toolbox": "Preparing the tool list and shortcuts.",
-      "miniGame": "Preparing the game list and play area.",
       "stock": "Preparing the stock market view.",
       "cli": "Preparing sessions and activity logs.",
       "calculator": "Preparing the calculator and input controls.",
@@ -1624,7 +1528,6 @@
       "countdown": "Countdown",
       "alarm": "Alarm",
       "toolbox": "Toolbox",
-      "miniGame": "Mini Game",
       "cli": "CLI Console",
       "stock": "Stock Market",
       "calculator": "Calculator",
@@ -3197,7 +3100,6 @@
           "countdown": "Countdown",
           "alarm": "Alarm",
           "toolbox": "Toolbox",
-          "miniGame": "Mini Game",
           "stock": "Stock Market",
           "cli": "CLI Console",
           "calculator": "Calculator",

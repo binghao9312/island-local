@@ -41,7 +41,6 @@ const CountdownTab = lazy(() => import('./components/countdown').then((module) =
 const MemoTab = lazy(() => import('./components/memo/components/MemoTab').then((module) => ({ default: module.MemoTab })));
 const AlarmTab = lazy(() => import('./components/alarm/components/AlarmTab').then((module) => ({ default: module.AlarmTab })));
 const ToolboxTab = lazy(() => import('./components/toolbox').then((module) => ({ default: module.ToolboxTab })));
-const MiniGameTab = lazy(() => import('./components/miniGame').then((module) => ({ default: module.MiniGameTab })));
 const StockTab = lazy(() => import('./components/stock').then((module) => ({ default: module.StockTab })));
 const CliTab = lazy(() => import('./components/cli').then((module) => ({ default: module.CliTab })));
 const CalculatorTab = lazy(() => import('./components/calculator').then((module) => ({ default: module.CalculatorTab })));
@@ -63,7 +62,6 @@ function renderLazyActiveTab(activeTab: MaxExpandTab, loadingFallback: ReactElem
   if (activeTab === 'countdown') content = <CountdownTab />;
   if (activeTab === 'alarm') content = <AlarmTab />;
   if (activeTab === 'toolbox') content = <ToolboxTab />;
-  if (activeTab === 'miniGame') content = <MiniGameTab />;
   if (activeTab === 'stock') content = <StockTab />;
   if (activeTab === 'cli') content = <CliTab />;
   if (activeTab === 'calculator') content = <CalculatorTab />;

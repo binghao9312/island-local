@@ -40,7 +40,6 @@ export const MAX_EXPAND_APPS = {
   countdown: { icon: SvgIcon.COUNTDOWN },
   alarm: { icon: SvgIcon.TIMER },
   toolbox: { icon: SvgIcon.PLUGIN },
-  miniGame: { icon: SvgIcon.INTERACTION },
   stock: { icon: SvgIcon.STOCK_CHOOSE },
   cli: { icon: SvgIcon.CODING },
   calculator: { icon: SvgIcon.CALCULATOR },

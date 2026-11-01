@@ -1338,101 +1338,6 @@
       "confirm": "确认"
     }
   },
-  "miniGameTab": {
-    "sidebar": {
-      "index": "快速导航"
-    },
-    "index": {
-      "title": "快速导航",
-      "reset": "恢复默认",
-      "edit": "编辑",
-      "done": "完成",
-      "searchPlaceholder": "搜索游戏项...",
-      "searchClear": "清空搜索",
-      "searchEmpty": "没有找到匹配的游戏项",
-      "hintEdit": "拖拽卡片可调整排列顺序，点击「完成」保存。",
-      "hintView": "点击卡片可快速跳转到对应游戏。",
-      "ariaNav": "小游戏快速导航",
-      "removeCard": "删除 {{label}}",
-      "ariaAddPanel": "可添加导航卡片",
-      "addableTitle": "可添加卡片",
-      "emptyAddable": "当前没有可添加的卡片"
-    },
-    "nav": {
-      "game-2048": {
-        "label": "2048",
-        "desc": "经典数字合并小游戏，支持成绩与排行榜。"
-      },
-      "game-gomoku": {
-        "label": "五子棋",
-        "desc": "本地双人五子棋对战，先连成五子获胜。"
-      }
-    },
-    "games": {
-      "2048": "2048",
-      "gomoku": "五子棋"
-    },
-    "comingSoon": "即将上线",
-    "unknownUser": "未知用户",
-    "loginRequired": "请先登录以查看成绩与排行榜",
-    "loading": "加载中...",
-    "loadError": "数据加载失败",
-    "retry": "重试",
-    "refresh": "刷新",
-    "myBest": "个人最高分",
-    "highScore": "最高分",
-    "duration": "用时",
-    "moves": "步数",
-    "plays": "游玩次数",
-    "noRecord": "暂无记录",
-    "leaderboard": "排行榜",
-    "myRank": "您的排名",
-    "leaderboardRestartHint": "重启后进行的对局成绩不会计入排行榜，请保持当前会话完成游戏。",
-    "rankUnavailable": "未上榜",
-    "lbUser": "用户",
-    "lbScore": "分数",
-    "lbEmpty": "暂无排行数据",
-    "auth": {
-      "entryTitle": "登录后查看排行榜与个人成绩",
-      "gotoLogin": "前往登录",
-      "gotoRegister": "前往注册",
-      "hint": "登录后可同步游戏成绩、查看排行榜并与其他玩家竞争。"
-    },
-    "game2048": {
-      "score": "分数",
-      "best": "最高",
-      "newGame": "新游戏",
-      "gameOver": "游戏结束",
-      "tryAgain": "再来一局",
-      "hint": "使用方向键或 WASD 滑动方块"
-    },
-    "gomoku": {
-      "hint": "黑白双方轮流落子，先连成五子者获胜。",
-      "mode": "对战模式",
-      "modePve": "人机对战",
-      "modePvp": "人人对战",
-      "difficulty": "选择对局难度",
-      "difficultyNovice": "新手",
-      "difficultyEasy": "简单",
-      "difficultyHard": "困难",
-      "difficultyExpert": "专家",
-      "difficultyMaster": "大师",
-      "status": "当前状态",
-      "thinking": "正在思考",
-      "turnBlack": "黑棋回合",
-      "turnWhite": "白棋回合",
-      "winnerBlack": "黑棋获胜",
-      "winnerWhite": "白棋获胜",
-      "victory": "胜利",
-      "defeat": "失败",
-      "draw": "平局",
-      "restart": "重新开始",
-      "highlightLastMove": "高亮上一手",
-      "unrankedHint": "五子棋暂不接入在线排行榜。",
-      "boardAria": "五子棋棋盘",
-      "cellAria": "第 {{row}} 行第 {{col}} 列"
-    }
-  },
   "stockTab": {
     "title": "股票行情",
     "subtitle": "搜索股票代码并查看实时价格、涨跌幅和专业 K 线。",
@@ -1602,7 +1507,6 @@
       "countdown": "准备日期事件与倒数日视图。",
       "alarm": "准备闹钟列表与提醒设置。",
       "toolbox": "准备工具列表与快捷入口。",
-      "miniGame": "准备游戏列表与游玩界面。",
       "stock": "准备股票行情展示界面。",
       "cli": "准备会话列表与运行记录。",
       "calculator": "准备计算面板与输入控件。",
@@ -1624,7 +1528,6 @@
       "countdown": "倒数日",
       "alarm": "闹钟",
       "toolbox": "工具箱",
-      "miniGame": "小游戏",
       "cli": "CLI 控制台",
       "stock": "股票行情",
       "calculator": "计算器",
@@ -3197,7 +3100,6 @@
           "countdown": "倒数日",
           "alarm": "闹钟",
           "toolbox": "工具箱",
-          "miniGame": "小游戏",
           "stock": "股票行情",
           "cli": "CLI 控制台",
           "calculator": "计算器",
