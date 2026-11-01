@@ -807,23 +807,21 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
   min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
+  overflow: hidden;
 
 }
 
-/* 条目按内容高度排布，不参与剩余高度分配，溢出时由列表滚动。 */
+/* 条目按内容高度紧凑排布，两个供应商时无需滚动。 */
 .ov-dash-agent-quota-item {
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   justify-content: flex-start;
   min-width: 0;
-  padding: 7px 9px;
+  padding: 5px 8px;
   background: rgb(var(--color-text-rgb), .035);
   border-radius: 7px;
 
@@ -890,7 +888,7 @@
 
 .ov-dash-agent-quota-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 28px;
+  grid-template-columns: auto minmax(36px, 1fr) 28px auto;
   gap: 6px;
   align-items: center;
 
@@ -912,9 +910,9 @@
 
 }
 
-/* 重置时间独占一行，位于进度条下方。 */
+/* 重置时间与进度条、百分比同一行，放在最右侧。 */
 .ov-dash-agent-quota-reset {
-  grid-column: 1 / -1;
+  text-align: right;
   overflow: hidden;
   font-size: calc(9px * var(--ov-agent-quota-scale, 1));
   color: rgb(var(--color-text-rgb), .4);
