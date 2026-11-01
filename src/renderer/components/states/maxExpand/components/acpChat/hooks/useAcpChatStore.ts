@@ -96,6 +96,10 @@ export const useAcpChatStore = create<AcpChatStore>((set, get) => ({
   },
 
   selectProvider: (providerId) => {
+    const previous = get().activeProvider;
+    if (previous !== providerId) {
+      void window.api.acpStop(previous);
+    }
     try {
       localStorage.setItem(ACTIVE_PROVIDER_KEY, providerId);
     } catch {

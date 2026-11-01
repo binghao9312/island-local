@@ -291,6 +291,7 @@ const TRANSPORT_ROUTES = [
   ['acpReset', 'acp:reset', 1, 'invoke'],
   ['acpPrompt', 'acp:prompt', 3, 'invoke'],
   ['acpCancel', 'acp:cancel', 1, 'invoke'],
+  ['acpStop', 'acp:stop', 1, 'invoke'],
   ['acpPermissionResolve', 'acp:permission:resolve', 2, 'invoke']
 ] as const satisfies readonly (readonly [string, string, number, 'invoke' | 'send'])[];
 

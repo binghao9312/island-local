@@ -85,6 +85,10 @@ export function registerAcpIpcHandlers(manager: AcpManager): void {
     const id = parseProviderId(providerId);
     if (id) manager.cancel(id);
   });
+  ipcMain.handle('acp:stop', (_event, providerId: unknown): void => {
+    const id = parseProviderId(providerId);
+    if (id) manager.stop(id);
+  });
   ipcMain.handle('acp:permission:resolve', (_event, requestId: unknown, optionId: unknown): boolean => {
     if (typeof requestId !== 'string') return false;
     return manager.resolvePermission(requestId, typeof optionId === 'string' ? optionId : null);

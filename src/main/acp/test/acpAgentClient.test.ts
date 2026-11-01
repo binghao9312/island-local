@@ -28,7 +28,7 @@ import { EventEmitter } from 'node:events';
 import { PassThrough } from 'node:stream';
 import { describe, expect, it, vi } from 'vitest';
 import type { AcpEvent } from '../../../shared/acpTypes';
-import { AcpAgentClient } from '../acpAgentClient';
+import { AcpAgentClient, defaultKillProcessTree } from '../acpAgentClient';
 import type { AcpChildProcess } from '../acpAgentClient';
 import { ACP_PROVIDER_SPECS } from '../providers';
 
@@ -323,5 +323,101 @@ describe('AcpAgentClient process lifecycle', () => {
     client.stop();
     expect(agent.kill).toHaveBeenCalled();
     expect(client.status).toBe('idle');
+  });
+
+  it('invokes custom killFn to terminate whole process tree on stop', async () => {
+    const agent = happyAgent();
+    const killFn = vi.fn();
+    const client = new AcpAgentClient({
+      spec: ACP_PROVIDER_SPECS.omp,
+      cwd: '/home/u',
+      emit: () => {},
+      spawnFn: () => agent as unknown as AcpChildProcess,
+      resolvePath: () => '/bin/omp',
+      killFn,
+    });
+    await client.start();
+    client.stop();
+    expect(killFn).toHaveBeenCalledWith(agent);
+    expect(client.status).toBe('idle');
+  });
+
+  it('defaultKillProcessTree falls back to child.kill() when taskkill fails or on non-win32', () => {
+    const fakeChild = {
+      pid: 999999,
+      kill: vi.fn(),
+    } as unknown as AcpChildProcess;
+    defaultKillProcessTree(fakeChild);
+    expect(fakeChild.kill).toHaveBeenCalled();
+  });
+
+  it('auto-stops after 10 minutes of inactivity and auto-starts on next prompt', async () => {
+    vi.useFakeTimers();
+    try {
+      const first = happyAgent();
+      const second = happyAgent();
+      second.responders.set('session/prompt', () => ({ result: { stopReason: 'end_turn' } }));
+      const queue = [first, second];
+      const client = new AcpAgentClient({
+        spec: ACP_PROVIDER_SPECS.omp,
+        cwd: '/home/u',
+        emit: () => {},
+        spawnFn: () => queue.shift() as unknown as AcpChildProcess,
+        resolvePath: () => '/bin/omp',
+      });
+      await client.start();
+      expect(client.status).toBe('ready');
+
+      // 10 minutes of inactivity
+      vi.advanceTimersByTime(10 * 60 * 1000);
+      expect(client.status).toBe('idle');
+      expect(first.kill).toHaveBeenCalled();
+
+      // Next prompt auto-starts
+      const promptPromise = client.prompt('hello again');
+      await vi.advanceTimersByTimeAsync(10);
+      const result = await promptPromise;
+      expect(result.ok).toBe(true);
+      expect(client.status).toBe('ready');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('does not auto-stop while a prompt is in flight', async () => {
+    vi.useFakeTimers();
+    try {
+      const agent = happyAgent();
+      // Return undefined so FakeAgent does not reply immediately
+      agent.responders.set('session/prompt', () => undefined);
+      const client = new AcpAgentClient({
+        spec: ACP_PROVIDER_SPECS.omp,
+        cwd: '/home/u',
+        emit: () => {},
+        spawnFn: () => agent as unknown as AcpChildProcess,
+        resolvePath: () => '/bin/omp',
+      });
+      await client.start();
+      const promptPromise = client.prompt('in flight');
+      await vi.advanceTimersByTimeAsync(10);
+
+      // Advance 10 minutes while prompt is in flight
+      vi.advanceTimersByTime(10 * 60 * 1000);
+      expect(client.status).toBe('ready');
+      expect(agent.kill).not.toHaveBeenCalled();
+
+      // Complete prompt
+      const promptCall = agent.calls('session/prompt')[0];
+      agent.reply(promptCall.id, { result: { stopReason: 'end_turn' } });
+      await vi.advanceTimersByTimeAsync(10);
+      await promptPromise;
+      expect(client.status).toBe('ready');
+      // Now 10 minutes of idle elapses
+      vi.advanceTimersByTime(10 * 60 * 1000);
+      expect(client.status).toBe('idle');
+      expect(agent.kill).toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

@@ -1641,6 +1641,8 @@ const api = {
   },
   /** 取消供应商当前一轮 */
   acpCancel: (providerId: AcpProviderId): Promise<void> => ipcRenderer.invoke('acp:cancel', providerId),
+  /** 终止供应商进程 */
+  acpStop: (providerId: AcpProviderId): Promise<void> => ipcRenderer.invoke('acp:stop', providerId),
   /** 回复权限请求，optionId 为 null 表示拒绝 */
   acpPermissionResolve: (requestId: string, optionId: string | null): Promise<boolean> => {
     return ipcRenderer.invoke('acp:permission:resolve', requestId, optionId);

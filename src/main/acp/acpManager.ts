@@ -33,7 +33,7 @@ import type {
   AcpStartResult,
 } from '../../shared/acpTypes';
 import { AcpAgentClient } from './acpAgentClient';
-import type { AcpSpawnFn } from './acpAgentClient';
+import type { AcpChildProcess, AcpSpawnFn } from './acpAgentClient';
 import { ACP_PROVIDER_SPECS, resolveCommand } from './providers';
 
 /** 管理器构造参数 */
@@ -48,6 +48,10 @@ export interface AcpManagerOptions {
   spawnFn?: AcpSpawnFn;
   /** 测试时注入的命令解析函数 */
   resolvePath?: (command: string) => string | null;
+  /** 测试时注入的进程树查杀函数 */
+  killFn?: (child: AcpChildProcess) => void;
+  /** 空闲自动停止毫秒数，默认 10 分钟 */
+  idleTimeoutMs?: number;
 }
 
 /** 每个供应商一个客户端，切换供应商不会终止另一个的会话 */
@@ -106,6 +110,13 @@ export class AcpManager {
   }
 
   /**
+   * 终止指定供应商的进程
+   * @param providerId - 供应商标识
+   */
+  stop(providerId: AcpProviderId): void {
+    this.clients.get(providerId)?.stop();
+  }
+  /**
    * 回复权限请求
    * @param requestId - 请求标识
    * @param optionId - 选中的选项，null 表示拒绝
@@ -143,6 +154,8 @@ export class AcpManager {
       clientVersion: this.options.clientVersion,
       spawnFn: this.options.spawnFn,
       resolvePath: this.options.resolvePath,
+      killFn: this.options.killFn,
+      idleTimeoutMs: this.options.idleTimeoutMs,
     });
     this.clients.set(providerId, created);
     return created;

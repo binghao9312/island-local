@@ -291,6 +291,7 @@ interface ExpectedApi {
   acpReset: (providerId: AcpProviderId) => Promise<AcpStartResult>;
   acpPrompt: (providerId: AcpProviderId, text: string, images: AcpImageData[]) => Promise<AcpPromptResult>;
   acpCancel: (providerId: AcpProviderId) => Promise<void>;
+  acpStop: (providerId: AcpProviderId) => Promise<void>;
   acpPermissionResolve: (requestId: string, optionId: string | null) => Promise<boolean>;
   onAcpEvent: (callback: (event: AcpEvent) => void) => () => void;
 }
