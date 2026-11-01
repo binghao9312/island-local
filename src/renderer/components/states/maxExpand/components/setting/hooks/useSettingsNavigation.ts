@@ -73,7 +73,7 @@ export function useSettingsNavigation(options: SettingsNavigationOptions) {
   const [activeTab, setActiveTab] = useSettingsSidebarTabState();
   const { sessionToken, hasLoginSession } = useUserSessionState();
   const [appSettingsPage, setAppSettingsPage] = useState<AppSettingsPageKey>('layout-preview');
-  const [weatherSettingsPage, setWeatherSettingsPage] = useState<WeatherSettingsPageKey>('location');
+  const [weatherSettingsPage, setWeatherSettingsPage] = useState<WeatherSettingsPageKey>('provider');
   const [mailSettingsPage, setMailSettingsPage] = useState<MailSettingsPageKey>('account');
   const [musicSettingsPage, setMusicSettingsPage] = useState<MusicSettingsPageKey>('whitelist');
   const [networkSettingsPage, setNetworkSettingsPage] = useState<NetworkSettingsPageKey>('timeout');

@@ -519,11 +519,11 @@
       "empty": {
         "noKey": {
           "title": "尚未设置 CWA 授权码",
-          "hint": "到 设置 → 天气 → 接口配置 填入中央气象署授权码"
+          "hint": "到 设置 → 天气 → 数据源与授权码 填入中央气象署授权码"
         },
         "invalidKey": {
           "title": "CWA 授权码无效",
-          "hint": "请到 设置 → 天气 → 接口配置 重新填写授权码"
+          "hint": "请到 设置 → 天气 → 数据源与授权码 重新填写授权码"
         },
         "outOfRegion": {
           "title": "当前位置不在台湾",
@@ -2785,7 +2785,7 @@
     },
     "weatherPages": {
       "location": "定位配置",
-      "provider": "接口配置"
+      "provider": "数据源与授权码"
     },
     "musicPages": {
       "whitelist": "白名单",

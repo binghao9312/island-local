@@ -519,11 +519,11 @@
       "empty": {
         "noKey": {
           "title": "尚未設定 CWA 授權碼",
-          "hint": "到 設定 → 天氣 → 介面設定 填入中央氣象署授權碼"
+          "hint": "到 設定 → 天氣 → 資料來源與授權碼 填入中央氣象署授權碼"
         },
         "invalidKey": {
           "title": "CWA 授權碼無效",
-          "hint": "請到 設定 → 天氣 → 介面設定 重新填寫授權碼"
+          "hint": "請到 設定 → 天氣 → 資料來源與授權碼 重新填寫授權碼"
         },
         "outOfRegion": {
           "title": "目前位置不在臺灣",
@@ -2785,7 +2785,7 @@
     },
     "weatherPages": {
       "location": "定位設定",
-      "provider": "介面設定"
+      "provider": "資料來源與授權碼"
     },
     "musicPages": {
       "whitelist": "白名單",

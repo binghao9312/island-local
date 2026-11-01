@@ -519,11 +519,11 @@
       "empty": {
         "noKey": {
           "title": "CWA key not set",
-          "hint": "Open Settings → Weather → API and enter your CWA key"
+          "hint": "Go to Settings → Weather → Data source & key to enter your CWA key"
         },
         "invalidKey": {
           "title": "CWA key is invalid",
-          "hint": "Re-enter it in Settings → Weather → API"
+          "hint": "Go to Settings → Weather → Data source & key to re-enter your CWA key"
         },
         "outOfRegion": {
           "title": "Location is outside Taiwan",
@@ -2785,7 +2785,7 @@
     },
     "weatherPages": {
       "location": "Location",
-      "provider": "Provider"
+      "provider": "Data source & key"
     },
     "musicPages": {
       "whitelist": "Whitelist",

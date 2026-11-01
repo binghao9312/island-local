@@ -321,10 +321,10 @@ export function normalizeMaxExpandNavLayoutConfig(raw: unknown): MaxExpandNavLay
 }
 
 export const APP_SETTINGS_PAGES: AppSettingsPageKey[] = ['layout-preview', 'expand-layout', 'maxexpand-layout', 'album', 'hide-process-list', 'position', 'theme', 'language', 'behavior', 'animation', 'url-parser', 'clipboard-history', 'alarm', 'break-reminder', 'autostart', 'sound', 'notification', 'performance', 'performance-monitor', 'screenshot-settings'];
-export const WEATHER_SETTINGS_PAGES: WeatherSettingsPageKey[] = ['location', 'provider'];
+export const WEATHER_SETTINGS_PAGES: WeatherSettingsPageKey[] = ['provider', 'location'];
 export const WEATHER_SETTINGS_PAGE_LABELS: Record<WeatherSettingsPageKey, string> = {
   location: '定位配置',
-  provider: '接口配置',
+  provider: '数据源与授权码',
 };
 export const MAIL_SETTINGS_PAGES: MailSettingsPageKey[] = ['account', 'imap', 'preferences'];
 export const MAIL_SETTINGS_PAGE_LABELS: Record<MailSettingsPageKey, string> = {

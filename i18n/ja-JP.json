@@ -519,11 +519,11 @@
       "empty": {
         "noKey": {
           "title": "CWA キーが未設定です",
-          "hint": "設定 → 天気 → API設定 で CWA キーを入力してください"
+          "hint": "設定 → 天気 → データソースとキー で CWA 認証キーを入力してください"
         },
         "invalidKey": {
           "title": "CWA キーが無効です",
-          "hint": "設定 → 天気 → API設定 でキーを入力し直してください"
+          "hint": "設定 → 天気 → データソースとキー で CWA 認証キーを入力し直してください"
         },
         "outOfRegion": {
           "title": "現在地は台湾外です",
@@ -2785,7 +2785,7 @@
     },
     "weatherPages": {
       "location": "位置情報",
-      "provider": "プロバイダー"
+      "provider": "データソースとキー"
     },
     "musicPages": {
       "whitelist": "許可リスト",
