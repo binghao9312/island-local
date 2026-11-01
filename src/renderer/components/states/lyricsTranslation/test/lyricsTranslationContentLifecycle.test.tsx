@@ -61,6 +61,7 @@ function renderContent(): ReactElement<LyricsTranslationContentViewProps> {
  */
 async function commit(): Promise<ReactElement<LyricsTranslationContentViewProps>> {
   renderContent(); runEffects(); await settleBackground();
+  renderContent(); runEffects();
   const root = renderContent(); runEffects(); return root;
 }
 describe('真实双语歌词内容组合与状态回退', () => {

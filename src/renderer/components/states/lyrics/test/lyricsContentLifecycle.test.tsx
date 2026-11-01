@@ -52,6 +52,7 @@ afterEach(() => { unmountHooks(); vi.useRealTimers(); vi.unstubAllGlobals(); });
  */
 async function commit(): Promise<ReactElement> {
   renderWithHooks(LyricsContent); runEffects(); await settleBackground();
+  renderWithHooks(LyricsContent); runEffects();
   const root = renderWithHooks(LyricsContent); runEffects(); return root;
 }
 describe('真实普通歌词内容组合', () => {

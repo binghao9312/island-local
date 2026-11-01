@@ -43,7 +43,7 @@ interface UseLyricsSettingsResult {
 export function useLyricsSettings(): UseLyricsSettingsResult {
   const [lyricsEnabled, setLyricsEnabled] = useState(true);
   const [karaokeEnabled, setKaraokeEnabled] = useState(false);
-  const [clockEnabled, setClockEnabled] = useState(true);
+  const [clockEnabled, setClockEnabled] = useState(false);
   const [musicOuterGlowEffectEnabled, setMusicOuterGlowEffectEnabled] = useState(true);
   const [calibrateEnabled, setCalibrateEnabled] = useState(true);
   const [calibrateDelaySec, setCalibrateDelaySec] = useState(20);

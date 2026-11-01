@@ -3508,7 +3508,7 @@
         "traditionalHint": "Convert Simplified Chinese lyrics to Traditional Chinese (Taiwan wording). Songs containing Japanese or Korean are not converted. Applies from the next song. When not set manually, it is on by default if the UI language is Traditional Chinese",
         "traditionalToggle": "Convert Simplified lyrics to Traditional",
         "clockTitle": "Lyrics Clock",
-        "clockHint": "Show current Beijing time between cover and lyrics",
+        "clockHint": "Show the current time between the cover and lyrics on the collapsed lyrics island",
         "clockToggle": "Show current time",
         "calibrateTitle": "Lyrics Calibration",
         "calibrateHint": "Resync playback position after the selected delay while playing. Pausing stops the countdown; changes apply to the current song immediately.",

@@ -575,7 +575,7 @@ function registerIpcHandlers(): void {
     lyricsIdleDisplayEnabledStoreKey: LYRICS_IDLE_DISPLAY_ENABLED_STORE_KEY,
     smtcUnsubscribeStoreKey: SMTC_UNSUBSCRIBE_MS_STORE_KEY,
     defaultLyricsKaraoke: false,
-    defaultLyricsClock: true,
+    defaultLyricsClock: false,
     defaultLyricsCalibrateEnabled: true,
     defaultLyricsCalibrateDelay: 20,
     defaultLyricsFontSize: LYRICS_FONT_SIZE_DEFAULT,

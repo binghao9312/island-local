@@ -84,7 +84,7 @@ describe('useLyricsSettings runtime', () => {
     expect(renderHook(useLyricsSettings)).toEqual({
       lyricsEnabled: true,
       karaokeEnabled: false,
-      clockEnabled: true,
+      clockEnabled: false,
       musicOuterGlowEffectEnabled: true,
       calibrateEnabled: true,
       calibrateDelaySec: 20
@@ -110,7 +110,7 @@ describe('useLyricsSettings runtime', () => {
     expect(renderHook(useLyricsSettings)).toEqual({
       lyricsEnabled: true,
       karaokeEnabled: false,
-      clockEnabled: true,
+      clockEnabled: false,
       musicOuterGlowEffectEnabled: true,
       calibrateEnabled: true,
       calibrateDelaySec: 20

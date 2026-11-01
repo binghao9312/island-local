@@ -50,7 +50,7 @@ export function useSettingsMusic(options: SettingsMusicOptions) {
   const [lyricsTranslationEnabled, setLyricsTranslationEnabled] = useState<boolean>(true);
   const [lyricsIdleDisplayEnabled, setLyricsIdleDisplayEnabled] = useState<boolean>(true);
   const [lyricsKaraoke, setLyricsKaraoke] = useState<boolean>(false);
-  const [lyricsClock, setLyricsClock] = useState<boolean>(true);
+  const [lyricsClock, setLyricsClock] = useState<boolean>(false);
   const [lyricsCalibrateEnabled, setLyricsCalibrateEnabled] = useState<boolean>(true);
   const [lyricsCalibrateDelay, setLyricsCalibrateDelay] = useState<number>(20);
   const [lyricsFontSize, setLyricsFontSize] = useState<number>(LYRICS_FONT_SIZE_DEFAULT);

@@ -321,6 +321,23 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
                     {t('settings.music.lyrics.enabledToggle', { defaultValue: '启用歌词功能' })}
                   </label>
                 </div>
+                <div className="settings-card-subgroup">
+                  <div className="settings-card-subgroup-title">{t('settings.music.lyrics.clockTitle', { defaultValue: '歌词时钟' })}</div>
+                  <div className="settings-music-hint">{t('settings.music.lyrics.clockHint', { defaultValue: '在收起的歌词岛上，封面与歌词之间显示当前时间' })}</div>
+                  <div className="settings-card-inline-row">
+                    <label className="settings-card-check">
+                      <input
+                        type="checkbox"
+                        checked={lyricsClock}
+                        onChange={(e) => {
+                          setLyricsClock(e.target.checked);
+                          window.api.musicLyricsClockSet(e.target.checked).catch(() => {});
+                        }}
+                      />
+                      {t('settings.music.lyrics.clockToggle', { defaultValue: '显示当前时间' })}
+                    </label>
+                  </div>
+                </div>
                 <div className="settings-music-hint">{t('settings.music.lyrics.betaHint', { defaultValue: '歌词功能目前处于 Beta 阶段，歌词来源与时间轴可能不准确' })}</div>
               </div>
 
@@ -450,24 +467,6 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
                         }}
                       />
                       {t('settings.music.lyrics.traditionalToggle', { defaultValue: '将简体歌词转换为繁体' })}
-                    </label>
-                  </div>
-                </div>
-
-                <div className="settings-card-subgroup">
-                  <div className="settings-card-subgroup-title">{t('settings.music.lyrics.clockTitle', { defaultValue: '歌词时钟' })}</div>
-                  <div className="settings-music-hint">{t('settings.music.lyrics.clockHint', { defaultValue: '在歌词界面封面与歌词之间显示当前北京时间' })}</div>
-                  <div className="settings-card-inline-row">
-                    <label className="settings-card-check">
-                      <input
-                        type="checkbox"
-                        checked={lyricsClock}
-                        onChange={(e) => {
-                          setLyricsClock(e.target.checked);
-                          window.api.musicLyricsClockSet(e.target.checked).catch(() => {});
-                        }}
-                      />
-                      {t('settings.music.lyrics.clockToggle', { defaultValue: '显示当前时间' })}
                     </label>
                   </div>
                 </div>
