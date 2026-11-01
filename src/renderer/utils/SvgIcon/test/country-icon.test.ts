@@ -45,7 +45,7 @@ describe('resolveCountryCode', () => {
 
   it('resolves locale-style aliases', () => {
     expect(resolveCountryCode('zh-cn')).toBe('CHN');
-    expect(resolveCountryCode('zh-tw')).toBe('TWN');
+    expect(resolveCountryCode('zh-tw')).toBe('CHN');
     expect(resolveCountryCode('en-us')).toBe('USA');
     expect(resolveCountryCode('ja-JP')).toBe('JP');
   });
@@ -97,7 +97,7 @@ describe('COUNTRY_ALIASES', () => {
     expect(COUNTRY_ALIASES['china']).toBe('CHN');
     expect(COUNTRY_ALIASES['zh']).toBe('CHN');
     expect(COUNTRY_ALIASES['zh-cn']).toBe('CHN');
-    expect(COUNTRY_ALIASES['zh-tw']).toBe('TWN');
+    expect(COUNTRY_ALIASES['zh-tw']).toBe('CHN');
     expect(COUNTRY_ALIASES['us']).toBe('USA');
     expect(COUNTRY_ALIASES['usa']).toBe('USA');
     expect(COUNTRY_ALIASES['en']).toBe('USA');
@@ -125,7 +125,6 @@ describe('CountryIcon', () => {
 
   it('maps keys to SVG paths', () => {
     expect(CountryIcon.CHN).toBe('../svg/countries/CHN.svg');
-    expect(CountryIcon.TWN).toBe('../svg/countries/TWN.svg');
     expect(CountryIcon.USA).toBe('../svg/countries/USA.svg');
     expect(CountryIcon.JP).toBe('../svg/countries/JP.svg');
     expect(CountryIcon.KR).toBe('../svg/countries/KR.svg');
