@@ -31,6 +31,7 @@ import { useIslandTimeStrings } from '../../../../../hooks/useIslandTimeStrings'
 import { ActionButtons } from './ActionButtons';
 import { CountdownEdit } from './CountdownEdit';
 import { MediaButtons } from './MediaButtons';
+import { useUpcomingCalendarEvent } from '../hooks/useUpcomingCalendarEvent';
 import type { TimePanelMode, TimeTabProps } from '../types/timeTabTypes';
 import { padZero } from '../utils/timerUtils';
 
@@ -42,9 +43,12 @@ import { padZero } from '../utils/timerUtils';
  */
 export function TimeTab({
   fullTimeStr,
+  upcomingEvent: propUpcomingEvent,
 }: TimeTabProps): React.ReactElement {
   const { t, i18n } = useTranslation();
   const [activePanel, setActivePanel] = useState<TimePanelMode>('countdown');
+  const hookUpcomingEvent = useUpcomingCalendarEvent();
+  const upcomingEvent = propUpcomingEvent !== undefined ? propUpcomingEvent : hookUpcomingEvent;
 
   const { timeStr, dayStr } = useIslandTimeStrings({
     t,
@@ -82,12 +86,21 @@ export function TimeTab({
         <CountdownEdit activePanel={activePanel} />
       </div>
       <div className="time-tab-divider" />
-      <div className="hover-time-panel">
-        <div className="hover-time-row">
-          <span className="hover-time-large">{hh}:{mm}</span>
-          {ss !== undefined && <span className="hover-time-seconds">:{ss}</span>}
-        </div>
-        <div className="hover-date-row">{dateText}</div>
+      <div className="hover-time-center hover-time-row">
+        <span className="hover-time-large">{hh}:{mm}</span>
+        {ss !== undefined && <span className="hover-time-seconds">:{ss}</span>}
+      </div>
+      <div className="hover-time-panel hover-date-panel">
+        {upcomingEvent ? (
+          <div
+            className="hover-event-row"
+            title={`${upcomingEvent.timeStr} ${upcomingEvent.title}`}
+          >
+            {upcomingEvent.timeStr} {upcomingEvent.title}
+          </div>
+        ) : (
+          <div className="hover-date-row">{dateText}</div>
+        )}
       </div>
     </div>
   );

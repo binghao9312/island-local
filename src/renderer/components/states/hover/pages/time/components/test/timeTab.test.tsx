@@ -34,6 +34,9 @@ import { MediaButtons } from '../MediaButtons';
 import { CountdownEdit } from '../CountdownEdit';
 import type { TreeElement } from '../../../../../test/tree';
 vi.mock('../../../../../../../store/slices', () => ({ default: vi.fn() }));
+vi.mock('../../hooks/useUpcomingCalendarEvent', () => ({
+  useUpcomingCalendarEvent: () => null,
+}));
 const slots = vi.hoisted(() => ({ cursor: 0, values: [] as unknown[], effects: [] as Array<() => unknown> }));
 vi.mock('react', async (importOriginal) => { const actual = await importOriginal<typeof import('react')>(); const { mockHooks } = await import('../../../../../test/hooks'); return mockHooks(actual, slots); });
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'zh-CN' } }), initReactI18next: { type: '3rdParty', init: vi.fn() } }));
@@ -49,4 +52,20 @@ describe('TimeTab', () => {
     expect(toolsGrid).toBeDefined();
   });
   it.each(['brightness', 'volume'])('opens %s then toggles back to countdown', (panel) => { invoke(find(render(), (node) => node.type === MediaButtons), 'onPanelToggle', panel); expect(find(render(), (node) => node.type === CountdownEdit).props.activePanel).toBe(panel); invoke(find(render(), (node) => node.type === MediaButtons), 'onPanelToggle', panel); expect(find(render(), (node) => node.type === CountdownEdit).props.activePanel).toBe('countdown'); });
+  it('renders centered large clock element in panel', () => {
+    const root = render();
+    const centerClock = find(root, (node) => typeof node.props?.className === 'string' && node.props.className.includes('hover-time-center'));
+    expect(centerClock).toBeDefined();
+  });
+  it('replaces date line with nearest upcoming event in next 24h', () => {
+    slots.cursor = 0;
+    const root = (TimeTab({
+      fullTimeStr: '12:34:56',
+      upcomingEvent: { timeStr: '15:30', title: 'Team Meeting' },
+    }) as TreeElement);
+    expect(text(root)).toContain('15:30 Team Meeting');
+    const eventRow = find(root, (node) => node.props?.className === 'hover-event-row');
+    expect(eventRow).toBeDefined();
+    expect(eventRow.props?.title).toBe('15:30 Team Meeting');
+  });
 });

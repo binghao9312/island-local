@@ -26,7 +26,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MusicSettingsSection } from '../MusicSettingsSection';
-import { elementProps, findElement, invoke, resetState, textContent } from '../../../../../../../test/elementHarness';
+import { elementProps, elements, findElement, invoke, resetState, textContent } from '../../../../../../../test/elementHarness';
 import type { ComponentProps } from 'react';
 const api = vi.hoisted(() => ({ musicWhitelistSet: vi.fn(() => Promise.resolve()), musicLyricsCalibrateDelaySet: vi.fn(() => Promise.resolve()) }));
 /**
@@ -132,5 +132,16 @@ describe('MusicSettingsSection', () => {
     expect(textContent(tree)).toContain('settings.music.lyrics.betaHint');
     const title = findElement(tree, (n) => elementProps(n).className === 'settings-card-title');
     expect(findElement(title, (n) => typeof n.type === 'function' && n.type.name === 'BetaBadge')).toBeTruthy();
+  });
+  it('切换歌曲外缘进度环开关并持久化到本地存储', () => {
+    resetState();
+    const storage = { getItem: vi.fn(() => 'true'), setItem: vi.fn() };
+    vi.stubGlobal('localStorage', storage);
+    const tree = MusicSettingsSection({ ...makeProps(), musicSettingsPage: 'smtc' as const });
+    const checkboxes = elements(tree).filter((n) => n.type === 'input' && elementProps(n).type === 'checkbox');
+    expect(checkboxes.length).toBe(2);
+    const ringToggle = checkboxes[1];
+    invoke(ringToggle, 'onChange', { target: { checked: false } });
+    expect(storage.setItem).toHaveBeenCalledWith('island_song_progress_ring_enabled', 'false');
   });
 });

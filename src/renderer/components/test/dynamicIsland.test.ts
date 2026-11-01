@@ -44,6 +44,7 @@ vi.mock('../states/maxExpand/hooks/usePerformanceMode', () => ({ usePerformanceM
 vi.mock('../components/DynamicIslandStateContent', () => ({ DynamicIslandStateContent: vi.fn() }));
 vi.mock('../states/maxExpand/maxExpandTransitionLoading', () => ({ default: vi.fn() }));
 vi.mock('../states/expand', () => ({ ExpandedTransitionLoading: vi.fn() }));
+vi.mock('../components/IslandTimerRing', () => ({ IslandTimerRing: () => null }));
 beforeEach(() => {
   vi.clearAllMocks();
   resetState();

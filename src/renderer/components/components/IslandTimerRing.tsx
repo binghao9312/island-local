@@ -20,42 +20,91 @@
 
 /**
  * @file IslandTimerRing.tsx
- * @description 灵动岛外缘的倒计时进度线（琥珀色），按帧连续缩短；胶囊形态绕一整圈，刘海形态只走左、下、右三边
+ * @description 灵动岛外缘的进度线（倒计时琥珀色，歌曲进度使用专辑主色或 70% 白），按帧连续缩短；胶囊形态绕一整圈，刘海形态只走左、下、右三边
  * @author 鸡哥
  */
 
 import { useEffect, useRef, useState, type JSX } from 'react';
+import useIslandStore from '../../store/slices';
 import type { IslandShapeMode, TimerState } from '../../store/types';
-import { buildTimerRingPath, getRingDashOffset, isTimerRingVisible, resolveRingEndAt } from '../utils/timerRing';
+import {
+  buildTimerRingPath,
+  getRingDashOffset,
+  isSongRingVisible,
+  isTimerRingVisible,
+  resolveRingColor,
+  resolveRingEndAt,
+} from '../utils/timerRing';
 
 /** 进度线入参 */
-interface IslandTimerRingProps {
+export interface IslandTimerRingProps {
   timerState: TimerState;
   remainingSeconds: number;
   totalSeconds: number;
   shapeMode: IslandShapeMode;
+  /** 媒体会话是否激活（可选覆盖项） */
+  isMusicPlaying?: boolean;
+  /** 是否正在播放（可选覆盖项） */
+  isPlaying?: boolean;
+  /** 当前播放位置（毫秒，可选覆盖项） */
+  currentPositionMs?: number;
+  /** 歌曲总时长（毫秒，可选覆盖项） */
+  durationMs?: number;
+  /** 歌曲专辑主色 RGB（可选覆盖项） */
+  dominantColor?: [number, number, number];
+  /** 外缘歌曲进度环设置开关（可选覆盖项） */
+  songProgressRingEnabled?: boolean;
 }
 
 /** 圆角过渡时长（毫秒），过渡结束后重新测量 */
 const RADIUS_SETTLE_MS = 450;
 
 /**
- * 渲染倒计时进度线；运行时用 requestAnimationFrame 按结束时间连续推进，暂停时冻结在当前位置。
+ * 渲染灵动岛外缘进度线；倒计时运行时展示琥珀色环并具最高优先级；音乐播放时复用同条线展示歌曲剩余进度。
  * @param props - 组件入参
- * @param props.timerState - 计时器状态
- * @param props.remainingSeconds - 剩余整秒
- * @param props.totalSeconds - 总秒数
- * @param props.shapeMode - 岛屿形态（notch 不画顶边）
  * @returns 进度线 SVG
  */
-export function IslandTimerRing({ timerState, remainingSeconds, totalSeconds, shapeMode }: IslandTimerRingProps): JSX.Element {
+export function IslandTimerRing(props: IslandTimerRingProps): JSX.Element {
+  const {
+    timerState,
+    remainingSeconds,
+    totalSeconds,
+    shapeMode,
+    isMusicPlaying: propIsMusicPlaying,
+    isPlaying: propIsPlaying,
+    currentPositionMs: propCurrentPositionMs,
+    durationMs: propDurationMs,
+    dominantColor: propDominantColor,
+    songProgressRingEnabled: propSongProgressRingEnabled,
+  } = props;
+
+  const storeIsMusicPlaying = useIslandStore((s) => s.isMusicPlaying);
+  const storeIsPlaying = useIslandStore((s) => s.isPlaying);
+  const storePositionMs = useIslandStore((s) => s.currentPositionMs);
+  const storeDurationMs = useIslandStore((s) => s.currentDurationMs || s.mediaInfo.duration_ms);
+  const storeDominantColor = useIslandStore((s) => s.dominantColor);
+  const storeRingEnabled = useIslandStore((s) => s.songProgressRingEnabled);
+
+  const isMusicPlaying = propIsMusicPlaying ?? storeIsMusicPlaying;
+  const isPlaying = propIsPlaying ?? storeIsPlaying;
+  const currentPositionMs = propCurrentPositionMs ?? storePositionMs;
+  const durationMs = propDurationMs ?? storeDurationMs;
+  const dominantColor = propDominantColor ?? storeDominantColor;
+  const songProgressRingEnabled = propSongProgressRingEnabled ?? (storeRingEnabled ?? true);
+
   const svgRef = useRef<SVGSVGElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
   const endAtRef = useRef<number | null>(null);
+  const lastPositionMsRef = useRef<number>(0);
+  const lastUpdatePerfMsRef = useRef<number>(0);
   const [pathD, setPathD] = useState('');
-  const visible = isTimerRingVisible(timerState, totalSeconds);
-  const running = visible && timerState === 'running';
 
+  const timerVisible = isTimerRingVisible(timerState, totalSeconds);
+  const songVisible = !timerVisible && isSongRingVisible(songProgressRingEnabled, isMusicPlaying, durationMs);
+  const visible = timerVisible || songVisible;
+  const mode: 'timer' | 'song' = timerVisible ? 'timer' : 'song';
+  const running = timerVisible ? timerState === 'running' : (songVisible && isPlaying);
+  const ringColor = resolveRingColor(mode, dominantColor);
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg || !visible) return undefined;
@@ -84,28 +133,47 @@ export function IslandTimerRing({ timerState, remainingSeconds, totalSeconds, sh
   }, [visible, shapeMode]);
 
   useEffect(() => {
-    if (!running) {
+    lastPositionMsRef.current = currentPositionMs;
+    lastUpdatePerfMsRef.current = performance.now();
+  }, [currentPositionMs, durationMs, isPlaying]);
+
+  useEffect(() => {
+    if (!running || mode !== 'timer') {
       endAtRef.current = null;
       return;
     }
     endAtRef.current = resolveRingEndAt(endAtRef.current, performance.now(), remainingSeconds);
-  }, [running, remainingSeconds]);
+  }, [running, mode, remainingSeconds]);
 
   useEffect(() => {
     if (!running) return undefined;
     let frameId = 0;
     const draw = (): void => {
       const path = pathRef.current;
-      const endAt = endAtRef.current;
-      if (path && endAt !== null) {
-        const leftSeconds = Math.max(0, (endAt - performance.now()) / 1000);
-        path.style.strokeDashoffset = String(getRingDashOffset(leftSeconds, totalSeconds));
+      if (!path) return;
+      if (mode === 'timer') {
+        const endAt = endAtRef.current;
+        if (endAt !== null) {
+          const leftSeconds = Math.max(0, (endAt - performance.now()) / 1000);
+          path.style.strokeDashoffset = String(getRingDashOffset(leftSeconds, totalSeconds));
+        }
+      } else if (mode === 'song') {
+        const elapsed = Math.max(0, performance.now() - lastUpdatePerfMsRef.current);
+        const currentPos = Math.min(durationMs, lastPositionMsRef.current + elapsed);
+        const leftMs = Math.max(0, durationMs - currentPos);
+        path.style.strokeDashoffset = String(getRingDashOffset(leftMs, durationMs));
       }
       frameId = requestAnimationFrame(draw);
     };
     frameId = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frameId);
-  }, [running, totalSeconds]);
+  }, [running, mode, totalSeconds, durationMs]);
+
+  const initialDashOffset = visible
+    ? (mode === 'timer'
+        ? getRingDashOffset(remainingSeconds, totalSeconds)
+        : getRingDashOffset(Math.max(0, durationMs - currentPositionMs), durationMs))
+    : 0;
 
   return (
     <svg ref={svgRef} className={`island-timer-ring${visible ? ' island-timer-ring-visible' : ''}`} aria-hidden="true" focusable="false">
@@ -114,7 +182,8 @@ export function IslandTimerRing({ timerState, remainingSeconds, totalSeconds, sh
         d={pathD}
         pathLength={100}
         strokeDasharray={100}
-        strokeDashoffset={visible ? getRingDashOffset(remainingSeconds, totalSeconds) : 0}
+        strokeDashoffset={initialDashOffset}
+        style={{ stroke: ringColor }}
       />
     </svg>
   );

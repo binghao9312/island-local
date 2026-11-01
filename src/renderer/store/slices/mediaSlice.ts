@@ -27,6 +27,7 @@
 import type { StateCreator } from 'zustand';
 import type { MediaInfo, MediaSlice, LrcMode } from '../types';
 import { emptyMediaInfo } from '../constants/defaults';
+import { loadSongProgressRingEnabled, saveSongProgressRingEnabled } from '../utils/storage';
 
 function sameMediaInfo(left: MediaInfo, right: MediaInfo): boolean {
   return left.title === right.title && left.artist === right.artist
@@ -58,6 +59,7 @@ export const createMediaSlice: StateCreator<
   translationLyrics: null,
   lyricsLoading: false,
 
+  songProgressRingEnabled: loadSongProgressRingEnabled(),
   updateLrcData: (data) => set((state) => {
     if (data === null) {
       return {
@@ -112,6 +114,10 @@ export const createMediaSlice: StateCreator<
   setSyncedLyrics: (lyrics) => set({ syncedLyrics: lyrics, lyricsLoading: false }),
   setTranslationLyrics: (translation) => set({ translationLyrics: translation }),
   setLyricsLoading: (loading) => set({ lyricsLoading: loading }),
+  setSongProgressRingEnabled: (enabled) => {
+    saveSongProgressRingEnabled(enabled);
+    set((state) => state.songProgressRingEnabled === enabled ? state : { songProgressRingEnabled: enabled });
+  },
 
   handleNowPlayingUpdate: (info) => {
     if (!info || !info.title) {

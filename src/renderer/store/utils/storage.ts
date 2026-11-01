@@ -36,6 +36,7 @@ const CWA_API_KEY_STORE_KEY = 'cwa-api-key';
 const WEATHER_LOCATION_CONFIG_KEY = 'island_weather_location_config';
 const WEATHER_LOCATION_CONFIG_STORE_KEY = 'weather-location-config';
 const LYRICS_CONVERT_TRADITIONAL_KEY = 'island_lyrics_convert_traditional';
+const SONG_PROGRESS_RING_ENABLED_KEY = 'island_song_progress_ring_enabled';
 
 /** 默认网络请求超时（毫秒） */
 export const DEFAULT_NETWORK_TIMEOUT_MS = 10000;
@@ -192,6 +193,29 @@ export function loadLyricsConvertToTraditional(): boolean | null {
 export function saveLyricsConvertToTraditional(enabled: boolean): void {
   try {
     localStorage.setItem(LYRICS_CONVERT_TRADITIONAL_KEY, String(enabled));
+  } catch { /* 忽略 */ }
+}
+
+/**
+ * 读取外缘歌曲进度环设置（默认开启）
+ * @returns 是否开启歌曲外缘进度环
+ */
+export function loadSongProgressRingEnabled(): boolean {
+  try {
+    const raw = localStorage.getItem(SONG_PROGRESS_RING_ENABLED_KEY);
+    if (raw === 'false') return false;
+    if (raw === 'true') return true;
+  } catch { /* 忽略 */ }
+  return true;
+}
+
+/**
+ * 保存外缘歌曲进度环设置
+ * @param enabled - 是否开启歌曲外缘进度环
+ */
+export function saveSongProgressRingEnabled(enabled: boolean): void {
+  try {
+    localStorage.setItem(SONG_PROGRESS_RING_ENABLED_KEY, String(enabled));
   } catch { /* 忽略 */ }
 }
 

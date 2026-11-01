@@ -31,7 +31,7 @@ import type { MusicSettingsPageKey } from '../../utils/settingsConfig';
 import { SettingsPageNavigation, SettingsPageNavigationToggle } from '../SettingsPageNavigation';
 import { BetaBadge } from '../BetaBadge';
 import { PlayerIcon } from '../../../../../../../utils/SvgIcon/player-icon';
-import { saveLyricsConvertToTraditional } from '../../../../../../../store/utils/storage';
+import { loadSongProgressRingEnabled, saveLyricsConvertToTraditional, saveSongProgressRingEnabled } from '../../../../../../../store/utils/storage';
 import { shouldConvertLyricsToTraditional } from '../../../../../../../api/lyrics/lrcs/lyricsTraditional';
 import { LYRICS_FONT_SIZE_MAX, LYRICS_FONT_SIZE_MIN, sanitizeLyricsFontSize } from '../../../../../../../../shared/lyricsFontSize';
 
@@ -169,6 +169,7 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
   } = props;
 
   const [convertToTraditional, setConvertToTraditional] = useState(() => shouldConvertLyricsToTraditional());
+  const [songProgressRingEnabled, setSongProgressRingEnabled] = useState(() => loadSongProgressRingEnabled());
 
   return (
     <div className="max-expand-settings-section">
@@ -574,6 +575,28 @@ export function MusicSettingsSection(props: MusicSettingsSectionProps): ReactEle
                     {musicSmtcConfigMessage.text}
                   </div>
                 )}
+              </div>
+
+              <div className="settings-card">
+                <div className="settings-card-header">
+                  <div className="settings-card-title">{t('settings.music.ring.title', { defaultValue: '外缘进度线' })}</div>
+                  <div className="settings-card-subtitle">{t('settings.music.ring.hint', { defaultValue: '播放音乐时在灵动岛外缘显示歌曲进度线，倒计时运行时优先展示倒计时' })}</div>
+                </div>
+                <div className="settings-card-inline-row">
+                  <label className="settings-card-check">
+                    <input
+                      type="checkbox"
+                      checked={songProgressRingEnabled}
+                      onChange={(e) => {
+                        const next = e.target.checked;
+                        setSongProgressRingEnabled(next);
+                        saveSongProgressRingEnabled(next);
+                        window.dispatchEvent?.(new CustomEvent('island:setting-changed', { detail: { channel: 'music:song-progress-ring-enabled', value: next } }));
+                      }}
+                    />
+                    {t('settings.music.ring.enabledToggle', { defaultValue: '在灵动岛外缘显示歌曲进度' })}
+                  </label>
+                </div>
               </div>
 
             </div>
