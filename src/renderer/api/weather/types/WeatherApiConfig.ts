@@ -24,10 +24,18 @@
  * @author 鸡哥
  */
 
-/** 天气接口配置（经纬度） */
+/** 天气接口配置（经纬度，可附带已解析的 CWA 縣市 / 鄉鎮） */
 export interface WeatherApiConfig {
   /** 经度 */
   longitude: number;
   /** 纬度 */
   latitude: number;
+  /** 城市 / 地区显示名称，在没有明确縣市时用于尝试匹配 */
+  city?: string;
+  /** CWA 縣市名称（台/臺 均可） */
+  county?: string;
+  /** CWA 鄉鎮市區名称 */
+  township?: string;
+  /** ISO 国家代码；存在且不是 TW 时视为不在 CWA 覆盖范围 */
+  countryCode?: string;
 }
