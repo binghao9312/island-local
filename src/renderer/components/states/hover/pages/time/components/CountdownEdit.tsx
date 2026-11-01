@@ -20,7 +20,7 @@
 
 /**
  * @file CountdownEdit.tsx
- * @description 倒计时悬浮弹出面板与工具栏组件
+ * @description 倒计时悬浮弹出面板与系统工具栏组件
  * @author 鸡哥
  */
 
@@ -50,12 +50,16 @@ interface CountdownEditProps {
 }
 
 /**
- * 倒计时弹出面板与系统工具组件
+ * 倒计时弹出面板与工具栏组件
  * @description 倒计时编辑器不再常驻展示，通过 ToolButtons 中的计时器图标展开/收起浮层。
+ * 主区域在选择亮度或音量模式时展示对应调节滑块。
  * @param props - 当前面板模式与默认展开状态
  * @returns 倒计时与工具组件元素
  */
-export function CountdownEdit({ activePanel, defaultOpen = false }: CountdownEditProps): ReactElement {
+export function CountdownEdit({
+  activePanel,
+  defaultOpen = false,
+}: CountdownEditProps): ReactElement {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -109,13 +113,16 @@ export function CountdownEdit({ activePanel, defaultOpen = false }: CountdownEdi
         timerBtnRef={timerBtnRef}
       />
 
-      <div className="timer-tools-divider" />
-
-      <div className="timer-main-shell">
-        <div className={`timer-main${activePanel !== 'countdown' ? ' timer-main-hidden' : ''}`} />
-        {activePanel === 'brightness' && <BrightnessControl />}
-        {activePanel === 'volume' && <VolumeControl />}
-      </div>
+      {(activePanel === 'brightness' || activePanel === 'volume') && (
+        <>
+          <div className="timer-tools-divider" />
+          <div className="timer-main-shell">
+            <div className="timer-main timer-main-hidden" />
+            {activePanel === 'brightness' && <BrightnessControl />}
+            {activePanel === 'volume' && <VolumeControl />}
+          </div>
+        </>
+      )}
 
       {isOpen && (
         <div className="countdown-popover" ref={popoverRef} onClick={(e) => e.stopPropagation()}>

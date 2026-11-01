@@ -26,25 +26,50 @@
 
 import type React from 'react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useIslandTimeStrings } from '../../../../../hooks/useIslandTimeStrings';
 import { ActionButtons } from './ActionButtons';
 import { CountdownEdit } from './CountdownEdit';
 import { MediaButtons } from './MediaButtons';
 import type { TimePanelMode, TimeTabProps } from '../types/timeTabTypes';
+import { padZero } from '../utils/timerUtils';
 
 /**
  * 时间 Tab 内容
- * @description 显示当前时间
+ * @description 展示操作按钮、媒体调节、倒计时工具以及大字号当前时间与日期
  * @param props - 组件入参
  * @returns 时间 Tab 元素
  */
 export function TimeTab({
-  fullTimeStr
+  fullTimeStr,
 }: TimeTabProps): React.ReactElement {
+  const { t, i18n } = useTranslation();
   const [activePanel, setActivePanel] = useState<TimePanelMode>('countdown');
+
+  const { timeStr, dayStr } = useIslandTimeStrings({
+    t,
+    language: i18n.resolvedLanguage,
+    precision: 'second',
+    enabled: true,
+  });
 
   const handlePanelToggle = (panel: Exclude<TimePanelMode, 'countdown'>): void => {
     setActivePanel((current) => current === panel ? 'countdown' : panel);
   };
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = padZero(now.getMonth() + 1);
+  const day = padZero(now.getDate());
+  const dateText = `${year}/${month}/${day} ${dayStr}`;
+
+  const displayTime = fullTimeStr
+    ? (fullTimeStr.includes(' ') ? fullTimeStr.split(' ')[1] : fullTimeStr)
+    : `${timeStr}:${padZero(now.getSeconds())}`;
+  const timeParts = displayTime.split(':');
+  const hh = timeParts[0] ?? '00';
+  const mm = timeParts[1] ?? '00';
+  const ss = timeParts.length >= 3 ? timeParts[2] : undefined;
 
   return (
     <div className="time-tab-wrapper">
@@ -55,10 +80,12 @@ export function TimeTab({
       />
       <CountdownEdit activePanel={activePanel} />
       <div className="time-tab-divider" />
-      <div className="flex flex-col gap-1 text-right">
-        <span className="text-sm text-[var(--color-island-text)] font-medium tabular-nums">
-          {fullTimeStr}
-        </span>
+      <div className="hover-time-panel">
+        <div className="hover-time-row">
+          <span className="hover-time-large">{hh}:{mm}</span>
+          {ss !== undefined && <span className="hover-time-seconds">:{ss}</span>}
+        </div>
+        <div className="hover-date-row">{dateText}</div>
       </div>
     </div>
   );
