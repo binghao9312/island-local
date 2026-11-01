@@ -32,6 +32,7 @@ import useIslandStore from '../../../../../../../../store/slices';
 import { SilkyWave } from '../../../../../../hover/pages/lyric/components/SilkyWave';
 import { MusicBgWavePreview } from '../preview/MusicBgWavePreview';
 import { AgentQuotaSettingsCard } from './AgentQuotaSettingsCard';
+import { ClockStyleSettingsCard } from './ClockStyleSettingsCard';
 import { HOVER_MUSIC_BG_STYLE_STORE_KEY } from '../../../config/settingsTabConfig';
 import type { AppSettingsSectionProps } from './types';
 
@@ -163,6 +164,8 @@ export function LayoutPreviewSettingsPage({
             </div>
           </div>
         </div>
+
+        <ClockStyleSettingsCard />
 
         <AgentQuotaSettingsCard />
 

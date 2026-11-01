@@ -2917,6 +2917,65 @@
           "customHex": "自訂色碼",
           "invalidHex": "請輸入 #RRGGBB 格式的顏色"
         },
+        "clock": {
+          "title": "時鐘樣式",
+          "subtitle": "自訂總覽面板中間大時鐘的色彩、字型、尺寸與日期顯示，即時同步生效。",
+          "preview": "即時預覽",
+          "colorMode": "色彩模式",
+          "colorModes": {
+            "auto": "自動漸變",
+            "solid": "純色",
+            "gradient": "雙色漸變",
+            "album": "跟隨專輯主色"
+          },
+          "presetSwatches": "預設色盤",
+          "customHex": "自訂色值",
+          "gradientPresets": "預設雙色漸變",
+          "gradientStart": "起始色",
+          "gradientEnd": "結束色",
+          "albumHint": "跟隨目前播放歌曲的專輯封面主色，未播放時自動回退為漸變色彩。",
+          "albumActive": "目前主色已生效",
+          "albumIdle": "未播放音樂，使用自動漸變",
+          "autoHint": "使用靈動島預設的藝術漸變光澤。",
+          "invalidHex": "請輸入 #RRGGBB 格式的顏色",
+          "fontFamily": "字型",
+          "fonts": {
+            "system": "系統預設",
+            "segoe": "Segoe UI Variable",
+            "bahnschrift": "Bahnschrift",
+            "consolas": "Consolas",
+            "georgia": "Georgia",
+            "jhenghei": "微軟正黑體",
+            "cascadia": "Cascadia Code"
+          },
+          "fontWeight": "字重",
+          "weights": {
+            "light": "細",
+            "regular": "標準",
+            "bold": "粗",
+            "heavy": "特粗"
+          },
+          "fontSize": "尺寸",
+          "sizes": {
+            "small": "S",
+            "medium": "M",
+            "large": "L",
+            "xlarge": "XL"
+          },
+          "timeFormat": "時間格式",
+          "format24": "24小時制",
+          "format12": "12小時制",
+          "showSeconds": "顯示秒數",
+          "dateLine": "日期行",
+          "showDate": "顯示日期",
+          "dateFormat": "日期格式",
+          "dateFormats": {
+            "full": "yyyy年MM月dd日 週X",
+            "slash": "yyyy/MM/dd",
+            "short": "MM/dd 週X",
+            "shortVal": "{{month}}/{{day}} {{dayName}}"
+          }
+        },
         "musicBgCurrent": "目前狀態",
         "musicBgModified": "修改後效果",
         "musicBgSilky": "絲滑波浪",

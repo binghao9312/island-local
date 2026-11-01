@@ -40,6 +40,36 @@ export interface OverviewGradientColors {
   end: string;
 }
 
+/** 时钟色彩模式 */
+export type OverviewClockColorMode = 'auto' | 'solid' | 'gradient' | 'album';
+
+/** Windows 原生免下载时钟字体标识 */
+export type OverviewClockFontFamily = 'system' | 'segoe' | 'bahnschrift' | 'consolas' | 'georgia' | 'jhenghei' | 'cascadia';
+
+/** 时钟字重档位 */
+export type OverviewClockFontWeight = 'light' | 'regular' | 'bold' | 'heavy';
+
+/** 时钟字号档位 */
+export type OverviewClockFontSize = 'small' | 'medium' | 'large' | 'xlarge';
+
+/** 日期行格式选项 */
+export type OverviewClockDateFormat = 'full' | 'slash' | 'short';
+
+/** 总览时钟样式完整设置 */
+export interface OverviewClockConfig {
+  colorMode: OverviewClockColorMode;
+  solidColor: string;
+  gradientStart: string;
+  gradientEnd: string;
+  fontFamily: OverviewClockFontFamily;
+  fontWeight: OverviewClockFontWeight;
+  fontSize: OverviewClockFontSize;
+  showSeconds: boolean;
+  is24Hour: boolean;
+  showDate: boolean;
+  dateFormat: OverviewClockDateFormat;
+}
+
 /** Agent 额度卡片字号档位 */
 export type AgentQuotaFontSize = 'small' | 'medium' | 'large';
 
