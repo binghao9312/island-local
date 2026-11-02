@@ -44,7 +44,7 @@ export interface UseGoogleCalendarResult {
   enabled: boolean;
   /** gws 状态；尚未检测或检测失败时为 null */
   status: GoogleCalendarStatus | null;
-  /** 当前窗口内的 Google 事件；未启用或未登录时为空数组 */
+  /** 当前窗口内所有已勾选日历合并后的 Google 事件；未启用或未登录时为空数组 */
   events: GoogleCalendarEvent[];
   /** 最近一次状态或拉取失败的类别，成功后清空 */
   error: GoogleCalendarErrorCode | null;
@@ -53,9 +53,9 @@ export interface UseGoogleCalendarResult {
   /** 新建事件，成功后自动刷新 */
   createEvent: (input: GoogleCalendarEventInput) => Promise<GoogleCalendarResult<GoogleCalendarEvent>>;
   /** 整体更新事件，成功后自动刷新 */
-  updateEvent: (id: string, input: GoogleCalendarEventInput) => Promise<GoogleCalendarResult<GoogleCalendarEvent>>;
+  updateEvent: (calendarId: string, id: string, input: GoogleCalendarEventInput) => Promise<GoogleCalendarResult<GoogleCalendarEvent>>;
   /** 删除事件，成功后自动刷新 */
-  removeEvent: (id: string) => Promise<GoogleCalendarResult<null>>;
+  removeEvent: (calendarId: string, id: string) => Promise<GoogleCalendarResult<null>>;
 }
 
 /**
@@ -149,14 +149,14 @@ export function useGoogleCalendar(timeMin: string, timeMax: string): UseGoogleCa
     return result;
   }, [refresh]);
 
-  const updateEvent = useCallback(async (id: string, input: GoogleCalendarEventInput) => {
-    const result = await window.api.gcalUpdate(id, input);
+  const updateEvent = useCallback(async (calendarId: string, id: string, input: GoogleCalendarEventInput) => {
+    const result = await window.api.gcalUpdate(calendarId, id, input);
     if (result.ok) refresh();
     return result;
   }, [refresh]);
 
-  const removeEvent = useCallback(async (id: string) => {
-    const result = await window.api.gcalRemove(id);
+  const removeEvent = useCallback(async (calendarId: string, id: string) => {
+    const result = await window.api.gcalRemove(calendarId, id);
     if (result.ok) refresh();
     return result;
   }, [refresh]);

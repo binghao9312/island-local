@@ -188,8 +188,8 @@ declare global {
       gcalStatus: () => Promise<GoogleCalendarResult<GoogleCalendarStatus>>;
       gcalList: (range: GoogleCalendarRange) => Promise<GoogleCalendarResult<GoogleCalendarEvent[]>>;
       gcalCreate: (input: GoogleCalendarEventInput) => Promise<GoogleCalendarResult<GoogleCalendarEvent>>;
-      gcalUpdate: (id: string, input: GoogleCalendarEventInput) => Promise<GoogleCalendarResult<GoogleCalendarEvent>>;
-      gcalRemove: (id: string) => Promise<GoogleCalendarResult<null>>;
+      gcalUpdate: (calendarId: string, id: string, input: GoogleCalendarEventInput) => Promise<GoogleCalendarResult<GoogleCalendarEvent>>;
+      gcalRemove: (calendarId: string, id: string) => Promise<GoogleCalendarResult<null>>;
       scheduleWakeup: (id: string, deadline: number | null) => Promise<boolean>;
       storeRead: (key: string, strict?: boolean) => Promise<unknown>;
       storeWrite: (key: string, data: unknown) => Promise<boolean>;

@@ -133,6 +133,7 @@
 }
 
 .compact-calendar-days-grid {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(7, 26px);
   row-gap: 3px;
@@ -214,6 +215,51 @@
   height: 3px;
   border-radius: 50%;
   background: var(--color-primary, #3b82f6);
+}
+
+/** 跨天事件横条层：与日期网格同构，叠在日期格顶部，不拦截点击 */
+.compact-calendar-span-layer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 26px);
+  grid-auto-rows: 16.5px;
+  row-gap: 3px;
+  pointer-events: none;
+}
+
+.compact-calendar-days-grid[data-rows="4"] .compact-calendar-span-layer {
+  grid-auto-rows: 19px;
+  row-gap: 5px;
+}
+
+.compact-calendar-span-bar {
+  align-self: start;
+  height: 2px;
+  margin-right: 2px;
+  border-radius: 1px;
+  opacity: 0.9;
+}
+
+.compact-calendar-span-bar.is-continued-before {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.compact-calendar-span-bar.is-continued-after {
+  margin-right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/** 横条太细无法容纳文字，标题仅对读屏可见 */
+.compact-calendar-span-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 /** 右侧日程列表区 */

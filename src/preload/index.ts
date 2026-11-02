@@ -695,8 +695,8 @@ const api = {
   gcalStatus: (): Promise<GoogleCalendarResult<GoogleCalendarStatus>> => ipcRenderer.invoke('gcal:status'),
   gcalList: (range: GoogleCalendarRange): Promise<GoogleCalendarResult<GoogleCalendarEvent[]>> => ipcRenderer.invoke('gcal:list', range),
   gcalCreate: (input: GoogleCalendarEventInput): Promise<GoogleCalendarResult<GoogleCalendarEvent>> => ipcRenderer.invoke('gcal:create', input),
-  gcalUpdate: (id: string, input: GoogleCalendarEventInput): Promise<GoogleCalendarResult<GoogleCalendarEvent>> => ipcRenderer.invoke('gcal:update', id, input),
-  gcalRemove: (id: string): Promise<GoogleCalendarResult<null>> => ipcRenderer.invoke('gcal:remove', id),
+  gcalUpdate: (calendarId: string, id: string, input: GoogleCalendarEventInput): Promise<GoogleCalendarResult<GoogleCalendarEvent>> => ipcRenderer.invoke('gcal:update', calendarId, id, input),
+  gcalRemove: (calendarId: string, id: string): Promise<GoogleCalendarResult<null>> => ipcRenderer.invoke('gcal:remove', calendarId, id),
   /** ===== 文件存储 API ===== */
   /**
    * 从文件读取 JSON 数据

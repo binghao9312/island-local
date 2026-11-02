@@ -41,6 +41,9 @@ describe('findNearestUpcomingEvent', () => {
     const googleEvents: GoogleCalendarEvent[] = [
       {
         id: '1',
+        calendarId: 'primary',
+        color: '#4285f4',
+        readOnly: false,
         title: 'Late Meeting',
         start: '2026-11-01T16:00:00',
         end: '2026-11-01T17:00:00',
@@ -48,6 +51,9 @@ describe('findNearestUpcomingEvent', () => {
       },
       {
         id: '2',
+        calendarId: 'primary',
+        color: '#4285f4',
+        readOnly: false,
         title: 'Nearest Meeting',
         start: '2026-11-01T11:30:00',
         end: '2026-11-01T12:00:00',
@@ -55,6 +61,9 @@ describe('findNearestUpcomingEvent', () => {
       },
       {
         id: '3',
+        calendarId: 'primary',
+        color: '#4285f4',
+        readOnly: false,
         title: 'Past Meeting',
         start: '2026-11-01T08:00:00',
         end: '2026-11-01T09:00:00',
@@ -62,6 +71,9 @@ describe('findNearestUpcomingEvent', () => {
       },
       {
         id: '4',
+        calendarId: 'primary',
+        color: '#4285f4',
+        readOnly: false,
         title: 'Over 24h Meeting',
         start: '2026-11-02T15:00:00',
         end: '2026-11-02T16:00:00',
@@ -81,6 +93,9 @@ describe('findNearestUpcomingEvent', () => {
     const googleEvents: GoogleCalendarEvent[] = [
       {
         id: 'all-day-1',
+        calendarId: 'primary',
+        color: '#4285f4',
+        readOnly: false,
         title: 'All Day Event Tomorrow',
         start: '2026-11-02',
         end: '2026-11-02',

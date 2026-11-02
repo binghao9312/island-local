@@ -75,6 +75,9 @@ describe('useUpcomingCalendarEvent', () => {
     mockState.googleEvents = [
       {
         id: 'ev-1',
+        calendarId: 'primary',
+        color: '#4285f4',
+        readOnly: false,
         title: 'Sprint Planning',
         start: futureDate.toISOString(),
         end: new Date(futureDate.getTime() + 3600000).toISOString(),
