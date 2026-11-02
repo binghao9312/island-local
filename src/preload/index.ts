@@ -1612,6 +1612,13 @@ const api = {
     return ipcRenderer.invoke('gmail:check-now');
   },
   /**
+   * 在新控制台窗口中打开 Google 登录（gws auth login）
+   * @returns opened 已打开；missing 未找到 gws；unsupported 平台不支持
+   */
+  googleOpenLogin: (): Promise<'opened' | 'missing' | 'unsupported'> => {
+    return ipcRenderer.invoke('google:open-login');
+  },
+  /**
    * 获取 Gmail 提醒的最近状态
    * @returns 当前状态
    */

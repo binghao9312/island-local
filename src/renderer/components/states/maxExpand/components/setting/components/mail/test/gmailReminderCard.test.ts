@@ -44,6 +44,7 @@ const api = {
   gmailRemindersEnabledGet: vi.fn(() => Promise.resolve(true)),
   gmailRemindersEnabledSet: vi.fn(() => Promise.resolve(true)),
   gmailCheckNow: vi.fn(() => Promise.resolve({ kind: 'network', checkedAt: 1 })),
+  googleOpenLogin: vi.fn(() => Promise.resolve('opened')),
   gmailStatusGet: vi.fn(() => Promise.resolve({ kind: 'ok', checkedAt: 1 })),
   onSettingsChanged: vi.fn((callback: SettingsListener) => { listener = callback; return unsubscribe; }),
 };
@@ -55,6 +56,7 @@ beforeEach(() => {
   api.gmailRemindersEnabledGet.mockResolvedValue(true);
   api.gmailStatusGet.mockResolvedValue({ kind: 'ok', checkedAt: 1 });
   api.gmailCheckNow.mockResolvedValue({ kind: 'network', checkedAt: 1 });
+  api.googleOpenLogin.mockResolvedValue('opened');
   vi.stubGlobal('window', { api });
 });
 
@@ -109,6 +111,24 @@ describe('GmailReminderCard', () => {
     await settle();
     const updated = renderWithHooks(() => GmailReminderCard());
     expect(textContent(updated)).toContain('settings.mail.gmail.status.network');
+  });
+
+  it('opens the Google login and shows no hint when it opens', async () => {
+    mount(); await settle();
+    const tree = renderWithHooks(() => GmailReminderCard());
+    invoke(findElement(tree, (node) => node.type === 'button' && textContent(node).includes('settings.mail.gmail.login')), 'onClick');
+    expect(api.googleOpenLogin).toHaveBeenCalledOnce();
+    await settle();
+    expect(textContent(renderWithHooks(() => GmailReminderCard()))).not.toContain('settings.mail.gmail.loginMissing');
+  });
+
+  it('shows the install hint when gws is missing', async () => {
+    api.googleOpenLogin.mockResolvedValue('missing');
+    mount(); await settle();
+    const tree = renderWithHooks(() => GmailReminderCard());
+    invoke(findElement(tree, (node) => node.type === 'button' && textContent(node).includes('settings.mail.gmail.login')), 'onClick');
+    await settle();
+    expect(textContent(renderWithHooks(() => GmailReminderCard()))).toContain('settings.mail.gmail.loginMissing');
   });
 
   it('updates the status line when the main process broadcasts a change', async () => {

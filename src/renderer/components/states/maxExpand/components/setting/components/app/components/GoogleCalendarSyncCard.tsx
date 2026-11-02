@@ -38,6 +38,7 @@ export function GoogleCalendarSyncCard(): ReactElement {
   const [preference, setPreference] = useState<boolean | null>(null);
   // null 表示尚未检测完成，此时不展示缺失提示，避免闪烁。
   const [available, setAvailable] = useState<boolean | null>(null);
+  const [loginResult, setLoginResult] = useState<'opened' | 'missing' | 'unsupported' | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -80,12 +81,26 @@ export function GoogleCalendarSyncCard(): ReactElement {
           />
           {t('settings.app.behavior.googleCalendarToggle', { defaultValue: '同步 Google 日历' })}
         </label>
+        <button
+          type="button"
+          className="settings-user-secondary-btn"
+          onClick={() => {
+            window.api.googleOpenLogin().then(setLoginResult).catch(() => {});
+            // 重新检测可用性，便于用户登录完成后再次点击刷新状态。
+            window.api.gcalStatus().then((result) => setAvailable(result.ok && result.data.available)).catch(() => {});
+          }}
+        >
+          {t('settings.mail.gmail.login', { defaultValue: '登录 Google' })}
+        </button>
         {available === false && (
           <span className="settings-card-subtitle">
             {t('expanded.calendar.google.missing', { defaultValue: 'gws CLI not found. Install it to sync Google Calendar.' })}
           </span>
         )}
       </div>
+      {loginResult === 'missing' && (
+        <div className="settings-field-hint">{t('settings.mail.gmail.loginMissing', { defaultValue: '未找到 gws。请先执行 npm install -g @googleworkspace/cli 安装命令行工具。' })}</div>
+      )}
     </div>
   );
 }

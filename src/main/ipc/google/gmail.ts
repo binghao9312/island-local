@@ -27,7 +27,7 @@
 import { ipcMain } from 'electron';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { resolveGwsBinary } from '../../google/gwsRunner';
+import { openGwsLoginTerminal, resolveGwsBinary } from '../../google/gwsRunner';
 import type { GmailReminderService } from '../../google/gmailService';
 
 /** Gmail 新邮件提醒 IPC 注册依赖 */
@@ -77,4 +77,6 @@ export function registerGmailIpcHandlers(options: RegisterGmailIpcHandlersOption
   ipcMain.handle('gmail:check-now', () => options.service.checkNow());
 
   ipcMain.handle('gmail:status:get', () => options.service.getStatus());
+
+  ipcMain.handle('google:open-login', () => openGwsLoginTerminal());
 }

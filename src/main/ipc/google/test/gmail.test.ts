@@ -34,6 +34,7 @@ const io = vi.hoisted(() => ({
   files: new Map<string, string>(),
   gwsFound: { value: true },
   write: vi.fn(),
+  openLogin: vi.fn(() => 'opened'),
 }));
 
 vi.mock('electron', () => ({
@@ -45,6 +46,7 @@ vi.mock('fs', () => ({
   writeFileSync: (path: string, data: string) => io.write(path, data),
 }));
 vi.mock('../../../google/gwsRunner', () => ({
+  openGwsLoginTerminal: () => io.openLogin(),
   resolveGwsBinary: () => (io.gwsFound.value ? 'C:\\npm\\gws.exe' : null),
 }));
 
@@ -137,5 +139,10 @@ describe('gmail IPC handlers', () => {
 
   it('returns the current status from the status channel', () => {
     expect(invoke('gmail:status:get')).toEqual({ kind: 'disabled', checkedAt: null });
+  });
+
+  it('opens the gws login terminal through the login channel', () => {
+    expect(invoke('google:open-login')).toBe('opened');
+    expect(io.openLogin).toHaveBeenCalledOnce();
   });
 });

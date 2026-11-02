@@ -144,3 +144,25 @@ export function runGws(args: string[]): Promise<unknown> {
     });
   });
 }
+
+/** 打开 gws 登录终端的结果：opened 已打开；missing 未找到 gws；unsupported 当前平台不支持 */
+export type GwsLoginResult = 'opened' | 'missing' | 'unsupported';
+
+/**
+ * 在新的可见控制台窗口中运行 `gws auth login`，让用户可在其中操作权限选择与浏览器授权。
+ * @description 参数以原样字符串传给 cmd.exe（windowsVerbatimArguments），避免 Node 对空标题 "" 做二次转义；
+ * 外层额外一对引号由 cmd /k 剥离，从而兼容含空格的路径。不会等待登录完成。
+ * @returns 'opened' 已打开登录窗口；'missing' 未找到 gws；'unsupported' 非 Windows 平台
+ */
+export function openGwsLoginTerminal(): GwsLoginResult {
+  if (process.platform !== 'win32') return 'unsupported';
+  const bin = resolveGwsBinary();
+  if (!bin) return 'missing';
+  spawn('cmd.exe', ['/c', `start "" cmd.exe /k ""${bin}" auth login"`], {
+    detached: true,
+    stdio: 'ignore',
+    windowsHide: false,
+    windowsVerbatimArguments: true,
+  }).unref();
+  return 'opened';
+}

@@ -2713,6 +2713,8 @@
         "hint": "Checks unread mail read-only through your signed-in Google Workspace CLI (gws) and reminds you on the island when new mail arrives. No credentials are stored.",
         "toggle": "Enable new-mail reminders",
         "checkNow": "Check now",
+        "login": "Sign in to Google",
+        "loginMissing": "gws not found. Install the CLI first with npm install -g @googleworkspace/cli.",
         "status": {
           "ok": "Connected to Gmail. New mail will appear on the island",
           "disabled": "Off",
