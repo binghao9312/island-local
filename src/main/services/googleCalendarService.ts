@@ -101,6 +101,11 @@ export function resolveGwsBinary(): string | null {
       const candidate = join(dir, name);
       if (existsSync(candidate)) return candidate;
     }
+    // npm 全局安装只在 PATH 放 .cmd 包装脚本，真正的 gws.exe 位于同一前缀下的包目录
+    if (process.platform === 'win32') {
+      const npmPackaged = join(dir, 'node_modules', '@googleworkspace', 'cli', 'bin', 'gws.exe');
+      if (existsSync(npmPackaged)) return npmPackaged;
+    }
   }
   return null;
 }

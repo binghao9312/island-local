@@ -93,6 +93,14 @@ describe('resolveGwsBinary', () => {
     expect(resolveGwsBinary()).toBe('C:\\tools\\gws.exe');
   });
 
+  it.runIf(process.platform === 'win32')('finds gws.exe inside the npm global package when PATH only has the .cmd shim', () => {
+    const npmDir = 'C:\\Users\\tester\\AppData\\Roaming\\npm';
+    const packaged = `${npmDir}\\node_modules\\@googleworkspace\\cli\\bin\\gws.exe`;
+    vi.stubEnv('PATH', npmDir);
+    io.existsSync.mockImplementation((path) => path === packaged);
+    expect(resolveGwsBinary()).toBe(packaged);
+  });
+
   it('returns null when neither the config nor PATH provides gws', () => {
     vi.stubEnv('PATH', 'C:\\bin');
     expect(resolveGwsBinary()).toBeNull();
