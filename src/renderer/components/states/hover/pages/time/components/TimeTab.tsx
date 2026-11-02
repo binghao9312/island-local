@@ -76,7 +76,7 @@ export function TimeTab({
   const ss = timeParts.length >= 3 ? timeParts[2] : undefined;
 
   return (
-    <div className="time-tab-wrapper">
+    <div className={`time-tab-wrapper${activePanel === 'countdown' ? '' : ' time-tab-wrapper--panel-open'}`}>
       <div className="time-tools-grid">
         <ActionButtons />
         <MediaButtons
