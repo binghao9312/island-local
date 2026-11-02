@@ -52,10 +52,9 @@ export const WEATHER_LOCATION_PRIORITY_OPTIONS: Array<{ value: WeatherLocationPr
   { value: 'custom', label: '自定义位置优先' },
 ];
 
-export const SETTINGS_TABS = ['index', 'app', 'pluginMarket', 'network', 'mail', 'weather', 'music', 'shortcut', 'user', 'update', 'about'] as const;
+export const SETTINGS_TABS = ['index', 'app', 'pluginMarket', 'network', 'mail', 'google', 'weather', 'music', 'shortcut', 'user', 'update', 'about'] as const;
 export type SettingsSidebarTabKey = (typeof SETTINGS_TABS)[number];
 export type AppSettingsPageKey = 'layout-preview' | 'expand-layout' | 'maxexpand-layout' | 'album' | 'hide-process-list' | 'position' | 'theme' | 'language' | 'behavior' | 'animation' | 'url-parser' | 'clipboard-history' | 'alarm' | 'break-reminder' | 'autostart' | 'sound' | 'notification' | 'performance' | 'performance-monitor' | 'screenshot-settings';
-export type WeatherSettingsPageKey = 'location' | 'provider';
 export type MailSettingsPageKey = 'account' | 'imap' | 'preferences';
 export type MusicSettingsPageKey = 'whitelist' | 'lyrics' | 'smtc';
 export type MusicNavCardKey = 'music-whitelist' | 'music-lyrics' | 'music-smtc';
@@ -88,6 +87,7 @@ export const SETTINGS_TAB_LABELS: Record<SettingsTabLabelKey, string> = {
   'screenshot-settings': '截图设置',
   network: '网络配置',
   mail: '邮箱配置',
+  google: 'Google 账号',
   weather: '天气配置',
   music: '歌曲设置',
   'music-whitelist': '播放器白名单',
@@ -126,6 +126,7 @@ export const SETTINGS_TAB_DESCRIPTIONS: Record<Exclude<SettingsTabLabelKey, 'ind
   'screenshot-settings': '截图相关配置。',
   network: '请求超时与网络行为设置',
   mail: '配置 IMAP 收信参数',
+  google: 'Google 登录状态、Gmail 提醒与日历同步',
   weather: '天气接口优先级设置',
   music: '播放器白名单与歌词来源',
   'music-whitelist': '配置允许接入灵动岛的播放器。',
@@ -149,6 +150,7 @@ export const SETTINGS_TAB_ICONS: Partial<Record<SettingsTabLabelKey, string>> = 
   position: SvgIcon.MOVE,
   network: SvgIcon.NETWORK,
   mail: SvgIcon.MAIL,
+  google: SvgIcon.MAIL,
   weather: SvgIcon.WEATHER,
   music: SvgIcon.LRC,
   'music-whitelist': SvgIcon.MUSIC,
@@ -321,11 +323,6 @@ export function normalizeMaxExpandNavLayoutConfig(raw: unknown): MaxExpandNavLay
 }
 
 export const APP_SETTINGS_PAGES: AppSettingsPageKey[] = ['layout-preview', 'expand-layout', 'maxexpand-layout', 'album', 'hide-process-list', 'position', 'theme', 'language', 'behavior', 'animation', 'url-parser', 'clipboard-history', 'alarm', 'break-reminder', 'autostart', 'sound', 'notification', 'performance', 'performance-monitor', 'screenshot-settings'];
-export const WEATHER_SETTINGS_PAGES: WeatherSettingsPageKey[] = ['provider', 'location'];
-export const WEATHER_SETTINGS_PAGE_LABELS: Record<WeatherSettingsPageKey, string> = {
-  location: '定位配置',
-  provider: '数据源与授权码',
-};
 export const MAIL_SETTINGS_PAGES: MailSettingsPageKey[] = ['account', 'imap', 'preferences'];
 export const MAIL_SETTINGS_PAGE_LABELS: Record<MailSettingsPageKey, string> = {
   account: '账户',
@@ -444,6 +441,7 @@ export const NAV_CARDS: NavCardDef[] = withoutDisabledEntries<NavCardDef>([
   { id: 'screenshot-settings', label: SETTINGS_TAB_LABELS['screenshot-settings'], desc: SETTINGS_TAB_DESCRIPTIONS['screenshot-settings'], icon: SETTINGS_TAB_ICONS['screenshot-settings'], tab: 'app', appPage: 'screenshot-settings' },
   { id: 'network', label: SETTINGS_TAB_LABELS.network, desc: SETTINGS_TAB_DESCRIPTIONS.network, icon: SETTINGS_TAB_ICONS.network, tab: 'network' },
   { id: 'mail', label: SETTINGS_TAB_LABELS.mail, desc: SETTINGS_TAB_DESCRIPTIONS.mail, icon: SETTINGS_TAB_ICONS.mail, tab: 'mail' },
+  { id: 'google', label: SETTINGS_TAB_LABELS.google, desc: SETTINGS_TAB_DESCRIPTIONS.google, icon: SETTINGS_TAB_ICONS.google, tab: 'google' },
   { id: 'weather', label: SETTINGS_TAB_LABELS.weather, desc: SETTINGS_TAB_DESCRIPTIONS.weather, icon: SETTINGS_TAB_ICONS.weather, tab: 'weather' },
   { id: 'shortcut', label: SETTINGS_TAB_LABELS.shortcut, desc: SETTINGS_TAB_DESCRIPTIONS.shortcut, icon: SETTINGS_TAB_ICONS.shortcut, tab: 'shortcut' },
   { id: 'update', label: SETTINGS_TAB_LABELS.update, desc: SETTINGS_TAB_DESCRIPTIONS.update, icon: SETTINGS_TAB_ICONS.update, tab: 'update' },
@@ -568,7 +566,10 @@ export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutDisabledEntri
   { label: '账户信息', desc: '邮箱地址用于展示与默认发件人信息。', labelKey: 'settings.mail.account.title', descKey: 'settings.mail.account.hint', tab: 'mail' },
   { label: 'IMAP', desc: '用于收信、同步收件箱和文件夹状态。', labelKey: 'settings.mail.imap.title', descKey: 'settings.mail.imap.hint', tab: 'mail' },
   { label: '收信设置', desc: '控制每次获取邮件的数量和其他收信行为。', labelKey: 'settings.mail.preferences.title', descKey: 'settings.mail.preferences.hint', tab: 'mail' },
-  { label: 'Gmail 新邮件提醒', desc: '通过已登录的 Google Workspace CLI 只读检查未读邮件，有新邮件时在灵动岛提醒', labelKey: 'settings.mail.gmail.title', descKey: 'settings.mail.gmail.hint', tab: 'mail' },
+  // ── Google 账号 ──
+  { label: 'Google 账号', desc: 'eIsland 使用 Google Workspace CLI（gws）的登录状态访问 Google 服务，不保存任何凭据。', labelKey: 'settings.google.title', descKey: 'settings.google.hint', tab: 'google' },
+  { label: 'Gmail 新邮件提醒', desc: '通过已登录的 Google Workspace CLI 只读检查未读邮件，有新邮件时在灵动岛提醒', labelKey: 'settings.mail.gmail.title', descKey: 'settings.mail.gmail.hint', tab: 'google' },
+  { label: 'Google 日历同步', desc: '通过已安装并登录的 gws 命令行工具读取与编辑 Google 日历，eIsland 不保存任何 Google 凭据', labelKey: 'settings.app.behavior.googleCalendarTitle', descKey: 'settings.app.behavior.googleCalendarHint', tab: 'google' },
   // ── 天气配置 ──
   { label: '定位来源优先级', desc: '选择天气定位优先使用 IP 自动定位或自定义位置', labelKey: 'settings.weather.locationPriority.title', descKey: 'settings.weather.locationPriority.hint', tab: 'weather' },
   { label: '自定义城市', desc: '仅在"自定义位置优先"生效，可先测试再保存；支持縣市 / 鄉鎮市區名称（台 / 臺 均可）。', labelKey: 'settings.weather.customCityTitle', descKey: 'settings.weather.customCityHint', tab: 'weather' },

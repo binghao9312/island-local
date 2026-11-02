@@ -34,8 +34,6 @@ import type { ComponentProps } from 'react';
  */
 function makeProps(): ComponentProps<typeof WeatherSettingsSection> {
   return {
-    currentWeatherSettingsPageLabel: '',
-    weatherSettingsPage: 'location',
     weatherLocationPriorityOptions: [{ value: 'ip', label: 'IP' }, { value: 'custom', label: 'Custom' }],
     weatherLocationPriority: 'ip',
     applyWeatherLocationPriority: vi.fn(() => Promise.resolve()),
@@ -54,9 +52,6 @@ function makeProps(): ComponentProps<typeof WeatherSettingsSection> {
     cwaApiKeyMessage: null,
     saveCwaApiKeySetting: vi.fn(() => Promise.resolve()),
     clearCwaApiKeySetting: vi.fn(),
-    weatherSettingsPages: [],
-    weatherSettingsPageLabels: { location: 'Location', provider: 'Provider' },
-    setWeatherSettingsPage: vi.fn(),
   };
 }
 vi.mock('react', async (importOriginal) => ({
@@ -77,7 +72,7 @@ describe('WeatherSettingsSection', () => {
     const tree = WeatherSettingsSection(props);
     invoke(findElement(tree, (n) => n.type === 'button' && textContent(n) === 'settings.weather.options.locationPriority.custom'), 'onClick');
     expect(props.applyWeatherLocationPriority).toHaveBeenCalledWith('custom');
-    invoke(findElement(tree, (n) => n.type === 'input'), 'onChange', { target: { value: 'Tokyo' } });
+    invoke(findElement(tree, (n) => n.type === 'input' && elementProps(n).type === 'text'), 'onChange', { target: { value: 'Tokyo' } });
     expect(props.setWeatherCustomCityInput).toHaveBeenCalledWith('Tokyo');
     invoke(findElement(tree, (n) => textContent(n) === 'settings.weather.testCustomLocation' && n.type === 'button'), 'onClick');
     invoke(findElement(tree, (n) => textContent(n) === 'settings.weather.saveLocation' && n.type === 'button'), 'onClick');
@@ -86,8 +81,16 @@ describe('WeatherSettingsSection', () => {
     expect(props.setWeatherCustomLocationTestMessage).toHaveBeenCalledWith({ type: 'error', text: 'settings.weather.messages.testFailed' });
     expect(props.setWeatherLocationConfigMessage).toHaveBeenCalledWith({ type: 'error', text: 'settings.common.saveFailed' });
   });
+  it('shows the CWA key and location cards together on a single page', () => {
+    const tree = WeatherSettingsSection(makeProps());
+    const text = textContent(tree);
+    expect(text).toContain('settings.weather.cwa.title');
+    expect(text).toContain('settings.weather.locationPriority.title');
+    expect(text).toContain('settings.weather.customCityTitle');
+    expect(text.indexOf('settings.weather.cwa.title')).toBeLessThan(text.indexOf('settings.weather.locationPriority.title'));
+  });
   it('renders a masked CWA key field and wires edit, save and clear', () => {
-    const props = { ...makeProps(), weatherSettingsPage: 'provider' as const, cwaApiKeyInput: 'CWA-SECRET' };
+    const props = { ...makeProps(), cwaApiKeyInput: 'CWA-SECRET' };
     const tree = WeatherSettingsSection(props);
     const input = findElement(tree, (n) => n.type === 'input');
     expect(elementProps(input).type).toBe('password');
@@ -102,13 +105,13 @@ describe('WeatherSettingsSection', () => {
   it('opens the CWA registration page and disables clear while the key is empty', () => {
     const openUrl = vi.fn(() => Promise.resolve(true));
     vi.stubGlobal('window', { api: { clipboardOpenUrl: openUrl } });
-    const tree = WeatherSettingsSection({ ...makeProps(), weatherSettingsPage: 'provider' as const });
+    const tree = WeatherSettingsSection({ ...makeProps() });
     expect(elementProps(findElement(tree, (n) => n.type === 'button' && textContent(n) === 'settings.weather.cwa.clear')).disabled).toBe(true);
     invoke(findElement(tree, (n) => n.type === 'button' && textContent(n) === 'settings.weather.cwa.register'), 'onClick');
     expect(openUrl).toHaveBeenCalledWith('https://opendata.cwa.gov.tw/userLogin');
   });
   it('shows the CWA key message with a matching colour', () => {
-    const tree = WeatherSettingsSection({ ...makeProps(), weatherSettingsPage: 'provider' as const, cwaApiKeyMessage: { type: 'error', text: 'bad key' } });
+    const tree = WeatherSettingsSection({ ...makeProps(), cwaApiKeyMessage: { type: 'error', text: 'bad key' } });
     expect(elementProps(findElement(tree, (n) => n.type === 'div' && textContent(n) === 'bad key')).style).toEqual({ color: '#ff7f7f' });
   });
   it('shows testing disabled state and both error and success messages', () => {

@@ -31,6 +31,7 @@ import { IndexSettingsSection } from '../index/IndexSettingsSection';
 import { AppSettingsSection } from '../app/AppSettingsSection';
 import { NetworkSettingsSection } from '../network/NetworkSettingsSection';
 import { MailSettingsSection } from '../mail/MailSettingsSection';
+import { GoogleSettingsSection } from '../google/GoogleSettingsSection';
 import { WeatherSettingsSection } from '../weather/WeatherSettingsSection';
 import { MusicSettingsSection } from '../music/MusicSettingsSection';
 import { ShortcutSettingsSection } from '../shortcut/ShortcutSettingsSection';
@@ -56,6 +57,7 @@ vi.mock('../index/IndexSettingsSection', () => ({ IndexSettingsSection: () => nu
 vi.mock('../app/AppSettingsSection', () => ({ AppSettingsSection: () => null }));
 vi.mock('../network/NetworkSettingsSection', () => ({ NetworkSettingsSection: () => null }));
 vi.mock('../mail/MailSettingsSection', () => ({ MailSettingsSection: () => null }));
+vi.mock('../google/GoogleSettingsSection', () => ({ GoogleSettingsSection: () => null }));
 vi.mock('../weather/WeatherSettingsSection', () => ({ WeatherSettingsSection: () => null }));
 vi.mock('../shortcut/ShortcutSettingsSection', () => ({ ShortcutSettingsSection: () => null }));
 vi.mock('../music/MusicSettingsSection', () => ({ MusicSettingsSection: () => null }));
@@ -73,13 +75,13 @@ vi.mock('../../../../../../../../shared/serverFeaturesConfig', () => ({ SERVER_F
 describe('SettingsTab', () => {
   beforeEach(() => { state.hasLoginSession = true; });
   afterEach(() => { vi.unstubAllGlobals(); });
-  it.each([['index', IndexSettingsSection], ['app', AppSettingsSection], ['network', NetworkSettingsSection], ['mail', MailSettingsSection], ['weather', WeatherSettingsSection], ['music', MusicSettingsSection], ['shortcut', ShortcutSettingsSection], ['user', UserSettingsSection], ['update', UpdateSettingsSection], ['about', AboutSettingsSection], ['pluginMarket', WallpaperMarketSection]])('selects the %s panel and preserves all sidebar routes', (tab, panel) => {
+  it.each([['index', IndexSettingsSection], ['app', AppSettingsSection], ['network', NetworkSettingsSection], ['mail', MailSettingsSection], ['google', GoogleSettingsSection], ['weather', WeatherSettingsSection], ['music', MusicSettingsSection], ['shortcut', ShortcutSettingsSection], ['user', UserSettingsSection], ['update', UpdateSettingsSection], ['about', AboutSettingsSection], ['pluginMarket', WallpaperMarketSection]])('selects the %s panel and preserves all sidebar routes', (tab, panel) => {
     state.tab = tab;
     const tree = render(Component);
     expect(nodes(tree, panel)).toHaveLength(1);
-    expect(nodes(tree, '.max-expand-settings-sidebar-item')).toHaveLength(11);
+    expect(nodes(tree, '.max-expand-settings-sidebar-item')).toHaveLength(12);
     expect(nodes(tree, '.active')).toHaveLength(1);
-    (value(tree, '.max-expand-settings-sidebar-item', 'onClick', 7) as () => void)();
+    (value(tree, '.max-expand-settings-sidebar-item', 'onClick', 8) as () => void)();
     expect(state.setActiveTab).toHaveBeenCalledWith('shortcut');
   });
   it('bounds auto-dim delays and changes application subpages', () => {
@@ -141,7 +143,7 @@ describe('SettingsTab 实际侧栏与市场视图剩余回调', () => {
   it('全部侧栏按钮转交自己的目标分类', () => {
     state.tab = 'index';
     const tree = render(Component);
-    const routes = ['index', 'app', 'pluginMarket', 'network', 'mail', 'weather', 'music', 'shortcut', 'user', 'update', 'about'];
+    const routes = ['index', 'app', 'pluginMarket', 'network', 'mail', 'google', 'weather', 'music', 'shortcut', 'user', 'update', 'about'];
     nodes(tree, '.max-expand-settings-sidebar-item').forEach((node, index) => {
       const callback = node.props.onClick as () => void; callback();
       expect(state.setActiveTab).toHaveBeenLastCalledWith(routes[index]);

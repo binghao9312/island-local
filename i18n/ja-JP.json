@@ -2696,6 +2696,7 @@
       "screenshot-settings": "スクリーンショット設定",
       "network": "ネットワーク",
       "mail": "メール",
+      "google": "Google アカウント",
       "weather": "天気",
       "music": "音楽",
       "music-whitelist": "プレーヤーの許可リスト",
@@ -2713,8 +2714,6 @@
         "hint": "サインイン済みの Google Workspace CLI（gws）で未読メールを読み取り専用で確認し、新着時にアイランドで通知します。認証情報は保存しません。",
         "toggle": "新着メール通知を有効にする",
         "checkNow": "今すぐ確認",
-        "login": "Google にログイン",
-        "loginMissing": "gws が見つかりません。先に npm install -g @googleworkspace/cli で CLI をインストールしてください。",
         "status": {
           "ok": "Gmail に接続済みです。新着メールはアイランドに表示されます",
           "disabled": "オフ",
@@ -2783,15 +2782,25 @@
         "fetchLimitHint": "受信トレイの更新時に取得するメール数（1–30）"
       }
     },
+    "google": {
+      "title": "Google アカウント",
+      "hint": "eIsland は Google Workspace CLI（gws）のログイン状態で Google サービスにアクセスし、認証情報は保存しません。",
+      "status": {
+        "checking": "確認中…",
+        "loggedIn": "Google にログイン済み",
+        "notLoggedIn": "Google にログインしていません。「Google にログイン」を押してください。",
+        "missing": "gws が見つかりません。先に Google Workspace CLI をインストールしてください。",
+        "error": "ログイン状態を確認できませんでした。後でもう一度お試しください。"
+      },
+      "login": "Google にログイン",
+      "loginMissing": "gws が見つかりません。先に npm install -g @googleworkspace/cli で CLI をインストールしてください。",
+      "recheck": "再確認"
+    },
     "mailPages": {
       "account": "アカウント",
       "imap": "IMAP",
       "smtp": "SMTP",
       "preferences": "受信設定"
-    },
-    "weatherPages": {
-      "location": "位置情報",
-      "provider": "データソースとキー"
     },
     "musicPages": {
       "whitelist": "許可リスト",
@@ -3491,7 +3500,6 @@
         "configSaved": "天気の位置情報を保存しました",
         "cwaAvailable": "CWA 利用可能：{{temperature}}°C {{description}}"
       },
-      "pagination": "天気設定のページ切り替え",
       "cwa": {
         "title": "中央気象署（CWA）APIキー",
         "hint": "天気データは中央気象署のオープンデータプラットフォームから取得します。無料のAPIキーが必要です。キーはこの端末にのみ保存されます。",

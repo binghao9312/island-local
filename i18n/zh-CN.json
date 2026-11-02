@@ -2696,6 +2696,7 @@
       "screenshot-settings": "截图设置",
       "network": "网络配置",
       "mail": "邮箱配置",
+      "google": "Google 账号",
       "weather": "天气配置",
       "music": "歌曲设置",
       "music-whitelist": "播放器白名单",
@@ -2713,8 +2714,6 @@
         "hint": "通过已登录的 Google Workspace CLI（gws）只读检查未读邮件，有新邮件时在灵动岛提醒。不保存任何凭据。",
         "toggle": "启用新邮件提醒",
         "checkNow": "立即检查",
-        "login": "登录 Google",
-        "loginMissing": "未找到 gws。请先执行 npm install -g @googleworkspace/cli 安装命令行工具。",
         "status": {
           "ok": "已连接 Gmail，新邮件会在灵动岛提醒",
           "disabled": "未开启",
@@ -2783,15 +2782,25 @@
         "fetchLimitHint": "刷新收件箱时一次拉取的邮件数量，范围 1–30"
       }
     },
+    "google": {
+      "title": "Google 账号",
+      "hint": "eIsland 使用 Google Workspace CLI（gws）的登录状态访问 Google 服务，不保存任何凭据。",
+      "status": {
+        "checking": "检查中…",
+        "loggedIn": "已登录 Google",
+        "notLoggedIn": "未登录 Google，请点击「登录 Google」",
+        "missing": "未找到 gws 命令行工具，请先安装 Google Workspace CLI",
+        "error": "检查登录状态失败，请稍后重试"
+      },
+      "login": "登录 Google",
+      "loginMissing": "未找到 gws。请先执行 npm install -g @googleworkspace/cli 安装命令行工具。",
+      "recheck": "重新检查"
+    },
     "mailPages": {
       "account": "账户",
       "imap": "IMAP",
       "smtp": "SMTP",
       "preferences": "收信设置"
-    },
-    "weatherPages": {
-      "location": "定位配置",
-      "provider": "数据源与授权码"
     },
     "musicPages": {
       "whitelist": "白名单",
@@ -3491,7 +3500,6 @@
         "configSaved": "天气定位配置已保存",
         "cwaAvailable": "CWA 可用：{{temperature}}°C {{description}}"
       },
-      "pagination": "天气配置分页",
       "cwa": {
         "title": "中央气象署（CWA）授权码",
         "hint": "天气数据来自中央气象署开放资料平台，需要免费授权码。授权码只保存在本机，不会上传。",

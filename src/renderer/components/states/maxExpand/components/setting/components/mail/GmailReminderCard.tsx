@@ -48,7 +48,6 @@ export function GmailReminderCard(): ReactElement {
   const [enabled, setEnabled] = useState<boolean>(false);
   const [status, setStatus] = useState<GmailReminderStatus | null>(null);
   const [checking, setChecking] = useState<boolean>(false);
-  const [loginResult, setLoginResult] = useState<'opened' | 'missing' | 'unsupported' | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -99,19 +98,7 @@ export function GmailReminderCard(): ReactElement {
         >
           {t('settings.mail.gmail.checkNow', { defaultValue: '立即检查' })}
         </button>
-        <button
-          type="button"
-          className="settings-user-secondary-btn"
-          onClick={() => {
-            window.api.googleOpenLogin().then(setLoginResult).catch(() => {});
-          }}
-        >
-          {t('settings.mail.gmail.login', { defaultValue: '登录 Google' })}
-        </button>
       </div>
-      {loginResult === 'missing' && (
-        <div className="settings-field-hint">{t('settings.mail.gmail.loginMissing', { defaultValue: '未找到 gws。请先执行 npm install -g @googleworkspace/cli 安装命令行工具。' })}</div>
-      )}
       {status && (
         <div className="settings-field-hint">{t(STATUS_TEXT_KEYS[status.kind])}</div>
       )}

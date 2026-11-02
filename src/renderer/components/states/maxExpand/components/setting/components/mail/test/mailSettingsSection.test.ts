@@ -90,11 +90,9 @@ describe('MailSettingsSection', () => {
     invoke(findElement(opened, (n) => elementProps(n).className === 'settings-mail-preset-option' && textContent(n).includes('imap.qq.com')), 'onClick');
     expect(props.setMailAccounts).toHaveBeenCalledWith([{ ...account, emailAddress: 'name@qq.com', authUser: 'name@qq.com', imapHost: 'imap.qq.com' }]);
   });
-  it('places the Gmail reminder card on the preferences page only', () => {
+  it('leaves the Gmail reminder card to the Google account section', () => {
     const preferences = MailSettingsSection({ ...makeProps(), mailSettingsPage: 'preferences' as const, mailAccounts: [account] });
-    expect(findElement(preferences, (n) => n.type === GmailReminderCard)).toBeTruthy();
-    const accountTree = MailSettingsSection({ ...makeProps(), mailSettingsPage: 'account' as const, mailAccounts: [account] });
-    expect(() => findElement(accountTree, (n) => n.type === GmailReminderCard)).toThrow();
+    expect(() => findElement(preferences, (n) => n.type === GmailReminderCard)).toThrow();
   });
   it.each([{ input: '0', expected: 1 }, { input: '40', expected: 30 }, { input: '3.8', expected: 3 }, { input: 'invalid', expected: 1 }])('clamps fetch limit $input', ({ input, expected }) => {
     const props = { ...makeProps(), mailSettingsPage: 'preferences' as const, mailAccounts: [account] };

@@ -40,13 +40,13 @@ import {
   NETWORK_TIMEOUT_OPTIONS,
   UPDATE_SETTINGS_PAGES,
   WEATHER_LOCATION_PRIORITY_OPTIONS,
-  WEATHER_SETTINGS_PAGES,
 } from '../utils/settingsConfig';
 import { UPDATES_ENABLED } from '../../../../../../../shared/updatesConfig';
 import { SERVER_FEATURES_ENABLED } from '../../../../../../../shared/serverFeaturesConfig';
 import { AboutSettingsSection } from './about/AboutSettingsSection';
 import { AppSettingsSection } from './app/AppSettingsSection';
 import { OverviewPreview } from './app/preview/OverviewPreview';
+import { GoogleSettingsSection } from './google/GoogleSettingsSection';
 import { IndexSettingsSection } from './index/IndexSettingsSection';
 import { MailSettingsSection } from './mail/MailSettingsSection';
 import { MusicSettingsSection } from './music/MusicSettingsSection';
@@ -213,8 +213,6 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
     setMailFetchLimit,
     translatedMailSettingsPageLabels,
     setMailSettingsPage,
-    currentWeatherSettingsPageLabel,
-    weatherSettingsPage,
     weatherLocationPriority,
     applyWeatherLocationPriority,
     setWeatherLocationConfigMessage,
@@ -232,8 +230,6 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
     clearCwaApiKeySetting,
     weatherLocationConfigMessage,
     weatherCustomLocationTestMessage,
-    translatedWeatherSettingsPageLabels,
-    setWeatherSettingsPage,
     hotkeyInputRef,
     hotkeyRecording,
     hotkeyError,
@@ -451,6 +447,14 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
           >
             <span className="sidebar-dot" />
             {getSettingsLabel('mail')}
+          </button>
+          <button
+            className={`max-expand-settings-sidebar-item ${activeTab === 'google' ? 'active' : ''}`}
+            onClick={() => setActiveTab('google')}
+            type="button"
+          >
+            <span className="sidebar-dot" />
+            {getSettingsLabel('google')}
           </button>
           <button
             className={`max-expand-settings-sidebar-item ${activeTab === 'weather' ? 'active' : ''}`}
@@ -682,10 +686,10 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
             />
           )}
 
+          {activeTab === 'google' && <GoogleSettingsSection />}
+
           {activeTab === 'weather' && (
             <WeatherSettingsSection
-              currentWeatherSettingsPageLabel={currentWeatherSettingsPageLabel}
-              weatherSettingsPage={weatherSettingsPage}
               weatherLocationPriorityOptions={WEATHER_LOCATION_PRIORITY_OPTIONS}
               weatherLocationPriority={weatherLocationPriority}
               applyWeatherLocationPriority={applyWeatherLocationPriority}
@@ -704,9 +708,6 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
               cwaApiKeyMessage={cwaApiKeyMessage}
               saveCwaApiKeySetting={saveCwaApiKeySetting}
               clearCwaApiKeySetting={clearCwaApiKeySetting}
-              weatherSettingsPages={WEATHER_SETTINGS_PAGES}
-              weatherSettingsPageLabels={translatedWeatherSettingsPageLabels}
-              setWeatherSettingsPage={setWeatherSettingsPage}
             />
           )}
 

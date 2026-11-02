@@ -34,14 +34,12 @@ import {
   NETWORK_SETTINGS_PAGE_LABELS,
   SETTINGS_TAB_LABELS,
   UPDATE_SETTINGS_PAGE_LABELS,
-  WEATHER_SETTINGS_PAGE_LABELS,
   type AppSettingsPageKey,
   type MailSettingsPageKey,
   type MusicSettingsPageKey,
   type NetworkSettingsPageKey,
   type SettingsTabLabelKey,
   type UpdateSettingsPageKey,
-  type WeatherSettingsPageKey,
 } from '../utils/settingsConfig';
 import { useSettingsSidebarTabState, useUserSessionState } from './useSettingsTabState';
 
@@ -73,7 +71,6 @@ export function useSettingsNavigation(options: SettingsNavigationOptions) {
   const [activeTab, setActiveTab] = useSettingsSidebarTabState();
   const { sessionToken, hasLoginSession } = useUserSessionState();
   const [appSettingsPage, setAppSettingsPage] = useState<AppSettingsPageKey>('layout-preview');
-  const [weatherSettingsPage, setWeatherSettingsPage] = useState<WeatherSettingsPageKey>('provider');
   const [mailSettingsPage, setMailSettingsPage] = useState<MailSettingsPageKey>('account');
   const [musicSettingsPage, setMusicSettingsPage] = useState<MusicSettingsPageKey>('whitelist');
   const [networkSettingsPage, setNetworkSettingsPage] = useState<NetworkSettingsPageKey>('timeout');
@@ -93,7 +90,6 @@ export function useSettingsNavigation(options: SettingsNavigationOptions) {
   };
 
   const currentAppSettingsPageLabel = getSettingsLabel(appSettingsPage);
-  const currentWeatherSettingsPageLabel = t(`settings.weatherPages.${weatherSettingsPage}`, { defaultValue: WEATHER_SETTINGS_PAGE_LABELS[weatherSettingsPage] || '定位配置' });
   const currentMailSettingsPageLabel = t(`settings.mailPages.${mailSettingsPage}`, { defaultValue: MAIL_SETTINGS_PAGE_LABELS[mailSettingsPage] || '账户' });
   const currentMusicSettingsPageLabel = t(`settings.musicPages.${musicSettingsPage}`, { defaultValue: MUSIC_SETTINGS_PAGE_LABELS[musicSettingsPage] || '白名单' });
   const currentNetworkSettingsPageLabel = t(`settings.networkPages.${networkSettingsPage}`, { defaultValue: NETWORK_SETTINGS_PAGE_LABELS[networkSettingsPage] || '请求超时' });
@@ -112,10 +108,6 @@ export function useSettingsNavigation(options: SettingsNavigationOptions) {
     });
     return next;
   }, [t]);
-  const translatedWeatherSettingsPageLabels = useMemo<Record<WeatherSettingsPageKey, string>>(() => ({
-    location: t('settings.weatherPages.location', { defaultValue: WEATHER_SETTINGS_PAGE_LABELS.location }),
-    provider: t('settings.weatherPages.provider', { defaultValue: WEATHER_SETTINGS_PAGE_LABELS.provider }),
-  }), [t]);
   const translatedNetworkSettingsPageLabels = useMemo<Record<NetworkSettingsPageKey, string>>(() => ({
     timeout: t('settings.networkPages.timeout', { defaultValue: NETWORK_SETTINGS_PAGE_LABELS.timeout }),
     'data-center': t('settings.networkPages.data-center', { defaultValue: NETWORK_SETTINGS_PAGE_LABELS['data-center'] }),
@@ -161,8 +153,6 @@ export function useSettingsNavigation(options: SettingsNavigationOptions) {
     hasLoginSession,
     appSettingsPage,
     setAppSettingsPage,
-    weatherSettingsPage,
-    setWeatherSettingsPage,
     mailSettingsPage,
     setMailSettingsPage,
     musicSettingsPage,
@@ -189,7 +179,6 @@ export function useSettingsNavigation(options: SettingsNavigationOptions) {
     isProUser,
     getSettingsLabel,
     currentAppSettingsPageLabel,
-    currentWeatherSettingsPageLabel,
     currentMailSettingsPageLabel,
     currentMusicSettingsPageLabel,
     currentNetworkSettingsPageLabel,
@@ -197,7 +186,6 @@ export function useSettingsNavigation(options: SettingsNavigationOptions) {
     pluginMarketPageLabels,
     currentPluginMarketPageLabel,
     translatedSettingsTabLabels,
-    translatedWeatherSettingsPageLabels,
     translatedNetworkSettingsPageLabels,
     translatedUpdateSettingsPageLabels,
     translatedMailSettingsPageLabels,

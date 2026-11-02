@@ -2696,6 +2696,7 @@
       "screenshot-settings": "截圖設定",
       "network": "網路設定",
       "mail": "郵箱設定",
+      "google": "Google 帳號",
       "weather": "天氣設定",
       "music": "歌曲設定",
       "music-whitelist": "播放器白名單",
@@ -2771,8 +2772,6 @@
         "hint": "透過已登入的 Google Workspace CLI（gws）唯讀檢查未讀郵件，有新郵件時在靈動島提醒。不儲存任何憑證。",
         "toggle": "啟用新郵件提醒",
         "checkNow": "立即檢查",
-        "login": "登入 Google",
-        "loginMissing": "找不到 gws。請先執行 npm install -g @googleworkspace/cli 安裝命令列工具。",
         "status": {
           "ok": "已連線 Gmail，新郵件會在靈動島提醒",
           "disabled": "未開啟",
@@ -2783,15 +2782,25 @@
         }
       }
     },
+    "google": {
+      "title": "Google 帳號",
+      "hint": "eIsland 使用 Google Workspace CLI（gws）的登入狀態存取 Google 服務，不儲存任何憑證。",
+      "status": {
+        "checking": "檢查中…",
+        "loggedIn": "已登入 Google",
+        "notLoggedIn": "尚未登入 Google，請點選「登入 Google」",
+        "missing": "找不到 gws 命令列工具，請先安裝 Google Workspace CLI",
+        "error": "檢查登入狀態失敗，請稍後再試"
+      },
+      "login": "登入 Google",
+      "loginMissing": "找不到 gws。請先執行 npm install -g @googleworkspace/cli 安裝命令列工具。",
+      "recheck": "重新檢查"
+    },
     "mailPages": {
       "account": "帳戶",
       "imap": "IMAP",
       "smtp": "SMTP",
       "preferences": "收信設定"
-    },
-    "weatherPages": {
-      "location": "定位設定",
-      "provider": "資料來源與授權碼"
     },
     "musicPages": {
       "whitelist": "白名單",
@@ -3491,7 +3500,6 @@
         "configSaved": "天氣定位設定已儲存",
         "cwaAvailable": "CWA 可用：{{temperature}}°C {{description}}"
       },
-      "pagination": "天氣設定分頁",
       "cwa": {
         "title": "中央氣象署（CWA）授權碼",
         "hint": "天氣資料來自中央氣象署開放資料平臺，需要免費授權碼。授權碼只儲存在本機，不會上傳。",
