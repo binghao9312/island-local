@@ -2771,6 +2771,8 @@
         "hint": "透過已登入的 Google Workspace CLI（gws）唯讀檢查未讀郵件，有新郵件時在靈動島提醒。不儲存任何憑證。",
         "toggle": "啟用新郵件提醒",
         "checkNow": "立即檢查",
+        "login": "登入 Google",
+        "loginMissing": "找不到 gws。請先執行 npm install -g @googleworkspace/cli 安裝命令列工具。",
         "status": {
           "ok": "已連線 Gmail，新郵件會在靈動島提醒",
           "disabled": "未開啟",

@@ -2713,6 +2713,8 @@
         "hint": "サインイン済みの Google Workspace CLI（gws）で未読メールを読み取り専用で確認し、新着時にアイランドで通知します。認証情報は保存しません。",
         "toggle": "新着メール通知を有効にする",
         "checkNow": "今すぐ確認",
+        "login": "Google にログイン",
+        "loginMissing": "gws が見つかりません。先に npm install -g @googleworkspace/cli で CLI をインストールしてください。",
         "status": {
           "ok": "Gmail に接続済みです。新着メールはアイランドに表示されます",
           "disabled": "オフ",

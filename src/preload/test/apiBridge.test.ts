@@ -211,6 +211,7 @@ const TRANSPORT_ROUTES = [
   ['gmailRemindersEnabledGet', 'gmail:reminders-enabled:get', 0, 'invoke'],
   ['gmailRemindersEnabledSet', 'gmail:reminders-enabled:set', 1, 'invoke'],
   ['gmailCheckNow', 'gmail:check-now', 0, 'invoke'],
+  ['googleOpenLogin', 'google:open-login', 0, 'invoke'],
   ['gmailStatusGet', 'gmail:status:get', 0, 'invoke'],
   ['musicLyricsKaraokeGet', 'music:lyrics-karaoke:get', 0, 'invoke'],
   ['musicLyricsKaraokeSet', 'music:lyrics-karaoke:set', 1, 'invoke'],

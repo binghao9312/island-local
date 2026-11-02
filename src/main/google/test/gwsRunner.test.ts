@@ -37,7 +37,7 @@ vi.mock('child_process', () => ({ spawn: io.spawn }));
 vi.mock('fs', () => ({ existsSync: io.existsSync, readFileSync: io.readFileSync }));
 vi.mock('os', () => ({ homedir: () => 'C:\\Users\\tester' }));
 
-import { GwsError, resolveGwsBinary, runGws } from '../gwsRunner';
+import { GwsError, openGwsLoginTerminal, resolveGwsBinary, runGws } from '../gwsRunner';
 
 const MCP_PATH = 'C:\\Users\\tester\\.omp\\agent\\mcp.json';
 const CONFIGURED = 'C:\\npm\\gws.exe';
@@ -91,6 +91,14 @@ describe('resolveGwsBinary', () => {
     io.readFileSync.mockReturnValue(JSON.stringify({ mcpServers: { 'google-workspace': { env: { GWS_BIN: CONFIGURED } } } }));
     io.existsSync.mockImplementation((path) => path === 'C:\\tools\\gws.exe');
     expect(resolveGwsBinary()).toBe('C:\\tools\\gws.exe');
+  });
+
+  it.runIf(process.platform === 'win32')('finds gws.exe inside the npm global package when PATH only has the .cmd shim', () => {
+    const npmDir = 'C:\\Users\\tester\\AppData\\Roaming\\npm';
+    const packaged = `${npmDir}\\node_modules\\@googleworkspace\\cli\\bin\\gws.exe`;
+    vi.stubEnv('PATH', npmDir);
+    io.existsSync.mockImplementation((path) => path === packaged);
+    expect(resolveGwsBinary()).toBe(packaged);
   });
 
   it('returns null when neither the config nor PATH provides gws', () => {
@@ -173,5 +181,49 @@ describe('runGws', () => {
     finish('', 1, 'owner someone@example.com denied');
     const error = await promise.catch((e: unknown) => e);
     expect(String((error as Error).message)).not.toContain('someone@example.com');
+  });
+});
+
+describe('openGwsLoginTerminal', () => {
+  const unref = vi.fn();
+
+  beforeEach(() => {
+    unref.mockReset();
+    io.spawn.mockReturnValue({ unref });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('returns unsupported without spawning on non-Windows platforms', () => {
+    const original = process.platform;
+    Object.defineProperty(process, 'platform', { value: 'linux' });
+    try {
+      expect(openGwsLoginTerminal()).toBe('unsupported');
+    } finally {
+      Object.defineProperty(process, 'platform', { value: original });
+    }
+    expect(io.spawn).not.toHaveBeenCalled();
+  });
+
+  it('returns missing without spawning when gws cannot be found', () => {
+    if (process.platform !== 'win32') return;
+    expect(openGwsLoginTerminal()).toBe('missing');
+    expect(io.spawn).not.toHaveBeenCalled();
+  });
+
+  it('opens a visible detached console with a quoted binary path', () => {
+    if (process.platform !== 'win32') return;
+    const spaced = 'C:\Program Files\npm\gws.exe';
+    io.readFileSync.mockReturnValue(JSON.stringify({ mcpServers: { 'google-workspace': { env: { GWS_BIN: spaced } } } }));
+    io.existsSync.mockImplementation((path) => path === spaced);
+    expect(openGwsLoginTerminal()).toBe('opened');
+    expect(io.spawn).toHaveBeenCalledWith(
+      'cmd.exe',
+      ['/c', 'start "" cmd.exe /k ""C:\Program Files\npm\gws.exe" auth login"'],
+      { detached: true, stdio: 'ignore', windowsHide: false, windowsVerbatimArguments: true },
+    );
+    expect(unref).toHaveBeenCalledOnce();
   });
 });

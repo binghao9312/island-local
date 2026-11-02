@@ -284,6 +284,7 @@ interface ExpectedApi {
   gmailRemindersEnabledGet: () => Promise<boolean>;
   gmailRemindersEnabledSet: (enabled: boolean) => Promise<boolean>;
   gmailCheckNow: () => Promise<GmailReminderStatus>;
+  googleOpenLogin: () => Promise<'opened' | 'missing' | 'unsupported'>;
   gmailStatusGet: () => Promise<GmailReminderStatus>;
   onGmailNewMail: (callback: (data: GmailNewMailPayload) => void) => () => void;
   onDiscordNotification: (callback: (data: DiscordNotificationPayload) => void) => () => void;
