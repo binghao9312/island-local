@@ -75,13 +75,12 @@ describe('真实页面标签、会话和入口', () => {
   it('公开页面setter接收损坏运行时页名时使用对应标签兜底', () => {
     type State = ReturnType<typeof useSettingsNavigation>;
     const damagedPage = 'unknown-page';
-    render().setWeatherSettingsPage(damagedPage as State['weatherSettingsPage']);
     render().setMailSettingsPage(damagedPage as State['mailSettingsPage']);
     render().setMusicSettingsPage(damagedPage as State['musicSettingsPage']);
     render().setNetworkSettingsPage(damagedPage as State['networkSettingsPage']);
     render().setUpdateSettingsPage(damagedPage as State['updateSettingsPage']);
     render();
-    [['weatherPages', '定位配置'], ['mailPages', '账户'], ['musicPages', '白名单'], ['networkPages', '请求超时'], ['updatePages', '检查更新']].forEach(([namespace, defaultValue]) => {
+    [['mailPages', '账户'], ['musicPages', '白名单'], ['networkPages', '请求超时'], ['updatePages', '检查更新']].forEach(([namespace, defaultValue]) => {
       expect(t).toHaveBeenCalledWith(`settings.${namespace}.unknown-page`, {
         defaultValue
       });
@@ -95,7 +94,6 @@ describe('真实页面标签、会话和入口', () => {
     }) => value === 'song')?.label).toBe('settings.app.layout.widgetNames.song');
     expect(state.translatedOverviewClockStyleOptions).toHaveLength(3);
     expect(state.translatedSettingsTabLabels.user).toBe('settings.labels.user');
-    expect(state.translatedWeatherSettingsPageLabels.provider).toBe('settings.weatherPages.provider');
     expect(state.translatedNetworkSettingsPageLabels['data-center']).toBe('settings.networkPages.data-center');
     expect(state.translatedUpdateSettingsPageLabels['info-sync']).toBe('settings.updatePages.info-sync');
     expect(state.translatedMailSettingsPageLabels.preferences).toBe('settings.mailPages.preferences');
@@ -104,7 +102,6 @@ describe('真实页面标签、会话和入口', () => {
     expect(state.getSettingsLabel('animation')).toBe('settings.labels.animation');
   });
   it('合法子页切换更新相应标签', () => {
-    render().setWeatherSettingsPage('provider');
     render().setMailSettingsPage('imap');
     render().setMusicSettingsPage('smtc');
     render().setNetworkSettingsPage('data-center');
@@ -112,7 +109,6 @@ describe('真实页面标签、会话和入口', () => {
     render().setAppSettingsPage('animation');
     render().setPluginMarketPage('contribution');
     const state = render();
-    expect(state.currentWeatherSettingsPageLabel).toBe('settings.weatherPages.provider');
     expect(state.currentMailSettingsPageLabel).toBe('settings.mailPages.imap');
     expect(state.currentMusicSettingsPageLabel).toBe('settings.musicPages.smtc');
     expect(state.currentNetworkSettingsPageLabel).toBe('settings.networkPages.data-center');

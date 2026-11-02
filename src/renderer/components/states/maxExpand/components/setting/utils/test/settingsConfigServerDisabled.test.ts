@@ -58,6 +58,7 @@ describe('settings entries with SERVER_FEATURES_ENABLED=false', () => {
     expect(NAV_CARDS.some((card) => card.tab === 'app')).toBe(true);
     expect(NAV_CARDS.some((card) => card.tab === 'network')).toBe(true);
     expect(NAV_CARDS.some((card) => card.tab === 'mail')).toBe(true);
+    expect(NAV_CARDS.some((card) => card.tab === 'google')).toBe(true);
     expect(NAV_CARDS.some((card) => card.tab === 'weather')).toBe(true);
     expect(NAV_CARDS.some((card) => card.tab === 'music')).toBe(true);
     expect(NAV_CARDS.some((card) => card.tab === 'shortcut')).toBe(true);
@@ -66,6 +67,11 @@ describe('settings entries with SERVER_FEATURES_ENABLED=false', () => {
     expect(SEARCHABLE_SETTINGS.some((item) => item.tab === 'app')).toBe(true);
     expect(SEARCHABLE_SETTINGS.some((item) => item.tab === 'network')).toBe(true);
     expect(SEARCHABLE_SETTINGS.some((item) => item.tab === 'mail')).toBe(true);
+    expect(SEARCHABLE_SETTINGS.filter((item) => item.tab === 'google').map((item) => item.labelKey)).toEqual([
+      'settings.google.title',
+      'settings.mail.gmail.title',
+      'settings.app.behavior.googleCalendarTitle',
+    ]);
     expect(SEARCHABLE_SETTINGS.some((item) => item.tab === 'weather')).toBe(true);
     expect(SEARCHABLE_SETTINGS.some((item) => item.tab === 'music')).toBe(true);
     expect(SEARCHABLE_SETTINGS.some((item) => item.tab === 'shortcut')).toBe(true);
@@ -84,6 +90,7 @@ describe('settings entries with SERVER_FEATURES_ENABLED=false', () => {
       'app',
       'network',
       'mail',
+      'google',
       'weather',
       'music',
       'shortcut',

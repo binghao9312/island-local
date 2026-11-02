@@ -2696,6 +2696,7 @@
       "screenshot-settings": "Screenshot Settings",
       "network": "Network",
       "mail": "Mail",
+      "google": "Google account",
       "weather": "Weather",
       "music": "Music",
       "music-whitelist": "Player Whitelist",
@@ -2713,8 +2714,6 @@
         "hint": "Checks unread mail read-only through your signed-in Google Workspace CLI (gws) and reminds you on the island when new mail arrives. No credentials are stored.",
         "toggle": "Enable new-mail reminders",
         "checkNow": "Check now",
-        "login": "Sign in to Google",
-        "loginMissing": "gws not found. Install the CLI first with npm install -g @googleworkspace/cli.",
         "status": {
           "ok": "Connected to Gmail. New mail will appear on the island",
           "disabled": "Off",
@@ -2783,15 +2782,25 @@
         "fetchLimitHint": "Number of emails to pull per inbox refresh, range 1–30"
       }
     },
+    "google": {
+      "title": "Google account",
+      "hint": "eIsland uses the Google Workspace CLI (gws) login to reach Google services and stores no credentials.",
+      "status": {
+        "checking": "Checking...",
+        "loggedIn": "Signed in to Google",
+        "notLoggedIn": "Not signed in to Google. Click \"Sign in to Google\".",
+        "missing": "gws not found. Install the Google Workspace CLI first.",
+        "error": "Could not check the sign-in status. Try again later."
+      },
+      "login": "Sign in to Google",
+      "loginMissing": "gws not found. Install the CLI first with npm install -g @googleworkspace/cli.",
+      "recheck": "Check again"
+    },
     "mailPages": {
       "account": "Account",
       "imap": "IMAP",
       "smtp": "SMTP",
       "preferences": "Preferences"
-    },
-    "weatherPages": {
-      "location": "Location",
-      "provider": "Data source & key"
     },
     "musicPages": {
       "whitelist": "Whitelist",
@@ -3491,7 +3500,6 @@
         "configSaved": "Weather location saved",
         "cwaAvailable": "CWA works: {{temperature}}°C {{description}}"
       },
-      "pagination": "Weather settings pagination",
       "cwa": {
         "title": "Central Weather Administration (CWA) API key",
         "hint": "Weather data comes from the CWA Open Data Platform and needs a free API key. The key is stored only on this device.",

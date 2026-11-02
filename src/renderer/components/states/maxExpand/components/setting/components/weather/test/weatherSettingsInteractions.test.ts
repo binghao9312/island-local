@@ -37,8 +37,6 @@ vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => k
  */
 function makeProps(): ComponentProps<typeof WeatherSettingsSection> {
   return {
-    currentWeatherSettingsPageLabel: '',
-    weatherSettingsPage: 'location',
     weatherLocationPriorityOptions: [{ value: 'ip', label: 'IP' }, { value: 'custom', label: 'Custom' }],
     weatherLocationPriority: 'ip',
     applyWeatherLocationPriority: vi.fn(() => Promise.resolve()),
@@ -57,9 +55,6 @@ function makeProps(): ComponentProps<typeof WeatherSettingsSection> {
     cwaApiKeyMessage: null,
     saveCwaApiKeySetting: vi.fn(() => Promise.resolve()),
     clearCwaApiKeySetting: vi.fn(),
-    weatherSettingsPages: [],
-    weatherSettingsPageLabels: { location: 'Location', provider: 'Provider' },
-    setWeatherSettingsPage: vi.fn(),
   };
 }
 
@@ -85,10 +80,5 @@ describe('实际天气错误与操作', () => {
   it.each(['success', 'error'] as const)('两项提示状态%s显示匹配颜色', (status) => {
     const props = makeProps(); props.weatherLocationConfigMessage = { type: status, text: 'Saved result' }; props.weatherCustomLocationTestMessage = { type: status, text: 'Test result' };
     const tree = render(props); ['Saved result', 'Test result'].forEach((text) => expect(elementProps(findElement(tree, (node) => node.type === 'div' && textContent(node) === text)).style).toEqual({ color: status === 'error' ? '#ff7f7f' : '#7be495' }));
-  });
-  it('导航实际函数式切换并保留页面选择契约', () => {
-    const props = makeProps(); invoke(findElement(render(props), (node) => typeof elementProps(node).onToggle === 'function'), 'onToggle');
-    let toggle = findElement(render(props), (node) => typeof elementProps(node).onToggle === 'function'); expect(elementProps(toggle).label).toBe('settings.navigation.collapse');
-    invoke(toggle, 'onToggle'); toggle = findElement(render(props), (node) => typeof elementProps(node).onToggle === 'function'); expect(elementProps(toggle).expanded).toBe(false);
   });
 });

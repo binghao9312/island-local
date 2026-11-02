@@ -29,7 +29,6 @@ import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { MailSettingsPageKey } from '../../utils/settingsConfig';
 import { SettingsPageNavigation, SettingsPageNavigationToggle } from '../SettingsPageNavigation';
-import { GmailReminderCard } from './GmailReminderCard';
 
 interface MailProviderPreset {
   labelKey: string;
@@ -250,7 +249,6 @@ export function MailSettingsSection({
 
             {mailSettingsPage === 'preferences' && (
               <div className="settings-cards">
-                <GmailReminderCard />
                 <div className="settings-card">
                   <div className="settings-card-header">
                     <div className="settings-card-title">{t('settings.mail.preferences.title', { defaultValue: '收信设置' })}</div>
