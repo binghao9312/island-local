@@ -30,8 +30,8 @@ import type { GmailNewMailPayload, GmailReminderStatus, GmailReminderStatusKind 
 /** 轮询间隔（毫秒） */
 export const GMAIL_POLL_INTERVAL_MS = 2 * 60 * 1000;
 
-/** 未读收件箱查询条件 */
-const LIST_QUERY = 'is:unread in:inbox';
+/** 未读收件箱查询条件（排除 Gmail「促销」分类的广告信） */
+const LIST_QUERY = 'is:unread in:inbox -category:promotions';
 const LIST_MAX_RESULTS = 10;
 const GMAIL_INBOX_URL = 'https://mail.google.com/mail/u/0/#inbox/';
 
