@@ -39,16 +39,23 @@ import { getCalendarDateKey } from '../../../../maxExpand/components/calendar/ut
 import { useGoogleCalendar } from '../hooks/useGoogleCalendar';
 import { GoogleEventForm } from './GoogleEventForm';
 import { getCompactCalendarWeeks } from '../utils/compactCalendarWeeks';
+import { layoutSpanSegments } from '../utils/calendarSpanLayout';
 import {
   createEventFormValues,
   getGoogleCalendarWindow,
   getGoogleStatusKey,
-  GOOGLE_EVENT_ID_PREFIX,
+  getGoogleTimelineId,
   toEventInput,
+  toGoogleSpanEvents,
   toGoogleTimelineEvents,
   type GoogleEditorState,
   type GoogleEventFormValues,
 } from '../utils/googleCalendarEvents';
+
+/** 月历格内跨天横条最多显示的泳道数，更多的事件只在日期格以圆点提示 */
+const MAX_SPAN_LANES = 2;
+/** 相邻泳道的垂直间距（px），需与样式中的横条高度加间隙一致 */
+const SPAN_LANE_PITCH_PX = 3;
 
 /** 7 个星期的简写头，基准从周日开始 */
 const WEEKDAY_KEYS = [
@@ -88,11 +95,19 @@ export function CalendarTab(): ReactElement {
     () => toGoogleTimelineEvents(google.events, t('expanded.calendar.google.untitled', { defaultValue: '(No title)' })),
     [google.events, t],
   );
+  const googleSpans = useMemo(
+    () => toGoogleSpanEvents(google.events, t('expanded.calendar.google.untitled', { defaultValue: '(No title)' })),
+    [google.events, t],
+  );
+  const googleByTimelineId = useMemo(
+    () => new Map(google.events.map((event) => [getGoogleTimelineId(event), event])),
+    [google.events],
+  );
   const googleStatusKey = getGoogleStatusKey({ enabled: google.enabled, status: google.status, error: google.error });
   const googleReady = google.enabled && google.status?.loggedIn === true;
   const [editor, setEditor] = useState<GoogleEditorState | null>(null);
   const editingEvent = editor?.kind === 'edit'
-    ? google.events.find((item) => item.id === editor.id) ?? null
+    ? google.events.find((item) => item.calendarId === editor.calendarId && item.id === editor.id) ?? null
     : null;
 
   /**
@@ -103,7 +118,7 @@ export function CalendarTab(): ReactElement {
   const handleGoogleSubmit = async (values: GoogleEventFormValues): Promise<boolean> => {
     const input = toEventInput(values);
     const result = editor?.kind === 'edit'
-      ? await google.updateEvent(editor.id, input)
+      ? await google.updateEvent(editor.calendarId, editor.id, input)
       : await google.createEvent(input);
     if (result.ok) setEditor(null);
     return result.ok;
@@ -115,7 +130,7 @@ export function CalendarTab(): ReactElement {
    */
   const handleGoogleDelete = async (): Promise<boolean> => {
     if (editor?.kind !== 'edit') return false;
-    const result = await google.removeEvent(editor.id);
+    const result = await google.removeEvent(editor.calendarId, editor.id);
     if (result.ok) setEditor(null);
     return result.ok;
   };
@@ -130,10 +145,23 @@ export function CalendarTab(): ReactElement {
     [allEvents, year],
   );
 
+  const weeks = useMemo(() => getCompactCalendarWeeks(selectedDate), [selectedDate]);
+
+  // 跨天 Google 事件画成横条，其余事件仍以日期格上的圆点提示
+  const spanLayout = useMemo(
+    () => layoutSpanSegments(
+      weeks.map((week) => week.map((date) => (date.getMonth() === month ? getCalendarDateKey(date) : null))),
+      googleSpans,
+      MAX_SPAN_LANES,
+    ),
+    [weeks, month, googleSpans],
+  );
+
   // 预构建有事件的日期集合
   const eventDatesSet = useMemo(() => {
-    const set = new Set<string>();
+    const set = new Set<string>(spanLayout.overflowDates);
     yearEvents.forEach((event) => {
+      if (event.kind === 'google' && event.start !== event.end) return;
       if (event.start === event.end) {
         set.add(event.start);
       } else {
@@ -146,15 +174,13 @@ export function CalendarTab(): ReactElement {
       }
     });
     return set;
-  }, [yearEvents]);
+  }, [yearEvents, spanLayout]);
 
   const selectedKey = getCalendarDateKey(selectedDate);
   const selectedEvents = useMemo(
     () => yearEvents.filter((event) => event.start <= selectedKey && event.end >= selectedKey),
     [yearEvents, selectedKey],
   );
-
-  const weeks = useMemo(() => getCompactCalendarWeeks(selectedDate), [selectedDate]);
 
   // 本地化星期与月份文案
   const weekdayName = useMemo(() => {
@@ -264,6 +290,28 @@ export function CalendarTab(): ReactElement {
               );
             }),
           )}
+          {spanLayout.segments.length > 0 && (
+            <div className="compact-calendar-span-layer" aria-hidden="true">
+              {spanLayout.segments.map((segment) => (
+                <span
+                  key={`${segment.id}:${segment.row}:${segment.column}`}
+                  className={[
+                    'compact-calendar-span-bar',
+                    segment.continuesBefore ? 'is-continued-before' : '',
+                    segment.continuesAfter ? 'is-continued-after' : '',
+                  ].filter(Boolean).join(' ')}
+                  style={{
+                    gridRow: segment.row + 1,
+                    gridColumn: `${segment.column + 1} / span ${segment.span}`,
+                    marginTop: segment.lane * SPAN_LANE_PITCH_PX,
+                    backgroundColor: segment.color,
+                  }}
+                >
+                  <span className="compact-calendar-span-label">{segment.label}</span>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -336,14 +384,15 @@ export function CalendarTab(): ReactElement {
                   )}
                 </>
               );
-              // 仅单日 Google 事件可编辑：多日事件若只保存首日，会在提交时静默缩短。
-              if (event.kind === 'google' && event.start === event.end) {
+              // 仅单日且有写权限的 Google 事件可编辑：多日事件若只保存首日，会在提交时静默缩短。
+              const googleEvent = event.kind === 'google' ? googleByTimelineId.get(event.id) : undefined;
+              if (googleEvent && !googleEvent.readOnly && event.start === event.end) {
                 return (
                   <button
                     key={event.id}
                     type="button"
                     className="compact-calendar-event-item compact-calendar-event-button"
-                    onClick={() => setEditor({ kind: 'edit', id: event.id.slice(GOOGLE_EVENT_ID_PREFIX.length) })}
+                    onClick={() => setEditor({ kind: 'edit', calendarId: googleEvent.calendarId, id: googleEvent.id })}
                   >
                     {content}
                   </button>

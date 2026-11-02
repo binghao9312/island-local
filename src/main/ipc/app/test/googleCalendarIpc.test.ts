@@ -65,7 +65,7 @@ describe('googleCalendar IPC handlers', () => {
   it('wraps a successful remove as ok with null data', async () => {
     vi.mocked(removeGoogleCalendarEvent).mockResolvedValue(undefined);
 
-    await expect(handlerFor('gcal:remove')({}, 'e1')).resolves.toEqual({ ok: true, data: null });
+    await expect(handlerFor('gcal:remove')({}, 'primary', 'e1')).resolves.toEqual({ ok: true, data: null });
   });
 
   it('returns the typed error code from the service', async () => {
@@ -81,7 +81,7 @@ describe('googleCalendar IPC handlers', () => {
   it('hides unexpected error text behind a fixed message', async () => {
     vi.mocked(removeGoogleCalendarEvent).mockRejectedValue(new Error('raw gws output with event title'));
 
-    const result = await handlerFor('gcal:remove')({}, 'e1');
+    const result = await handlerFor('gcal:remove')({}, 'primary', 'e1');
 
     expect(result).toEqual({ ok: false, code: 'unknown', message: 'Google Calendar request failed' });
   });
@@ -89,7 +89,14 @@ describe('googleCalendar IPC handlers', () => {
   it('treats a non-string event id as an invalid empty id', async () => {
     vi.mocked(removeGoogleCalendarEvent).mockRejectedValue(new GoogleCalendarError('invalid-input', 'event id is invalid'));
 
-    await expect(handlerFor('gcal:remove')({}, 42)).resolves.toMatchObject({ ok: false, code: 'invalid-input' });
-    expect(removeGoogleCalendarEvent).toHaveBeenCalledWith('');
+    await expect(handlerFor('gcal:remove')({}, 'primary', 42)).resolves.toMatchObject({ ok: false, code: 'invalid-input' });
+    expect(removeGoogleCalendarEvent).toHaveBeenCalledWith('primary', '');
+  });
+
+  it('treats a non-string calendar id as an invalid empty id', async () => {
+    vi.mocked(removeGoogleCalendarEvent).mockRejectedValue(new GoogleCalendarError('invalid-input', 'calendar id is invalid'));
+
+    await expect(handlerFor('gcal:remove')({}, { evil: true }, 'e1')).resolves.toMatchObject({ ok: false, code: 'invalid-input' });
+    expect(removeGoogleCalendarEvent).toHaveBeenCalledWith('', 'e1');
   });
 });

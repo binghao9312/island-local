@@ -41,6 +41,12 @@ export interface GoogleCalendarStatus {
  */
 export interface GoogleCalendarEvent {
   id: string;
+  /** 事件所属日历 ID；事件 ID 仅在单个日历内唯一，需与 id 组合标识事件 */
+  calendarId: string;
+  /** 事件展示色（日历的 backgroundColor，#RRGGBB） */
+  color: string;
+  /** 用户对所属日历没有写权限时为 true，界面不提供编辑与删除 */
+  readOnly: boolean;
   title: string;
   allDay: boolean;
   /** 全天事件为 YYYY-MM-DD，定时事件为 ISO 时间 */

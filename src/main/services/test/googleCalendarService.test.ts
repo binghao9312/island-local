@@ -102,6 +102,17 @@ function jsonArg(args: string[], flag: string): Record<string, unknown> {
   return JSON.parse(args[args.indexOf(flag) + 1]) as Record<string, unknown>;
 }
 
+/**
+ * 构造 calendarList 响应
+ * @param items - 日历条目，缺省为 owner 角色与固定颜色
+ * @returns gws 的 JSON 输出
+ */
+function calendarListOutput(items: Array<Record<string, unknown>>): string {
+  return JSON.stringify({ items: items.map((item) => ({ accessRole: 'owner', backgroundColor: '#112233', ...item })) });
+}
+
+const RANGE = { timeMin: '2026-10-31T00:00:00.000Z', timeMax: '2026-11-30T00:00:00.000Z' };
+
 describe('googleCalendarService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -134,6 +145,7 @@ describe('googleCalendarService', () => {
   });
 
   it('normalizes all-day and timed events and drops cancelled ones', async () => {
+    nextSpawn({ stdout: calendarListOutput([{ id: 'primary@example.com', selected: true }]) });
     nextSpawn({
       stdout: JSON.stringify({
         items: [
@@ -147,12 +159,79 @@ describe('googleCalendarService', () => {
     const events = await listGoogleCalendarEvents({ timeMin: '2026-10-31T00:00:00.000Z', timeMax: '2026-11-30T00:00:00.000Z' });
 
     expect(events).toEqual([
-      { id: 'a1', title: 'Trip', allDay: true, start: '2026-11-02', end: '2026-11-03' },
-      { id: 'b2', title: 'Standup', allDay: false, start: '2026-11-02T09:00:00+08:00', end: '2026-11-02T09:30:00+08:00' },
+      { id: 'a1', calendarId: 'primary@example.com', color: '#112233', readOnly: false, title: 'Trip', allDay: true, start: '2026-11-02', end: '2026-11-03' },
+      { id: 'b2', calendarId: 'primary@example.com', color: '#112233', readOnly: false, title: 'Standup', allDay: false, start: '2026-11-02T09:00:00+08:00', end: '2026-11-02T09:30:00+08:00' },
     ]);
     const args = lastGwsArgs();
     expect(args.slice(0, 3)).toEqual(['calendar', 'events', 'list']);
-    expect(jsonArg(args, '--params')).toMatchObject({ calendarId: 'primary', singleEvents: true, orderBy: 'startTime' });
+    expect(jsonArg(args, '--params')).toMatchObject({ calendarId: 'primary@example.com', singleEvents: true, orderBy: 'startTime' });
+  });
+
+  it('reads only selected, non-hidden calendars and tags events with calendar color and access', async () => {
+    nextSpawn({
+      stdout: calendarListOutput([
+        { id: 'me@example.com', selected: true, primary: true },
+        { id: 'abc123@group.calendar.google.com', selected: true, backgroundColor: '#ff0000', accessRole: 'reader' },
+        { id: 'unticked@example.com' },
+        { id: 'hidden@example.com', selected: true, hidden: true },
+      ]),
+    });
+    nextSpawn({ stdout: JSON.stringify({ items: [{ id: 'a1', summary: 'Mine', start: { date: '2026-11-02' }, end: { date: '2026-11-03' } }] }) });
+    nextSpawn({ stdout: JSON.stringify({ items: [{ id: 'a1', summary: 'Shift', start: { date: '2026-11-03' }, end: { date: '2026-11-04' } }] }) });
+
+    const events = await listGoogleCalendarEvents(RANGE);
+
+    expect(spawn).toHaveBeenCalledTimes(3);
+    const listed = vi.mocked(spawn).mock.calls.slice(1).map((call) => jsonArg(call[1] as string[], '--params').calendarId);
+    expect(listed).toEqual(['me@example.com', 'abc123@group.calendar.google.com']);
+    // 事件 ID 在两个日历中相同，靠 calendarId 区分。
+    expect(events.map((event) => [event.calendarId, event.id, event.color, event.readOnly])).toEqual([
+      ['me@example.com', 'a1', '#112233', false],
+      ['abc123@group.calendar.google.com', 'a1', '#ff0000', true],
+    ]);
+  });
+
+  it('keeps events from healthy calendars when another calendar fails', async () => {
+    nextSpawn({ stdout: calendarListOutput([{ id: 'ok@example.com', selected: true }, { id: 'bad@example.com', selected: true }]) });
+    nextSpawn({ stdout: JSON.stringify({ items: [{ id: 'a1', summary: 'Fine', start: { date: '2026-11-02' }, end: { date: '2026-11-03' } }] }) });
+    nextSpawn({ code: 1, stderr: 'Not Found' });
+
+    const events = await listGoogleCalendarEvents(RANGE);
+
+    expect(events.map((event) => event.calendarId)).toEqual(['ok@example.com']);
+  });
+
+  it('throws when every selected calendar fails', async () => {
+    nextSpawn({ stdout: calendarListOutput([{ id: 'a@example.com', selected: true }, { id: 'b@example.com', selected: true }]) });
+    nextSpawn({ code: 1, stderr: 'Token has been expired or revoked' });
+    nextSpawn({ code: 1, stderr: 'Token has been expired or revoked' });
+
+    await expect(listGoogleCalendarEvents(RANGE)).rejects.toMatchObject({ code: 'not-logged-in' });
+  });
+
+  it('returns no events when no calendar is selected', async () => {
+    nextSpawn({ stdout: calendarListOutput([{ id: 'a@example.com' }]) });
+
+    await expect(listGoogleCalendarEvents(RANGE)).resolves.toEqual([]);
+    expect(spawn).toHaveBeenCalledTimes(1);
+  });
+
+  it('treats freeBusyReader and missing roles as read-only', async () => {
+    nextSpawn({
+      stdout: calendarListOutput([
+        { id: 'w@example.com', selected: true, accessRole: 'writer' },
+        { id: 'f@example.com', selected: true, accessRole: 'freeBusyReader' },
+        { id: 'n@example.com', selected: true, accessRole: undefined },
+      ]),
+    });
+    const body = JSON.stringify({ items: [{ id: 'x', start: { date: '2026-11-02' }, end: { date: '2026-11-03' } }] });
+    nextSpawn({ stdout: body });
+    nextSpawn({ stdout: body });
+    nextSpawn({ stdout: body });
+
+    const events = await listGoogleCalendarEvents(RANGE);
+
+    expect(events.map((item) => item.readOnly)).toEqual([false, true, true]);
   });
 
   it('rejects an inverted query range without spawning', async () => {
@@ -180,7 +259,7 @@ describe('googleCalendarService', () => {
 
     const event = await createGoogleCalendarEvent({ title: '  Holiday  ', allDay: true, date: '2026-11-02' });
 
-    expect(event).toEqual({ id: 'n1', title: 'Holiday', allDay: true, start: '2026-11-02', end: '2026-11-02' });
+    expect(event).toEqual({ id: 'n1', calendarId: 'primary', color: '#4285f4', readOnly: false, title: 'Holiday', allDay: true, start: '2026-11-02', end: '2026-11-02' });
     const args = lastGwsArgs();
     expect(args.slice(0, 3)).toEqual(['calendar', 'events', 'insert']);
     expect(jsonArg(args, '--json')).toEqual({
@@ -218,25 +297,42 @@ describe('googleCalendarService', () => {
   it('patches an event by id with the full edited fields', async () => {
     nextSpawn({ stdout: JSON.stringify({ id: 'e1', summary: 'Moved', start: { dateTime: '2026-11-02T14:00:00+08:00' }, end: { dateTime: '2026-11-02T15:00:00+08:00' } }) });
 
-    const event = await updateGoogleCalendarEvent('e1', { title: 'Moved', allDay: false, date: '2026-11-02', startTime: '14:00', endTime: '15:00' });
+    const event = await updateGoogleCalendarEvent('team@group.calendar.google.com', 'e1', { title: 'Moved', allDay: false, date: '2026-11-02', startTime: '14:00', endTime: '15:00' });
 
     expect(event.title).toBe('Moved');
     const args = lastGwsArgs();
     expect(args.slice(0, 3)).toEqual(['calendar', 'events', 'patch']);
-    expect(jsonArg(args, '--params')).toEqual({ calendarId: 'primary', eventId: 'e1' });
+    expect(jsonArg(args, '--params')).toEqual({ calendarId: 'team@group.calendar.google.com', eventId: 'e1' });
   });
 
   it('refuses event ids that could escape the request path', async () => {
-    await expect(updateGoogleCalendarEvent('../primary', { title: 'x', allDay: true, date: '2026-11-02' }))
+    await expect(updateGoogleCalendarEvent('primary', '../primary', { title: 'x', allDay: true, date: '2026-11-02' }))
       .rejects.toMatchObject({ code: 'invalid-input' });
-    await expect(removeGoogleCalendarEvent('a/b')).rejects.toMatchObject({ code: 'invalid-input' });
+    await expect(removeGoogleCalendarEvent('primary', 'a/b')).rejects.toMatchObject({ code: 'invalid-input' });
     expect(spawn).not.toHaveBeenCalled();
+  });
+
+  it('refuses calendar ids that could escape the request path', async () => {
+    const input = { title: 'x', allDay: true, date: '2026-11-02' };
+    for (const calendarId of ['', '../primary', 'a/b', 'a b', 'a?b=c', 'a%2Fb']) {
+      await expect(updateGoogleCalendarEvent(calendarId, 'e1', input)).rejects.toMatchObject({ code: 'invalid-input' });
+      await expect(removeGoogleCalendarEvent(calendarId, 'e1')).rejects.toMatchObject({ code: 'invalid-input' });
+    }
+    expect(spawn).not.toHaveBeenCalled();
+  });
+
+  it('accepts primary, email, group and system calendar ids', async () => {
+    for (const calendarId of ['primary', 'me@example.com', 'abc123@group.calendar.google.com', 'en.taiwan#holiday@group.v.calendar.google.com']) {
+      nextSpawn({ stdout: '' });
+      await expect(removeGoogleCalendarEvent(calendarId, 'e1')).resolves.toBeUndefined();
+      expect(jsonArg(lastGwsArgs(), '--params')).toEqual({ calendarId, eventId: 'e1' });
+    }
   });
 
   it('deletes an event and accepts the empty output gws returns on success', async () => {
     nextSpawn({ stdout: '' });
 
-    await expect(removeGoogleCalendarEvent('e1')).resolves.toBeUndefined();
+    await expect(removeGoogleCalendarEvent('primary', 'e1')).resolves.toBeUndefined();
     const args = lastGwsArgs();
     expect(args.slice(0, 3)).toEqual(['calendar', 'events', 'delete']);
     expect(jsonArg(args, '--params')).toEqual({ calendarId: 'primary', eventId: 'e1' });

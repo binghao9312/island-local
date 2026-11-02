@@ -30,7 +30,9 @@ import {
   GOOGLE_EVENT_COLOR,
   getGoogleCalendarWindow,
   getGoogleStatusKey,
+  getGoogleTimelineId,
   toEventInput,
+  toGoogleSpanEvents,
   toGoogleTimelineEvents,
   validateEventFormValues,
 } from '../googleCalendarEvents';
@@ -47,11 +49,11 @@ describe('getGoogleCalendarWindow', () => {
 describe('toGoogleTimelineEvents', () => {
   it('keeps all-day events on their inclusive date keys and tags them as google', () => {
     const [event] = toGoogleTimelineEvents([
-      { id: 'a1', title: 'Trip', allDay: true, start: '2026-11-02', end: '2026-11-04' },
+      { id: 'a1', calendarId: 'primary', color: '#4285f4', readOnly: false, title: 'Trip', allDay: true, start: '2026-11-02', end: '2026-11-04' },
     ], '(No title)');
 
     expect(event).toEqual({
-      id: 'gcal:a1',
+      id: 'gcal:primary:a1',
       kind: 'google',
       label: 'Trip',
       start: '2026-11-02',
@@ -64,7 +66,7 @@ describe('toGoogleTimelineEvents', () => {
     const start = new Date(2026, 10, 2, 9, 5);
     const end = new Date(2026, 10, 2, 9, 45);
     const [event] = toGoogleTimelineEvents([
-      { id: 'b2', title: 'Standup', allDay: false, start: start.toISOString(), end: end.toISOString() },
+      { id: 'b2', calendarId: 'primary', color: '#4285f4', readOnly: false, title: 'Standup', allDay: false, start: start.toISOString(), end: end.toISOString() },
     ], '(No title)');
 
     expect(event.label).toBe('09:05 Standup');
@@ -74,7 +76,7 @@ describe('toGoogleTimelineEvents', () => {
 
   it('uses the untitled label for empty titles', () => {
     const [event] = toGoogleTimelineEvents([
-      { id: 'c3', title: '', allDay: true, start: '2026-11-05', end: '2026-11-06' },
+      { id: 'c3', calendarId: 'primary', color: '#4285f4', readOnly: false, title: '', allDay: true, start: '2026-11-05', end: '2026-11-06' },
     ], '(No title)');
 
     expect(event.label).toBe('(No title)');
@@ -82,11 +84,58 @@ describe('toGoogleTimelineEvents', () => {
 
   it('drops events with malformed dates instead of rendering bogus days', () => {
     const events = toGoogleTimelineEvents([
-      { id: 'd4', title: 'bad', allDay: true, start: '2026/11/02', end: '2026-11-03' },
-      { id: 'e5', title: 'bad time', allDay: false, start: 'not-a-date', end: '2026-11-03T10:00:00Z' },
+      { id: 'd4', calendarId: 'primary', color: '#4285f4', readOnly: false, title: 'bad', allDay: true, start: '2026/11/02', end: '2026-11-03' },
+      { id: 'e5', calendarId: 'primary', color: '#4285f4', readOnly: false, title: 'bad time', allDay: false, start: 'not-a-date', end: '2026-11-03T10:00:00Z' },
     ], '(No title)');
 
     expect(events).toEqual([]);
+  });
+});
+
+describe('calendar identity and color', () => {
+  it('keys timeline events by calendarId and id so equal event ids do not collide', () => {
+    const events = toGoogleTimelineEvents([
+      { id: 'same', calendarId: 'a@example.com', color: '#ff0000', readOnly: false, title: 'A', allDay: true, start: '2026-11-02', end: '2026-11-02' },
+      { id: 'same', calendarId: 'b@example.com', color: '#00ff00', readOnly: true, title: 'B', allDay: true, start: '2026-11-02', end: '2026-11-02' },
+    ], '(No title)');
+
+    expect(events.map((event) => event.id)).toEqual(['gcal:a@example.com:same', 'gcal:b@example.com:same']);
+    expect(events.map((event) => event.color)).toEqual(['#ff0000', '#00ff00']);
+  });
+
+  it('builds the timeline id from the event itself', () => {
+    expect(getGoogleTimelineId({
+      id: 'e1', calendarId: 'c@group.calendar.google.com', color: '#000000', readOnly: false, title: '', allDay: true, start: '2026-11-02', end: '2026-11-02',
+    })).toBe('gcal:c@group.calendar.google.com:e1');
+  });
+});
+
+describe('toGoogleSpanEvents', () => {
+  const base = { calendarId: 'a@example.com', color: '#336699', readOnly: false };
+
+  it('returns multi-day all-day events with the calendar color and skips single-day ones', () => {
+    const spans = toGoogleSpanEvents([
+      { ...base, id: 'trip', title: 'Trip', allDay: true, start: '2026-10-25', end: '2026-11-01' },
+      { ...base, id: 'one', title: 'One', allDay: true, start: '2026-11-02', end: '2026-11-02' },
+    ], '(No title)');
+
+    expect(spans).toEqual([{ id: 'gcal:a@example.com:trip', label: 'Trip', color: '#336699', start: '2026-10-25', end: '2026-11-01' }]);
+  });
+
+  it('spans timed events that cross local midnight, without a clock prefix in the label', () => {
+    const [span] = toGoogleSpanEvents([
+      { ...base, id: 'night', title: '', allDay: false, start: new Date(2026, 10, 2, 22, 0).toISOString(), end: new Date(2026, 10, 3, 6, 0).toISOString() },
+    ], '(No title)');
+
+    expect(span).toMatchObject({ label: '(No title)', start: '2026-11-02', end: '2026-11-03' });
+  });
+
+  it('does not extend a timed event ending exactly at local midnight into the next day', () => {
+    const spans = toGoogleSpanEvents([
+      { ...base, id: 'evening', title: 'Evening', allDay: false, start: new Date(2026, 10, 2, 18, 0).toISOString(), end: new Date(2026, 10, 3, 0, 0).toISOString() },
+    ], '(No title)');
+
+    expect(spans).toEqual([]);
   });
 });
 
@@ -131,6 +180,9 @@ describe('event form values', () => {
   it('restores local date and time when editing a timed event', () => {
     const values = createEventFormValues({
       id: 'e1',
+      calendarId: 'primary',
+      color: '#4285f4',
+      readOnly: false,
       title: 'Review',
       allDay: false,
       start: new Date(2026, 10, 2, 14, 30).toISOString(),

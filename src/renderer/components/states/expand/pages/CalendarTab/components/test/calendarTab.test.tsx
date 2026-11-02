@@ -78,9 +78,11 @@ vi.mock('../../../../../maxExpand/components/countdown/hooks/useCountdownItems',
 const mockGoogle = vi.hoisted(() => ({
   enabled: false,
   status: null as { available: boolean; loggedIn: boolean } | null,
-  events: [] as Array<{ id: string; title: string; allDay: boolean; start: string; end: string }>,
+  events: [] as Array<{ id: string; calendarId: string; color: string; readOnly: boolean; title: string; allDay: boolean; start: string; end: string }>,
   error: null as string | null,
   refresh: vi.fn(),
+  updateEvent: vi.fn(async () => ({ ok: true })),
+  removeEvent: vi.fn(async () => ({ ok: true })),
 }));
 
 vi.mock('../../hooks/useGoogleCalendar', () => ({
@@ -124,7 +126,7 @@ describe('CalendarTab in expanded view', () => {
     mockGoogle.enabled = true;
     mockGoogle.status = { available: true, loggedIn: true };
     mockGoogle.events = [
-      { id: 'g1', title: 'Design review', allDay: false, start: new Date(2026, 10, 1, 10, 0).toISOString(), end: new Date(2026, 10, 1, 11, 0).toISOString() },
+      { id: 'g1', calendarId: 'primary', color: '#4285f4', readOnly: false, title: 'Design review', allDay: false, start: new Date(2026, 10, 1, 10, 0).toISOString(), end: new Date(2026, 10, 1, 11, 0).toISOString() },
     ];
 
     const tree = render(CalendarTab);
@@ -151,7 +153,7 @@ describe('CalendarTab in expanded view', () => {
     mockGoogle.enabled = true;
     mockGoogle.status = { available: true, loggedIn: true };
     mockGoogle.events = [
-      { id: 'g3', title: 'Lunch', allDay: true, start: '2026-11-01', end: '2026-11-01' },
+      { id: 'g3', calendarId: 'primary', color: '#4285f4', readOnly: false, title: 'Lunch', allDay: true, start: '2026-11-01', end: '2026-11-01' },
     ];
 
     const tree = render(CalendarTab);
@@ -165,10 +167,76 @@ describe('CalendarTab in expanded view', () => {
     mockGoogle.enabled = true;
     mockGoogle.status = { available: true, loggedIn: true };
     mockGoogle.events = [
-      { id: 'g4', title: 'Trip', allDay: true, start: '2026-11-01', end: '2026-11-03' },
+      { id: 'g4', calendarId: 'primary', color: '#4285f4', readOnly: false, title: 'Trip', allDay: true, start: '2026-11-01', end: '2026-11-03' },
     ];
 
     expect(nodes(render(CalendarTab), '.compact-calendar-event-button')).toHaveLength(0);
+  });
+
+  it('draws a multi-day Google event as one bar per week row instead of a dot on every day', () => {
+    mockGoogle.enabled = true;
+    mockGoogle.status = { available: true, loggedIn: true };
+    // 2026-11-05（周四）到 2026-11-10（周二），跨越第 1、2 行。
+    mockGoogle.events = [
+      { id: 'g5', calendarId: 'shift@group.calendar.google.com', color: '#ff0000', readOnly: false, title: 'Trip', allDay: true, start: '2026-11-05', end: '2026-11-10' },
+    ];
+
+    const tree = render(CalendarTab);
+    const bars = nodes(tree, '.compact-calendar-span-bar');
+
+    expect(bars).toHaveLength(2);
+    expect(bars.map((bar) => bar.props.style)).toMatchObject([
+      { gridRow: 1, gridColumn: '5 / span 3', backgroundColor: '#ff0000' },
+      { gridRow: 2, gridColumn: '1 / span 3', backgroundColor: '#ff0000' },
+    ]);
+    expect(bars[0].props.className).toContain('is-continued-after');
+    expect(bars[1].props.className).toContain('is-continued-before');
+    expect(nodes(tree, '.compact-calendar-span-label').map((label) => text(label))).toEqual(['Trip', 'Trip']);
+    // 跨天事件不再给每一天加圆点；2026-11-01 的待办仍显示一个圆点。
+    expect(nodes(tree, '.compact-calendar-event-dot')).toHaveLength(1);
+  });
+
+  it('keeps single-day Google events as dots without bars', () => {
+    mockGoogle.enabled = true;
+    mockGoogle.status = { available: true, loggedIn: true };
+    mockGoogle.events = [
+      { id: 'g6', calendarId: 'primary', color: '#4285f4', readOnly: false, title: 'Lunch', allDay: true, start: '2026-11-03', end: '2026-11-03' },
+    ];
+
+    const tree = render(CalendarTab);
+
+    expect(nodes(tree, '.compact-calendar-span-bar')).toHaveLength(0);
+    expect(nodes(tree, '.compact-calendar-event-dot')).toHaveLength(2);
+  });
+
+  it('hides the editor entry for single-day events from read-only calendars', () => {
+    mockGoogle.enabled = true;
+    mockGoogle.status = { available: true, loggedIn: true };
+    mockGoogle.events = [
+      { id: 'g7', calendarId: 'holidays@group.v.calendar.google.com', color: '#0b8043', readOnly: true, title: 'Holiday', allDay: true, start: '2026-11-01', end: '2026-11-01' },
+    ];
+
+    const tree = render(CalendarTab);
+
+    expect(text(tree)).toContain('Holiday');
+    expect(nodes(tree, '.compact-calendar-event-button')).toHaveLength(0);
+  });
+
+  it('targets the event own calendar when saving and deleting', async () => {
+    mockGoogle.enabled = true;
+    mockGoogle.status = { available: true, loggedIn: true };
+    mockGoogle.events = [
+      { id: 'g8', calendarId: 'shift@group.calendar.google.com', color: '#ff0000', readOnly: false, title: 'Shift', allDay: true, start: '2026-11-01', end: '2026-11-01' },
+    ];
+
+    const tree = render(CalendarTab);
+    trigger(tree, '.compact-calendar-event-button', 'onClick');
+    const [form] = nodes(render(CalendarTab), GoogleEventForm);
+    await (form.props.onSubmit as (values: unknown) => Promise<boolean>)({ title: 'Shift', allDay: true, date: '2026-11-01', startTime: '09:00', endTime: '10:00' });
+    await (form.props.onDelete as () => Promise<boolean>)();
+
+    expect(mockGoogle.updateEvent).toHaveBeenCalledWith('shift@group.calendar.google.com', 'g8', expect.objectContaining({ title: 'Shift' }));
+    expect(mockGoogle.removeEvent).toHaveBeenCalledWith('shift@group.calendar.google.com', 'g8');
   });
 
   it('hides Google UI entirely while sync is disabled', () => {

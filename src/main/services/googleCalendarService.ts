@@ -42,6 +42,13 @@ const GWS_TIMEOUT_MS = 20_000;
 const LIST_MAX_RESULTS = 250;
 /** 事件 ID 只允许 Google 生成的字符集，避免拼接进请求路径时注入路径段 */
 const EVENT_ID_PATTERN = /^[A-Za-z0-9_@.-]{1,1024}$/;
+/** 日历 ID 允许邮箱、群组日历（@group.calendar.google.com）及含 # 的系统日历（节假日、联系人生日） */
+const CALENDAR_ID_PATTERN = /^[A-Za-z0-9_@.#-]{1,1024}$/;
+const COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
+/** 日历颜色缺失或非法时的回退色（Google 品牌蓝） */
+const FALLBACK_EVENT_COLOR = '#4285f4';
+/** 有写权限的日历角色；其余角色（reader、freeBusyReader）只读 */
+const WRITABLE_ACCESS_ROLES = new Set(['owner', 'writer']);
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
 const MAX_TITLE_LENGTH = 1024;
@@ -186,12 +193,23 @@ function shiftDateKey(dateKey: string, days: number): string {
   return date.toISOString().slice(0, 10);
 }
 
+/** 事件所属日历的展示信息 */
+interface CalendarSource {
+  calendarId: string;
+  color: string;
+  readOnly: boolean;
+}
+
+/** 新建事件固定写入主日历，主日历必然可写 */
+const PRIMARY_SOURCE: CalendarSource = { calendarId: 'primary', color: FALLBACK_EVENT_COLOR, readOnly: false };
+
 /**
  * 将 gws 返回的 Google 事件转换为渲染进程使用的结构
  * @param item - Google Calendar Event 资源
+ * @param source - 事件所属日历的 ID、颜色与读写权限
  * @returns 规范化事件；无 ID 或无起止时间时返回 null
  */
-function toEvent(item: Record<string, unknown>): GoogleCalendarEvent | null {
+function toEvent(item: Record<string, unknown>, source: CalendarSource): GoogleCalendarEvent | null {
   const id = typeof item.id === 'string' ? item.id : '';
   if (!id) return null;
   const start = isRecord(item.start) ? item.start : {};
@@ -200,11 +218,12 @@ function toEvent(item: Record<string, unknown>): GoogleCalendarEvent | null {
   if (typeof start.date === 'string') {
     // Google 全天事件的 end.date 是开区间，这里转换为包含当日的结束日。
     const last = typeof end.date === 'string' ? shiftDateKey(end.date, -1) : start.date;
-    return { id, title, allDay: true, start: start.date, end: last < start.date ? start.date : last };
+    return { id, ...source, title, allDay: true, start: start.date, end: last < start.date ? start.date : last };
   }
   if (typeof start.dateTime === 'string') {
     return {
       id,
+      ...source,
       title,
       allDay: false,
       start: start.dateTime,
@@ -280,20 +299,34 @@ export async function getGoogleCalendarStatus(): Promise<GoogleCalendarStatus> {
 }
 
 /**
- * 读取主日历在时间窗口内的事件
- * @description 使用 singleEvents 展开周期事件，并过滤已取消的事件。
- * @param range - 查询窗口，timeMin 必须早于 timeMax
- * @returns 规范化事件列表，按起始时间排序
- * @throws GoogleCalendarError 窗口非法时抛出 invalid-input
+ * 从 calendarList 响应中筛出需要读取的日历
+ * @description 与 Google 日历网页一致：只读取已勾选（selected）且未隐藏（hidden）的日历。
+ * @param data - gws calendarList list 的响应
+ * @returns 日历 ID、颜色与读写权限；ID 非法的条目会被丢弃
  */
-export async function listGoogleCalendarEvents(range: GoogleCalendarRange): Promise<GoogleCalendarEvent[]> {
-  const min = Date.parse(range.timeMin);
-  const max = Date.parse(range.timeMax);
-  if (Number.isNaN(min) || Number.isNaN(max) || min >= max) {
-    throw new GoogleCalendarError('invalid-input', 'calendar range is invalid');
-  }
+function toSelectedCalendars(data: unknown): CalendarSource[] {
+  const items = isRecord(data) && Array.isArray(data.items) ? data.items : [];
+  return items.filter(isRecord).flatMap((item): CalendarSource[] => {
+    const calendarId = typeof item.id === 'string' ? item.id : '';
+    if (item.selected !== true || item.hidden === true || !CALENDAR_ID_PATTERN.test(calendarId)) return [];
+    const color = typeof item.backgroundColor === 'string' && COLOR_PATTERN.test(item.backgroundColor)
+      ? item.backgroundColor
+      : FALLBACK_EVENT_COLOR;
+    const role = typeof item.accessRole === 'string' ? item.accessRole : '';
+    return [{ calendarId, color, readOnly: !WRITABLE_ACCESS_ROLES.has(role) }];
+  });
+}
+
+/**
+ * 读取单个日历在时间窗口内的事件
+ * @description 使用 singleEvents 展开周期事件，并过滤已取消的事件。
+ * @param source - 目标日历
+ * @param range - 查询窗口
+ * @returns 规范化事件列表
+ */
+async function listCalendarEvents(source: CalendarSource, range: GoogleCalendarRange): Promise<GoogleCalendarEvent[]> {
   const params = {
-    calendarId: 'primary',
+    calendarId: source.calendarId,
     timeMin: range.timeMin,
     timeMax: range.timeMax,
     singleEvents: true,
@@ -305,8 +338,34 @@ export async function listGoogleCalendarEvents(range: GoogleCalendarRange): Prom
   return items
     .filter(isRecord)
     .filter((item) => item.status !== 'cancelled')
-    .map(toEvent)
+    .map((item) => toEvent(item, source))
     .filter((event): event is GoogleCalendarEvent => event !== null);
+}
+
+/**
+ * 读取所有已勾选日历在时间窗口内的事件并合并
+ * @description 先读取日历列表，再并行查询各日历；单个日历失败只会丢掉该日历的事件，
+ * 仅当所有日历都失败时才抛出第一个错误，以便界面展示状态提示。
+ * @param range - 查询窗口，timeMin 必须早于 timeMax
+ * @returns 合并后的规范化事件列表，按起始时间排序
+ * @throws GoogleCalendarError 窗口非法、日历列表读取失败或全部日历失败时抛出
+ */
+export async function listGoogleCalendarEvents(range: GoogleCalendarRange): Promise<GoogleCalendarEvent[]> {
+  const min = Date.parse(range.timeMin);
+  const max = Date.parse(range.timeMax);
+  if (Number.isNaN(min) || Number.isNaN(max) || min >= max) {
+    throw new GoogleCalendarError('invalid-input', 'calendar range is invalid');
+  }
+  const calendars = toSelectedCalendars(await runGws(['calendar', 'calendarList', 'list', '--params', '{}']));
+  const results = await Promise.allSettled(calendars.map((source) => listCalendarEvents(source, range)));
+  const failures = results.filter((result): result is PromiseRejectedResult => result.status === 'rejected');
+  if (calendars.length > 0 && failures.length === calendars.length) {
+    const reason: unknown = failures[0].reason;
+    throw reason instanceof GoogleCalendarError ? reason : new GoogleCalendarError('unknown', 'calendar events could not be loaded');
+  }
+  return results
+    .flatMap((result) => (result.status === 'fulfilled' ? result.value : []))
+    .sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
 }
 
 /**
@@ -317,35 +376,49 @@ export async function listGoogleCalendarEvents(range: GoogleCalendarRange): Prom
 export async function createGoogleCalendarEvent(raw: unknown): Promise<GoogleCalendarEvent> {
   const body = buildEventBody(normalizeEventInput(raw));
   const data = await runGws(['calendar', 'events', 'insert', '--params', JSON.stringify({ calendarId: 'primary' }), '--json', JSON.stringify(body)]);
-  const event = isRecord(data) ? toEvent(data) : null;
+  const event = isRecord(data) ? toEvent(data, PRIMARY_SOURCE) : null;
   if (!event) throw new GoogleCalendarError('unknown', 'created event was not returned');
   return event;
 }
 
 /**
- * 整体更新主日历中的事件标题与时间
+ * 校验日历 ID 与事件 ID 都能安全拼入请求
+ * @param calendarId - Google 日历 ID
+ * @param id - Google 事件 ID
+ * @throws GoogleCalendarError 任一 ID 非法时抛出 invalid-input
+ */
+function assertEventTarget(calendarId: string, id: string): void {
+  if (!CALENDAR_ID_PATTERN.test(calendarId)) throw new GoogleCalendarError('invalid-input', 'calendar id is invalid');
+  if (!EVENT_ID_PATTERN.test(id)) throw new GoogleCalendarError('invalid-input', 'event id is invalid');
+}
+
+/**
+ * 整体更新指定日历中的事件标题与时间
  * @description 表单总是提供完整字段，因此以 patch 方式提交完整的标题与时间。
+ * 返回事件的颜色沿用默认值，列表刷新后会被日历信息覆盖。
+ * @param calendarId - 事件所属日历 ID
  * @param id - Google 事件 ID
  * @param raw - 未受信任的事件输入
  * @returns 更新后的规范化事件
- * @throws GoogleCalendarError 事件 ID 非法时抛出 invalid-input
+ * @throws GoogleCalendarError 日历 ID 或事件 ID 非法时抛出 invalid-input
  */
-export async function updateGoogleCalendarEvent(id: string, raw: unknown): Promise<GoogleCalendarEvent> {
-  if (!EVENT_ID_PATTERN.test(id)) throw new GoogleCalendarError('invalid-input', 'event id is invalid');
+export async function updateGoogleCalendarEvent(calendarId: string, id: string, raw: unknown): Promise<GoogleCalendarEvent> {
+  assertEventTarget(calendarId, id);
   const body = buildEventBody(normalizeEventInput(raw));
-  const data = await runGws(['calendar', 'events', 'patch', '--params', JSON.stringify({ calendarId: 'primary', eventId: id }), '--json', JSON.stringify(body)]);
-  const event = isRecord(data) ? toEvent(data) : null;
+  const data = await runGws(['calendar', 'events', 'patch', '--params', JSON.stringify({ calendarId, eventId: id }), '--json', JSON.stringify(body)]);
+  const event = isRecord(data) ? toEvent(data, { ...PRIMARY_SOURCE, calendarId }) : null;
   if (!event) throw new GoogleCalendarError('unknown', 'updated event was not returned');
   return event;
 }
 
 /**
- * 删除主日历中的事件
+ * 删除指定日历中的事件
  * @description 删除确认由渲染进程的二次确认控件负责，服务层只做参数校验。
+ * @param calendarId - 事件所属日历 ID
  * @param id - Google 事件 ID
- * @throws GoogleCalendarError 事件 ID 非法时抛出 invalid-input
+ * @throws GoogleCalendarError 日历 ID 或事件 ID 非法时抛出 invalid-input
  */
-export async function removeGoogleCalendarEvent(id: string): Promise<void> {
-  if (!EVENT_ID_PATTERN.test(id)) throw new GoogleCalendarError('invalid-input', 'event id is invalid');
-  await runGws(['calendar', 'events', 'delete', '--params', JSON.stringify({ calendarId: 'primary', eventId: id })]);
+export async function removeGoogleCalendarEvent(calendarId: string, id: string): Promise<void> {
+  assertEventTarget(calendarId, id);
+  await runGws(['calendar', 'events', 'delete', '--params', JSON.stringify({ calendarId, eventId: id })]);
 }

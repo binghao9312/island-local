@@ -60,9 +60,13 @@ export function registerGoogleCalendarIpcHandlers(): void {
   ipcMain.handle('gcal:status', () => runTask(() => getGoogleCalendarStatus()));
   ipcMain.handle('gcal:list', (_event, range: unknown) => runTask(() => listGoogleCalendarEvents(range as GoogleCalendarRange)));
   ipcMain.handle('gcal:create', (_event, input: unknown) => runTask(() => createGoogleCalendarEvent(input)));
-  ipcMain.handle('gcal:update', (_event, id: unknown, input: unknown) => runTask(() => updateGoogleCalendarEvent(typeof id === 'string' ? id : '', input)));
-  ipcMain.handle('gcal:remove', (_event, id: unknown) => runTask(async () => {
-    await removeGoogleCalendarEvent(typeof id === 'string' ? id : '');
+  ipcMain.handle('gcal:update', (_event, calendarId: unknown, id: unknown, input: unknown) => runTask(() => updateGoogleCalendarEvent(
+    typeof calendarId === 'string' ? calendarId : '',
+    typeof id === 'string' ? id : '',
+    input,
+  )));
+  ipcMain.handle('gcal:remove', (_event, calendarId: unknown, id: unknown) => runTask(async () => {
+    await removeGoogleCalendarEvent(typeof calendarId === 'string' ? calendarId : '', typeof id === 'string' ? id : '');
     return null;
   }));
 }

@@ -26,6 +26,7 @@
 
 import type { CalendarTimelineEvent } from '../../../../maxExpand/components/calendar/types/calendarTimelineTypes';
 import { getCalendarDateKey } from '../../../../maxExpand/components/calendar/utils/calendarHolidayUtils';
+import type { SpanEvent } from './calendarSpanLayout';
 import type {
   GoogleCalendarErrorCode,
   GoogleCalendarEvent,
@@ -33,7 +34,7 @@ import type {
   GoogleCalendarStatus,
 } from '../../../../../../../shared/googleCalendarTypes';
 
-/** Google 事件使用品牌蓝，与本地节假日、待办、倒数日的颜色区分 */
+/** 日历未提供颜色时的回退色，使用品牌蓝与本地节假日、待办、倒数日区分 */
 export const GOOGLE_EVENT_COLOR = '#4285f4';
 /** 时间轴事件 ID 的前缀，用于从时间轴事件还原 Google 事件 ID */
 export const GOOGLE_EVENT_ID_PREFIX = 'gcal:';
@@ -65,8 +66,40 @@ export function formatClock(date: Date): string {
 }
 
 /**
+ * 生成 Google 事件在时间轴中的唯一 ID
+ * @description 事件 ID 仅在单个日历内唯一，因此与 calendarId 组合。两者的字符集都不含冒号，拼接不会产生歧义。
+ * @param event - Google 事件
+ * @returns 形如 gcal:{calendarId}:{id} 的时间轴事件 ID
+ */
+export function getGoogleTimelineId(event: GoogleCalendarEvent): string {
+  return `${GOOGLE_EVENT_ID_PREFIX}${event.calendarId}:${event.id}`;
+}
+
+/**
+ * 取得 Google 事件覆盖的本地日期范围
+ * @description 全天事件直接使用其日期键；定时事件按本地时区取日期，恰好在本地 0 点结束的事件不计入结束当天。
+ * @param event - 已规范化的 Google 事件
+ * @returns 起止日期键（含）；日期或时间无法解析时返回 null
+ */
+function getEventDateRange(event: GoogleCalendarEvent): { start: string; end: string } | null {
+  if (event.allDay) {
+    if (!DATE_KEY_PATTERN.test(event.start) || !DATE_KEY_PATTERN.test(event.end)) return null;
+    return { start: event.start, end: event.end < event.start ? event.start : event.end };
+  }
+  const startTime = Date.parse(event.start);
+  const endTime = Date.parse(event.end);
+  if (Number.isNaN(startTime) || Number.isNaN(endTime)) return null;
+  const endDate = new Date(Math.max(startTime, endTime));
+  const endsAtMidnight = endTime > startTime && endDate.getHours() === 0 && endDate.getMinutes() === 0;
+  return {
+    start: getCalendarDateKey(new Date(startTime)),
+    end: getCalendarDateKey(endsAtMidnight ? new Date(endTime - 1) : endDate),
+  };
+}
+
+/**
  * 将 Google 事件转换为时间轴事件（本地日期）
- * @description 全天事件直接使用其日期键；定时事件按本地时区取日期，并在标题前附加开始时间。
+ * @description 定时事件在标题前附加开始时间。
  * 无法解析的时间或日期会被丢弃，避免一条坏数据影响整个月历。
  * @param events - 已规范化的 Google 事件
  * @param untitledLabel - 无标题事件的占位文案
@@ -74,25 +107,26 @@ export function formatClock(date: Date): string {
  */
 export function toGoogleTimelineEvents(events: GoogleCalendarEvent[], untitledLabel: string): CalendarTimelineEvent[] {
   return events.flatMap((event): CalendarTimelineEvent[] => {
+    const range = getEventDateRange(event);
+    if (!range) return [];
     const title = event.title || untitledLabel;
-    if (event.allDay) {
-      if (!DATE_KEY_PATTERN.test(event.start) || !DATE_KEY_PATTERN.test(event.end)) return [];
-      const end = event.end < event.start ? event.start : event.end;
-      return [{ id: `${GOOGLE_EVENT_ID_PREFIX}${event.id}`, kind: 'google', label: title, start: event.start, end, color: GOOGLE_EVENT_COLOR }];
-    }
-    const startTime = Date.parse(event.start);
-    const endTime = Date.parse(event.end);
-    if (Number.isNaN(startTime) || Number.isNaN(endTime)) return [];
-    const start = new Date(startTime);
-    const end = new Date(Math.max(startTime, endTime));
-    return [{
-      id: `${GOOGLE_EVENT_ID_PREFIX}${event.id}`,
-      kind: 'google',
-      label: `${formatClock(start)} ${title}`,
-      start: getCalendarDateKey(start),
-      end: getCalendarDateKey(end),
-      color: GOOGLE_EVENT_COLOR,
-    }];
+    const label = event.allDay ? title : `${formatClock(new Date(event.start))} ${title}`;
+    return [{ id: getGoogleTimelineId(event), kind: 'google', label, start: range.start, end: range.end, color: event.color || GOOGLE_EVENT_COLOR }];
+  });
+}
+
+/**
+ * 取出需要画成横条的跨天 Google 事件
+ * @description 单日事件保持圆点样式，不在此返回；颜色取日历色。
+ * @param events - 已规范化的 Google 事件
+ * @param untitledLabel - 无标题事件的占位文案
+ * @returns 跨天事件的横条输入
+ */
+export function toGoogleSpanEvents(events: GoogleCalendarEvent[], untitledLabel: string): SpanEvent[] {
+  return events.flatMap((event): SpanEvent[] => {
+    const range = getEventDateRange(event);
+    if (!range || range.start === range.end) return [];
+    return [{ id: getGoogleTimelineId(event), label: event.title || untitledLabel, color: event.color || GOOGLE_EVENT_COLOR, ...range }];
   });
 }
 
@@ -131,7 +165,7 @@ export interface GoogleEventFormValues {
 }
 
 /** 日历中当前打开的 Google 表单：新建，或编辑指定 ID 的事件 */
-export type GoogleEditorState = { kind: 'create' } | { kind: 'edit'; id: string };
+export type GoogleEditorState = { kind: 'create' } | { kind: 'edit'; calendarId: string; id: string };
 
 /**
  * 生成表单初始值
