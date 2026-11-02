@@ -658,6 +658,7 @@
       "addBlacklist": "Add to Blacklist",
       "hide": "Hide",
       "ignore": "Ignore",
+      "skip": "Skip",
       "switch": "Switch",
       "switchCliState": "Switch to Island",
       "snooze5m": "Later 5m",

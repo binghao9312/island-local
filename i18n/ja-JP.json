@@ -658,6 +658,7 @@
       "addBlacklist": "ブラックリストに追加",
       "hide": "非表示",
       "ignore": "無視",
+      "skip": "スキップ",
       "switch": "切り替え",
       "switchCliState": "アイランドに切り替え",
       "snooze5m": "5分後に再通知",
