@@ -32,7 +32,8 @@ import { fetchVersion, reportUpdateDownloadCount } from '../../api/update/versio
 import { getWebsiteFaviconUrl, getWebsiteHostname } from '../../api/site/siteMetaApi';
 import { CLIPBOARD_URL_SUPPRESS_IN_FAVORITES_KEY, UPDATE_SOURCE_STORE_KEY, getUpdateSourceLabel } from '../config/dynamicIslandConfig';
 
-/** Agent 启动通知开关存储键名 */
+/** 讯息类通知（Discord、Gmail）自动关闭延时（毫秒） */
+const MESSAGE_AUTO_DISMISS_MS = 6000;
 
 interface UseIslandNotificationSubscriptionsOptions {
   language: string | undefined;
@@ -119,6 +120,7 @@ export function useIslandNotificationSubscriptions(options: UseIslandNotificatio
         icon: SvgIcon.MAIL,
         type: 'mail',
         mailUrl: url,
+        autoDismissMs: MESSAGE_AUTO_DISMISS_MS,
       });
     });
     return () => {
@@ -132,7 +134,8 @@ export function useIslandNotificationSubscriptions(options: UseIslandNotificatio
         title: title || t('notification.discord.title', { defaultValue: 'Discord 新消息' }),
         body,
         icon: SvgIcon.NOTIFICATION,
-        type: 'default',
+        type: 'message',
+        autoDismissMs: MESSAGE_AUTO_DISMISS_MS,
       });
     });
     return () => {

@@ -127,11 +127,11 @@ describe('useIslandNotificationSubscriptions 实际订阅与通知', () => {
   });
   it('新邮件提醒使用邮件图标并携带打开链接，多封时补充剩余数量', async () => {
     await mount(); await emit('onGmailNewMail', { sender: 'Ada', subject: 'Notes', url: 'https://mail.google.com/mail/u/0/#inbox/t1', count: 3 });
-    expect(notification).toHaveBeenCalledWith({ title: 'notification.mail.fromTitle', body: 'Notes · notification.mail.moreCount', icon: SvgIcon.MAIL, type: 'mail', mailUrl: 'https://mail.google.com/mail/u/0/#inbox/t1' });
+    expect(notification).toHaveBeenCalledWith({ title: 'notification.mail.fromTitle', body: 'Notes · notification.mail.moreCount', icon: SvgIcon.MAIL, type: 'mail', mailUrl: 'https://mail.google.com/mail/u/0/#inbox/t1', autoDismissMs: 6000 });
   });
   it('无发件人与主题时使用通用新邮件文案', async () => {
     await mount(); await emit('onGmailNewMail', { sender: '', subject: '', url: 'https://mail.google.com/mail/u/0/#inbox/t2', count: 1 });
-    expect(notification).toHaveBeenCalledWith({ title: 'notification.mail.title', body: 'notification.mail.noSubject', icon: SvgIcon.MAIL, type: 'mail', mailUrl: 'https://mail.google.com/mail/u/0/#inbox/t2' });
+    expect(notification).toHaveBeenCalledWith({ title: 'notification.mail.title', body: 'notification.mail.noSubject', icon: SvgIcon.MAIL, type: 'mail', mailUrl: 'https://mail.google.com/mail/u/0/#inbox/t2', autoDismissMs: 6000 });
   });
   it('切换语言重订阅，卸载清理所有原生订阅', async () => {
     await mount(); const previous = [...cleanups.values()];

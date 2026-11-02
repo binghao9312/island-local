@@ -25,7 +25,7 @@
  */
 
 import { useShallow } from 'zustand/react/shallow';
-import { useState, type ReactElement } from 'react';
+import { useEffect, useState, type ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import useIslandStore from '../../../store/slices';
 import { SvgIcon } from '../../../utils/SvgIcon';
@@ -59,8 +59,10 @@ export function NotificationContent({
   urls,
   breakReminderItemId,
   mailUrl,
+  autoDismissMs,
 }: NotificationContentProps): ReactElement {
   const { t } = useTranslation();
+  const [isHovered, setIsHovered] = useState(false);
   const { setIdle, setLyrics, setNotification, setMaxExpand, setMaxExpandTab, setCli, setCliProvider } = useIslandStore(useShallow((store) => ({
     setIdle: store.setIdle,
     setLyrics: store.setLyrics,
@@ -141,6 +143,13 @@ export function NotificationContent({
       setIdle();
     }
   };
+
+  useEffect(() => {
+    if (!autoDismissMs || isHovered) return undefined;
+    const timer = window.setTimeout(dismiss, autoDismissMs);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 新通知（标题/正文变化）时重新计时
+  }, [autoDismissMs, isHovered, title, body]);
 
   const handleFavoriteCurrentUrl = (): void => {
     if (!currentClipboardUrl) return;
@@ -343,7 +352,7 @@ export function NotificationContent({
   })();
 
   return (
-    <div className="notification-content">
+    <div className="notification-content" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
       <div className="notification-main-row">
         <div className={`notification-icon${type === 'cli-session-detected' ? ' notification-icon--lg' : ''}`}>
           {resolvedDisplayIcon ? (
@@ -414,6 +423,7 @@ export function NotificationContent({
         <div className="notification-actions notification-actions--right">
           <div className="notification-decision-actions">
             <button type="button" className="notification-action-btn notification-action-complete" onClick={() => handleOpenUrl(mailUrl)}>{t('notification.actions.openMail', { defaultValue: '打开邮件' })}</button>
+            <button type="button" className="notification-action-btn notification-action-ignore" onClick={dismiss}>{t('notification.actions.skip', { defaultValue: '跳过' })}</button>
           </div>
         </div>
       ) : type === 'clipboard-url' && urls?.length ? (
@@ -493,6 +503,12 @@ export function NotificationContent({
               </button>
             )}
             <button type="button" className="notification-action-btn notification-action-ignore" onClick={handleDismissUrl}>{t('notification.actions.ignore', { defaultValue: '忽略' })}</button>
+          </div>
+        </div>
+      ) : type === 'message' ? (
+        <div className="notification-actions notification-actions--right">
+          <div className="notification-decision-actions">
+            <button type="button" className="notification-action-btn notification-action-ignore" onClick={dismiss}>{t('notification.actions.skip', { defaultValue: '跳过' })}</button>
           </div>
         </div>
       ) : type === 'cli-session-detected' ? (

@@ -103,6 +103,7 @@ export function DynamicIslandStateContent({
         urls={notification.urls}
         breakReminderItemId={notification.breakReminderItemId}
         mailUrl={notification.mailUrl}
+        autoDismissMs={notification.autoDismissMs}
       />
     );
   }

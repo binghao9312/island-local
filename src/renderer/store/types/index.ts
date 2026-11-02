@@ -181,7 +181,7 @@ export interface NotificationData {
   body: string;
   icon?: string;
   /** 通知类型：默认通知 / 播放源切换请求 / 有新版本 / 更新下载中 / 更新就绪 / 启动天气预警 / 剪贴板URL / 重启确认 / 检测到 Claude Code 流事件 */
-  type?: 'default' | 'source-switch' | 'update-available' | 'update-downloading' | 'update-ready' | 'clipboard-url' | 'restart-required' | 'cli-session-detected' | 'mail';
+  type?: 'default' | 'source-switch' | 'update-available' | 'update-downloading' | 'update-ready' | 'clipboard-url' | 'restart-required' | 'cli-session-detected' | 'mail' | 'message';
   /** 检测到 CLI session 时应切换到的提供方 */
   cliProvider?: CliProvider;
   /** 请求切换到的播放源 ID（仅 source-switch 类型） */
@@ -196,6 +196,8 @@ export interface NotificationData {
   breakReminderItemId?: string;
   /** 新邮件打开链接（仅 mail 类型） */
   mailUrl?: string;
+  /** 自动关闭延时（毫秒），未设置则需手动关闭；鼠标悬停时暂停 */
+  autoDismissMs?: number;
 }
 
 // ============= Slice Interfaces =============

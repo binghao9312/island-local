@@ -74,6 +74,7 @@ let progress: ((data: DownloadProgressData) => void) | undefined;
 let surface: EventTarget & {
   api?: ReturnType<typeof bridge>;
   setTimeout: typeof setTimeout;
+  clearTimeout: typeof clearTimeout;
   location: {
     href: string;
   };
@@ -191,6 +192,7 @@ beforeEach(() => {
   surface = Object.assign(new EventTarget(), {
     api,
     setTimeout,
+    clearTimeout,
     location: {
       href: 'https://island.example/index.html'
     }
@@ -240,6 +242,28 @@ describe('NotificationContent real hooks', () => {
       icon: undefined,
       breakReminderItemId: 'break'
     });
+  });
+  it('message notification auto dismisses after its delay and pauses while hovered', async () => {
+    props = { ...props, type: 'message', autoDismissMs: 6000 };
+    await mount();
+    invoke(find(run(), (node) => node.props.className === 'notification-content'), 'onMouseEnter');
+    run();
+    flushHookEffects();
+    vi.advanceTimersByTime(10000);
+    expect(model.store.setIdle).not.toHaveBeenCalled();
+    invoke(find(run(), (node) => node.props.className === 'notification-content'), 'onMouseLeave');
+    run();
+    flushHookEffects();
+    vi.advanceTimersByTime(5999);
+    expect(model.store.setIdle).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
+    expect(model.store.setIdle).toHaveBeenCalledTimes(1);
+  });
+  it('message notification skip button dismisses immediately', async () => {
+    props = { ...props, type: 'message' };
+    await mount();
+    await click('skip');
+    expect(model.store.setIdle).toHaveBeenCalledTimes(1);
   });
   it('ordinary snooze without reminder id still reschedules and dismisses', async () => {
     await mount();
