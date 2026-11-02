@@ -71,7 +71,6 @@ import type {
   UpdaterNotAvailableData,
   UpdaterStartupAutoCheckRequestData,
   ClipboardUrlsDetectedData,
-  ExternalAgentData,
   SourceSwitchRequestData,
   RunningProcessInfo,
   RunningWindowInfo,
@@ -1669,34 +1668,6 @@ const api = {
    */
   clipboardOpenUrl: (url: string): Promise<boolean> => {
     return ipcRenderer.invoke('clipboard:open-url', url);
-  },
-  /**
-   * 监听外部桌面 Agent 启动事件
-   * @param callback - 收到事件时的回调，包含 agentNames 数组
-   * @returns 取消订阅函数
-   */
-  onExternalAgentStarted: (callback: (data: ExternalAgentData) => void): (() => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, data: ExternalAgentData): void => {
-      callback(data);
-    };
-    ipcRenderer.on('external-agent:started', handler);
-    return () => {
-      ipcRenderer.removeListener('external-agent:started', handler);
-    };
-  },
-  /**
-   * 监听外部桌面 Agent 关闭事件
-   * @param callback - 收到事件时的回调，包含 agentNames 数组
-   * @returns 取消订阅函数
-   */
-  onExternalAgentStopped: (callback: (data: ExternalAgentData) => void): (() => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, data: ExternalAgentData): void => {
-      callback(data);
-    };
-    ipcRenderer.on('external-agent:stopped', handler);
-    return () => {
-      ipcRenderer.removeListener('external-agent:stopped', handler);
-    };
   },
   /** 按需读取一页 CLI 详情，正文不会常驻状态快照。 */
   claudeCodeEventDetail: (id: string, offset?: number): Promise<CliDetailPage> => ipcRenderer.invoke('claude-code:event:detail', id, offset),

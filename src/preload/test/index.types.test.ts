@@ -41,7 +41,7 @@ import type {
   AcpProviderInfo,
   AcpStartResult,
 } from '../../shared/acpTypes';
-import type { Point, Bounds, IslandDisplayInfo, SearchLocalFilesOptions, SearchLocalFileResult, SaveTextFilePayload, SaveTextFileResult, ComputeFileHashResult, NowPlayingInfo, MediaCommandResult, SmtcTimestampResult, DetectSourceAppIdResult, ImageCompressionStartPayload, ImageCompressionStartResult, ImageCompressionTask, SaveImageAsResult, ResolveShortcutResult, ExtractVideoTrackOptions, ExtractVideoTrackResult, PickVideoForExtractResult, NetFetchOptions, NetFetchResult, MailInboxResult, NavOrderPayload, SetWallpaperPayload, DownloadStartPayload, DownloadStartResult, DownloadTask, UpdaterCheckResult, UpdaterProgress, UpdaterDownloadedData, UpdaterAvailableData, UpdaterNotAvailableData, UpdaterStartupAutoCheckRequestData, ClipboardUrlsDetectedData, ExternalAgentData, RunningProcessInfo, RunningWindowInfo, PerformanceHardwareSelection, PerformanceSnapshot, ClaudeCodeStatusSnapshot, ClaudeCodeHookMutationResult, CodexStatusSnapshot, CodexMonitorMutationResult, AgentUsageSnapshot } from '../types';
+import type { Point, Bounds, IslandDisplayInfo, SearchLocalFilesOptions, SearchLocalFileResult, SaveTextFilePayload, SaveTextFileResult, ComputeFileHashResult, NowPlayingInfo, MediaCommandResult, SmtcTimestampResult, DetectSourceAppIdResult, ImageCompressionStartPayload, ImageCompressionStartResult, ImageCompressionTask, SaveImageAsResult, ResolveShortcutResult, ExtractVideoTrackOptions, ExtractVideoTrackResult, PickVideoForExtractResult, NetFetchOptions, NetFetchResult, MailInboxResult, NavOrderPayload, SetWallpaperPayload, DownloadStartPayload, DownloadStartResult, DownloadTask, UpdaterCheckResult, UpdaterProgress, UpdaterDownloadedData, UpdaterAvailableData, UpdaterNotAvailableData, UpdaterStartupAutoCheckRequestData, ClipboardUrlsDetectedData, RunningProcessInfo, RunningWindowInfo, PerformanceHardwareSelection, PerformanceSnapshot, ClaudeCodeStatusSnapshot, ClaudeCodeHookMutationResult, CodexStatusSnapshot, CodexMonitorMutationResult, AgentUsageSnapshot } from '../types';
 interface ExpectedApi {
   enableMousePassthrough: () => void;
   disableMousePassthrough: () => void;
@@ -289,8 +289,6 @@ interface ExpectedApi {
   onDiscordNotification: (callback: (data: DiscordNotificationPayload) => void) => () => void;
   onClipboardUrlsDetected: (callback: (data: ClipboardUrlsDetectedData) => void) => () => void;
   clipboardOpenUrl: (url: string) => Promise<boolean>;
-  onExternalAgentStarted: (callback: (data: ExternalAgentData) => void) => () => void;
-  onExternalAgentStopped: (callback: (data: ExternalAgentData) => void) => () => void;
   claudeCodeEventDetail: Window['api']['claudeCodeEventDetail'];
   codexEventDetail: Window['api']['codexEventDetail'];
   claudeCodeStatusGet: () => Promise<ClaudeCodeStatusSnapshot>;

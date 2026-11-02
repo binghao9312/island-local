@@ -25,7 +25,7 @@
  */
 
 import { describe, expect, expectTypeOf, it } from 'vitest';
-import type { Point, Bounds, IslandDisplayInfo, SearchLocalFilesOptions, SearchLocalFileResult, ComputeFileHashResult, SaveTextFilePayload, SaveTextFileResult, SaveImageAsResult, ResolveShortcutResult, PerformanceHardwareSelection, PerformanceHardwareOption, PerformanceHardwareOptions, PerformanceSnapshot, RunningProcessInfo, RunningWindowInfo, NowPlayingInfo, SmtcSourceInfo, DetectSourceAppIdResult, SmtcTimeline, SmtcTimestampResult, SourceSwitchRequestData, ClaudeCodeHookEventDetailItem, ClaudeCodeHookEvent, ClaudeCodeSessionSnapshot, ClaudeCodeStatusSnapshot, ClaudeCodeHookMutationResult, CodexStatusSnapshot, CodexMonitorMutationResult, ImageCompressionTask, ImageCompressionStartPayload, ImageCompressionStartResult, DownloadTask, DownloadStartPayload, DownloadStartResult, ExtractVideoTrackOptions, ExtractVideoTrackResult, PickVideoForExtractResult, NetFetchOptions, NetFetchResult, MailInboxItem, MailInboxResult, UpdaterCheckResult, UpdaterProgress, UpdaterDownloadedData, UpdaterAvailableData, UpdaterNotAvailableData, UpdaterStartupAutoCheckRequestData, ClipboardUrlsDetectedData, ExternalAgentData, NavOrderPayload, SetWallpaperPayload } from '../index';
+import type { Point, Bounds, IslandDisplayInfo, SearchLocalFilesOptions, SearchLocalFileResult, ComputeFileHashResult, SaveTextFilePayload, SaveTextFileResult, SaveImageAsResult, ResolveShortcutResult, PerformanceHardwareSelection, PerformanceHardwareOption, PerformanceHardwareOptions, PerformanceSnapshot, RunningProcessInfo, RunningWindowInfo, NowPlayingInfo, SmtcSourceInfo, DetectSourceAppIdResult, SmtcTimeline, SmtcTimestampResult, SourceSwitchRequestData, ClaudeCodeHookEventDetailItem, ClaudeCodeHookEvent, ClaudeCodeSessionSnapshot, ClaudeCodeStatusSnapshot, ClaudeCodeHookMutationResult, CodexStatusSnapshot, CodexMonitorMutationResult, ImageCompressionTask, ImageCompressionStartPayload, ImageCompressionStartResult, DownloadTask, DownloadStartPayload, DownloadStartResult, ExtractVideoTrackOptions, ExtractVideoTrackResult, PickVideoForExtractResult, NetFetchOptions, NetFetchResult, MailInboxItem, MailInboxResult, UpdaterCheckResult, UpdaterProgress, UpdaterDownloadedData, UpdaterAvailableData, UpdaterNotAvailableData, UpdaterStartupAutoCheckRequestData, ClipboardUrlsDetectedData, NavOrderPayload, SetWallpaperPayload } from '../index';
 import type { Point as OriginalPoint, Bounds as OriginalBounds } from '../common';
 import type { IslandDisplayInfo as OriginalIslandDisplayInfo } from '../window';
 import type { SearchLocalFilesOptions as OriginalSearchLocalFilesOptions, SearchLocalFileResult as OriginalSearchLocalFileResult, ComputeFileHashResult as OriginalComputeFileHashResult, SaveTextFilePayload as OriginalSaveTextFilePayload, SaveTextFileResult as OriginalSaveTextFileResult, SaveImageAsResult as OriginalSaveImageAsResult, ResolveShortcutResult as OriginalResolveShortcutResult } from '../file';
@@ -40,7 +40,7 @@ import type { ExtractVideoTrackOptions as OriginalExtractVideoTrackOptions, Extr
 import type { NetFetchOptions as OriginalNetFetchOptions, NetFetchResult as OriginalNetFetchResult } from '../net';
 import type { MailInboxItem as OriginalMailInboxItem, MailInboxResult as OriginalMailInboxResult } from '../mail';
 import type { UpdaterCheckResult as OriginalUpdaterCheckResult, UpdaterProgress as OriginalUpdaterProgress, UpdaterDownloadedData as OriginalUpdaterDownloadedData, UpdaterAvailableData as OriginalUpdaterAvailableData, UpdaterNotAvailableData as OriginalUpdaterNotAvailableData, UpdaterStartupAutoCheckRequestData as OriginalUpdaterStartupAutoCheckRequestData } from '../updater';
-import type { ClipboardUrlsDetectedData as OriginalClipboardUrlsDetectedData, ExternalAgentData as OriginalExternalAgentData } from '../clipboard';
+import type { ClipboardUrlsDetectedData as OriginalClipboardUrlsDetectedData } from '../clipboard';
 import type { NavOrderPayload as OriginalNavOrderPayload } from '../navigation';
 import type { SetWallpaperPayload as OriginalSetWallpaperPayload } from '../settings';
 describe('preload type barrel', () => {
@@ -94,7 +94,6 @@ describe('preload type barrel', () => {
     expectTypeOf<UpdaterNotAvailableData>().toEqualTypeOf<OriginalUpdaterNotAvailableData>();
     expectTypeOf<UpdaterStartupAutoCheckRequestData>().toEqualTypeOf<OriginalUpdaterStartupAutoCheckRequestData>();
     expectTypeOf<ClipboardUrlsDetectedData>().toEqualTypeOf<OriginalClipboardUrlsDetectedData>();
-    expectTypeOf<ExternalAgentData>().toEqualTypeOf<OriginalExternalAgentData>();
     expectTypeOf<NavOrderPayload>().toEqualTypeOf<OriginalNavOrderPayload>();
     expectTypeOf<SetWallpaperPayload>().toEqualTypeOf<OriginalSetWallpaperPayload>();
     const point: Point = { x: 1, y: 2 };

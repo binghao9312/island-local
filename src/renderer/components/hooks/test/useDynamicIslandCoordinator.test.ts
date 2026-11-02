@@ -54,7 +54,7 @@ const images: ImageBoundary[] = [];
 const listeners = new Map<string, (data: unknown) => void>();
 const unsubscriptions = new Map<string, ReturnType<typeof vi.fn>>();
 const subscriptions = ['onNowPlayingInfo', 'onSourceSwitchRequest', 'onUpdaterAvailable', 'onUpdaterDownloaded',
-  'onExternalAgentStarted', 'onExternalAgentStopped', 'onClipboardUrlsDetected', 'onUpdaterStartupAutoCheckRequest',
+  'onClipboardUrlsDetected', 'onUpdaterStartupAutoCheckRequest',
   'onUpdaterNotAvailable', 'onShapeModeChanged'] as const;
 const native = {
   expandWindow: vi.fn(), expandWindowFull: vi.fn(), expandWindowLyrics: vi.fn(), expandWindowLyricsTranslation: vi.fn(),
