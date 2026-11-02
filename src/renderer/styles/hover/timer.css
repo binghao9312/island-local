@@ -360,6 +360,11 @@
   z-index: 1;
 }
 
+/** 亮度/音量滑块展开时会延伸到中间区域，隐藏大时钟以免遮挡 */
+.time-tab-wrapper--panel-open .hover-time-center {
+  visibility: hidden;
+}
+
 .hover-time-panel {
   display: flex;
   flex-direction: column;

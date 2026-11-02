@@ -53,6 +53,7 @@ describe('TimeTab', () => {
     expect(toolsGrid).toBeDefined();
   });
   it.each(['brightness', 'volume'])('opens %s then toggles back to countdown', (panel) => { invoke(find(render(), (node) => node.type === MediaButtons), 'onPanelToggle', panel); expect(find(render(), (node) => node.type === CountdownEdit).props.activePanel).toBe(panel); invoke(find(render(), (node) => node.type === MediaButtons), 'onPanelToggle', panel); expect(find(render(), (node) => node.type === CountdownEdit).props.activePanel).toBe('countdown'); });
+  it.each(['brightness', 'volume'])('marks wrapper while %s slider is open so the clock cannot cover it', (panel) => { const wrapper = (): string => String(find(render(), (node) => typeof node.props.className === 'string' && node.props.className.startsWith('time-tab-wrapper')).props.className); expect(wrapper()).not.toContain('time-tab-wrapper--panel-open'); invoke(find(render(), (node) => node.type === MediaButtons), 'onPanelToggle', panel); expect(wrapper()).toContain('time-tab-wrapper--panel-open'); });
   it('renders centered large clock element in panel', () => {
     const root = render();
     const centerClock = find(root, (node) => typeof node.props?.className === 'string' && node.props.className.includes('hover-time-center'));
