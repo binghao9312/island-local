@@ -98,9 +98,9 @@
   pointer-events: none;
 }
 
+/* 占位的 timer-main 为空、高度为 0，面板需参与文档流撑开高度，否则滑块会溢出岛外被裁切 */
 .brightness-panel {
-  position: absolute;
-  inset: 0;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
