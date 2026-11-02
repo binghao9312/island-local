@@ -642,12 +642,6 @@
       "workFinished": "集中時間が終わりました。休憩しましょう",
       "breakFinished": "休憩が終わりました。集中を再開しましょう"
     },
-    "externalAgent": {
-      "title": "デスクトップエージェントを検出しました",
-      "body": "{{agentName}} が作業を開始しました",
-      "stoppedTitle": "デスクトップエージェントが終了しました",
-      "stoppedBody": "{{agentName}} が作業を停止しました"
-    },
     "actions": {
       "openMail": "メールを開く",
       "gotIt": "確認",
@@ -3416,11 +3410,6 @@
         "title": "通知音",
         "hint": "通知が届いたときに音を一度鳴らします。",
         "toggle": "通知音を有効にする"
-      },
-      "agentNotification": {
-        "title": "Agent の起動通知",
-        "hint": "デスクトップの Agent が起動または終了したときに、Dynamic Island に通知を表示します。",
-        "toggle": "Agent の起動通知を有効にする"
       }
     },
     "breakReminder": {

@@ -298,12 +298,6 @@ describe('NotificationContent real hooks', () => {
     await click('restartNow');
     expect(model.store.setIdle).toHaveBeenCalledTimes(4);
   });
-  it.each(['external-agent-active', 'external-agent-stopped'] as const)('dismisses %s status', async (type) => {
-    props.type = type;
-    await mount();
-    await click('gotIt');
-    expect(model.store.setIdle).toHaveBeenCalledTimes(1);
-  });
   it.each([undefined, 'codex'] as const)('CLI provider %s controls both destinations and hide/ignore', async (provider) => {
     props.type = 'cli-session-detected';
     props.cliProvider = provider;

@@ -38,7 +38,7 @@ vi.mock('react', async (load) => ({ ...(await load<typeof import('react')>()), .
 vi.mock('react-i18next', async (load) => ({ ...(await load<typeof import('react-i18next')>()), useTranslation: () => ({ t: (key: string) => key }) }));
 const listeners = new Map<string, (data: unknown) => void>();
 const cleanups = new Map<string, ReturnType<typeof vi.fn>>();
-const subscriptions = ['onSourceSwitchRequest', 'onUpdaterAvailable', 'onUpdaterDownloaded', 'onExternalAgentStarted', 'onExternalAgentStopped', 'onClipboardUrlsDetected', 'onGmailNewMail'] as const;
+const subscriptions = ['onSourceSwitchRequest', 'onUpdaterAvailable', 'onUpdaterDownloaded', 'onClipboardUrlsDetected', 'onGmailNewMail'] as const;
 /**
  * 创建原生 IPC 订阅叶边界，清理时移除回调。
  * @param name - 原生订阅方法名称。
@@ -50,13 +50,13 @@ function subscribe(name: string) {
     const cleanup = vi.fn(() => { listeners.delete(name); }); cleanups.set(name, cleanup); return cleanup;
   });
 }
-const storeRead = vi.fn<(key: string) => Promise<unknown>>((key) => Promise.resolve(key === 'agent-notification-enabled' ? true : 'official'));
+const storeRead = vi.fn<(key: string) => Promise<unknown>>(() => Promise.resolve('official'));
 const subscriptionApi = Object.fromEntries(subscriptions.map((name) => [name, subscribe(name)]));
 const notification = vi.fn<(data: NotificationData) => void>();
 const t = (key: string): string => key;
 const input = { t, language: 'zh-CN' as string | undefined, setNotificationRef: { current: notification } };
 beforeEach(() => {
-  resetBrowser(); listeners.clear(); cleanups.clear(); storeRead.mockImplementation((key) => Promise.resolve(key === 'agent-notification-enabled' ? true : 'official'));
+  resetBrowser(); listeners.clear(); cleanups.clear(); storeRead.mockImplementation(() => Promise.resolve('official'));
   // eslint-disable-next-line prefer-object-spread -- 简写排序会将 storeRead 放到基础 API 之前，必须保留最后覆盖顺序。
   vi.stubGlobal('window', Object.assign(browser, { api: Object.assign({}, network, subscriptionApi, { storeRead }) }));
   useIslandStore.setState({ state: 'idle', maxExpandTab: 'aiChat', maxExpandAppModeEnabled: false, maxExpandLauncherVisible: false });
@@ -85,23 +85,6 @@ describe('useIslandNotificationSubscriptions 实际订阅与通知', () => {
   it('播放源切换通知保留标题、来源与源标识', async () => {
     await mount(); await emit('onSourceSwitchRequest', { title: 'Song', artist: 'Artist', sourceAppId: 'player.exe' });
     expect(notification).toHaveBeenCalledWith({ title: 'notification.sourceSwitch.title', body: 'Song - Artist（player.exe）', icon: SvgIcon.MUSIC, type: 'source-switch', sourceAppId: 'player.exe' });
-  });
-  it.each([false, 'invalid', null])('非 true Agent 开关不注册开始或结束通知：%s', async (value) => {
-    storeRead.mockResolvedValue(value); await mount();
-    expect(listeners.has('onExternalAgentStarted')).toBe(false); expect(listeners.has('onExternalAgentStopped')).toBe(false);
-  });
-  it('开关读取失败忽略且卸载后迟到开关不注册', async () => {
-    storeRead.mockRejectedValueOnce(new Error('storage-failure')); await mount();
-    expect(listeners.has('onExternalAgentStarted')).toBe(false);
-    unmountHooks(); resetBrowser(); let accept!: (value: unknown) => void;
-    storeRead.mockImplementationOnce(() => new Promise((resolve) => { accept = resolve; }));
-    renderWithHooks(() => useIslandNotificationSubscriptions(input)); runEffects(); unmountHooks(); accept(true); await settle();
-    renderWithHooks(() => useIslandNotificationSubscriptions(input));
-    expect(listeners.has('onExternalAgentStarted')).toBe(false);
-  });
-  it.each(['onExternalAgentStarted', 'onExternalAgentStopped'])('Agent %s 合并进程名称并产生对应通知', async (event) => {
-    await mount(); await emit(event, { agentNames: ['Claude', 'Codex'] });
-    expect(notification).toHaveBeenCalledWith(expect.objectContaining({ agentName: 'Claude、Codex', icon: SvgIcon.CODING, type: event === 'onExternalAgentStarted' ? 'external-agent-active' : 'external-agent-stopped' }));
   });
   it('更新可用读取真实版本接口与更新源，重复事件只通知一次', async () => {
     await mount(); responses.push({ code: 200, data: { version: '2.0', description: ' Release notes ' } });

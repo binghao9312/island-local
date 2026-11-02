@@ -25,7 +25,7 @@
  */
 
 import { describe, expect, expectTypeOf, it } from 'vitest';
-import type { ClipboardUrlsDetectedData, ExternalAgentData } from '../clipboard';
+import type { ClipboardUrlsDetectedData } from '../clipboard';
 describe('clipboard contracts', () => {
   it('fixes ClipboardUrlsDetectedData fields and accepts its explicit legal fixture', () => {
     expectTypeOf<ClipboardUrlsDetectedData>().toEqualTypeOf<{
@@ -37,12 +37,5 @@ describe('clipboard contracts', () => {
     // @ts-expect-error ClipboardUrlsDetectedData.title 禁止使用契约外字段值。
     const invalid: ClipboardUrlsDetectedData['title'] = 123;
     expect(invalid).toBeDefined();
-  });
-  it('fixes ExternalAgentData fields and accepts its explicit legal fixture', () => {
-    expectTypeOf<ExternalAgentData>().toEqualTypeOf<{
-      agentNames: string[];
-    }>();
-    const fixture: ExternalAgentData = { agentNames: [] };
-    expect(fixture).toBeDefined();
   });
 });

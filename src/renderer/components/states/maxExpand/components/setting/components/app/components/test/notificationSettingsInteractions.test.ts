@@ -20,7 +20,7 @@
 
 /**
  * @file notificationSettingsInteractions.test.ts
- * @description 通知设置实际读取类型边界、异步取消及两个开关失败回滚回归。
+ * @description 通知设置实际读取类型边界、异步取消及开关失败回滚回归。
  * @author 鸡哥
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -50,7 +50,7 @@ function render() {
 }
 /**
  * 收集实际通知开关。
- * @returns 当前两个实际输入。
+ * @returns 当前实际输入。
  */
 function inputs() {
   return elements(render()).filter((node) => node.type === 'input');
@@ -83,15 +83,15 @@ describe('真实通知配置加载与取消', () => {
     render();
     runEffects();
     await settle();
-    expect(inputs().map((node) => elementProps(node).checked)).toEqual(typeof value === 'boolean' ? [value, value] : [true, false]);
-    expect(api.storeRead).toHaveBeenCalledTimes(2);
+    expect(inputs().map((node) => elementProps(node).checked)).toEqual(typeof value === 'boolean' ? [value] : [true]);
+    expect(api.storeRead).toHaveBeenCalledTimes(1);
   });
   it('读取拒绝保留默认状态', async () => {
     api.storeRead.mockRejectedValue(new Error('offline'));
     render();
     runEffects();
     await settle();
-    expect(inputs().map((node) => elementProps(node).checked)).toEqual([true, false]);
+    expect(inputs().map((node) => elementProps(node).checked)).toEqual([true]);
   });
   it('卸载后迟到值不改变任何开关', async () => {
     let resolve: (value: unknown) => void = () => undefined;
@@ -103,27 +103,21 @@ describe('真实通知配置加载与取消', () => {
     unmountHooks();
     resolve(false);
     await settle();
-    expect(inputs().map((node) => elementProps(node).checked)).toEqual([true, false]);
+    expect(inputs().map((node) => elementProps(node).checked)).toEqual([true]);
   });
 });
-describe('两个实际开关写入与失败回滚', () => {
+describe('实际开关写入与失败回滚', () => {
   it.each([true, false])('保存失败=%s时恢复前值或保留新值', async (failure) => {
     if (failure) api.storeWrite.mockRejectedValue(new Error('offline'));
-    const [sound, agent] = inputs();
+    const [sound] = inputs();
     invoke(sound, 'onChange', {
       target: {
         checked: false
       }
     });
-    invoke(agent, 'onChange', {
-      target: {
-        checked: true
-      }
-    });
-    expect(inputs().map((node) => elementProps(node).checked)).toEqual([false, true]);
+    expect(inputs().map((node) => elementProps(node).checked)).toEqual([false]);
     expect(api.storeWrite).toHaveBeenCalledWith('notification-sound-enabled', false);
-    expect(api.storeWrite).toHaveBeenCalledWith('agent-notification-enabled', true);
     await settle();
-    expect(inputs().map((node) => elementProps(node).checked)).toEqual(failure ? [true, false] : [false, true]);
+    expect(inputs().map((node) => elementProps(node).checked)).toEqual(failure ? [true] : [false]);
   });
 });

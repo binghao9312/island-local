@@ -326,8 +326,6 @@ const LISTENER_ROUTES = [
   ['onUpdaterNotAvailable', 'updater:update-not-available', 1, false],
   ['onUpdaterStartupAutoCheckRequest', 'updater:startup-auto-check-request', 1, false],
   ['onClipboardUrlsDetected', 'clipboard:urls-detected', 1, false],
-  ['onExternalAgentStarted', 'external-agent:started', 1, false],
-  ['onExternalAgentStopped', 'external-agent:stopped', 1, false],
   ['onGmailNewMail', 'gmail:new-mail', 1, false],
   ['onDiscordNotification', 'discord:notification', 1, false],
   ['onClaudeCodeStatusUpdated', 'claude-code:status-updated', 1, false],

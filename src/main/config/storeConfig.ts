@@ -299,7 +299,6 @@ export const TOGGLE_UI_LOCK_HOTKEY_STORE_KEY = 'toggle-ui-lock-hotkey';
 export const TOGGLE_SHAPE_MODE_HOTKEY_STORE_KEY = 'toggle-shape-mode-hotkey';
 
 /** Agent 启动通知开关存储键名 */
-export const AGENT_NOTIFICATION_ENABLED_STORE_KEY = 'agent-notification-enabled';
 
 /** 解除帧率限制开关存储键名 */
 export const DISABLE_FRAME_RATE_LIMIT_STORE_KEY = 'disable-frame-rate-limit';

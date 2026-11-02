@@ -61,7 +61,6 @@ import type {
   UpdaterNotAvailableData,
   UpdaterStartupAutoCheckRequestData,
   ClipboardUrlsDetectedData,
-  ExternalAgentData,
   RunningProcessInfo,
   RunningWindowInfo,
   PerformanceHardwareSelection,
@@ -331,8 +330,6 @@ declare global {
       onDiscordNotification: (callback: (data: DiscordNotificationPayload) => void) => () => void;
       onClipboardUrlsDetected: (callback: (data: ClipboardUrlsDetectedData) => void) => () => void;
       clipboardOpenUrl: (url: string) => Promise<boolean>;
-      onExternalAgentStarted: (callback: (data: ExternalAgentData) => void) => () => void;
-      onExternalAgentStopped: (callback: (data: ExternalAgentData) => void) => () => void;
       /** 按需读取一页 CLI 详情。 */
       claudeCodeEventDetail: (id: string, offset?: number) => Promise<CliDetailPage>;
       claudeCodeStatusGet: () => Promise<ClaudeCodeStatusSnapshot>;

@@ -80,7 +80,6 @@ import { showGuideWindow } from './window/guideWindow';
 import { createSmtcService } from './music/smtcService';
 import { setSmtcAccessor } from './music/smtcAccessor';
 import { createAutoHideWatcher } from './system/autoHideWatcher';
-import { createExternalAgentWatcher } from './system/externalAgentWatcher';
 import { createDiscordNotificationWatcher } from './system/discordNotificationWatcher';
 import { createClaudeCodeStatusService } from './system/claudeCodeStatusService';
 import { createCodexStatusService } from './system/codexStatusService';
@@ -330,10 +329,6 @@ const autoHideWatcher = createAutoHideWatcher({
   defaultWindowTitleList: DEFAULT_HIDE_PROCESS_LIST,
   defaultAutoHideFullscreenWindows: false,
   isAnyFullscreenWindow: detectAnyFullscreenWindow,
-});
-
-const externalAgentWatcher = createExternalAgentWatcher({
-  getMainWindow: () => mainWindow,
 });
 
 const discordNotificationWatcher = createDiscordNotificationWatcher({
@@ -782,7 +777,6 @@ registerAppLifecycleHandlers({
   getMainWindow: () => mainWindow,
   onWillQuit: () => {
     autoHideWatcher.stop();
-    externalAgentWatcher.stop();
     discordNotificationWatcher.stop();
     claudeCodeStatusService.stop();
     codexStatusService.stop();
@@ -794,7 +788,6 @@ registerAppLifecycleHandlers({
   },
   onWindowAllClosed: () => {
     autoHideWatcher.stop();
-    externalAgentWatcher.stop();
     discordNotificationWatcher.stop();
     smtcService.cleanupWorker();
     destroyTray();
@@ -915,7 +908,6 @@ app.whenReady().then(() => {
   autoHideWatcher.setAutoHideFullscreenWindows(readAutoHideFullscreenWindowsConfig());
   if (process.platform === 'win32') {
     autoHideWatcher.start();
-    externalAgentWatcher.start();
     discordNotificationWatcher.start();
   }
 

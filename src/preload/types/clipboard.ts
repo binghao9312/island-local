@@ -29,8 +29,3 @@ export interface ClipboardUrlsDetectedData {
   urls: string[];
   title: string;
 }
-
-/** 外部 Agent 事件数据 */
-export interface ExternalAgentData {
-  agentNames: string[];
-}

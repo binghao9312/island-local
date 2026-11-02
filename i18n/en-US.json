@@ -642,12 +642,6 @@
       "workFinished": "Focus session finished, take a break",
       "breakFinished": "Break finished, back to focus"
     },
-    "externalAgent": {
-      "title": "Desktop Agent Detected",
-      "body": "{{agentName}} started working",
-      "stoppedTitle": "Desktop Agent Closed",
-      "stoppedBody": "{{agentName}} stopped working"
-    },
     "actions": {
       "openMail": "Open email",
       "gotIt": "Got it",
@@ -3416,11 +3410,6 @@
         "title": "Notification Sound",
         "hint": "Play a one-shot sound when a notification is triggered.",
         "toggle": "Enable Notification Sound"
-      },
-      "agentNotification": {
-        "title": "Agent Launch Notification",
-        "hint": "Show a Dynamic Island notification when a desktop agent starts or stops.",
-        "toggle": "Enable Agent Launch Notification"
       }
     },
     "breakReminder": {

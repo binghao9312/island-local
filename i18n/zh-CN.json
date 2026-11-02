@@ -642,12 +642,6 @@
       "workFinished": "专注时间结束，开始休息吧",
       "breakFinished": "休息时间结束，开始专注吧"
     },
-    "externalAgent": {
-      "title": "检测到桌面 Agent",
-      "body": "{{agentName}} 已开始工作",
-      "stoppedTitle": "桌面 Agent 已关闭",
-      "stoppedBody": "{{agentName}} 已停止工作"
-    },
     "actions": {
       "openMail": "打开邮件",
       "gotIt": "知道了",
@@ -3416,11 +3410,6 @@
         "title": "通知音效",
         "hint": "通知触发时播放一次提示音。",
         "toggle": "启用通知音效"
-      },
-      "agentNotification": {
-        "title": "Agent 启动通知",
-        "hint": "检测到桌面 Agent 启动或关闭时弹出灵动岛通知。",
-        "toggle": "启用 Agent 启动通知"
       }
     },
     "breakReminder": {

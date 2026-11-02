@@ -552,7 +552,6 @@ export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutDisabledEntri
   // ── 软件设置 > 通知设置 ──
   { label: '通知设置', desc: '配置灵动岛通知提醒与展示行为。', labelKey: 'settings.notification.pageTitle', descKey: 'settings.notification.pageHint', tab: 'app', appPage: 'notification' },
   { label: '通知音效', desc: '通知触发时播放一次提示音。', labelKey: 'settings.notification.sound.title', descKey: 'settings.notification.sound.hint', tab: 'app', appPage: 'notification' },
-  { label: 'Agent 启动通知', desc: '检测到桌面 Agent 启动或关闭时弹出灵动岛通知。', labelKey: 'settings.notification.agentNotification.title', descKey: 'settings.notification.agentNotification.hint', tab: 'app', appPage: 'notification' },
   { label: '性能设置', desc: '性能相关配置。', labelKey: 'settings.app.performance.title', descKey: 'settings.app.performance.hint', tab: 'app', appPage: 'performance' },
   { label: '启用性能模式', desc: '启用后 MaxExpand 首次进入将延迟加载各页面，降低首次切换卡顿；关闭后使用旧版一次性加载方式。', labelKey: 'settings.app.performance.modeTitle', descKey: 'settings.app.performance.modeHint', tab: 'app', appPage: 'performance' },
   { label: '解除帧率限制', desc: '启用后将解除 Chromium 帧率上限，适用于高刷新率显示器。更改后需重启应用生效。', labelKey: 'settings.app.performance.frameRateLimitTitle', descKey: 'settings.app.performance.frameRateLimitHint', tab: 'app', appPage: 'performance' },

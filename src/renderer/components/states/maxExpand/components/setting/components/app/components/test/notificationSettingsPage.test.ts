@@ -26,7 +26,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NotificationSettingsPage } from '../NotificationSettingsPage';
-import { elementProps, elements, findElement, invoke, resetState, rewindState, } from '../../../../../../../../test/elementHarness';
+import { elementProps, findElement, invoke, resetState, rewindState, } from '../../../../../../../../test/elementHarness';
 vi.mock('react', async (importOriginal) => ({
   ...await importOriginal<typeof import('react')>(),
   ...(await import('../../../../../../../../test/elementHarness')).hookMocks,
@@ -44,15 +44,6 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); });
 describe('NotificationSettingsPage', () => {
-  it('renders independent notification switches and persists agent notifications', () => {
-    const tree = NotificationSettingsPage();
-    const switches = elements(tree).filter((node) => elementProps(node).type === 'checkbox');
-    expect(switches.map((node) => elementProps(node).checked)).toEqual([true, false]);
-    invoke(switches[1], 'onChange', { target: { checked: true } });
-    expect(api.storeWrite).toHaveBeenCalledWith('agent-notification-enabled', true);
-    rewindState();
-    expect(elementProps(elements(NotificationSettingsPage()).filter((node) => node.props.type === 'checkbox')[1]).checked).toBe(true);
-  });
   it('restores prior sound setting on a failed write', async () => {
     api.storeWrite.mockRejectedValueOnce(new Error('write failed'));
     invoke(findElement(NotificationSettingsPage(), (node) => elementProps(node).type === 'checkbox'), 'onChange', { target: { checked: false } });

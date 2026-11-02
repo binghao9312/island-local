@@ -636,12 +636,6 @@
       "workFinished": "專注時間結束，開始休息吧",
       "breakFinished": "休息時間結束，開始專注吧"
     },
-    "externalAgent": {
-      "title": "檢測到桌面 Agent",
-      "body": "{{agentName}} 已開始工作",
-      "stoppedTitle": "桌面 Agent 已關閉",
-      "stoppedBody": "{{agentName}} 已停止工作"
-    },
     "actions": {
       "gotIt": "知道了",
       "installRestart": "安裝並重新啟動",
@@ -3416,11 +3410,6 @@
         "title": "通知音效",
         "hint": "通知觸發時播放一次提示音。",
         "toggle": "啟用通知音效"
-      },
-      "agentNotification": {
-        "title": "Agent 啟動通知",
-        "hint": "檢測到桌面 Agent 啟動或關閉時彈出靈動島通知。",
-        "toggle": "啟用 Agent 啟動通知"
       }
     },
     "breakReminder": {
