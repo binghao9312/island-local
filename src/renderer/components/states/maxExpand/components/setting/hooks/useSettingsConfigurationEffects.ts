@@ -79,7 +79,6 @@ interface SettingsConfigurationEffectsOptions {
   setMaxExpandNavLayout: ReturnType<typeof useSettingsAppearance>['setMaxExpandNavLayout'];
   setHideHotkey: ReturnType<typeof useSettingsShortcuts>['setHideHotkey'];
   setQuitHotkey: ReturnType<typeof useSettingsShortcuts>['setQuitHotkey'];
-  setScreenshotHotkey: ReturnType<typeof useSettingsShortcuts>['setScreenshotHotkey'];
   setNextSongHotkey: ReturnType<typeof useSettingsShortcuts>['setNextSongHotkey'];
   setPlayPauseSongHotkey: ReturnType<typeof useSettingsShortcuts>['setPlayPauseSongHotkey'];
   setResetPositionHotkey: ReturnType<typeof useSettingsShortcuts>['setResetPositionHotkey'];
@@ -131,7 +130,6 @@ export function useSettingsConfigurationEffects(options: SettingsConfigurationEf
     setMaxExpandNavLayout,
     setHideHotkey,
     setQuitHotkey,
-    setScreenshotHotkey,
     setNextSongHotkey,
     setPlayPauseSongHotkey,
     setResetPositionHotkey,
@@ -310,10 +308,6 @@ export function useSettingsConfigurationEffects(options: SettingsConfigurationEf
     window.api.quitHotkeyGet().then((key) => {
       if (cancelled) return;
       setQuitHotkey(key || '');
-    }).catch(() => { });
-    window.api.screenshotHotkeyGet().then((key) => {
-      if (cancelled) return;
-      setScreenshotHotkey(key || '');
     }).catch(() => { });
     window.api.nextSongHotkeyGet().then((key) => {
       if (cancelled) return;

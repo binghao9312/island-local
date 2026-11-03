@@ -55,7 +55,6 @@ describe('createHotkeyService', () => {
     setManualVisibility: vi.fn(),
     readHideHotkeyConfig: () => 'Ctrl+H',
     readQuitHotkeyConfig: () => 'Ctrl+Q',
-    readScreenshotHotkeyConfig: () => 'Ctrl+Shift+S',
     readNextSongHotkeyConfig: () => 'Ctrl+Alt+Right',
     readPlayPauseSongHotkeyConfig: () => 'Ctrl+Alt+P',
     readResetPositionHotkeyConfig: () => 'Ctrl+Alt+R',
@@ -65,7 +64,6 @@ describe('createHotkeyService', () => {
     readTogglePassthroughHotkeyConfig: () => 'Ctrl+Alt+X',
     readToggleUiLockHotkeyConfig: () => 'Ctrl+Alt+L',
     readToggleShapeModeHotkeyConfig: () => 'Ctrl+Alt+S',
-    onScreenshotHotkey: vi.fn(),
     onNextSongHotkey: vi.fn(),
     onPlayPauseSongHotkey: vi.fn(),
     onResetPositionHotkey: vi.fn(),
@@ -83,7 +81,6 @@ describe('createHotkeyService', () => {
     appQuitMock.mockReset();
     options.getMainWindow.mockReset();
     options.setManualVisibility.mockReset();
-    options.onScreenshotHotkey.mockReset();
     options.onOpenClipboardHistoryHotkey.mockReset();
     registerMock.mockReturnValue(true);
   });

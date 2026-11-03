@@ -20,68 +20,23 @@
 
 /**
  * @file useToolButtons.ts
- * @description 工具按钮逻辑 Hook（截图模式读取、截图/任务管理器操作）
+ * @description 工具按钮逻辑 Hook（任务管理器操作）
  * @author 鸡哥
  */
 
-import { useCallback, useEffect, useState } from 'react';
-import type { HoverScreenshotMode } from '../types/timeTabTypes';
-
-const HOVER_SCREENSHOT_MODE_STORE_KEY = 'hover-screenshot-mode';
+import { useCallback } from 'react';
 
 /**
  * 工具按钮逻辑 Hook
- * @description 管理截图模式状态，提供截图和打开任务管理器的回调
- * @returns 截图模式和操作回调
+ * @description 提供打开任务管理器的回调
+ * @returns 操作回调
  */
 export function useToolButtons(): {
-  handleScreenshot: () => Promise<void>;
   handleTaskManager: () => void;
 } {
-  const [screenshotMode, setScreenshotMode] = useState<HoverScreenshotMode>('region');
-
-  useEffect(() => {
-    let cancelled = false;
-    window.api.storeRead(HOVER_SCREENSHOT_MODE_STORE_KEY).then((value) => {
-      if (cancelled) return;
-      if (value === 'display') {
-        setScreenshotMode('display');
-        return;
-      }
-      setScreenshotMode('region');
-    }).catch(() => {
-      if (cancelled) return;
-      setScreenshotMode('region');
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const handleScreenshot = useCallback(async () => {
-    try {
-      if (screenshotMode === 'region') {
-        await window.api.startRegionScreenshot();
-        return;
-      }
-      const bytes = await window.api.screenshot();
-      if (bytes) {
-        const link = document.createElement('a');
-        link.download = `screenshot_${Date.now()}.png`;
-        const url = URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: 'image/png' }));
-        link.href = url;
-        try { link.click(); }
-        finally { setTimeout(() => URL.revokeObjectURL(url), 0); }
-      }
-    } catch (err) {
-      console.error('[ToolButtons] screenshot error:', err);
-    }
-  }, [screenshotMode]);
-
   const handleTaskManager = useCallback(() => {
     window.api.openTaskManager();
   }, []);
 
-  return { handleScreenshot, handleTaskManager };
+  return { handleTaskManager };
 }

@@ -19,8 +19,8 @@
  */
 
 /**
- * @file captureWallpaperHandlers.test.ts
- * @description capture 与 wallpaper IPC handlers 单元测试。
+ * @file wallpaperHandlers.test.ts
+ * @description wallpaper IPC handlers 单元测试。
  * @author 鸡哥
  */
 
@@ -33,22 +33,14 @@ const { handleMock, onMock } = vi.hoisted(() => ({
 
 const {
   appGetPathMock,
-  clipboardWriteImageMock,
-  desktopCapturerGetSourcesMock,
-  showSaveDialogMock,
   showOpenDialogMock,
-  createFromDataURLMock,
   createThumbnailFromPathMock,
   browserWindowFromWebContentsMock,
   browserWindowGetFocusedWindowMock,
   netFetchMock,
 } = vi.hoisted(() => ({
   appGetPathMock: vi.fn(),
-  clipboardWriteImageMock: vi.fn(),
-  desktopCapturerGetSourcesMock: vi.fn(),
-  showSaveDialogMock: vi.fn(),
   showOpenDialogMock: vi.fn(),
-  createFromDataURLMock: vi.fn(),
   createThumbnailFromPathMock: vi.fn(),
   browserWindowFromWebContentsMock: vi.fn(),
   browserWindowGetFocusedWindowMock: vi.fn(),
@@ -73,30 +65,15 @@ const {
   copyFileSyncMock: vi.fn(),
 }));
 
-const { execFileMock, capturePrimaryDisplayPngMock } = vi.hoisted(() => ({
+const { execFileMock } = vi.hoisted(() => ({
   execFileMock: vi.fn(),
-  capturePrimaryDisplayPngMock: vi.fn(),
 }));
 
 vi.mock('electron', () => ({
   app: {
     getPath: appGetPathMock,
   },
-  clipboard: {
-    write: clipboardWriteImageMock,
-  },
-  ClipboardItem: class {
-    /**
-     * 保存截图载荷，供写入内容断言使用。
-     * @param data - 按 MIME 类型索引的图像载荷。
-     */
-    constructor(readonly data: Record<string, Blob>) {}
-  },
-  desktopCapturer: {
-    getSources: desktopCapturerGetSourcesMock,
-  },
   dialog: {
-    showSaveDialog: showSaveDialogMock,
     showOpenDialog: showOpenDialogMock,
   },
   ipcMain: {
@@ -104,7 +81,6 @@ vi.mock('electron', () => ({
     on: onMock,
   },
   nativeImage: {
-    createFromDataURL: createFromDataURLMock,
     createThumbnailFromPath: createThumbnailFromPathMock,
   },
   BrowserWindow: {
@@ -158,15 +134,9 @@ vi.mock('child_process', () => ({
   execFile: execFileMock,
 }));
 
-vi.mock('../../../window/screenshotHelper', () => ({
-  capturePrimaryDisplayPng: capturePrimaryDisplayPngMock,
-  encodeScreenshotPng: async (image: { toPNG: () => Buffer }) => image.toPNG(),
-}));
-
-import { registerCaptureIpcHandlers } from '../capture';
 import { registerWallpaperIpcHandlers } from '../wallpaper';
 
-describe('capture and wallpaper ipc handlers', () => {
+describe('wallpaper ipc handlers', () => {
   const handleHandlers = new Map<string, (...args: unknown[]) => unknown>();
   const onHandlers = new Map<string, (...args: unknown[]) => unknown>();
 
@@ -177,11 +147,7 @@ describe('capture and wallpaper ipc handlers', () => {
     handleMock.mockReset();
     onMock.mockReset();
     appGetPathMock.mockReset();
-    clipboardWriteImageMock.mockReset();
-    desktopCapturerGetSourcesMock.mockReset();
-    showSaveDialogMock.mockReset();
     showOpenDialogMock.mockReset();
-    createFromDataURLMock.mockReset();
     createThumbnailFromPathMock.mockReset();
     browserWindowFromWebContentsMock.mockReset();
     browserWindowGetFocusedWindowMock.mockReset();
@@ -196,8 +162,6 @@ describe('capture and wallpaper ipc handlers', () => {
     copyFileSyncMock.mockReset();
 
     execFileMock.mockReset();
-    capturePrimaryDisplayPngMock.mockReset();
-    capturePrimaryDisplayPngMock.mockReturnValue(null);
 
     appGetPathMock.mockImplementation((name: string) => {
       if (name === 'pictures') return 'C:/Pictures';
@@ -210,60 +174,6 @@ describe('capture and wallpaper ipc handlers', () => {
     onMock.mockImplementation((channel: string, handler: (...args: unknown[]) => unknown) => {
       onHandlers.set(channel, handler);
     });
-  });
-
-  it('handles capture screenshot start/system/copy/save/cancel', async () => {
-    const closeCaptureWindow = vi.fn();
-    const startRegionScreenshot = vi.fn().mockResolvedValue(undefined);
-    const captureWindow = {
-      isDestroyed: vi.fn(() => false),
-      hide: vi.fn(),
-      webContents: { id: 7 },
-    };
-
-    const pngBuffer = Buffer.from('png-data');
-    createFromDataURLMock.mockReturnValue({
-      toPNG: vi.fn(() => pngBuffer),
-    });
-
-    desktopCapturerGetSourcesMock.mockResolvedValue([
-      {
-        thumbnail: {
-          toPNG: () => Buffer.from('abc'),
-        },
-      },
-    ]);
-
-    showSaveDialogMock.mockResolvedValue({
-      canceled: false,
-      filePath: 'C:/Pictures/s1.png',
-    });
-
-    registerCaptureIpcHandlers({
-      getCaptureWindow: () => captureWindow as never,
-      closeCaptureWindow,
-      startRegionScreenshot,
-    });
-
-    await expect(handleHandlers.get('system:screenshot:region:start')?.({})).resolves.toBe(true);
-    startRegionScreenshot.mockRejectedValueOnce(new Error('boom'));
-    await expect(handleHandlers.get('system:screenshot:region:start')?.({})).resolves.toBe(false);
-
-    await expect(handleHandlers.get('system:screenshot')?.({})).resolves.toEqual(Buffer.from('abc'));
-
-    await onHandlers.get('capture-complete')?.({}, { dataURL: 'data:image/png;base64,AAA' });
-    expect(createFromDataURLMock).toHaveBeenCalledWith('data:image/png;base64,AAA');
-    expect(clipboardWriteImageMock).toHaveBeenCalled();
-    const items = clipboardWriteImageMock.mock.calls[0][0] as Array<{ data: Record<string, Blob> }>;
-    expect(Buffer.from(await items[0].data['image/png'].arrayBuffer())).toEqual(pngBuffer);
-    expect(closeCaptureWindow).toHaveBeenCalledTimes(1);
-
-    await onHandlers.get('capture-save')?.({}, { dataURL: `data:image/png;base64,${pngBuffer.toString('base64')}` });
-    expect(captureWindow.hide).toHaveBeenCalled();
-    expect(writeFileSyncMock).toHaveBeenCalledWith('C:/Pictures/s1.png', pngBuffer);
-
-    onHandlers.get('capture-cancel')?.({});
-    expect(closeCaptureWindow).toHaveBeenCalledTimes(3);
   });
 
   it('handles wallpaper open/load/clear/read-buffer branches', async () => {

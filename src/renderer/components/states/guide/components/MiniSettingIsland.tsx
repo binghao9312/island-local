@@ -144,10 +144,6 @@ export function MiniSettingIsland({ demo }: { demo: MiniSettingDemo }): React.Re
                 <span className="ms-shortcut-keys"><kbd>Alt</kbd><span className="ms-shortcut-plus">+</span><kbd>B</kbd></span>
               </div>
               <div className="ms-shortcut-row">
-                <span className="ms-shortcut-label">{tr('guide.mini.setting.shortcut.screenshot', '选区截图')}</span>
-                <span className="ms-shortcut-keys"><kbd>Alt</kbd><span className="ms-shortcut-plus">+</span><kbd>V</kbd></span>
-              </div>
-              <div className="ms-shortcut-row">
                 <span className="ms-shortcut-label">{tr('guide.mini.setting.shortcut.switchSong', '切换歌曲')}</span>
                 <span className="ms-shortcut-keys"><kbd>Alt</kbd><span className="ms-shortcut-plus">+</span><kbd>S</kbd></span>
               </div>

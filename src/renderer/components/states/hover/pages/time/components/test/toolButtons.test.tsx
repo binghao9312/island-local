@@ -44,7 +44,7 @@ vi.mock('../../../../../../../store/slices', () => ({
   default: (selector: (state: typeof storeState) => unknown) => selector(storeState),
 }));
 
-const model = vi.hoisted(() => ({ handleScreenshot: vi.fn(), handleTaskManager: vi.fn() }));
+const model = vi.hoisted(() => ({ handleTaskManager: vi.fn() }));
 vi.mock('../../hooks/useToolButtons', () => ({ useToolButtons: () => model }));
 
 describe('ToolButtons', () => {
@@ -53,11 +53,10 @@ describe('ToolButtons', () => {
     const onToggleCountdown = vi.fn();
     const root = ToolButtons({ onToggleCountdown, isCountdownOpen: false }) as TreeElement;
     const buttons = elements(root).filter((node) => node.type === 'button');
-    expect(buttons).toHaveLength(4);
+    expect(buttons).toHaveLength(3);
     buttons.forEach((button) => invoke(button, 'onClick'));
     expect(onToggleCountdown).toHaveBeenCalledOnce();
     expect(pomodoro.togglePomodoro).toHaveBeenCalledOnce();
-    expect(model.handleScreenshot).toHaveBeenCalledOnce();
     expect(model.handleTaskManager).toHaveBeenCalledOnce();
     expect(elements(root).filter((node) => node.type === 'img').every((node) => typeof node.props.alt === 'string')).toBe(true);
   });

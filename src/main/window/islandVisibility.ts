@@ -68,7 +68,7 @@ function startFade(window: BrowserWindow, visible: boolean): void {
       stopFade(window);
       return;
     }
-    // 截图等流程会直接隐藏窗口，放弃过渡并恢复不透明，保证其后直接显示时不停留在半透明。
+    // 其他流程可能直接隐藏窗口，放弃过渡并恢复不透明，保证其后直接显示时不停留在半透明。
     if (!window.isVisible()) {
       stopFade(window);
       window.setOpacity(1);

@@ -30,7 +30,7 @@ import { isDuplicateHotkey } from '../isDuplicateHotkey';
 describe('shortcut conflicts', () => {
   it('空列表没有冲突', () => { expect(isDuplicateHotkey('Ctrl+A', 'hide', [])).toBe(false); });
   it('允许当前动作保留原快捷键，并跳过空绑定/其他组合', () => {
-    expect(isDuplicateHotkey('Ctrl+A', 'hide', [{ key: 'hide', value: 'Ctrl+A' }, { key: 'quit', value: '' }, { key: 'screenshot', value: 'Ctrl+B' }])).toBe(false);
+    expect(isDuplicateHotkey('Ctrl+A', 'hide', [{ key: 'hide', value: 'Ctrl+A' }, { key: 'quit', value: '' }, { key: 'next-song', value: 'Ctrl+B' }])).toBe(false);
   });
   it('不同动作相同非空组合构成冲突', () => {
     expect(isDuplicateHotkey('Ctrl+A', 'hide', [{ key: 'quit', value: 'Ctrl+A' }])).toBe(true);

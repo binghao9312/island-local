@@ -376,7 +376,7 @@ describe('guide mini components actual lifecycle', () => {
   it('shortcut reference omits controls and lists all native hotkey labels', () => {
     setting('shortcut');
     flushHookEffects();
-    expect(elements(setting('shortcut')).filter((node) => node.type === 'kbd')).toHaveLength(10);
+    expect(elements(setting('shortcut')).filter((node) => node.type === 'kbd')).toHaveLength(8);
     expect(elements(setting('shortcut')).filter((node) => node.type === 'button')).toHaveLength(0);
   });
 });

@@ -32,10 +32,8 @@ import { hideIsland, isIslandShown, showIsland } from '../window/islandVisibilit
 interface CreateHotkeyServiceOptions {
   getMainWindow: () => BrowserWindow | null;
   setManualVisibility: (visible: boolean) => void;
-  isCapturing?: () => boolean;
   readHideHotkeyConfig: () => string;
   readQuitHotkeyConfig: () => string;
-  readScreenshotHotkeyConfig: () => string;
   readNextSongHotkeyConfig: () => string;
   readPlayPauseSongHotkeyConfig: () => string;
   readResetPositionHotkeyConfig: () => string;
@@ -45,7 +43,6 @@ interface CreateHotkeyServiceOptions {
   readTogglePassthroughHotkeyConfig: () => string;
   readToggleUiLockHotkeyConfig: () => string;
   readToggleShapeModeHotkeyConfig: () => string;
-  onScreenshotHotkey: () => void;
   onNextSongHotkey: () => void;
   onPlayPauseSongHotkey: () => void;
   onResetPositionHotkey: () => void;
@@ -60,7 +57,6 @@ interface CreateHotkeyServiceOptions {
 interface HotkeyService {
   getCurrentHideHotkey: () => string;
   getCurrentQuitHotkey: () => string;
-  getCurrentScreenshotHotkey: () => string;
   getCurrentNextSongHotkey: () => string;
   getCurrentPlayPauseSongHotkey: () => string;
   getCurrentResetPositionHotkey: () => string;
@@ -72,7 +68,6 @@ interface HotkeyService {
   getCurrentToggleShapeModeHotkey: () => string;
   registerHideHotkey: (accelerator: string) => boolean;
   registerQuitHotkey: (accelerator: string) => boolean;
-  registerScreenshotHotkey: (accelerator: string) => boolean;
   registerNextSongHotkey: (accelerator: string) => boolean;
   registerPlayPauseSongHotkey: (accelerator: string) => boolean;
   registerResetPositionHotkey: (accelerator: string) => boolean;
@@ -95,7 +90,6 @@ interface HotkeyService {
 export function createHotkeyService(options: CreateHotkeyServiceOptions): HotkeyService {
   let currentHideHotkey = '';
   let currentQuitHotkey = '';
-  let currentScreenshotHotkey = '';
   let currentNextSongHotkey = '';
   let currentPlayPauseSongHotkey = '';
   let currentResetPositionHotkey = '';
@@ -123,9 +117,6 @@ export function createHotkeyService(options: CreateHotkeyServiceOptions): Hotkey
       const success = globalShortcut.register(accelerator, () => {
         const mainWindow = options.getMainWindow();
         if (!mainWindow || mainWindow.isDestroyed()) return;
-        // 截图流程临时隐藏主窗口，此时的不可见不代表手动隐藏，忽略切换。
-        if (options.isCapturing?.()) return;
-
         const shown = isIslandShown(mainWindow);
         options.setManualVisibility(!shown);
         if (shown) {
@@ -281,33 +272,6 @@ export function createHotkeyService(options: CreateHotkeyServiceOptions): Hotkey
     }
   }
 
-  function registerScreenshotHotkey(accelerator: string): boolean {
-    if (currentScreenshotHotkey) {
-      try {
-        globalShortcut.unregister(currentScreenshotHotkey);
-      } catch {
-        // ignore
-      }
-      currentScreenshotHotkey = '';
-    }
-
-    if (!accelerator) return true;
-
-    try {
-      const success = globalShortcut.register(accelerator, () => {
-        options.onScreenshotHotkey();
-      });
-
-      if (success) {
-        currentScreenshotHotkey = accelerator;
-      }
-      return success;
-    } catch (err) {
-      console.error('[ScreenshotHotkey] register error:', err);
-      return false;
-    }
-  }
-
   function registerNextSongHotkey(accelerator: string): boolean {
     if (currentNextSongHotkey) {
       try {
@@ -446,7 +410,6 @@ export function createHotkeyService(options: CreateHotkeyServiceOptions): Hotkey
   function suspendIslandHotkeys(): void {
     const hideHotkey = currentHideHotkey || options.readHideHotkeyConfig();
     const quitHotkey = currentQuitHotkey || options.readQuitHotkeyConfig();
-    const screenshotHotkey = currentScreenshotHotkey || options.readScreenshotHotkeyConfig();
     const nextSongHotkey = currentNextSongHotkey || options.readNextSongHotkeyConfig();
     const playPauseSongHotkey =
       currentPlayPauseSongHotkey || options.readPlayPauseSongHotkeyConfig();
@@ -468,7 +431,6 @@ export function createHotkeyService(options: CreateHotkeyServiceOptions): Hotkey
     [
       hideHotkey,
       quitHotkey,
-      screenshotHotkey,
       nextSongHotkey,
       playPauseSongHotkey,
       resetPositionHotkey,
@@ -491,7 +453,6 @@ export function createHotkeyService(options: CreateHotkeyServiceOptions): Hotkey
   function resumeIslandHotkeys(): void {
     const hideHotkey = currentHideHotkey || options.readHideHotkeyConfig();
     const quitHotkey = currentQuitHotkey || options.readQuitHotkeyConfig();
-    const screenshotHotkey = currentScreenshotHotkey || options.readScreenshotHotkeyConfig();
     const nextSongHotkey = currentNextSongHotkey || options.readNextSongHotkeyConfig();
     const playPauseSongHotkey =
       currentPlayPauseSongHotkey || options.readPlayPauseSongHotkeyConfig();
@@ -500,7 +461,6 @@ export function createHotkeyService(options: CreateHotkeyServiceOptions): Hotkey
 
     if (hideHotkey) registerHideHotkey(hideHotkey);
     if (quitHotkey) registerQuitHotkey(quitHotkey);
-    if (screenshotHotkey) registerScreenshotHotkey(screenshotHotkey);
     if (nextSongHotkey) registerNextSongHotkey(nextSongHotkey);
     if (playPauseSongHotkey) registerPlayPauseSongHotkey(playPauseSongHotkey);
     if (resetPositionHotkey) registerResetPositionHotkey(resetPositionHotkey);
@@ -527,7 +487,6 @@ export function createHotkeyService(options: CreateHotkeyServiceOptions): Hotkey
   return {
     getCurrentHideHotkey: () => currentHideHotkey,
     getCurrentQuitHotkey: () => currentQuitHotkey,
-    getCurrentScreenshotHotkey: () => currentScreenshotHotkey,
     getCurrentNextSongHotkey: () => currentNextSongHotkey,
     getCurrentPlayPauseSongHotkey: () => currentPlayPauseSongHotkey,
     getCurrentResetPositionHotkey: () => currentResetPositionHotkey,
@@ -539,7 +498,6 @@ export function createHotkeyService(options: CreateHotkeyServiceOptions): Hotkey
     getCurrentToggleShapeModeHotkey: () => currentToggleShapeModeHotkey,
     registerHideHotkey,
     registerQuitHotkey,
-    registerScreenshotHotkey,
     registerNextSongHotkey,
     registerPlayPauseSongHotkey,
     registerResetPositionHotkey,

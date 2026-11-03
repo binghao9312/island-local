@@ -20,24 +20,14 @@
 
 /**
  * @file storeKeys.test.ts
- * @description 共享持久化键和截图引擎合法集合的运行时及类型契约测试。
+ * @description 共享持久化键的运行时契约测试。
  * @author 鸡哥
  */
 
-import { describe, expect, expectTypeOf, it } from 'vitest';
-import { ISLAND_POSITION_LOCKED_STORE_KEY, SCREENSHOT_ENGINE_STORE_KEY } from '../storeKeys';
-import type { ScreenshotEngine } from '../storeKeys';
+import { describe, expect, it } from 'vitest';
+import { ISLAND_POSITION_LOCKED_STORE_KEY } from '../storeKeys';
 describe('shared store keys', () => {
-  it('keeps persistence keys stable and unique', () => {
-    expect([ISLAND_POSITION_LOCKED_STORE_KEY, SCREENSHOT_ENGINE_STORE_KEY]).toEqual(['island-position-locked', 'screenshot-engine']);
-    expect(new Set([ISLAND_POSITION_LOCKED_STORE_KEY, SCREENSHOT_ENGINE_STORE_KEY]).size).toBe(2);
-  });
-  it('accepts only the declared screenshot engines', () => {
-    expectTypeOf<ScreenshotEngine>().toEqualTypeOf<'plugin' | 'js'>();
-    const screenshot: ScreenshotEngine[] = ['plugin', 'js'];
-    expect(screenshot).toHaveLength(2);
-    // @ts-expect-error 截图引擎不接受未经声明的名称。
-    const invalidScreenshot: ScreenshotEngine = 'native';
-    expect(invalidScreenshot).toBe('native');
+  it('keeps persistence keys stable', () => {
+    expect(ISLAND_POSITION_LOCKED_STORE_KEY).toBe('island-position-locked');
   });
 });

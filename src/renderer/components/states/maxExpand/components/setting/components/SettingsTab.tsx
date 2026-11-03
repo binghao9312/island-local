@@ -246,14 +246,6 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
     setQuitHotkeyError,
     handleQuitHotkeyKeyDown,
     setQuitHotkey,
-    screenshotHotkeyInputRef,
-    screenshotHotkeyRecording,
-    screenshotHotkeyError,
-    screenshotHotkey,
-    setScreenshotHotkeyRecording,
-    setScreenshotHotkeyError,
-    handleScreenshotHotkeyKeyDown,
-    setScreenshotHotkey,
     nextSongHotkeyInputRef,
     nextSongHotkeyRecording,
     nextSongHotkeyError,
@@ -729,14 +721,6 @@ export const SettingsTab = memo(function SettingsTab(): ReactElement {
               setQuitHotkeyError={setQuitHotkeyError}
               handleQuitHotkeyKeyDown={handleQuitHotkeyKeyDown}
               setQuitHotkey={setQuitHotkey}
-              screenshotHotkeyInputRef={screenshotHotkeyInputRef}
-              screenshotHotkeyRecording={screenshotHotkeyRecording}
-              screenshotHotkeyError={screenshotHotkeyError}
-              screenshotHotkey={screenshotHotkey}
-              setScreenshotHotkeyRecording={setScreenshotHotkeyRecording}
-              setScreenshotHotkeyError={setScreenshotHotkeyError}
-              handleScreenshotHotkeyKeyDown={handleScreenshotHotkeyKeyDown}
-              setScreenshotHotkey={setScreenshotHotkey}
               nextSongHotkeyInputRef={nextSongHotkeyInputRef}
               nextSongHotkeyRecording={nextSongHotkeyRecording}
               nextSongHotkeyError={nextSongHotkeyError}

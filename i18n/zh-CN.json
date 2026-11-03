@@ -28,25 +28,6 @@
       "close": "关闭"
     }
   },
-  "capture": {
-    "source": {
-      "plugin": "使用插件",
-      "js": "使用js"
-    },
-    "tools": {
-      "select": "选区",
-      "mosaic": "马赛克",
-      "line": "直线",
-      "rect": "矩形",
-      "pen": "画笔",
-      "undo": "撤销",
-      "color": "颜色",
-      "size": "粗细",
-      "save": "保存",
-      "cancel": "取消",
-      "done": "完成"
-    }
-  },
   "guide": {
     "actions": {
       "skip": "一键跳过",
@@ -313,7 +294,6 @@
           "toggleIsland": "隐藏/显示",
           "quitIsland": "关闭灵动岛",
           "resetPosition": "还原默认位置快捷键",
-          "screenshot": "选区截图",
           "switchSong": "切换歌曲"
         }
       }
@@ -459,7 +439,6 @@
     },
     "tools": {
       "timer": "倒计时",
-      "screenshot": "截图",
       "taskManager": "任务管理器",
       "pomodoro": "番茄钟"
     },
@@ -2693,7 +2672,6 @@
       "notification": "通知设置",
       "performance": "性能设置",
       "performance-monitor": "性能监控",
-      "screenshot-settings": "截图设置",
       "network": "网络配置",
       "mail": "邮箱配置",
       "google": "Google 账号",
@@ -2884,14 +2862,6 @@
           "memory": "内存",
           "disk": "磁盘"
         }
-      },
-      "screenshotSettings": {
-        "title": "截图设置",
-        "hint": "截图相关配置。",
-        "engineTitle": "截图引擎",
-        "engineHint": "选择截图使用的引擎。插件模式支持多显示器截图，JS 模式兼容性更好。",
-        "enginePlugin": "插件模式",
-        "engineJs": "JS 模式"
       },
       "notifications": {
         "configChanged": {
@@ -3229,11 +3199,6 @@
         "windowModeHint": "启用后，待办事项、倒数日、设置将在独立窗口中打开，而非灵动岛内",
         "integratedMode": "集成在灵动岛中",
         "standaloneMode": "独立窗口",
-        "hoverScreenshotModeTitle": "悬停界面截图按钮模式",
-        "hoverScreenshotModeHint": "配置 hover 界面的截图按钮触发选区截图或显示器截图",
-        "hoverScreenshotModeLabel": "截图方式",
-        "hoverScreenshotModeRegion": "选区截图",
-        "hoverScreenshotModeDisplay": "显示器截图",
         "shapeModeTitle": "岛屿形态",
         "shapeModeHint": "切换灵动岛的外观形态，刘海屏贴于屏幕顶部，灵动岛为胶囊形状",
         "shapeModeNotch": "刘海屏",
@@ -3609,7 +3574,6 @@
       "pages": {
         "window": "窗口控制",
         "display": "显示模式",
-        "capture": "截图",
         "clipboard": "剪贴板",
         "media": "媒体控制"
       },
@@ -3656,12 +3620,6 @@
         "toggleShapeMode": {
           "title": "切换形态模式快捷键",
           "hint": "按下此快捷键将在刘海屏与灵动岛形态之间快速切换"
-        }
-      },
-      "capture": {
-        "screenshot": {
-          "title": "选区截图快捷键",
-          "hint": "按下此快捷键将触发截图选区流程（如 Alt+A、Ctrl+Shift+A）"
         }
       },
       "media": {
@@ -4427,10 +4385,6 @@
         "label": "性能监控",
         "desc": "性能监控展示与硬件状态配置。"
       },
-      "screenshot-settings": {
-        "label": "截图设置",
-        "desc": "截图相关配置。"
-      },
       "network": {
         "label": "网络配置",
         "desc": "请求超时与网络行为设置"
@@ -4449,7 +4403,7 @@
       },
       "shortcut": {
         "label": "快捷键",
-        "desc": "隐藏、关闭、截图快捷键"
+        "desc": "隐藏、关闭快捷键"
       },
       "update": {
         "label": "更新设置",

@@ -26,7 +26,6 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { registerHideProcessIpcHandlers } from '../hideProcess';
-import { registerScreenshotHotkeyIpcHandlers } from '../screenshotHotkey';
 
 type HandlerFixture = (...arguments_: unknown[]) => unknown;
 const io = vi.hoisted(() => ({
@@ -47,7 +46,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('隐藏检测异步失败与截图保留列表空项', () => {
+describe('隐藏检测异步失败', () => {
   it('非 Windows 保存名单与全屏开关但不调用 Windows 检测', async () => {
     Object.defineProperty(process, 'platform', { configurable: true, value: 'linux' });
     const check = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
@@ -74,15 +73,6 @@ describe('隐藏检测异步失败与截图保留列表空项', () => {
     await expect(io.handlers.get('hide-process-list:auto-hide-fullscreen:set')?.({ sender: { id: 1 } }, true)).resolves.toBe(false);
     expect(console.error).toHaveBeenCalledWith('[HideProcessList] auto hide fullscreen persist error:', failure);
   });
-  it('截图注册失败返回 false 且不写文件', () => {
-    registerScreenshotHotkeyIpcHandlers({
-      storeDir: 'fixture-store', screenshotHotkeyStoreKey: 'screenshot',
-      getCurrentScreenshotHotkey: () => 'Ctrl+A', readScreenshotHotkeyConfig: () => 'Ctrl+B',
-      getReservedHotkeys: () => [], registerScreenshotHotkey: () => false,
-    });
-    expect(io.handlers.get('screenshot-hotkey:set')?.({}, '')).toBe(false);
-    expect(io.write).not.toHaveBeenCalled();
-  });
   it.each(['hide-process-list:set', 'hide-process-list:auto-hide-fullscreen:set'])('%s 检测 Promise 拒绝不撤销成功持久化', async (channel) => {
     const configured = vi.fn();
     const runtime = vi.fn();
@@ -105,16 +95,5 @@ describe('隐藏检测异步失败与截图保留列表空项', () => {
       expect(fullscreen).toHaveBeenCalledExactlyOnceWith(true);
       expect(io.broadcast).toHaveBeenCalledWith(1, 'store:fullscreen', true);
     }
-  });
-  it('保留快捷键中的空值不阻止合法新快捷键注册', () => {
-    const register = vi.fn<(accelerator: string) => boolean>().mockReturnValue(true);
-    registerScreenshotHotkeyIpcHandlers({
-      storeDir: 'fixture-store', screenshotHotkeyStoreKey: 'screenshot',
-      getCurrentScreenshotHotkey: () => 'Ctrl+A', readScreenshotHotkeyConfig: () => 'Ctrl+B',
-      getReservedHotkeys: () => ['', 'Ctrl+C'], registerScreenshotHotkey: register,
-    });
-    expect(io.handlers.get('screenshot-hotkey:set')?.({}, 'Ctrl+D')).toBe(true);
-    expect(register).toHaveBeenCalledExactlyOnceWith('Ctrl+D');
-    expect(io.write).toHaveBeenCalledWith(expect.stringContaining('screenshot.json'), '"Ctrl+D"', 'utf-8');
   });
 });

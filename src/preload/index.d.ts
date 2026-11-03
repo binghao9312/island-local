@@ -146,8 +146,6 @@ declare global {
       mediaToggleMuted: () => Promise<boolean | null>;
       mediaCurrentInfoGet: () => Promise<NowPlayingInfo | null>;
       onNowPlayingInfo: (callback: (info: NowPlayingInfo | null) => void) => () => void;
-      screenshot: () => Promise<Uint8Array | null>;
-      startRegionScreenshot: () => Promise<boolean>;
       openTaskManager: () => void;
       getPerformanceSnapshot: (
         selection?: PerformanceHardwareSelection,
@@ -201,8 +199,6 @@ declare global {
       hotkeyResume: () => Promise<boolean>;
       quitHotkeyGet: () => Promise<string>;
       quitHotkeySet: (accelerator: string) => Promise<boolean>;
-      screenshotHotkeyGet: () => Promise<string>;
-      screenshotHotkeySet: (accelerator: string) => Promise<boolean>;
       nextSongHotkeyGet: () => Promise<string>;
       nextSongHotkeySet: (accelerator: string) => Promise<boolean>;
       playPauseSongHotkeyGet: () => Promise<string>;

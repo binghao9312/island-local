@@ -40,8 +40,6 @@ import { registerAgentUsageIpcHandlers } from './ipc/agent/agentUsageIpc';
 import { AcpManager } from './acp/acpManager';
 import { registerAcpIpcHandlers } from './acp/acpIpc';
 import { registerClipboardIpcHandlers } from './ipc/settings/clipboard';
-import { registerCaptureIpcHandlers } from './ipc/window/capture';
-import { registerScreenshotHotkeyIpcHandlers } from './ipc/system/screenshotHotkey';
 import { registerAppIpcHandlers } from './ipc/app/app';
 import { registerSystemIpcHandlers } from './ipc/system/system';
 import { registerUpdaterIpcHandlers } from './ipc/app/updater';
@@ -72,7 +70,6 @@ import { registerAppLifecycleHandlers } from './services/appLifecycle';
 import { applyChromiumPerformanceFlags } from './services/chromiumFlags';
 import { createHotkeyService } from './services/hotkeyService';
 import { initUpdaterService } from './services/updaterService';
-import { createCaptureWindowService } from './window/captureWindow';
 import { createMainWindowService } from './window/mainWindow';
 import { openStandaloneWindow } from './window/standaloneWindow';
 import { showSplashWindow, closeSplashWindow } from './window/splashWindow';
@@ -118,7 +115,7 @@ import {
   CLIPBOARD_URL_DETECT_MODE_STORE_KEY, CLIPBOARD_URL_BLACKLIST_STORE_KEY,
   AUTOSTART_MODE_STORE_KEY, NAV_ORDER_STORE_KEY,
   HOTKEY_STORE_KEY, QUIT_HOTKEY_STORE_KEY,
-  SCREENSHOT_HOTKEY_STORE_KEY, NEXT_SONG_HOTKEY_STORE_KEY,
+  NEXT_SONG_HOTKEY_STORE_KEY,
   PLAY_PAUSE_SONG_HOTKEY_STORE_KEY, RESET_POSITION_HOTKEY_STORE_KEY,
   TOGGLE_TRAY_HOTKEY_STORE_KEY, SHOW_SETTINGS_WINDOW_HOTKEY_STORE_KEY,
   OPEN_CLIPBOARD_HISTORY_HOTKEY_STORE_KEY,
@@ -127,7 +124,7 @@ import {
   TOGGLE_SHAPE_MODE_HOTKEY_STORE_KEY,
   readIslandShapeModeConfig, writeIslandShapeModeConfig,
   sanitizeIslandPositionOffset, sanitizeIslandDisplaySelection, sanitizeSmtcUnsubscribeMs,
-  readHotkeyConfig, readQuitHotkeyConfig, readScreenshotHotkeyConfig,
+  readHotkeyConfig, readQuitHotkeyConfig,
   readNextSongHotkeyConfig, readPlayPauseSongHotkeyConfig, readResetPositionHotkeyConfig,
   readToggleTrayHotkeyConfig, readShowSettingsWindowHotkeyConfig, readOpenClipboardHistoryHotkeyConfig, readTogglePassthroughHotkeyConfig, readToggleUiLockHotkeyConfig,
   readToggleShapeModeHotkeyConfig,
@@ -276,10 +273,6 @@ function hideCliGlowWindow(): void {
   }
 }
 
-const captureWindowService = createCaptureWindowService({
-  canRestoreMainWindow: () => !autoHideWatcher.isManuallyHidden(),
-  getMainWindow: () => mainWindow,
-});
 /** 运行时白名单（可被用户修改） */
 let nowPlayingWhitelist: string[] = [...DEFAULT_WHITELIST];
 
@@ -392,10 +385,8 @@ function showSettingsWindow(): void {
 const hotkeyService = createHotkeyService({
   getMainWindow: () => mainWindow,
   setManualVisibility: autoHideWatcher.setManualVisibility,
-  isCapturing: captureWindowService.isCapturing,
   readHideHotkeyConfig: readHotkeyConfig,
   readQuitHotkeyConfig,
-  readScreenshotHotkeyConfig,
   readNextSongHotkeyConfig,
   readPlayPauseSongHotkeyConfig,
   readResetPositionHotkeyConfig,
@@ -405,11 +396,6 @@ const hotkeyService = createHotkeyService({
   readTogglePassthroughHotkeyConfig,
   readToggleUiLockHotkeyConfig,
   readToggleShapeModeHotkeyConfig,
-  onScreenshotHotkey: () => {
-    captureWindowService.startRegionScreenshot().catch((err) => {
-      console.error('[Screenshot] hotkey trigger error:', err);
-    });
-  },
   onNextSongHotkey: () => {
     if (!smtcService.isWhitelisted()) return;
     void smtcService.requestCommand('next');
@@ -431,8 +417,7 @@ const hotkeyService = createHotkeyService({
   onOpenClipboardHistoryHotkey: () => {
     const target = mainWindow;
     if (!target || target.isDestroyed()) return;
-    // 截图期间主窗口由截图流程临时隐藏，此时不抢先显示以免进入截图画面。
-    if (!isIslandShown(target) && !captureWindowService.isCapturing()) {
+    if (!isIslandShown(target)) {
       autoHideWatcher.setManualVisibility(true);
       showIsland(target);
       restoreIslandAlwaysOnTop(target);
@@ -654,7 +639,6 @@ function registerIpcHandlers(): void {
     toggleShapeModeHotkeyStoreKey: TOGGLE_SHAPE_MODE_HOTKEY_STORE_KEY,
     getCurrentHideHotkey: hotkeyService.getCurrentHideHotkey,
     getCurrentQuitHotkey: hotkeyService.getCurrentQuitHotkey,
-    getCurrentScreenshotHotkey: hotkeyService.getCurrentScreenshotHotkey,
     getCurrentNextSongHotkey: hotkeyService.getCurrentNextSongHotkey,
     getCurrentPlayPauseSongHotkey: hotkeyService.getCurrentPlayPauseSongHotkey,
     getCurrentResetPositionHotkey: hotkeyService.getCurrentResetPositionHotkey,
@@ -666,7 +650,6 @@ function registerIpcHandlers(): void {
     getCurrentToggleShapeModeHotkey: hotkeyService.getCurrentToggleShapeModeHotkey,
     readHideHotkeyConfig: readHotkeyConfig,
     readQuitHotkeyConfig,
-    readScreenshotHotkeyConfig,
     readNextSongHotkeyConfig,
     readPlayPauseSongHotkeyConfig,
     readResetPositionHotkeyConfig,
@@ -689,34 +672,6 @@ function registerIpcHandlers(): void {
     registerToggleShapeModeHotkey: hotkeyService.registerToggleShapeModeHotkey,
     suspendIslandHotkeys: hotkeyService.suspendIslandHotkeys,
     resumeIslandHotkeys: hotkeyService.resumeIslandHotkeys,
-  });
-
-  registerScreenshotHotkeyIpcHandlers({
-    storeDir,
-    screenshotHotkeyStoreKey: SCREENSHOT_HOTKEY_STORE_KEY,
-    getCurrentScreenshotHotkey: hotkeyService.getCurrentScreenshotHotkey,
-    readScreenshotHotkeyConfig,
-    getReservedHotkeys: () => {
-      const currentHide = hotkeyService.getCurrentHideHotkey() || readHotkeyConfig();
-      const currentQuit = hotkeyService.getCurrentQuitHotkey() || readQuitHotkeyConfig();
-      const currentNextSong = hotkeyService.getCurrentNextSongHotkey() || readNextSongHotkeyConfig();
-      const currentPlayPauseSong =
-        hotkeyService.getCurrentPlayPauseSongHotkey() || readPlayPauseSongHotkeyConfig();
-      const currentResetPos = hotkeyService.getCurrentResetPositionHotkey() || readResetPositionHotkeyConfig();
-      const currentToggleTray = hotkeyService.getCurrentToggleTrayHotkey() || readToggleTrayHotkeyConfig();
-      const currentShowSettings = hotkeyService.getCurrentShowSettingsWindowHotkey() || readShowSettingsWindowHotkeyConfig();
-      const currentOpenClipboardHistory = hotkeyService.getCurrentOpenClipboardHistoryHotkey() || readOpenClipboardHistoryHotkeyConfig();
-      const currentToggleUiLock = hotkeyService.getCurrentToggleUiLockHotkey() || readToggleUiLockHotkeyConfig();
-      const currentToggleShapeMode = hotkeyService.getCurrentToggleShapeModeHotkey() || readToggleShapeModeHotkeyConfig();
-      return [currentHide, currentQuit, currentNextSong, currentPlayPauseSong, currentResetPos, currentToggleTray, currentShowSettings, currentOpenClipboardHistory, currentToggleUiLock, currentToggleShapeMode];
-    },
-    registerScreenshotHotkey: hotkeyService.registerScreenshotHotkey,
-  });
-
-  registerCaptureIpcHandlers({
-    getCaptureWindow: captureWindowService.getCaptureWindow,
-    closeCaptureWindow: captureWindowService.closeCaptureWindow,
-    startRegionScreenshot: captureWindowService.startRegionScreenshot,
   });
 
   registerWallpaperIpcHandlers();
@@ -918,10 +873,6 @@ app.whenReady().then(() => {
   // 读取持久化关闭快捷键并注册
   const savedQuitHotkey = readQuitHotkeyConfig();
   if (savedQuitHotkey) hotkeyService.registerQuitHotkey(savedQuitHotkey);
-
-  // 读取持久化截图快捷键并注册
-  const savedScreenshotHotkey = readScreenshotHotkeyConfig();
-  if (savedScreenshotHotkey) hotkeyService.registerScreenshotHotkey(savedScreenshotHotkey);
 
   // 读取持久化切歌快捷键并注册
   const savedNextSongHotkey = readNextSongHotkeyConfig();

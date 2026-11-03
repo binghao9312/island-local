@@ -46,14 +46,6 @@ interface ShortcutSettingsSectionProps {
   setQuitHotkeyError: (value: string) => void;
   handleQuitHotkeyKeyDown: (event: ReactKeyboardEvent<HTMLInputElement>) => void;
   setQuitHotkey: (value: string) => void;
-  screenshotHotkeyInputRef: RefObject<HTMLInputElement | null>;
-  screenshotHotkeyRecording: boolean;
-  screenshotHotkeyError: string;
-  screenshotHotkey: string;
-  setScreenshotHotkeyRecording: (value: boolean) => void;
-  setScreenshotHotkeyError: (value: string) => void;
-  handleScreenshotHotkeyKeyDown: (event: ReactKeyboardEvent<HTMLInputElement>) => void;
-  setScreenshotHotkey: (value: string) => void;
   nextSongHotkeyInputRef: RefObject<HTMLInputElement | null>;
   nextSongHotkeyRecording: boolean;
   nextSongHotkeyError: string;
@@ -154,14 +146,6 @@ export function ShortcutSettingsSection(props: ShortcutSettingsSectionProps): Re
     handleQuitHotkeyKeyDown,
     setQuitHotkey,
 
-    screenshotHotkeyInputRef,
-    screenshotHotkeyRecording,
-    screenshotHotkeyError,
-    screenshotHotkey,
-    setScreenshotHotkeyRecording,
-    setScreenshotHotkeyError,
-    handleScreenshotHotkeyKeyDown,
-    setScreenshotHotkey,
 
     nextSongHotkeyInputRef,
     nextSongHotkeyRecording,
@@ -245,12 +229,11 @@ export function ShortcutSettingsSection(props: ShortcutSettingsSectionProps): Re
     setToggleShapeModeHotkey,
   } = props;
 
-  type ShortcutSettingsPageKey = 'window' | 'display' | 'capture' | 'clipboard' | 'media';
-  const pages: ShortcutSettingsPageKey[] = ['window', 'display', 'capture', 'clipboard', 'media'];
+  type ShortcutSettingsPageKey = 'window' | 'display' | 'clipboard' | 'media';
+  const pages: ShortcutSettingsPageKey[] = ['window', 'display', 'clipboard', 'media'];
   const pageLabels: Record<ShortcutSettingsPageKey, string> = {
     window: t('settings.shortcut.pages.window', { defaultValue: '窗口控制' }),
     display: t('settings.shortcut.pages.display', { defaultValue: '显示模式' }),
-    capture: t('settings.shortcut.pages.capture', { defaultValue: '截图' }),
     clipboard: t('settings.shortcut.pages.clipboard', { defaultValue: '剪贴板' }),
     media: t('settings.shortcut.pages.media', { defaultValue: '媒体控制' }),
   };
@@ -546,43 +529,6 @@ export function ShortcutSettingsSection(props: ShortcutSettingsSectionProps): Re
                 {toggleShapeModeHotkeyError && <div className="settings-hotkey-error">{toggleShapeModeHotkeyError}</div>}
               </div>
 
-            </div>
-          )}
-
-          {shortcutPage === 'capture' && (
-            <div className="settings-cards">
-              <div className="settings-card">
-                <div className="settings-card-header">
-                  <div className="settings-card-title">{t('settings.shortcut.capture.screenshot.title', { defaultValue: '选区截图快捷键' })}</div>
-                  <div className="settings-card-subtitle">{t('settings.shortcut.capture.screenshot.hint', { defaultValue: '按下此快捷键将触发截图选区流程（如 Alt+A、Ctrl+Shift+A）' })}</div>
-                </div>
-                <div className="settings-hotkey-row">
-                  <input
-                    ref={screenshotHotkeyInputRef}
-                    className={`settings-hotkey-input ${screenshotHotkeyRecording ? 'recording' : ''}${screenshotHotkeyError ? ' error' : ''}`}
-                    type="text"
-                    readOnly
-                    value={screenshotHotkeyRecording ? recordingValue : (screenshotHotkey || notSetValue)}
-                    onFocus={() => { setScreenshotHotkeyRecording(true); setScreenshotHotkeyError(''); window.api.hotkeySuspend().catch(() => {}); }}
-                    onBlur={() => { setScreenshotHotkeyRecording(false); window.api.hotkeyResume().catch(() => {}); }}
-                    onKeyDown={handleScreenshotHotkeyKeyDown}
-                  />
-                  <button className="settings-hotkey-btn" type="button" onClick={() => { setScreenshotHotkeyRecording(true); screenshotHotkeyInputRef.current?.focus(); }}>{screenshotHotkeyRecording ? recordingBtn : editBtn}</button>
-                  {screenshotHotkey && (
-                    <button className="settings-hotkey-btn" type="button" onClick={() => {
-                      window.api.screenshotHotkeySet('').then((ok) => {
-                        if (ok) {
-                          setScreenshotHotkey('');
-                          setScreenshotHotkeyError('');
-                          setScreenshotHotkeyRecording(false);
-                          screenshotHotkeyInputRef.current?.blur();
-                        }
-                      }).catch(() => {});
-                    }}>{clearBtn}</button>
-                  )}
-                </div>
-                {screenshotHotkeyError && <div className="settings-hotkey-error">{screenshotHotkeyError}</div>}
-              </div>
             </div>
           )}
 

@@ -20,7 +20,7 @@
 
 /**
  * @file ToolButtons.tsx
- * @description 倒计时开关、番茄钟开关、截图和任务管理器工具按钮组件
+ * @description 倒计时开关、番茄钟开关和任务管理器工具按钮组件
  * @author 鸡哥
  */
 
@@ -44,7 +44,7 @@ export interface ToolButtonsProps {
 
 /**
  * 工具按钮组件
- * @description 提供倒计时开关、番茄钟开始/暂停、截图和打开任务管理器四个功能按钮。
+ * @description 提供倒计时开关、番茄钟开始/暂停和打开任务管理器三个功能按钮。
  * 当倒计时正在运行或暂停时，倒计时按钮展示剩余 mm:ss 文本。
  * @param props - 组件属性
  * @returns 工具按钮元素
@@ -55,7 +55,7 @@ export function ToolButtons({
   timerBtnRef,
 }: ToolButtonsProps = {}): ReactElement {
   const { t } = useTranslation();
-  const { handleScreenshot, handleTaskManager } = useToolButtons();
+  const { handleTaskManager } = useToolButtons();
   const timerData = useIslandStore((state) => state.timerData);
   const pomodoroRunning = useIslandStore((state) => state.pomodoroRunning);
 
@@ -97,19 +97,6 @@ export function ToolButtons({
         <img
           src={SvgIcon.POMODORO}
           alt={t('hover.tools.pomodoro', { defaultValue: '番茄钟' })}
-          className="action-btn-icon"
-        />
-      </button>
-      <button
-        type="button"
-        className="action-btn"
-        onClick={handleScreenshot}
-        title={t('hover.tools.screenshot', { defaultValue: '截图' })}
-        aria-label={t('hover.tools.screenshot', { defaultValue: '截图' })}
-      >
-        <img
-          src={SvgIcon.SCREENSHOT}
-          alt={t('hover.tools.screenshot', { defaultValue: '截图' })}
           className="action-btn-icon"
         />
       </button>

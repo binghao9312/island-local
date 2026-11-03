@@ -54,7 +54,7 @@ export const WEATHER_LOCATION_PRIORITY_OPTIONS: Array<{ value: WeatherLocationPr
 
 export const SETTINGS_TABS = ['index', 'app', 'pluginMarket', 'network', 'mail', 'google', 'weather', 'music', 'shortcut', 'user', 'update', 'about'] as const;
 export type SettingsSidebarTabKey = (typeof SETTINGS_TABS)[number];
-export type AppSettingsPageKey = 'layout-preview' | 'expand-layout' | 'maxexpand-layout' | 'album' | 'hide-process-list' | 'position' | 'theme' | 'language' | 'behavior' | 'animation' | 'url-parser' | 'clipboard-history' | 'alarm' | 'break-reminder' | 'autostart' | 'sound' | 'notification' | 'performance' | 'performance-monitor' | 'screenshot-settings';
+export type AppSettingsPageKey = 'layout-preview' | 'expand-layout' | 'maxexpand-layout' | 'album' | 'hide-process-list' | 'position' | 'theme' | 'language' | 'behavior' | 'animation' | 'url-parser' | 'clipboard-history' | 'alarm' | 'break-reminder' | 'autostart' | 'sound' | 'notification' | 'performance' | 'performance-monitor';
 export type MailSettingsPageKey = 'account' | 'imap' | 'preferences';
 export type MusicSettingsPageKey = 'whitelist' | 'lyrics' | 'smtc';
 export type MusicNavCardKey = 'music-whitelist' | 'music-lyrics' | 'music-smtc';
@@ -84,7 +84,6 @@ export const SETTINGS_TAB_LABELS: Record<SettingsTabLabelKey, string> = {
   notification: '通知设置',
   performance: '性能设置',
   'performance-monitor': '性能监控',
-  'screenshot-settings': '截图设置',
   network: '网络配置',
   mail: '邮箱配置',
   google: 'Google 账号',
@@ -123,7 +122,6 @@ export const SETTINGS_TAB_DESCRIPTIONS: Record<Exclude<SettingsTabLabelKey, 'ind
   notification: '配置灵动岛通知提醒与展示行为。',
   performance: '性能相关配置。',
   'performance-monitor': '性能监控展示与硬件状态配置。',
-  'screenshot-settings': '截图相关配置。',
   network: '请求超时与网络行为设置',
   mail: '配置 IMAP 收信参数',
   google: 'Google 登录状态、Gmail 提醒与日历同步',
@@ -132,7 +130,7 @@ export const SETTINGS_TAB_DESCRIPTIONS: Record<Exclude<SettingsTabLabelKey, 'ind
   'music-whitelist': '配置允许接入灵动岛的播放器。',
   'music-lyrics': '选择歌词来源与显示模式。',
   'music-smtc': '系统媒体传输控制相关配置。',
-  shortcut: '隐藏、关闭、截图快捷键',
+  shortcut: '隐藏、关闭快捷键',
   user: '登录、资料、注销等账号操作',
   update: '检查与下载软件更新',
   'update-check': '检查与下载软件更新',
@@ -173,7 +171,6 @@ export const SETTINGS_TAB_ICONS: Partial<Record<SettingsTabLabelKey, string>> = 
   notification: SvgIcon.NOTIFICATION,
   performance: SvgIcon.TASK_MANAGER,
   'performance-monitor': SvgIcon.TASK_MANAGER,
-  'screenshot-settings': SvgIcon.SCREENSHOT,
   pluginMarket: SvgIcon.MARKET,
 };
 
@@ -322,7 +319,7 @@ export function normalizeMaxExpandNavLayoutConfig(raw: unknown): MaxExpandNavLay
   return ordered;
 }
 
-export const APP_SETTINGS_PAGES: AppSettingsPageKey[] = ['layout-preview', 'expand-layout', 'maxexpand-layout', 'album', 'hide-process-list', 'position', 'theme', 'language', 'behavior', 'animation', 'url-parser', 'clipboard-history', 'alarm', 'break-reminder', 'autostart', 'sound', 'notification', 'performance', 'performance-monitor', 'screenshot-settings'];
+export const APP_SETTINGS_PAGES: AppSettingsPageKey[] = ['layout-preview', 'expand-layout', 'maxexpand-layout', 'album', 'hide-process-list', 'position', 'theme', 'language', 'behavior', 'animation', 'url-parser', 'clipboard-history', 'alarm', 'break-reminder', 'autostart', 'sound', 'notification', 'performance', 'performance-monitor'];
 export const MAIL_SETTINGS_PAGES: MailSettingsPageKey[] = ['account', 'imap', 'preferences'];
 export const MAIL_SETTINGS_PAGE_LABELS: Record<MailSettingsPageKey, string> = {
   account: '账户',
@@ -438,7 +435,6 @@ export const NAV_CARDS: NavCardDef[] = withoutDisabledEntries<NavCardDef>([
   { id: 'notification', label: SETTINGS_TAB_LABELS.notification, desc: SETTINGS_TAB_DESCRIPTIONS.notification, icon: SETTINGS_TAB_ICONS.notification, tab: 'app', appPage: 'notification' },
   { id: 'performance', label: SETTINGS_TAB_LABELS.performance, desc: SETTINGS_TAB_DESCRIPTIONS.performance, icon: SETTINGS_TAB_ICONS.performance, tab: 'app', appPage: 'performance' },
   { id: 'performance-monitor', label: SETTINGS_TAB_LABELS['performance-monitor'], desc: SETTINGS_TAB_DESCRIPTIONS['performance-monitor'], icon: SETTINGS_TAB_ICONS['performance-monitor'], tab: 'app', appPage: 'performance-monitor' },
-  { id: 'screenshot-settings', label: SETTINGS_TAB_LABELS['screenshot-settings'], desc: SETTINGS_TAB_DESCRIPTIONS['screenshot-settings'], icon: SETTINGS_TAB_ICONS['screenshot-settings'], tab: 'app', appPage: 'screenshot-settings' },
   { id: 'network', label: SETTINGS_TAB_LABELS.network, desc: SETTINGS_TAB_DESCRIPTIONS.network, icon: SETTINGS_TAB_ICONS.network, tab: 'network' },
   { id: 'mail', label: SETTINGS_TAB_LABELS.mail, desc: SETTINGS_TAB_DESCRIPTIONS.mail, icon: SETTINGS_TAB_ICONS.mail, tab: 'mail' },
   { id: 'google', label: SETTINGS_TAB_LABELS.google, desc: SETTINGS_TAB_DESCRIPTIONS.google, icon: SETTINGS_TAB_ICONS.google, tab: 'google' },
@@ -517,7 +513,6 @@ export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutDisabledEntri
   { label: '空闲态点击展开', desc: '启用后，鼠标悬停在灵动岛上不会自动展开，需要点击才能展开，后续交互不受影响', labelKey: 'settings.app.behavior.idleClickExpandTitle', descKey: 'settings.app.behavior.idleClickExpandHint', tab: 'app', appPage: 'behavior' },
   { label: '是否显示启动动画', desc: '开启后每次启动显示启动动画，关闭后不显示', labelKey: 'settings.app.animation.startupAnimationTitle', descKey: 'settings.app.animation.startupAnimationHint', tab: 'app', appPage: 'animation' },
   { label: '独立窗口模式', desc: '启用后，待办事项、倒数日、设置将在独立窗口中打开，而非灵动岛内', labelKey: 'settings.app.behavior.windowModeTitle', descKey: 'settings.app.behavior.windowModeHint', tab: 'app', appPage: 'behavior' },
-  { label: '悬停界面截图按钮模式', desc: '配置 hover 界面的截图按钮触发选区截图或显示器截图', labelKey: 'settings.app.behavior.hoverScreenshotModeTitle', descKey: 'settings.app.behavior.hoverScreenshotModeHint', tab: 'app', appPage: 'behavior' },
   // ── 软件设置 > 动画 ──
   { label: '灵动岛弹性动画', desc: '关闭后，展开和收起动画将变得更加平滑内敛，消除弹跳感', labelKey: 'settings.app.animation.springTitle', descKey: 'settings.app.animation.springHint', tab: 'app', appPage: 'animation' },
   { label: '灵动岛动画速度', desc: '控制灵动岛状态切换时的过渡动画快慢', labelKey: 'settings.app.animation.animSpeedTitle', descKey: 'settings.app.animation.animSpeedHint', tab: 'app', appPage: 'animation' },
@@ -597,8 +592,6 @@ export const SEARCHABLE_SETTINGS: SearchableSettingItem[] = withoutDisabledEntri
   { label: '切换鼠标穿透快捷键', desc: '按下此快捷键将锁定或解锁鼠标穿透状态，锁定后灵动岛不会拦截鼠标事件', labelKey: 'settings.shortcut.window.togglePassthrough.title', descKey: 'settings.shortcut.window.togglePassthrough.hint', tab: 'shortcut' },
   { label: '切换 UI 状态锁定快捷键', desc: '按下后锁定当前 UI 状态，锁定期间不会因鼠标进入/移出或自动逻辑切换状态，再次按下解锁', labelKey: 'settings.shortcut.window.toggleUiLock.title', descKey: 'settings.shortcut.window.toggleUiLock.hint', tab: 'shortcut' },
   { label: '切换形态模式快捷键', desc: '按下此快捷键将在刘海屏与灵动岛形态之间快速切换', labelKey: 'settings.shortcut.window.toggleShapeMode.title', descKey: 'settings.shortcut.window.toggleShapeMode.hint', tab: 'shortcut' },
-  // ── 快捷键 > 截图 ──
-  { label: '选区截图快捷键', desc: '按下此快捷键将触发截图选区流程（如 Alt+A、Ctrl+Shift+A）', labelKey: 'settings.shortcut.capture.screenshot.title', descKey: 'settings.shortcut.capture.screenshot.hint', tab: 'shortcut' },
   // ── 快捷键 > 媒体 ──
   { label: '快速切换歌曲快捷键', desc: '按下后触发系统下一曲媒体按键（仅白名单播放器生效）', labelKey: 'settings.shortcut.media.nextSong.title', descKey: 'settings.shortcut.media.nextSong.hint', tab: 'shortcut' },
   { label: '暂停/播放歌曲快捷键', desc: '按下后触发系统播放/暂停媒体按键（仅白名单播放器生效）', labelKey: 'settings.shortcut.media.playPause.title', descKey: 'settings.shortcut.media.playPause.hint', tab: 'shortcut' },

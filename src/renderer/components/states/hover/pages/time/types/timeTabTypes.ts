@@ -40,9 +40,6 @@ export interface ActionButtonsProps {
   powerOffIcon?: string;
 }
 
-/** 截图模式 */
-export type HoverScreenshotMode = 'region' | 'display';
-
 /** Hover 时间区域面板模式 */
 export type TimePanelMode = 'countdown' | 'brightness' | 'volume';
 

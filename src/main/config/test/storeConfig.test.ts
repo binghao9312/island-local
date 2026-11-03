@@ -55,7 +55,6 @@ import {
   DEFAULT_ISLAND_DISPLAY_SELECTION,
   DEFAULT_HIDE_HOTKEY,
   DEFAULT_QUIT_HOTKEY,
-  DEFAULT_SCREENSHOT_HOTKEY,
 } from '../storeConfig';
 
 vi.mock('electron', () => ({
@@ -350,6 +349,5 @@ describe('exported constants', () => {
   it('hotkey defaults have expected values', () => {
     expect(DEFAULT_HIDE_HOTKEY).toBe('Alt+X');
     expect(DEFAULT_QUIT_HOTKEY).toBe('Alt+C');
-    expect(DEFAULT_SCREENSHOT_HOTKEY).toBe('Alt+A');
   });
 });

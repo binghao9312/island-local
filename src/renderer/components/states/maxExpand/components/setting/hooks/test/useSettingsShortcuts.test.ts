@@ -57,15 +57,6 @@ const bindings = [{
   setError: 'setQuitHotkeyError',
   api: 'quitHotkeySet'
 }, {
-  handler: 'handleScreenshotHotkeyKeyDown',
-  value: 'screenshotHotkey',
-  recording: 'screenshotHotkeyRecording',
-  error: 'screenshotHotkeyError',
-  ref: 'screenshotHotkeyInputRef',
-  setRecording: 'setScreenshotHotkeyRecording',
-  setError: 'setScreenshotHotkeyError',
-  api: 'screenshotHotkeySet'
-}, {
   handler: 'handleNextSongHotkeyKeyDown',
   value: 'nextSongHotkey',
   recording: 'nextSongHotkeyRecording',

@@ -72,7 +72,7 @@ const model = vi.hoisted(() => ({
   handleReset: vi.fn(),
 }));
 vi.mock('../../hooks/useCountdownEdit', () => ({ useCountdownEdit: () => model }));
-vi.mock('../../hooks/useToolButtons', () => ({ useToolButtons: () => ({ handleScreenshot: vi.fn(), handleTaskManager: vi.fn() }) }));
+vi.mock('../../hooks/useToolButtons', () => ({ useToolButtons: () => ({ handleTaskManager: vi.fn() }) }));
 
 beforeEach(() => {
   slots.cursor = 0;

@@ -28,25 +28,6 @@
     },
     "loading": "読み込み中…"
   },
-  "capture": {
-    "source": {
-      "plugin": "プラグインを使用",
-      "js": "JS を使用"
-    },
-    "tools": {
-      "select": "範囲選択",
-      "mosaic": "モザイク",
-      "line": "直線",
-      "rect": "長方形",
-      "pen": "ペン",
-      "undo": "元に戻す",
-      "color": "色",
-      "size": "太さ",
-      "save": "保存",
-      "cancel": "キャンセル",
-      "done": "完了"
-    }
-  },
   "guide": {
     "actions": {
       "skip": "ガイドをスキップ",
@@ -313,7 +294,6 @@
           "toggleIsland": "非表示/表示",
           "quitIsland": "eIsland を終了",
           "resetPosition": "位置をリセットするショートカット",
-          "screenshot": "範囲指定スクリーンショット",
           "switchSong": "曲を切り替える"
         }
       }
@@ -459,7 +439,6 @@
     },
     "tools": {
       "timer": "タイマー",
-      "screenshot": "スクリーンショット",
       "taskManager": "タスク マネージャー",
       "pomodoro": "ポモドーロ"
     },
@@ -2693,7 +2672,6 @@
       "notification": "通知設定",
       "performance": "パフォーマンス設定",
       "performance-monitor": "パフォーマンスモニター",
-      "screenshot-settings": "スクリーンショット設定",
       "network": "ネットワーク",
       "mail": "メール",
       "google": "Google アカウント",
@@ -2884,14 +2862,6 @@
           "memory": "メモリ",
           "disk": "ディスク"
         }
-      },
-      "screenshotSettings": {
-        "title": "スクリーンショット設定",
-        "hint": "スクリーンショットに関する設定です。",
-        "engineTitle": "スクリーンショットエンジン",
-        "engineHint": "スクリーンショット用のエンジンを選択します。プラグインモードは複数のディスプレイの撮影に対応し、JS モードは互換性に優れています。",
-        "enginePlugin": "プラグインモード",
-        "engineJs": "JS モード"
       },
       "notifications": {
         "configChanged": {
@@ -3229,11 +3199,6 @@
         "windowModeHint": "有効にすると、ToDo、カウントダウン、設定を Dynamic Island の内部ではなく、独立したウィンドウで開きます",
         "integratedMode": "Dynamic Island 内に表示",
         "standaloneMode": "独立ウィンドウ",
-        "hoverScreenshotModeTitle": "ホバー画面のスクリーンショットボタンの動作",
-        "hoverScreenshotModeHint": "ホバー画面のスクリーンショットボタンで、範囲指定かディスプレイ全体のどちらを撮影するか設定します",
-        "hoverScreenshotModeLabel": "スクリーンショットの撮影方法",
-        "hoverScreenshotModeRegion": "範囲指定で撮影",
-        "hoverScreenshotModeDisplay": "ディスプレイ全体を撮影",
         "shapeModeTitle": "アイランドの形状",
         "shapeModeHint": "アイランドの形状を切り替えます。ノッチ型は画面上部に固定され、ピル型は楕円形で浮かぶように表示されます",
         "shapeModeNotch": "ノッチ型",
@@ -3609,7 +3574,6 @@
       "pages": {
         "window": "ウィンドウ操作",
         "display": "表示モード",
-        "capture": "スクリーンショット",
         "clipboard": "クリップボード",
         "media": "メディア操作"
       },
@@ -3656,12 +3620,6 @@
         "toggleShapeMode": {
           "title": "形状モードの切り替えショートカット",
           "hint": "押すとノッチ型とピル型をすばやく切り替えます"
-        }
-      },
-      "capture": {
-        "screenshot": {
-          "title": "範囲指定スクリーンショットのショートカット",
-          "hint": "押すとスクリーンショットの範囲選択を開始します"
         }
       },
       "media": {
@@ -4427,10 +4385,6 @@
         "label": "パフォーマンスモニター",
         "desc": "パフォーマンスモニターの表示とハードウェアの状態を設定します。"
       },
-      "screenshot-settings": {
-        "label": "スクリーンショット設定",
-        "desc": "スクリーンショットに関する設定を行います。"
-      },
       "network": {
         "label": "ネットワーク",
         "desc": "リクエストのタイムアウトとネットワークの動作を設定します"
@@ -4449,7 +4403,7 @@
       },
       "shortcut": {
         "label": "ショートカット",
-        "desc": "非表示、終了、スクリーンショットのショートカットキーを設定します"
+        "desc": "非表示、終了のショートカットキーを設定します"
       },
       "update": {
         "label": "更新",

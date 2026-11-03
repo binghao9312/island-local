@@ -129,7 +129,7 @@ describe('真实初始化和旧配置迁移', () => {
     expected,
     reads
   }) => {
-    const values: Record<string, unknown> = { 'standalone-window-mode': modern, 'countdown-window-mode': legacy, 'hover-screenshot-mode': 'display' };
+    const values: Record<string, unknown> = { 'standalone-window-mode': modern, 'countdown-window-mode': legacy };
     api.storeRead.mockImplementation((key) => Promise.resolve(values[key]));
     api.idleClickExpandGet.mockResolvedValue(true);
     render();
@@ -137,7 +137,6 @@ describe('真实初始化和旧配置迁移', () => {
     await settle();
     expect(checked('standalone-window-mode')).toEqual(expected);
     expect(api.storeRead.mock.calls.filter(([key]) => key === 'countdown-window-mode')).toHaveLength(reads);
-    expect(checked('hover-screenshot-mode')).toEqual([false, true]);
     expect(elements(render()).filter((node) => elementProps(node).type === 'checkbox').map((node) => elementProps(node).checked)).toEqual([true, true, true]);
   });
   it.each(['notch', 'pill', 'damaged'])('形态初始化%s规范化', async (mode) => {
@@ -155,7 +154,6 @@ describe('真实初始化和旧配置迁移', () => {
     runEffects();
     await settle();
     expect(checked('standalone-window-mode')).toEqual([true, false]);
-    expect(checked('hover-screenshot-mode')).toEqual([true, false]);
     expect(checked('island-shape-mode')).toEqual([true, false]);
     unmountHooks();
     expect(unsubscribe).toHaveBeenCalledOnce();
@@ -183,7 +181,6 @@ describe('真实初始化和旧配置迁移', () => {
     if (failure) reject(new Error('offline'));else resolve('standalone');
     await settle();
     expect(checked('standalone-window-mode')).toEqual([true, false]);
-    expect(checked('hover-screenshot-mode')).toEqual([true, false]);
     expect(checked('island-shape-mode')).toEqual([true, false]);
     expect(elements(render()).filter((node) => elementProps(node).type === 'checkbox').map((node) => elementProps(node).checked)).toEqual([true, true, false]);
   });
@@ -224,13 +221,10 @@ describe('真实交互和公共外部事件', () => {
     expect(api.shapeModeSet.mock.calls.map(([mode]) => mode)).toEqual(['notch', 'pill']);
     expect(api.storeWrite).toHaveBeenCalledWith('standalone-window-mode', 'integrated');
     expect(api.storeWrite).toHaveBeenCalledWith('standalone-window-mode', 'standalone');
-    expect(api.storeWrite).toHaveBeenCalledWith('hover-screenshot-mode', 'region');
-    expect(api.storeWrite).toHaveBeenCalledWith('hover-screenshot-mode', 'display');
     expect(store.setNotification).toHaveBeenCalledTimes(2);
     expect(api.settingsPreview.mock.calls.map(([channel]) => channel)).toEqual(['notification:show', 'notification:show']);
     expect(checked('island-shape-mode')).toEqual([false, true]);
     expect(checked('standalone-window-mode')).toEqual([false, true]);
-    expect(checked('hover-screenshot-mode')).toEqual([false, true]);
     await settle();
   });
   it.each(['notch', 'pill', 'damaged'])('形态外部变更%s更新实际状态，其他频道忽略', async (mode) => {

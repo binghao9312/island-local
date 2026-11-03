@@ -28,25 +28,6 @@
     },
     "loading": "載入中…"
   },
-  "capture": {
-    "source": {
-      "plugin": "使用外掛",
-      "js": "使用js"
-    },
-    "tools": {
-      "select": "選區",
-      "mosaic": "馬賽克",
-      "line": "直線",
-      "rect": "矩形",
-      "pen": "畫筆",
-      "undo": "撤銷",
-      "color": "顏色",
-      "size": "粗細",
-      "save": "儲存",
-      "cancel": "取消",
-      "done": "完成"
-    }
-  },
   "guide": {
     "actions": {
       "skip": "一鍵跳過",
@@ -313,7 +294,6 @@
           "toggleIsland": "隱藏/顯示",
           "quitIsland": "關閉靈動島",
           "resetPosition": "還原預設位置快速鍵",
-          "screenshot": "選區截圖",
           "switchSong": "切換歌曲"
         }
       }
@@ -459,7 +439,6 @@
     },
     "tools": {
       "timer": "倒數計時",
-      "screenshot": "截圖",
       "taskManager": "工作管理員",
       "pomodoro": "番茄鐘"
     },
@@ -2693,7 +2672,6 @@
       "notification": "通知設定",
       "performance": "效能設定",
       "performance-monitor": "效能監控",
-      "screenshot-settings": "截圖設定",
       "network": "網路設定",
       "mail": "郵箱設定",
       "google": "Google 帳號",
@@ -2884,14 +2862,6 @@
           "memory": "記憶體",
           "disk": "磁碟"
         }
-      },
-      "screenshotSettings": {
-        "title": "截圖設定",
-        "hint": "截圖相關設定。",
-        "engineTitle": "截圖引擎",
-        "engineHint": "選擇截圖使用的引擎。外掛模式支援多顯示器截圖，JS 模式相容性更好。",
-        "enginePlugin": "外掛模式",
-        "engineJs": "JS 模式"
       },
       "notifications": {
         "configChanged": {
@@ -3229,11 +3199,6 @@
         "windowModeHint": "啟用後，待辦事項、倒數日、設定將在獨立視窗中開啟，而非靈動島內",
         "integratedMode": "整合在靈動島中",
         "standaloneMode": "獨立視窗",
-        "hoverScreenshotModeTitle": "懸停介面截圖按鈕模式",
-        "hoverScreenshotModeHint": "設定 hover 介面的截圖按鈕觸發選區截圖或顯示器截圖",
-        "hoverScreenshotModeLabel": "截圖方式",
-        "hoverScreenshotModeRegion": "選區截圖",
-        "hoverScreenshotModeDisplay": "顯示器截圖",
         "shapeModeTitle": "島嶼形態",
         "shapeModeHint": "切換靈動島的外觀形態，劉海屏貼於螢幕頂部，靈動島為膠囊形狀",
         "shapeModeNotch": "劉海屏",
@@ -3609,7 +3574,6 @@
       "pages": {
         "window": "視窗控制",
         "display": "顯示模式",
-        "capture": "截圖",
         "clipboard": "剪貼簿",
         "media": "媒體控制"
       },
@@ -3656,12 +3620,6 @@
         "toggleShapeMode": {
           "title": "切換形態模式快速鍵",
           "hint": "按下此快速鍵將在劉海屏與靈動島形態之間快速切換"
-        }
-      },
-      "capture": {
-        "screenshot": {
-          "title": "選區截圖快速鍵",
-          "hint": "按下此快速鍵將觸發截圖選區流程（如 Alt+A、Ctrl+Shift+A）"
         }
       },
       "media": {
@@ -4427,10 +4385,6 @@
         "label": "效能監控",
         "desc": "效能監控展示與硬體狀態設定。"
       },
-      "screenshot-settings": {
-        "label": "截圖設定",
-        "desc": "截圖相關設定。"
-      },
       "network": {
         "label": "網路設定",
         "desc": "請求超時與網路行為設定"
@@ -4449,7 +4403,7 @@
       },
       "shortcut": {
         "label": "快速鍵",
-        "desc": "隱藏、關閉、截圖快速鍵"
+        "desc": "隱藏、關閉快速鍵"
       },
       "update": {
         "label": "更新設定",

@@ -45,13 +45,12 @@ vi.mock('../../window/islandVisibility', () => ({
   hideIsland: (window: { hide: () => void }) => { window.hide(); },
 }));
 vi.mock('electron', () => ({ app: { quit: mocks.quit }, globalShortcut: { register: mocks.register, unregister: mocks.unregister } }));
-const names = ["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough","ToggleUiLock","ToggleShapeMode"] as const;
-const rows = [["Hide","registerHideHotkey","getCurrentHideHotkey",0],["Quit","registerQuitHotkey","getCurrentQuitHotkey",1],["Screenshot","registerScreenshotHotkey","getCurrentScreenshotHotkey",2],["NextSong","registerNextSongHotkey","getCurrentNextSongHotkey",3],["PlayPauseSong","registerPlayPauseSongHotkey","getCurrentPlayPauseSongHotkey",4],["ResetPosition","registerResetPositionHotkey","getCurrentResetPositionHotkey",5],["ToggleTray","registerToggleTrayHotkey","getCurrentToggleTrayHotkey",6],["ShowSettingsWindow","registerShowSettingsWindowHotkey","getCurrentShowSettingsWindowHotkey",7],["OpenClipboardHistory","registerOpenClipboardHistoryHotkey","getCurrentOpenClipboardHistoryHotkey",8],["TogglePassthrough","registerTogglePassthroughHotkey","getCurrentTogglePassthroughHotkey",9],["ToggleUiLock","registerToggleUiLockHotkey","getCurrentToggleUiLockHotkey",10],["ToggleShapeMode","registerToggleShapeModeHotkey","getCurrentToggleShapeModeHotkey",11]] as const;
+const names = ["Hide","Quit","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough","ToggleUiLock","ToggleShapeMode"] as const;
+const rows = [["Hide","registerHideHotkey","getCurrentHideHotkey",0],["Quit","registerQuitHotkey","getCurrentQuitHotkey",1],["NextSong","registerNextSongHotkey","getCurrentNextSongHotkey",2],["PlayPauseSong","registerPlayPauseSongHotkey","getCurrentPlayPauseSongHotkey",3],["ResetPosition","registerResetPositionHotkey","getCurrentResetPositionHotkey",4],["ToggleTray","registerToggleTrayHotkey","getCurrentToggleTrayHotkey",5],["ShowSettingsWindow","registerShowSettingsWindowHotkey","getCurrentShowSettingsWindowHotkey",6],["OpenClipboardHistory","registerOpenClipboardHistoryHotkey","getCurrentOpenClipboardHistoryHotkey",7],["TogglePassthrough","registerTogglePassthroughHotkey","getCurrentTogglePassthroughHotkey",8],["ToggleUiLock","registerToggleUiLockHotkey","getCurrentToggleUiLockHotkey",9],["ToggleShapeMode","registerToggleShapeModeHotkey","getCurrentToggleShapeModeHotkey",10]] as const;
 const callbacks = new Map<string, () => void>();
 const readers = {
   Hide: vi.fn(() => ''),
   Quit: vi.fn(() => ''),
-  Screenshot: vi.fn(() => ''),
   NextSong: vi.fn(() => ''),
   PlayPauseSong: vi.fn(() => ''),
   ResetPosition: vi.fn(() => ''),
@@ -67,7 +66,6 @@ const options = {
   setManualVisibility: vi.fn<(hidden: boolean) => void>(),
   readHideHotkeyConfig: readers.Hide,
   readQuitHotkeyConfig: readers.Quit,
-  readScreenshotHotkeyConfig: readers.Screenshot,
   readNextSongHotkeyConfig: readers.NextSong,
   readPlayPauseSongHotkeyConfig: readers.PlayPauseSong,
   readResetPositionHotkeyConfig: readers.ResetPosition,
@@ -77,7 +75,6 @@ const options = {
   readTogglePassthroughHotkeyConfig: readers.TogglePassthrough,
   readToggleUiLockHotkeyConfig: readers.ToggleUiLock,
   readToggleShapeModeHotkeyConfig: readers.ToggleShapeMode,
-  onScreenshotHotkey: vi.fn<() => void>(),
   onNextSongHotkey: vi.fn<() => void>(),
   onPlayPauseSongHotkey: vi.fn<() => void>(),
   onResetPositionHotkey: vi.fn<() => void>(),
@@ -88,7 +85,7 @@ const options = {
   onToggleUiLockHotkey: vi.fn<() => void>(),
   onToggleShapeModeHotkey: vi.fn<() => void>(),
 } satisfies Parameters<typeof createHotkeyService>[0];
-const actions = [mocks.show, mocks.quit, options.onScreenshotHotkey, options.onNextSongHotkey, options.onPlayPauseSongHotkey, options.onResetPositionHotkey, options.onToggleTrayHotkey, options.onShowSettingsWindowHotkey, options.onOpenClipboardHistoryHotkey, options.onTogglePassthroughHotkey, options.onToggleUiLockHotkey, options.onToggleShapeModeHotkey];
+const actions = [mocks.show, mocks.quit, options.onNextSongHotkey, options.onPlayPauseSongHotkey, options.onResetPositionHotkey, options.onToggleTrayHotkey, options.onShowSettingsWindowHotkey, options.onOpenClipboardHistoryHotkey, options.onTogglePassthroughHotkey, options.onToggleUiLockHotkey, options.onToggleShapeModeHotkey];
 const windowFixture = { isDestroyed: mocks.destroyed, isVisible: mocks.visible, show: mocks.show, hide: mocks.hide, setAlwaysOnTop: mocks.alwaysOnTop };
 
 /**
@@ -166,13 +163,6 @@ describe('hide-window callback and persisted binding boundaries', () => {
     expect(options.setManualVisibility).toHaveBeenCalledWith(true);
     expect(mocks.show).toHaveBeenCalledOnce();
     expect(mocks.alwaysOnTop).toHaveBeenCalledWith(true, 'screen-saver');
-  });
-  it('ignores the toggle while a screenshot temporarily hides the window', () => {
-    const service = createHotkeyService({ ...options, isCapturing: () => true });
-    service.registerHideHotkey('Show');
-    press('Show');
-    expect(options.setManualVisibility).not.toHaveBeenCalled();
-    expect(mocks.show).not.toHaveBeenCalled();
   });
   it.each(['absent', 'destroyed'])('ignores the hide callback for an %s window', (state) => {
     if (state === 'absent') options.getMainWindow.mockReturnValue(null);

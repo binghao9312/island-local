@@ -56,12 +56,6 @@ export function useSettingsShortcuts(options: SettingsShortcutsOptions) {
   const [quitHotkeyError, setQuitHotkeyError] = useState<string>('');
   const quitHotkeyInputRef = useRef<HTMLInputElement>(null);
 
-  /** 截图快捷键相关状态 */
-  const [screenshotHotkey, setScreenshotHotkey] = useState<string>('Alt+A');
-  const [screenshotHotkeyRecording, setScreenshotHotkeyRecording] = useState(false);
-  const [screenshotHotkeyError, setScreenshotHotkeyError] = useState<string>('');
-  const screenshotHotkeyInputRef = useRef<HTMLInputElement>(null);
-
   /** 切歌快捷键相关状态 */
   const [nextSongHotkey, setNextSongHotkey] = useState<string>('');
   const [nextSongHotkeyRecording, setNextSongHotkeyRecording] = useState(false);
@@ -118,7 +112,6 @@ export function useSettingsShortcuts(options: SettingsShortcutsOptions) {
   const hotkeyBindings: HotkeyBinding[] = [
     { key: 'hide', value: hideHotkey },
     { key: 'quit', value: quitHotkey },
-    { key: 'screenshot', value: screenshotHotkey },
     { key: 'next-song', value: nextSongHotkey },
     { key: 'play-pause-song', value: playPauseSongHotkey },
     { key: 'reset-position', value: resetPositionHotkey },
@@ -187,36 +180,6 @@ export function useSettingsShortcuts(options: SettingsShortcutsOptions) {
       }
     }).catch(() => {
       setQuitHotkeyError(t('settings.hotkey.registerFailed', { defaultValue: '快捷键注册失败' }));
-    });
-  };
-
-  /**
-   * 截图快捷键录入键盘事件处理
-   * @param e - React 键盘事件
-   */
-  const handleScreenshotHotkeyKeyDown = (e: KeyboardEvent): void => {
-    e.preventDefault();
-    e.stopPropagation();
-    setScreenshotHotkeyError('');
-    const acc = keyEventToAccelerator(e);
-    if (!acc) return;
-    if (isDuplicateHotkey(acc, 'screenshot', hotkeyBindings)) {
-      setScreenshotHotkeyError(t('settings.hotkey.duplicateHotkey', { defaultValue: '重复快捷键' }));
-      setScreenshotHotkeyRecording(false);
-      screenshotHotkeyInputRef.current?.blur();
-      return;
-    }
-
-    window.api.screenshotHotkeySet(acc).then((ok) => {
-      if (ok) {
-        setScreenshotHotkey(acc);
-        setScreenshotHotkeyRecording(false);
-        screenshotHotkeyInputRef.current?.blur();
-      } else {
-        setScreenshotHotkeyError(t('settings.hotkey.registerFailedRetry', { defaultValue: '快捷键注册失败，请尝试其他组合' }));
-      }
-    }).catch(() => {
-      setScreenshotHotkeyError(t('settings.hotkey.registerFailed', { defaultValue: '快捷键注册失败' }));
     });
   };
 
@@ -485,13 +448,6 @@ export function useSettingsShortcuts(options: SettingsShortcutsOptions) {
     quitHotkeyError,
     setQuitHotkeyError,
     quitHotkeyInputRef,
-    screenshotHotkey,
-    setScreenshotHotkey,
-    screenshotHotkeyRecording,
-    setScreenshotHotkeyRecording,
-    screenshotHotkeyError,
-    setScreenshotHotkeyError,
-    screenshotHotkeyInputRef,
     nextSongHotkey,
     setNextSongHotkey,
     nextSongHotkeyRecording,
@@ -557,7 +513,6 @@ export function useSettingsShortcuts(options: SettingsShortcutsOptions) {
     toggleShapeModeHotkeyInputRef,
     handleHotkeyKeyDown,
     handleQuitHotkeyKeyDown,
-    handleScreenshotHotkeyKeyDown,
     handleResetPositionHotkeyKeyDown,
     handleToggleTrayHotkeyKeyDown,
     handleShowSettingsWindowHotkeyKeyDown,

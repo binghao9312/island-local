@@ -52,7 +52,6 @@ vi.mock('.././components/SoundSettingsPage', () => ({ SoundSettingsPage: Object.
 vi.mock('.././components/NotificationSettingsPage', () => ({ NotificationSettingsPage: Object.assign(vi.fn(), { displayName: 'NotificationSettingsPage' }) }));
 vi.mock('.././components/PerformanceSettingsPage', () => ({ PerformanceSettingsPage: Object.assign(vi.fn(), { displayName: 'PerformanceSettingsPage' }) }));
 vi.mock('.././components/PerformanceMonitorSettingsPage', () => ({ PerformanceMonitorSettingsPage: Object.assign(vi.fn(), { displayName: 'PerformanceMonitorSettingsPage' }) }));
-vi.mock('.././components/ScreenshotSettingsPage', () => ({ ScreenshotSettingsPage: Object.assign(vi.fn(), { displayName: 'ScreenshotSettingsPage' }) }));
 vi.mock('.././components/AppSettingsPageDots', () => ({ AppSettingsPageDots: Object.assign(vi.fn(), { displayName: 'AppSettingsPageDots' }) }));
 vi.mock('../../SettingsPageNavigation', () => ({ SettingsPageNavigationToggle: Object.assign(vi.fn(), { displayName: 'SettingsPageNavigationToggle' }) }));
 beforeEach(() => {
@@ -61,7 +60,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); });
 describe('AppSettingsSection', () => {
-  it.each([['layout-preview', 'LayoutPreviewSettingsPage'], ['expand-layout', 'ExpandLayoutSettingsPage'], ['maxexpand-layout', 'MaxExpandLayoutSettingsPage'], ['album', 'AlbumSettingsPage'], ['hide-process-list', 'HideProcessSettingsPage'], ['position', 'PositionSettingsPage'], ['theme', 'ThemeSettingsPage'], ['language', 'LanguageSettingsPage'], ['behavior', 'BehaviorSettingsPage'], ['animation', 'AnimationSettingsPage'], ['url-parser', 'UrlParserSettingsPage'], ['clipboard-history', 'ClipboardHistorySettingsSection'], ['alarm', 'AlarmSettingsPage'], ['break-reminder', 'BreakReminderSettingsPage'], ['autostart', 'AutostartSettingsPage'], ['sound', 'SoundSettingsPage'], ['notification', 'NotificationSettingsPage'], ['performance', 'PerformanceSettingsPage'], ['performance-monitor', 'PerformanceMonitorSettingsPage'], ['screenshot-settings', 'ScreenshotSettingsPage']] as const)('routes %s to %s', (appSettingsPage, expected) => {
+  it.each([['layout-preview', 'LayoutPreviewSettingsPage'], ['expand-layout', 'ExpandLayoutSettingsPage'], ['maxexpand-layout', 'MaxExpandLayoutSettingsPage'], ['album', 'AlbumSettingsPage'], ['hide-process-list', 'HideProcessSettingsPage'], ['position', 'PositionSettingsPage'], ['theme', 'ThemeSettingsPage'], ['language', 'LanguageSettingsPage'], ['behavior', 'BehaviorSettingsPage'], ['animation', 'AnimationSettingsPage'], ['url-parser', 'UrlParserSettingsPage'], ['clipboard-history', 'ClipboardHistorySettingsSection'], ['alarm', 'AlarmSettingsPage'], ['break-reminder', 'BreakReminderSettingsPage'], ['autostart', 'AutostartSettingsPage'], ['sound', 'SoundSettingsPage'], ['notification', 'NotificationSettingsPage'], ['performance', 'PerformanceSettingsPage'], ['performance-monitor', 'PerformanceMonitorSettingsPage']] as const)('routes %s to %s', (appSettingsPage, expected) => {
     const props = makeAppSettingsProps();
     props.appSettingsPage = appSettingsPage;
     const tree = AppSettingsSection(props);

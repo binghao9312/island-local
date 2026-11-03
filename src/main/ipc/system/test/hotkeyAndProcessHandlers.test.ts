@@ -48,7 +48,6 @@ vi.mock('fs', () => ({
 }));
 
 import { registerHotkeyIpcHandlers } from '../hotkey';
-import { registerScreenshotHotkeyIpcHandlers } from '../screenshotHotkey';
 import { registerHideProcessIpcHandlers } from '../hideProcess';
 
 describe('system hotkey and hide-process ipc handlers', () => {
@@ -85,7 +84,6 @@ describe('system hotkey and hide-process ipc handlers', () => {
         toggleShapeModeHotkeyStoreKey: 'shapeMode',
         getCurrentHideHotkey: () => 'Ctrl+Alt+H',
         getCurrentQuitHotkey: () => 'Ctrl+Alt+Q',
-        getCurrentScreenshotHotkey: () => 'Ctrl+Shift+S',
         getCurrentNextSongHotkey: () => 'Ctrl+Alt+N',
         getCurrentPlayPauseSongHotkey: () => 'Ctrl+Alt+P',
         getCurrentResetPositionHotkey: () => 'Ctrl+Alt+R',
@@ -98,7 +96,6 @@ describe('system hotkey and hide-process ipc handlers', () => {
         readToggleShapeModeHotkeyConfig: () => '',
         readHideHotkeyConfig: () => 'Alt+1',
         readQuitHotkeyConfig: () => 'Alt+2',
-        readScreenshotHotkeyConfig: () => 'Alt+3',
         readNextSongHotkeyConfig: () => 'Alt+4',
         readPlayPauseSongHotkeyConfig: () => 'Alt+5',
         readResetPositionHotkeyConfig: () => 'Alt+6',
@@ -197,46 +194,6 @@ describe('system hotkey and hide-process ipc handlers', () => {
     const setQuit = handlers.get('quit-hotkey:set');
     expect(setQuit?.({}, 'Ctrl+Shift+Q')).toBe(true);
     expect(refs.registerQuitHotkey).toHaveBeenCalledWith('Ctrl+Shift+Q');
-  });
-
-  it('handles screenshot hotkey get/set with reserved guard', () => {
-    const registerScreenshotHotkey = vi.fn(() => true);
-    registerScreenshotHotkeyIpcHandlers({
-      storeDir: 'C:/store',
-      screenshotHotkeyStoreKey: 'screenshot',
-      getCurrentScreenshotHotkey: () => '',
-      readScreenshotHotkeyConfig: () => 'Ctrl+Shift+S',
-      getReservedHotkeys: () => ['Ctrl+Alt+Q', 'Ctrl+Shift+S'],
-      registerScreenshotHotkey,
-    });
-
-    expect(handlers.get('screenshot-hotkey:get')?.({})).toBe('Ctrl+Shift+S');
-
-    const setShot = handlers.get('screenshot-hotkey:set');
-    expect(setShot?.({}, 'Ctrl+Alt+Q')).toBe(false);
-    expect(registerScreenshotHotkey).not.toHaveBeenCalled();
-
-    expect(setShot?.({}, 'Ctrl+Shift+A')).toBe(true);
-    expect(registerScreenshotHotkey).toHaveBeenCalledWith('Ctrl+Shift+A');
-    expect(writeFileSyncMock).toHaveBeenCalled();
-
-    writeFileSyncMock.mockImplementationOnce(() => {
-      throw new Error('disk full');
-    });
-    expect(setShot?.({}, 'Ctrl+Shift+B')).toBe(true);
-  });
-
-  it('prefers current screenshot hotkey over stored config', () => {
-    registerScreenshotHotkeyIpcHandlers({
-      storeDir: 'C:/store',
-      screenshotHotkeyStoreKey: 'screenshot',
-      getCurrentScreenshotHotkey: () => 'Ctrl+Alt+S',
-      readScreenshotHotkeyConfig: () => 'Ctrl+Shift+S',
-      getReservedHotkeys: () => [],
-      registerScreenshotHotkey: vi.fn(() => true),
-    });
-
-    expect(handlers.get('screenshot-hotkey:get')?.({})).toBe('Ctrl+Alt+S');
   });
 
   it('handles hide-process list read/set success and error branches', async () => {

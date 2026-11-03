@@ -30,7 +30,7 @@ import { build } from 'vite';
 import { expect, it } from 'vitest';
 
 const root = resolve(__dirname, '../../..');
-const workerEntries = ['smtcWorker', 'smtcCommandWorker', 'codexWorker', 'screenshotWorker'];
+const workerEntries = ['smtcWorker', 'smtcCommandWorker', 'codexWorker'];
 
 /** 构建产物中用于检查引用图的字段。 */
 interface BuildChunk {

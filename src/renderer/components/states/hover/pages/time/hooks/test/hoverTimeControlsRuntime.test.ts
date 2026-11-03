@@ -20,7 +20,7 @@
 
 /**
  * @file hoverTimeControlsRuntime.test.ts
- * @description 真实亮度音量防抖、工具截图与隐藏退出按钮的原生边界测试。
+ * @description 真实亮度音量防抖、任务管理器与隐藏退出按钮的原生边界测试。
  * @author 鸡哥
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -39,19 +39,10 @@ vi.mock('react', async (original) => {
 });
 const get = vi.fn<() => Promise<number | null>>();
 const set = vi.fn<(value: number) => Promise<void>>();
-const read = vi.fn<(key: string) => Promise<unknown>>();
-const screenshot = vi.fn<() => Promise<Uint8Array | null>>();
-const region = vi.fn<() => Promise<void>>();
 const manager = vi.fn<() => void>();
 const collapse = vi.fn<() => void>();
 const hide = vi.fn<() => void>();
 const quit = vi.fn<() => void>();
-const click = vi.fn<() => void>();
-const anchor = {
-  click,
-  download: '',
-  href: ''
-};
 /** 调整浏览器滑块事件。
  * @param value - 原生输入
  * @returns 滑块事件
@@ -90,29 +81,17 @@ beforeEach(() => {
   vi.useFakeTimers();
   get.mockResolvedValue(75);
   set.mockResolvedValue(undefined);
-  read.mockResolvedValue('region');
-  screenshot.mockResolvedValue(new Uint8Array([137, 80, 78, 71]));
-  vi.spyOn(URL, 'revokeObjectURL');
-  region.mockResolvedValue(undefined);
-  anchor.download = '';
-  anchor.href = '';
   vi.stubGlobal('window', {
     api: {
-      screenshot,
       getBrightness: get,
       getVolume: get,
       setBrightness: set,
       setVolume: set,
-      storeRead: read,
-      startRegionScreenshot: region,
       openTaskManager: manager,
       collapseWindow: collapse,
       hideWindow: hide,
       quitApp: quit
     }
-  });
-  vi.stubGlobal('document', {
-    createElement: () => anchor
   });
 });
 afterEach(() => {
@@ -174,66 +153,10 @@ describe.each(['brightness', 'volume'] as const)('true %s device controls', (kin
     expect(set).not.toHaveBeenCalled();
   });
 });
-describe('true screenshot and native action buttons', () => {
-  it.each(['region', 'display', 'invalid'] as const)('stored screenshot mode %s routes native APIs and real download properties', async (mode) => {
-    read.mockResolvedValue(mode);
-    renderHook(useToolButtons);
-    flushHookEffects();
-    await settleHook();
-    await renderHook(useToolButtons).handleScreenshot();
-    if (mode === 'display') {
-      expect(screenshot).toHaveBeenCalledOnce();
-      expect(anchor.href).toMatch(/^blob:/);
-      expect(new Uint8Array(await (await fetch(anchor.href)).arrayBuffer())).toEqual(new Uint8Array([137, 80, 78, 71]));
-      await vi.advanceTimersByTimeAsync(0);
-      expect(URL.revokeObjectURL).toHaveBeenCalledWith(anchor.href);
-      expect(anchor.download).toMatch(/^screenshot_\d+\.png$/);
-      expect(click).toHaveBeenCalledOnce();
-    } else {
-      expect(region).toHaveBeenCalledOnce();
-      expect(click).not.toHaveBeenCalled();
-    }
+describe('true native action buttons', () => {
+  it('task manager button invokes the native API', () => {
     renderHook(useToolButtons).handleTaskManager();
     expect(manager).toHaveBeenCalledOnce();
-  });
-  it('display screenshot empty payload does not create a download', async () => {
-    read.mockResolvedValue('display');
-    screenshot.mockResolvedValue(null);
-    renderHook(useToolButtons);
-    flushHookEffects();
-    await settleHook();
-    await renderHook(useToolButtons).handleScreenshot();
-    expect(click).not.toHaveBeenCalled();
-  });
-  it.each(['read', 'region', 'display'] as const)('native %s failure is consumed with screenshot fallback/error', async (kind) => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    if (kind === 'read') read.mockRejectedValue(new Error('storage'));
-    if (kind === 'region') region.mockRejectedValue(new Error('capture'));
-    if (kind === 'display') {
-      read.mockResolvedValue('display');
-      screenshot.mockRejectedValue(new Error('capture'));
-    }
-    renderHook(useToolButtons);
-    flushHookEffects();
-    await settleHook();
-    await renderHook(useToolButtons).handleScreenshot();
-    if (kind === 'read') {
-      expect(region).toHaveBeenCalledOnce();
-      expect(error).not.toHaveBeenCalled();
-    } else expect(error).toHaveBeenCalledOnce();
-    error.mockRestore();
-  });
-  it.each(['resolve', 'reject'] as const)('late screenshot mode %s after unmount retains region route', async (kind) => {
-    const pending = deferred<unknown>();
-    read.mockReturnValue(pending.promise);
-    renderHook(useToolButtons);
-    flushHookEffects();
-    unmountHook();
-    if (kind === 'resolve') pending.resolve('display');else pending.reject(new Error('late'));
-    await settleHook();
-    await renderHook(useToolButtons).handleScreenshot();
-    expect(region).toHaveBeenCalledOnce();
-    expect(screenshot).not.toHaveBeenCalled();
   });
   it('hide preserves the current window geometry, quit invokes native exit without executing real system actions', () => {
     const actions = renderHook(useActionButtons);

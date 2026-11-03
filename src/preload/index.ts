@@ -424,20 +424,6 @@ const api = {
   },
   /** ===== 系统工具 API ===== */
   /**
-   * 截图并返回原始 PNG 字节
-   * @returns PNG 二进制图片数据，或 null（失败时）
-   */
-  screenshot: (): Promise<Uint8Array | null> => {
-    return ipcRenderer.invoke('system:screenshot');
-  },
-  /**
-   * 启动选区截图流程
-   * @returns 是否成功启动
-   */
-  startRegionScreenshot: (): Promise<boolean> => {
-    return ipcRenderer.invoke('system:screenshot:region:start');
-  },
-  /**
    * 打开任务管理器
    * @returns 无返回值
    */
@@ -773,21 +759,6 @@ const api = {
    */
   quitHotkeySet: (accelerator: string): Promise<boolean> => {
     return ipcRenderer.invoke('quit-hotkey:set', accelerator);
-  },
-  /**
-   * 获取当前截图快捷键
-   * @returns 当前快捷键字符串
-   */
-  screenshotHotkeyGet: (): Promise<string> => {
-    return ipcRenderer.invoke('screenshot-hotkey:get');
-  },
-  /**
-   * 设置截图快捷键
-   * @param accelerator - Electron accelerator 字符串（如 "Alt+A"）
-   * @returns 是否注册成功
-   */
-  screenshotHotkeySet: (accelerator: string): Promise<boolean> => {
-    return ipcRenderer.invoke('screenshot-hotkey:set', accelerator);
   },
   /**
    * 获取当前切歌快捷键

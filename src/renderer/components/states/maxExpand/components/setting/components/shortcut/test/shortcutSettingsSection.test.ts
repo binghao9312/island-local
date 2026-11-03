@@ -51,14 +51,6 @@ function makeProps(): ComponentProps<typeof ShortcutSettingsSection> {
     setQuitHotkeyError: vi.fn(),
     handleQuitHotkeyKeyDown: vi.fn(),
     setQuitHotkey: vi.fn(),
-    screenshotHotkeyInputRef: { current: null },
-    screenshotHotkeyRecording: false,
-    screenshotHotkeyError: '',
-    screenshotHotkey: '',
-    setScreenshotHotkeyRecording: vi.fn(),
-    setScreenshotHotkeyError: vi.fn(),
-    handleScreenshotHotkeyKeyDown: vi.fn(),
-    setScreenshotHotkey: vi.fn(),
     nextSongHotkeyInputRef: { current: null },
     nextSongHotkeyRecording: false,
     nextSongHotkeyError: '',
@@ -174,7 +166,7 @@ describe('ShortcutSettingsSection', () => {
     await Promise.resolve();
     expect(props.setHideHotkey).not.toHaveBeenCalled();
   });
-  it.each(['window', 'display', 'capture', 'clipboard', 'media'] as const)('renders capture controls for %s page', (page) => {
+  it.each(['window', 'display', 'clipboard', 'media'] as const)('renders capture controls for %s page', (page) => {
     resetState([page, false]);
     const tree = ShortcutSettingsSection(makeProps());
     expect(elements(tree).filter((n) => n.type === 'input').length).toBeGreaterThan(0);

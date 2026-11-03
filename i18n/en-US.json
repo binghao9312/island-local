@@ -28,25 +28,6 @@
       "close": "Close"
     }
   },
-  "capture": {
-    "source": {
-      "plugin": "Using plugin",
-      "js": "Using JS"
-    },
-    "tools": {
-      "select": "Select",
-      "mosaic": "Mosaic",
-      "line": "Line",
-      "rect": "Rectangle",
-      "pen": "Pen",
-      "undo": "Undo",
-      "color": "Color",
-      "size": "Size",
-      "save": "Save",
-      "cancel": "Cancel",
-      "done": "Done"
-    }
-  },
   "guide": {
     "actions": {
       "skip": "Skip Guide",
@@ -313,7 +294,6 @@
           "toggleIsland": "Hide/Show",
           "quitIsland": "Quit eIsland",
           "resetPosition": "Reset position shortcut",
-          "screenshot": "Area screenshot",
           "switchSong": "Switch song"
         }
       }
@@ -459,7 +439,6 @@
     },
     "tools": {
       "timer": "Timer",
-      "screenshot": "Screenshot",
       "taskManager": "Task Manager",
       "pomodoro": "Pomodoro"
     },
@@ -2693,7 +2672,6 @@
       "notification": "Notification Settings",
       "performance": "Performance Settings",
       "performance-monitor": "Performance Monitor",
-      "screenshot-settings": "Screenshot Settings",
       "network": "Network",
       "mail": "Mail",
       "google": "Google account",
@@ -2884,14 +2862,6 @@
           "memory": "Memory",
           "disk": "Disk"
         }
-      },
-      "screenshotSettings": {
-        "title": "Screenshot Settings",
-        "hint": "Configure screenshot related settings.",
-        "engineTitle": "Screenshot Engine",
-        "engineHint": "Choose the engine for screenshots. Plugin mode supports multi-monitor capture, JS mode has better compatibility.",
-        "enginePlugin": "Plugin Mode",
-        "engineJs": "JS Mode"
       },
       "notifications": {
         "configChanged": {
@@ -3229,11 +3199,6 @@
         "windowModeHint": "When enabled, Todo, Countdown, and Settings open in a standalone window instead of inside the Dynamic Island",
         "integratedMode": "Embedded in Dynamic Island",
         "standaloneMode": "Standalone window",
-        "hoverScreenshotModeTitle": "Hover screenshot button mode",
-        "hoverScreenshotModeHint": "Configure hover screenshot button to trigger area screenshot or display screenshot",
-        "hoverScreenshotModeLabel": "Screenshot mode",
-        "hoverScreenshotModeRegion": "Area screenshot",
-        "hoverScreenshotModeDisplay": "Display screenshot",
         "shapeModeTitle": "Island Shape",
         "shapeModeHint": "Switch the island's appearance: Notch pins to the top of the screen, Pill is an oval floating shape",
         "shapeModeNotch": "Notch",
@@ -3609,7 +3574,6 @@
       "pages": {
         "window": "Window Control",
         "display": "Display Mode",
-        "capture": "Capture",
         "clipboard": "Clipboard",
         "media": "Media Control"
       },
@@ -3656,12 +3620,6 @@
         "toggleShapeMode": {
           "title": "Toggle Shape Mode Shortcut",
           "hint": "Press to quickly switch between Notch and Pill shape modes"
-        }
-      },
-      "capture": {
-        "screenshot": {
-          "title": "Area Screenshot Shortcut",
-          "hint": "Press to start area screenshot flow"
         }
       },
       "media": {
@@ -4427,10 +4385,6 @@
         "label": "Performance Monitor",
         "desc": "Configure performance monitor display and hardware status."
       },
-      "screenshot-settings": {
-        "label": "Screenshot Settings",
-        "desc": "Configure screenshot related settings."
-      },
       "network": {
         "label": "Network",
         "desc": "Request timeout and network behavior settings"
@@ -4449,7 +4403,7 @@
       },
       "shortcut": {
         "label": "Shortcuts",
-        "desc": "Hide, quit, and screenshot hotkeys"
+        "desc": "Hide and quit hotkeys"
       },
       "update": {
         "label": "Updates",

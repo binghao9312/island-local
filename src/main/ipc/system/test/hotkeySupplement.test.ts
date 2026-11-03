@@ -35,12 +35,11 @@ const mocks = vi.hoisted(() => ({
 vi.mock('electron', () => ({ ipcMain: { handle: mocks.handle } }));
 vi.mock('fs', () => ({ writeFileSync: mocks.write }));
 const handlers = new Map<string, Handler>();
-const names = ["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough","ToggleUiLock","ToggleShapeMode"] as const;
-const rows = [["Hide","hotkey",["Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","ToggleUiLock"]],["OpenClipboardHistory","open-clipboard-history-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow"]],["ShowSettingsWindow","show-settings-window-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","OpenClipboardHistory"]],["NextSong","next-song-hotkey",["Hide","Quit","Screenshot","ResetPosition","PlayPauseSong","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["PlayPauseSong","play-pause-song-hotkey",["Hide","Quit","Screenshot","ResetPosition","NextSong","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["ResetPosition","reset-position-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["Quit","quit-hotkey",["Hide","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow"]],["ToggleTray","toggle-tray-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ShowSettingsWindow","OpenClipboardHistory"]],["TogglePassthrough","toggle-passthrough-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["ToggleUiLock","toggle-ui-lock-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough"]],["ToggleShapeMode","toggle-shape-mode-hotkey",["Hide","Quit","Screenshot","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough","ToggleUiLock"]]] as const;
+const names = ["Hide","Quit","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough","ToggleUiLock","ToggleShapeMode"] as const;
+const rows = [["Hide","hotkey",["Quit","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","ToggleUiLock"]],["OpenClipboardHistory","open-clipboard-history-hotkey",["Hide","Quit","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow"]],["ShowSettingsWindow","show-settings-window-hotkey",["Hide","Quit","NextSong","PlayPauseSong","ResetPosition","ToggleTray","OpenClipboardHistory"]],["NextSong","next-song-hotkey",["Hide","Quit","ResetPosition","PlayPauseSong","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["PlayPauseSong","play-pause-song-hotkey",["Hide","Quit","ResetPosition","NextSong","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["ResetPosition","reset-position-hotkey",["Hide","Quit","NextSong","PlayPauseSong","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["Quit","quit-hotkey",["Hide","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow"]],["ToggleTray","toggle-tray-hotkey",["Hide","Quit","NextSong","PlayPauseSong","ResetPosition","ShowSettingsWindow","OpenClipboardHistory"]],["TogglePassthrough","toggle-passthrough-hotkey",["Hide","Quit","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory"]],["ToggleUiLock","toggle-ui-lock-hotkey",["Hide","Quit","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough"]],["ToggleShapeMode","toggle-shape-mode-hotkey",["Hide","Quit","NextSong","PlayPauseSong","ResetPosition","ToggleTray","ShowSettingsWindow","OpenClipboardHistory","TogglePassthrough","ToggleUiLock"]]] as const;
 const current = {
   Hide: vi.fn(() => ''),
   Quit: vi.fn(() => ''),
-  Screenshot: vi.fn(() => ''),
   NextSong: vi.fn(() => ''),
   PlayPauseSong: vi.fn(() => ''),
   ResetPosition: vi.fn(() => ''),
@@ -54,7 +53,6 @@ const current = {
 const stored = {
   Hide: vi.fn(() => ''),
   Quit: vi.fn(() => ''),
-  Screenshot: vi.fn(() => ''),
   NextSong: vi.fn(() => ''),
   PlayPauseSong: vi.fn(() => ''),
   ResetPosition: vi.fn(() => ''),
@@ -85,8 +83,6 @@ const options = {
   readHideHotkeyConfig: stored.Hide,
   getCurrentQuitHotkey: current.Quit,
   readQuitHotkeyConfig: stored.Quit,
-  getCurrentScreenshotHotkey: current.Screenshot,
-  readScreenshotHotkeyConfig: stored.Screenshot,
   getCurrentNextSongHotkey: current.NextSong,
   readNextSongHotkeyConfig: stored.NextSong,
   getCurrentPlayPauseSongHotkey: current.PlayPauseSong,
