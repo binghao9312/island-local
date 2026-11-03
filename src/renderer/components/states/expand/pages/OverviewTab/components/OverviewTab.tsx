@@ -83,8 +83,7 @@ export function OverviewTab(): ReactElement {
   const { dominantColor } = useIslandStore(useShallow((store) => ({ dominantColor: store.dominantColor })));
   const { clockStyle: dynamicClockStyle } = buildOverviewClockStyle(clockConfig, dominantColor);
   const gradientClockVars = buildGradientClockVars(layoutConfig);
-  const showSeconds = clockConfig.showSeconds || layoutConfig.clockStyle !== 'minimal';
-  const timeText = formatOverviewTime(now, clockConfig.is24Hour, showSeconds);
+  const timeText = formatOverviewTime(now, clockConfig.is24Hour, clockConfig.showSeconds);
   const dateText = formatOverviewDate(now, clockConfig.dateFormat, t);
   /**
    * 渲染控件

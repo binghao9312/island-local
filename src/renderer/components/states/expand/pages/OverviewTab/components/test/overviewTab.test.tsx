@@ -118,7 +118,7 @@ describe('OverviewTab', () => {
     const cleanup = await boot();
     const tree = render(OverviewTab);
     expect(value(tree, '.ov-dash-time', 'className')).toContain(`--${  clockStyle}`);
-    expect(text(nodes(tree, '.ov-dash-clock')).split(':')).toHaveLength(clockStyle === 'minimal' ? 2 : 3);
+    expect(text(nodes(tree, '.ov-dash-clock')).split(':')).toHaveLength(2);
     expect(nodes(tree, '.ov-dash-yiji')).toHaveLength(0);
     expect(nodes(tree, '.ov-dash-lunar')).toHaveLength(0);
     expect(value(tree, '.ov-dash-time', 'style')).toEqual(clockStyle === 'classic' ? undefined : {

@@ -193,7 +193,7 @@ describe('OverviewTab 真实状态与控件集成', () => {
   it('实际时钟更新及真实子组件回调编辑并持久化待办', async () => {
     let root = await commit();
     const firstTime = text(byClass(root, 'ov-dash-clock'));
-    vi.advanceTimersByTime(1000);
+    vi.advanceTimersByTime(60_000);
     expect(text(byClass(view(), 'ov-dash-clock'))).not.toBe(firstTime);
     let todo = find(root, (node) => node.type === TodoWidget);
     invoke(todo, 'onToggleExpand', 1);
